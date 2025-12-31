@@ -19,6 +19,7 @@ export class MessengerComponent {
   chatList: Chat[] = [
     new Chat(2, 'username', 'hi')
   ]
+  showSearch  = true;
 
   insertTag(tag: string) {
     const textarea = this.messageField.nativeElement;
@@ -44,4 +45,9 @@ export class MessengerComponent {
 
   handleSend() {}
   selectUser(chat: Chat) {}
+  toggleSearch() {}
+  onSearch(event: Event) {
+
+  }
+  highlightMatch(text: string) {return text}
 }

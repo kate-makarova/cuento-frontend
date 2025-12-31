@@ -1,0 +1,69 @@
+/* Minimal User Info Style */
+.user-minimal-info {
+  display: flex;
+  gap: 20px;
+  padding: 15px;
+  align-items: center;
+}
+
+.user-avatar img {
+  width: 100px;
+  height: 100px;
+  border: 1px solid #3e5c3e;
+  padding: 2px;
+  background: #000;
+}
+
+/* Character Grid Layout */
+.character-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 10px;
+  padding: 10px;
+}
+
+.char-card {
+  display: flex;
+  gap: 15px;
+  padding: 10px;
+  border: 1px solid #3e5c3e !important;
+  background: rgb(228, 240, 234); !important;
+}
+
+.char-avatar img {
+  width: 80px;
+  height: 80px;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 1px solid #000;
+}
+
+.char-info {
+  flex: 1;
+}
+
+.char-info h3 {
+  color: #4ade80;
+  margin-bottom: 5px;
+  border-bottom: 1px solid #3e5c3e;
+}
+
+.char-bio p {
+  font-size: 0.9em;
+  font-style: italic;
+  color: #333;
+  margin: 5px 0;
+  line-height: 1.4;
+}
+
+.char-fields {
+  list-style: none;
+  padding: 0;
+  font-size: 0.85em;
+}
+
+.add-char-link {
+  cursor: pointer;
+  color: #4ade80;
+  text-decoration: underline;
+}

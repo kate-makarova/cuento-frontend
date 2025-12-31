@@ -1,0 +1,58 @@
+<div id="pun-main" class="main">
+  <div class="main-header">
+    <h1><span>Профиль пользователя {{ user.username }}</span></h1>
+  </div>
+
+  <div class="category">
+    <div class="maintitle">
+      <p>Основная информация</p>
+    </div>
+    <div class="main-content">
+      <div class="main-item user-minimal-info">
+        <div class="user-avatar">
+          <img [src]="user.avatar" alt="Avatar">
+        </div>
+        <div class="user-details">
+          <p><strong>Имя пользователя:</strong> {{ user.username }}</p>
+          <p><strong>Дата регистрации:</strong> {{ user.registrationDate }}</p>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="category character-section">
+    <div class="maintitle">
+      <p class="conl">Персонажи ({{ characters.length }})</p>
+      @if (isOwnProfile) {
+        <p class="conr"><a (click)="addCharacter()" class="add-char-link">+ Добавить персонажа</a></p>
+      }
+      <div class="clearer"></div>
+    </div>
+
+    <div class="main-content character-grid">
+      @for (char of characters; track char.id) {
+        <div class="main-item char-card">
+          <div class="char-avatar">
+            <img [src]="char.avatar" alt="Char Avatar">
+          </div>
+          <div class="char-info">
+            <h3>{{ char.name }}</h3>
+            <div class="char-bio">
+              <p>{{ char.bio }}</p>
+            </div>
+            <ul class="char-fields">
+              <li><strong>Раса:</strong> {{ char.race }}</li>
+              <li><strong>Статус:</strong> {{ char.status }}</li>
+            </ul>
+          </div>
+          <div class="clearer"></div>
+        </div>
+      } @empty {
+        <div class="main-item">
+          <p>У данного пользователя пока нет созданных персонажей.</p>
+        </div>
+      }
+    </div>
+  </div>
+</div>
