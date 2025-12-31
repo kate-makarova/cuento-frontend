@@ -1,0 +1,86 @@
+<div id="pun-main" class="main">
+  <div class="main-header">
+    <h1><span>Личные сообщения</span></h1>
+  </div>
+
+  <div class="category">
+    <div class="maintitle">
+      <p class="conl">Диалог с: <strong>{{ activeUser?.username || 'Выберите собеседника' }}</strong></p>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="main-content messenger-grid">
+
+      <div class="messenger-sidebar">
+        <div class="main-item">
+          @for (chat of chatList; track chat.id) {
+            <div class="contact-card" [class.active]="chat.id === activeUser?.id" (click)="selectUser(chat)">
+              <div class="avatar-mini">
+              </div>
+              <div class="contact-info">
+                <span class="username">{{ chat.userName }}</span>
+                <span class="last-preview">{{ chat.lastMessage }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="messenger-history">
+        <div class="history-scroll" #scrollContainer>
+          @for (msg of messages; track msg.id; let even = $even) {
+            <div class="post" [class.altstyle]="msg.isMe">
+              <div class="container">
+                <div class="post-main">
+                  <div class="post-body">
+                    <div class="post-box">
+                      <div class="post-content">
+                        <p>{{ msg.text }}</p>
+                      </div>
+                    </div>
+                    <div class="post-metadata">{{ msg.time }}</div>
+                  </div>
+                  @if (msg.isMe) {
+                    <div class="post-author">
+                      <ul><li class="pa-avatar"><img src="src/assets/my-avatar.png" alt=""></li></ul>
+                    </div>
+                  }
+                  <div class="clearer"></div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="messenger-editor">
+          <div class="messenger-input-area">
+            <div class="main-item">
+              <div id="post-btns-compact">
+                <button (click)="insertTag('b')" title="Bold"><i class="bi bi-type-bold"></i></button>
+                <button (click)="insertTag('i')" title="Italic"><i class="bi bi-type-italic"></i></button>
+                <button (click)="insertTag('quote')" title="Quote"><i class="bi bi-quote"></i></button>
+              </div>
+
+              <div class="input-wrapper">
+      <textarea
+        #chatInput
+        rows="2"
+        placeholder="Введите сообщение..."
+        (keydown.enter)="$event.preventDefault(); handleSend()">
+      </textarea>
+
+                <div class="send-button-wrap">
+                  <button class="button" (click)="handleSend()">
+                    <span>Отправить</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="main-footer"></div>
+</div>

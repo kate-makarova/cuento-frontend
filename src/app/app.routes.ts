@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import {HomeComponent} from './home/home.component';
 import {ViewforumComponent} from './viewforum/viewforum.component';
 import {ViewtopicComponent} from './viewtopic/viewtopic.component';
+import {MessengerComponent} from './messenger/messenger.component';
 
 export const routes: Routes = [
   {
@@ -9,6 +10,11 @@ export const routes: Routes = [
     component: HomeComponent,
     title: 'Home page',
     data: { pageId: 'pun-index' }
+  },
+  {
+    path: 'messenger',
+    component: MessengerComponent,
+    data: { pageId: 'pun-messenger' }
   },
   {
     path: 'viewforum/:id',
