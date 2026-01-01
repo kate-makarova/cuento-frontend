@@ -1,9 +1,10 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {ActivatedRoute, NavigationEnd, Router, RouterOutlet} from '@angular/router';
 import {FooterComponent} from './footer/footer.component';
 import {NavlinksComponent} from './navlinks/navlinks.component';
 import {filter, map, mergeMap} from 'rxjs';
 import {ToastComponent} from './components/toast/toast.component';
+import {BoardService} from './services/board.service';
 
 @Component({
   selector: 'app-root',
@@ -11,11 +12,12 @@ import {ToastComponent} from './components/toast/toast.component';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
   title = 'dunebb';
   pageId = 'pun-main';
+  boardService = inject(BoardService);
 
   constructor() {
     this.router.events.pipe(
@@ -32,5 +34,9 @@ export class AppComponent {
       // Update the pageId based on the route data
       this.pageId = data['pageId'] || 'pun-index';
     });
+  }
+
+  ngOnInit() {
+    this.boardService.loadBoard();
   }
 }

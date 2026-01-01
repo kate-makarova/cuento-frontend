@@ -1,5 +1,6 @@
 <div id="pun-main" class="main">
     <div class="main-header"></div>
+  @for (category of categoryService.homeCategories; track category.id) {
     <div id="idx1" class="category">
       <div class="maintitle">
         <h2><span>Категория 1</span></h2>
@@ -35,6 +36,7 @@
         </div>
       </div>
     </div>
+  }
 
     <div id="pun-statistics" class="main-item">
       <div class="maintitle">
