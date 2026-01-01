@@ -25,6 +25,7 @@ char: Character = new Character(
 );
 isOwner: boolean = true;
 recentTopics: Topic[] = [
-  new Topic(1, 'Episode 1', 'ttt', '2025-12-12', '2025-12-12')
+  new Topic(1, 'Episode 1', 'ttt', 1,
+    '2025-12-12', '2025-12-12')
 ];
 }
