@@ -1,0 +1,97 @@
+.char-sheet-layout {
+  display: flex;
+  gap: 30px;
+  padding: 20px;
+}
+
+/* Portrait Section */
+.char-portrait {
+  width: 250px;
+  flex-shrink: 0;
+}
+
+.portrait-frame img {
+  width: 100%;
+  border: 2px solid #3e5c3e;
+  padding: 4px;
+  background: #000;
+}
+
+.char-meta-sidebar {
+  margin-top: 15px;
+  font-size: 0.9em;
+  color: #ccc;
+  line-height: 1.6;
+}
+
+.pm-button {
+  margin-top: 10px;
+  width: 100%;
+}
+
+/* Data Section */
+.char-data {
+  flex: 1;
+}
+
+.char-name-title {
+  font-size: 2em;
+  color: #4ade80;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #3e5c3e;
+  padding-bottom: 10px;
+}
+
+.char-fields-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.field-item {
+  background: #1a2e1a;
+  padding: 8px 12px;
+  border-left: 3px solid #4ade80;
+}
+
+.field-item .label {
+  display: block;
+  font-size: 0.8em;
+  color: #4ade80;
+  text-transform: uppercase;
+}
+
+.field-item .value {
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.char-biography h3 {
+  color: #4ade80;
+  border-bottom: 1px solid #000;
+  margin-bottom: 10px;
+}
+
+.bio-text {
+  line-height: 1.8;
+  color: #e0e0e0;
+  white-space: pre-wrap; /* Preserves line breaks from the textarea */
+}
+
+/* Activity Table */
+.char-activity-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.char-activity-table th, .char-activity-table td {
+  padding: 10px;
+  border: 1px solid #000;
+  text-align: left;
+}
+
+.char-activity-table th {
+  background: #1a2e1a;
+  color: #4ade80;
+}

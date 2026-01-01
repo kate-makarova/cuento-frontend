@@ -1,0 +1,53 @@
+.formal fieldset {
+  border: 1px solid #3e5c3e;
+  margin-bottom: 15px;
+}
+
+.formal legend {
+  color: #4ade80;
+  padding: 0 10px;
+  font-weight: bold;
+}
+
+.fs-box {
+  padding: 15px;
+}
+
+.inform {
+  padding-bottom: 10px;
+  border-bottom: 1px solid #000;
+  margin-bottom: 15px;
+  font-size: 0.85em;
+  color: #999;
+}
+
+.input-row {
+  margin-bottom: 12px;
+}
+
+.input-row label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #ccc;
+}
+
+.input-row input[type="text"],
+.input-row input[type="url"],
+textarea {
+  width: 100%;
+  border: 1px solid #3e5c3e;
+  color: #ccc;
+  padding: 6px;
+  box-sizing: border-box;
+}
+
+textarea:focus, input:focus {
+  border-color: #4ade80;
+  outline: none;
+}
+
+.buttons {
+  padding: 10px;
+  text-align: center;
+}

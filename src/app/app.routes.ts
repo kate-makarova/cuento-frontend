@@ -4,6 +4,8 @@ import {ViewforumComponent} from './viewforum/viewforum.component';
 import {ViewtopicComponent} from './viewtopic/viewtopic.component';
 import {MessengerComponent} from './messenger/messenger.component';
 import {UserProfileComponent} from './user-profile/user-profile.component';
+import {CharacterSheetComponent} from './character-sheet/character-sheet.component';
+import {CharacterviewComponent} from './characterview/characterview.component';
 
 export const routes: Routes = [
   {
@@ -33,5 +35,17 @@ export const routes: Routes = [
     component: UserProfileComponent,
     title: 'User Profile',
     data: { pageId: 'pun-profile' }
+  },
+  {
+    path: 'character/:id',
+    component: CharacterviewComponent,
+    title: 'Character',
+    data: { pageId: 'pun-character' }
+  },
+  {
+    path: 'character-sheet/new',
+    component: CharacterSheetComponent,
+    title: 'New Character Sheet',
+    data: { pageId: 'pun-character-sheet' }
   },
 ];

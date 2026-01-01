@@ -1,0 +1,78 @@
+<div id="pun-main" class="main character-view">
+  <div class="main-header">
+    <h1><span>Профиль персонажа: {{ char.name }}</span></h1>
+  </div>
+
+  <div class="category">
+    <div class="maintitle">
+      <p class="conl">Личное дело №{{ char.id }}</p>
+      @if (isOwner) {
+        <p class="conr"><a [routerLink]="['/edit-character', char.id]">Редактировать</a></p>
+      }
+      <div class="clearer"></div>
+    </div>
+
+    <div class="main-content char-sheet-wrapper">
+      <div class="main-item">
+
+        <div class="char-sheet-layout">
+          <div class="char-portrait">
+            <div class="portrait-frame">
+              <img [src]="char.image" [alt]="char.name">
+            </div>
+            <div class="char-meta-sidebar">
+              <p><strong>Игрок:</strong> <a href="#">{{ char.user.username }}</a></p>
+              <p><strong>Дата создания:</strong> {{ char.createdAt }}</p>
+              <button class="button pm-button"><span>Написать игроку</span></button>
+            </div>
+          </div>
+
+          <div class="char-data">
+            <h2 class="char-name-title">{{ char.name }}</h2>
+
+            <div class="char-fields-grid">
+              <div class="field-item">
+                <span class="label">Раса:</span>
+                <span class="value">{{ char.race }}</span>
+              </div>
+              <div class="field-item">
+                <span class="label">Статус:</span>
+                <span class="value">{{ char.status }}</span>
+              </div>
+            </div>
+
+            <div class="char-biography">
+              <h3>Биография и описание</h3>
+              <div class="bio-text">
+                {{ char.bio }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="category">
+    <div class="maintitle">Последние игры с участием {{ char.name }}</div>
+    <div class="main-content">
+      <table cellspacing="0" class="char-activity-table">
+        <thead>
+        <tr>
+          <th class="tcl">Тема</th>
+          <th class="tc2">Дата</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (topic of recentTopics; track topic.id) {
+            <tr>
+              <td class="tcl"><a href="#">{{ topic.name }}</a></td>
+              <td class="tc2">{{ topic.lastPostDate }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
