@@ -3,10 +3,11 @@ import {ActivatedRoute, NavigationEnd, Router, RouterOutlet} from '@angular/rout
 import {FooterComponent} from './footer/footer.component';
 import {NavlinksComponent} from './navlinks/navlinks.component';
 import {filter, map, mergeMap} from 'rxjs';
+import {ToastComponent} from './components/toast/toast.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, FooterComponent, NavlinksComponent],
+  imports: [RouterOutlet, FooterComponent, NavlinksComponent, ToastComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

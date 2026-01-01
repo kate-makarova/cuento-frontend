@@ -1,0 +1,72 @@
+.toast-overlay {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toast-item {
+  width: 280px;
+  background: rgba(10, 20, 10, 0.95); /* Semi-transparent dark green */
+  border: 1px solid #3e5c3e;
+  color: #fff;
+  display: flex;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+  animation: slideInRight 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+.toast-side-accent {
+  width: 4px;
+  background: #4ade80; /* Glow green */
+  box-shadow: 0 0 10px #4ade80;
+}
+
+.game-update .toast-side-accent {
+  background: #facc15; /* Yellow accent for game-specific alerts */
+  box-shadow: 0 0 10px #facc15;
+}
+
+.toast-main {
+  padding: 10px;
+  flex: 1;
+}
+
+.toast-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 5px;
+  color: #4ade80;
+}
+
+.toast-sender {
+  font-weight: bold;
+  color: #fff;
+  margin-right: 5px;
+}
+
+.toast-text {
+  color: #ccc;
+  font-size: 13px;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  color: #3e5c3e;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.toast-close:hover { color: #fff; }
+
+@keyframes slideInRight {
+  0% { transform: translateX(100%); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
