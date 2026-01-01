@@ -1,18 +1,27 @@
-import { Injectable, signal, inject } from '@angular/core';
+import {Injectable, signal} from '@angular/core';
 import {Category} from '../models/Category';
 import {delay, of} from 'rxjs';
 import {Subforum} from '../models/Subforum';
-import {BoardService} from './board.service';
 
 @Injectable({ providedIn: 'root' })
 export class CategoryService {
   private homeCategoriesSignal = signal<Category[]>([]);
   readonly homeCategories = this.homeCategoriesSignal.asReadonly();
-  boardService =  inject(BoardService);
+
+  // constructor() {
+  //   // Whenever boardSignal in BoardService updates, this effect triggers automatically
+  //   effect(() => {
+  //     const currentBoard = this.boardService.board;
+  //
+  //     // Don't fetch data if the board isn't truly loaded yet
+  //     if (currentBoard.domainName !== '') {
+  //       this.loadHomeCategories(currentBoard.);
+  //     }
+  //   }, { allowSignalWrites: true });
+  // }
 
 
   loadHomeCategories() {
-    const board = this.boardService.board;
     const data = [
       new Category(1, 'Guest Book', 1, [
         new Subforum(1, 'Guest Book', 'Guest book', 1, 1)

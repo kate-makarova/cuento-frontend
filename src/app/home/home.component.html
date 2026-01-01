@@ -1,9 +1,9 @@
 <div id="pun-main" class="main">
     <div class="main-header"></div>
-  @for (category of categoryService.homeCategories; track category.id) {
+  @for (category of categoryService.homeCategories(); track category.id) {
     <div id="idx1" class="category">
       <div class="maintitle">
-        <h2><span>Категория 1</span></h2>
+        <h2><span>{{category.name}}</span></h2>
       </div>
       <div class="main-content">
         <div class="main-item">
@@ -17,13 +17,15 @@
             </tr>
             </thead>
             <tbody>
+            @for (subforum of category.subforums; track subforum.id)
+            {
             <tr class="rowodd">
               <td class="tcl">
                 <div class="intd">
                   <div class="icon"></div>
                   <div class="tclcon">
-                    <h3><a routerLink="/viewforum/1">Тестовый форум</a></h3>
-                    <div class="forumdesc">Описание тестового форума.</div>
+                    <h3><a routerLink="/viewforum/{{subforum.id}}">{{subforum.name}}</a></h3>
+                    <div class="forumdesc">{{subforum.description}}</div>
                   </div>
                 </div>
               </td>
@@ -31,6 +33,7 @@
               <td class="tc3">0</td>
               <td class="tcr"><span>Нет сообщений</span></td>
             </tr>
+            }
             </tbody>
           </table>
         </div>
