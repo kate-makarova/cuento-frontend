@@ -41,8 +41,8 @@ export class TopicService {
     );
 
     topic.posts = [
-      new Post(1, topic.id, userProfile, 'Message', '2025-12-12', characterProfile),
-      new Post(2, topic.id, userProfile, 'Message 2', '2025-12-12', characterProfile),
+      new Post(1, topic.id, userProfile, 'Message', '2025-12-12', characterProfile, true),
+      new Post(2, topic.id, userProfile, 'Message 2', '2025-12-12'),
     ]
     of(topic).pipe(delay(500)).subscribe(data => {
       this.topicSignal.set(topic);

@@ -1,6 +1,6 @@
 <div id="pun-main" class="main">
   <div class="main-header">
-    <h1><span>Заголовок темы: Добро пожаловать!</span></h1>
+    <h1><span>{{ topicService.topic().name }}</span></h1>
   </div>
 
   <div class="linkst">
@@ -11,24 +11,37 @@
     </div>
   </div>
 
-  <div id="p21" class="post">
+  @for(post of topicService.topic().posts; track post.id; let i = $index; let isEven = $even) {
+  <div id="{{post.id}}" class="post" [class.altstyle]="isEven">
+    <h3>
+      <span>
+        <a class="sharelink" rel="nofollow" href="#p{{ post.id }}" onclick="return false;" title="">Поделиться</a>
+        <strong>{{ i + 1 }}</strong>
+        <a class="permalink" rel="nofollow"
+           href="https://viperstest.rusff.me/viewtopic.php?id=16#p358">{{ post.createdAt }}</a></span></h3>
     <div class="container">
-      <div class="post-header">
-        <span class="conr">#1</span>
-        <a href="/viewtopic.php?pid=21#p21">2025-12-30 14:20:05</a>
-      </div>
       <div class="post-main">
-        <div class="post-author">
-          <ul>
-            <li class="pa-author"><a href="/profile.php?id=2">Admin</a></li>
-            <li class="pa-title">Администратор</li>
-            <li class="pa-avatar"><img src="https://forum.mybb.ru/i/avatars/00/00/00/01.png" alt="Аватар" /></li>
-          </ul>
-        </div>
+        @if(post.useCharacterProfile && post.authorCharacterProfile !== null) {
+          <div class="post-author post-character">
+            <ul>
+              <li class="pa-author"><a routerLink="/character/{{ post.authorCharacterProfile.id }}">{{ post.authorCharacterProfile.name }}</a></li>
+              <li class="pa-avatar"><img src="{{ post.authorCharacterProfile.image }}" alt="Аватар" /></li>
+              <li class="pa-fld1">{{ post.authorCharacterProfile.description }}</li>
+            </ul>
+          </div>
+        } @else {
+          <div class="post-author">
+            <ul>
+              <li class="pa-author"><a href="/profile/{{ post.authorUserProfile.id }}">{{ post.authorUserProfile.userName }}</a></li>
+              <li class="pa-avatar"><img src="{{ post.authorUserProfile.avatar }}" alt="Аватар" /></li>
+            </ul>
+          </div>
+        }
+
         <div class="post-body">
           <div class="post-box">
             <div class="post-content">
-              <p>Текст первого сообщения. Добро пожаловать на наш новый форум!</p>
+              {{ post.message }}
             </div>
           </div>
         </div>
@@ -36,7 +49,7 @@
       </div>
       <div class="post-footer">
         <div class="conl">
-          <p class="post-contacts"><span><a href="/profile.php?id=2">Профиль</a></span></p>
+          <p class="post-contacts"><span><a href="/profile/{{ post.authorUserProfile.id }}">Профиль</a></span></p>
         </div>
         <div class="conr">
           <p class="post-links"><span><a href="/post.php?tid=8&amp;qid=21">Цитировать</a></span></p>
@@ -45,40 +58,41 @@
       </div>
     </div>
   </div>
+  }
 
-  <div id="p22" class="post altstyle">
-    <div class="container">
-      <div class="post-header">
-        <span class="conr">#2</span>
-        <a href="/viewtopic.php?pid=22#p22">2025-12-30 14:25:10</a>
-      </div>
-      <div class="post-main">
-        <div class="post-author">
-          <ul>
-            <li class="pa-author"><a href="/profile.php?id=3">User</a></li>
-            <li class="pa-title">Участник</li>
-          </ul>
-        </div>
-        <div class="post-body">
-          <div class="post-box">
-            <div class="post-content">
-              <p>Спасибо! Рад быть здесь.</p>
-            </div>
-          </div>
-        </div>
-        <div class="clearer"></div>
-      </div>
-      <div class="post-footer">
-        <div class="conl">
-          <p class="post-contacts"><span><a href="/profile.php?id=3">Профиль</a></span></p>
-        </div>
-        <div class="conr">
-          <p class="post-links"><span><a href="/post.php?tid=8&amp;qid=22">Цитировать</a></span></p>
-        </div>
-        <div class="clearer"></div>
-      </div>
-    </div>
-  </div>
+<!--  <div id="p22" class="post altstyle">-->
+<!--    <div class="container">-->
+<!--      <div class="post-header">-->
+<!--        <span class="conr">#2</span>-->
+<!--        <a href="/viewtopic.php?pid=22#p22">2025-12-30 14:25:10</a>-->
+<!--      </div>-->
+<!--      <div class="post-main">-->
+<!--        <div class="post-author">-->
+<!--          <ul>-->
+<!--            <li class="pa-author"><a href="/profile.php?id=3">User</a></li>-->
+<!--            <li class="pa-title">Участник</li>-->
+<!--          </ul>-->
+<!--        </div>-->
+<!--        <div class="post-body">-->
+<!--          <div class="post-box">-->
+<!--            <div class="post-content">-->
+<!--              <p>Спасибо! Рад быть здесь.</p>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--        <div class="clearer"></div>-->
+<!--      </div>-->
+<!--      <div class="post-footer">-->
+<!--        <div class="conl">-->
+<!--          <p class="post-contacts"><span><a href="/profile.php?id=3">Профиль</a></span></p>-->
+<!--        </div>-->
+<!--        <div class="conr">-->
+<!--          <p class="post-links"><span><a href="/post.php?tid=8&amp;qid=22">Цитировать</a></span></p>-->
+<!--        </div>-->
+<!--        <div class="clearer"></div>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </div>-->
 
   <div class="linksb">
     <div class="inbox">
