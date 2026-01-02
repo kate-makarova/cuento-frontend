@@ -3,11 +3,18 @@ import {Character} from '../models/Character';
 import {User} from '../models/User';
 import {RouterLink} from '@angular/router';
 import {Topic} from '../models/Topic';
+import {UserShort} from '../models/UserShort';
+import {LongTextFieldDisplayComponent} from '../components/long-text-field-display/long-text-field-display.component';
+import {
+  ShortTextFieldDisplayComponent
+} from '../components/short-text-field-display/short-text-field-display.component';
 
 @Component({
   selector: 'app-characterview',
   imports: [
-    RouterLink
+    RouterLink,
+    LongTextFieldDisplayComponent,
+    ShortTextFieldDisplayComponent
   ],
   templateUrl: './characterview.component.html',
   styleUrl: './characterview.component.css'
@@ -19,9 +26,7 @@ char: Character = new Character(
     '',
     'elf',
     'shooting',
-    'Typical elf bio',
-  '2025-12-12',
-  new User(1, 'Username', 'user@test.com', '')
+  new UserShort(1, 'Username',  '')
 );
 isOwner: boolean = true;
 recentTopics: Topic[] = [

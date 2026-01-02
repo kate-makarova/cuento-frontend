@@ -21,7 +21,7 @@
               <img [src]="char.image" [alt]="char.name">
             </div>
             <div class="char-meta-sidebar">
-              <p><strong>Игрок:</strong> <a href="#">{{ char.user.username }}</a></p>
+              <p><strong>Игрок:</strong> <a href="#">{{ char.user.userName }}</a></p>
               <p><strong>Дата создания:</strong> {{ char.createdAt }}</p>
               <button class="button pm-button"><span>Написать игроку</span></button>
             </div>
@@ -30,22 +30,41 @@
           <div class="char-data">
             <h2 class="char-name-title">{{ char.name }}</h2>
 
-            <div class="char-fields-grid">
-              <div class="field-item">
-                <span class="label">Раса:</span>
-                <span class="value">{{ char.race }}</span>
+            @if (char.group) {
+              <div class="char-group-path">
+                <span class="group-label">Фракция:</span>
+                <span class="group-item main-group">{{ char.group }}</span>
+
+                @if (char.subgroup) {
+                  <span class="group-separator">»</span>
+                  <span class="group-item">{{ char.subgroup }}</span>
+                }
+
+                @if (char.subsubgroup) {
+                  <span class="group-separator">»</span>
+                  <span class="group-item">{{ char.subsubgroup }}</span>
+                }
               </div>
-              <div class="field-item">
-                <span class="label">Статус:</span>
-                <span class="value">{{ char.status }}</span>
-              </div>
-            </div>
+            }
 
             <div class="char-biography">
-              <h3>Биография и описание</h3>
-              <div class="bio-text">
-                {{ char.bio }}
+              <h3>Информация</h3>
+              @for(field of char.customFields; track field.fieldMachineName) {
+              <div class="field">
+                @switch (field.type) {
+                  @case('short_text') {
+                    <app-short-text-field-display [fieldName]="field.fieldName" [fieldValue]="field.fieldValue" ></app-short-text-field-display>
+                  }
+                  @case('long_text') {
+                    <app-long-text-field-display
+                      [fieldMachineName]="field.fieldMachineName"
+                      [showFieldName]="field.showFieldName"
+                      [fieldName]="field.fieldName"
+                      [fieldValue]="field.fieldValue" ></app-long-text-field-display>
+                  }
+                }
               </div>
+              }
             </div>
           </div>
         </div>

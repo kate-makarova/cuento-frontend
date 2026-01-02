@@ -1,25 +1,31 @@
-import {User} from './User';
+import {UserShort} from './UserShort';
+import {Field} from './Field';
 
 export class Character {
   id: number;
   name: string;
   image: string;
-  race: string;
   status: string;
-  bio: string;
   createdAt: string;
-  user: User;
+  user: UserShort;
+  group: string|null;
+  subgroup: string|null;
+  subsubgroup: string|null;
+  customFields: Field[] = [];
 
-  constructor(id: number, name: string, image: string,
-              race: string, status: string, bio: string,
-              createdAt: string, user: User) {
+  constructor(id: number, name: string, image: string, status: string,
+              createdAt: string, user: UserShort,
+              group: string|null = null, subgroup: string|null = null,
+              subsubgroup: string|null = null, customFields: Field[] = []) {
     this.id = id;
     this.name = name;
     this.image = image;
-    this.race = race;
     this.status = status;
-    this.bio = bio;
     this.createdAt = createdAt;
     this.user = user;
+    this.group = group;
+    this.subgroup = subgroup;
+    this.subsubgroup = subsubgroup;
+    this.customFields = customFields;
   }
 }
