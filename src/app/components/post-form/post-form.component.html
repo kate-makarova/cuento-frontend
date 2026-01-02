@@ -60,8 +60,29 @@
           }
         </div>
 
-        <div class="textarea-wrapper">
-          <textarea #messageField name="req_message" rows="12"></textarea>
+        <div class="post-editor-container">
+
+          <div class="profile-sidebar">
+            <div class="character-selector">
+              <select (change)="onCharacterChange($event)">
+                <option value="account">Account: {{ accountName }}</option>
+                @for (char of characters; track char.id) {
+                  <option [value]="char.id">{{ char.name }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="current-identity">
+              <p class="identity-name">{{ currentName }}</p>
+              <div class="avatar-box">
+                <img [src]="currentAvatarUrl" alt="Avatar" />
+              </div>
+            </div>
+          </div>
+
+          <div class="textarea-wrapper">
+            <textarea #messageField name="req_message" rows="12"></textarea>
+          </div>
         </div>
 
         <div class="buttons">

@@ -1,5 +1,5 @@
 import {Component, inject, Input, OnInit} from '@angular/core';
-import {PostFormComponent} from '../post-form/post-form.component';
+import {PostFormComponent} from '../components/post-form/post-form.component';
 import {TopicService} from '../services/topic.service';
 import {RouterLink} from '@angular/router';
 import {

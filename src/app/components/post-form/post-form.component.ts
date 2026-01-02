@@ -11,8 +11,34 @@ export class PostFormComponent {
 
   activeArea: string | null = null;
 
+  accountName = 'User123';
+  currentName = 'User123';
+  currentAvatarUrl = 'assets/default-avatar.png';
+
+  characters = [
+    { id: 1, name: 'Hero Knight', avatar: 'assets/knight.png' },
+    { id: 2, name: 'Dark Mage', avatar: 'assets/mage.png' }
+  ];
+
   fonts = ['Arial', 'Verdana', 'Georgia', 'Times New Roman', 'Courier New', 'Impact'];
   colors = ['black', 'white', 'red', 'blue', 'green', 'yellow', 'purple', 'gray', 'silver'];
+
+  onCharacterChange(event: Event) {
+    const select = event.target as HTMLSelectElement;
+    const selectedId = select.value;
+
+    if (selectedId === 'account') {
+      this.currentName = this.accountName;
+      this.currentAvatarUrl = 'assets/default-avatar.png';
+    } else {
+      const char = this.characters.find(c => c.id === +selectedId);
+      if (char) {
+        this.currentName = char.name;
+        this.currentAvatarUrl = char.avatar;
+      }
+    }
+  }
+
   toggleArea(area: string) {
     this.activeArea = this.activeArea === area ? null : area;
   }

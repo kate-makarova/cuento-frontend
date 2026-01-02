@@ -1,7 +1,7 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {ActivatedRoute, NavigationEnd, Router, RouterOutlet} from '@angular/router';
-import {FooterComponent} from './footer/footer.component';
-import {NavlinksComponent} from './navlinks/navlinks.component';
+import {FooterComponent} from './components/footer/footer.component';
+import {NavlinksComponent} from './components/navlinks/navlinks.component';
 import {filter, map, mergeMap} from 'rxjs';
 import {ToastComponent} from './components/toast/toast.component';
 import {BoardService} from './services/board.service';
