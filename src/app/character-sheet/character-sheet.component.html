@@ -28,11 +28,7 @@
         <div class="fs-box">
           <div class="input-row">
             <label>Раса / Фракция</label>
-            <input type="text" name="charRace" [(ngModel)]="newChar.race" placeholder="Напр: Фримен">
-          </div>
-          <div class="input-row">
-            <label>Текущий статус</label>
-            <input type="text" name="charStatus" [(ngModel)]="newChar.status" placeholder="Напр: В поисках ситча">
+            <input type="text" name="charRace" [(ngModel)]="newChar.group" placeholder="Напр: Фримен">
           </div>
         </div>
       </fieldset>
@@ -44,7 +40,7 @@
             <p>Опишите вашего персонажа одним емким абзацем. Это будет отображаться в вашем профиле.</p>
           </div>
           <div class="textarea-wrapper">
-            <textarea name="charBio" [(ngModel)]="newChar.bio" rows="8" placeholder="История, мотивы и характер..."></textarea>
+
           </div>
         </div>
       </fieldset>

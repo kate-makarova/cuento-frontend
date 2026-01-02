@@ -26,7 +26,9 @@ char: Character = new Character(
     '',
     'elf',
     'shooting',
-  new UserShort(1, 'Username',  '')
+  new UserShort(1, 'Username',  ''),
+  'House Harkonnen',
+  'Close Circle'
 );
 isOwner: boolean = true;
 recentTopics: Topic[] = [

@@ -1,0 +1,54 @@
+.char-list-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.char-list-table th, .char-list-table td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+.char-link-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.char-name {
+  font-weight: bold;
+  font-size: 1.1em;
+  text-decoration: none;
+  color: #2c3e50;
+}
+
+.char-name:hover {
+  text-decoration: underline;
+}
+
+.user-icon-link {
+  color: #999;
+  font-size: 1.2em;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.user-icon-link:hover {
+  color: #3498db;
+}
+
+.subgroup-text {
+  color: #666;
+  font-style: italic;
+}
+
+.subgroup-text small {
+  color: #999;
+  font-style: normal;
+}
+
+.tc3 {
+  color: #7f8c8d;
+  font-size: 0.9em;
+}

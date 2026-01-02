@@ -1,0 +1,51 @@
+<div id="pun-main" class="main character-list">
+  <div class="main-header">
+    <h1><span>Список персонажей</span></h1>
+  </div>
+
+  @for (group of groups; track group) {
+    <div class="category">
+      <div class="maintitle">
+        <h2>{{ group }}</h2>
+      </div>
+
+      <div class="main-content">
+        <table cellspacing="0" class="char-list-table">
+          <thead>
+          <tr>
+            <th class="tcl">Имя персонажа</th>
+            <th class="tc2">Подгруппа</th>
+            <th class="tc3">Статус</th>
+          </tr>
+          </thead>
+          <tbody>
+            @for (char of getCharactersByGroup(group); track char.id) {
+              <tr>
+                <td class="tcl">
+                  <div class="char-link-wrapper">
+                    <a [routerLink]="['/character', char.id]" class="char-name">
+                      {{ char.name }}
+                    </a>
+
+                    <a [routerLink]="['/user', char.user.id]"
+                       class="user-icon-link"
+                       [title]="'Игрок: ' + char.user.userName">
+                      <i class="bi bi-person-badge"></i>
+                    </a>
+                  </div>
+                </td>
+                <td class="tc2">
+                  <span class="subgroup-text">
+                    {{ char.subgroup || '—' }}
+                    @if (char.subsubgroup) { <small>» {{ char.subsubgroup }}</small> }
+                  </span>
+                </td>
+                <td class="tc3">{{ char.status }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

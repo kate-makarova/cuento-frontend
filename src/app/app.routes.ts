@@ -6,6 +6,7 @@ import {MessengerComponent} from './messenger/messenger.component';
 import {UserProfileComponent} from './user-profile/user-profile.component';
 import {CharacterSheetComponent} from './character-sheet/character-sheet.component';
 import {CharacterviewComponent} from './characterview/characterview.component';
+import {CharacterListComponent} from './character-list/character-list.component';
 
 export const routes: Routes = [
   {
@@ -41,6 +42,12 @@ export const routes: Routes = [
     component: CharacterviewComponent,
     title: 'Character',
     data: { pageId: 'pun-character' }
+  },
+  {
+    path: 'character-list',
+    component: CharacterListComponent,
+    title: 'Character List',
+    data: { pageId: 'pun-character-list' }
   },
   {
     path: 'character-sheet/new',
