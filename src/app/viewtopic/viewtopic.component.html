@@ -26,7 +26,22 @@
             <ul>
               <li class="pa-author"><a routerLink="/character/{{ post.authorCharacterProfile.id }}">{{ post.authorCharacterProfile.name }}</a></li>
               <li class="pa-avatar"><img src="{{ post.authorCharacterProfile.image }}" alt="Аватар" /></li>
-              <li class="pa-fld1">{{ post.authorCharacterProfile.description }}</li>
+              @for(field of post.authorCharacterProfile.customFields; track field.fieldMachineName; let j = $index) {
+                <li class="pa-fld{{ j }}">
+                  @switch (field.type) {
+                    @case('short_text') {
+                      <app-short-text-field-display [fieldName]="field.fieldName" [fieldValue]="field.fieldValue" ></app-short-text-field-display>
+                    }
+                    @case('long_text') {
+                      <app-long-text-field-display
+                        [fieldMachineName]="field.fieldMachineName"
+                        [showFieldName]="field.showFieldName"
+                        [fieldName]="field.fieldName"
+                        [fieldValue]="field.fieldValue" ></app-long-text-field-display>
+                    }
+                  }
+                </li>
+              }
             </ul>
           </div>
         } @else {

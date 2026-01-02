@@ -6,6 +6,7 @@ import {CharacterShort} from '../models/CharacterShort';
 import {UserProfile} from '../models/UserProfile';
 import {CharacterProfile} from '../models/CharacterProfile';
 import {Post} from '../models/Post';
+import {Field} from '../models/Field';
 
 @Injectable({ providedIn: 'root' })
 export class TopicService {
@@ -37,7 +38,10 @@ export class TopicService {
       1, 'Viper', ''
     );
     const characterProfile = new CharacterProfile(
-      1, 'Piter', '', 'A mentat'
+      1, 'Piter', '', [
+        new Field('description', 'Description',
+          'A mentat', 'display', 'long_text', false)
+      ]
     );
 
     topic.posts = [

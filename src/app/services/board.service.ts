@@ -17,5 +17,4 @@ export class BoardService {
       this.boardSignal.set(data);
     });
   }
-
 }
