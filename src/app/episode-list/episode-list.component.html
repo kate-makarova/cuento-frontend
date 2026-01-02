@@ -1,0 +1,92 @@
+<div id="pun-main" class="main episode-dashboard">
+  <div class="main-header">
+    <h1><span>Эпизоды игры</span></h1>
+  </div>
+
+  <div class="dashboard-layout">
+    <aside class="filter-sidebar">
+      <h3>Фильтры</h3>
+
+      <div class="filter-group">
+        <h4>Разделы</h4>
+        <div class="checkbox-list">
+          @for (forum of subforums; track forum.id) {
+            <label>
+              <input type="checkbox" [checked]="isSelected(forum.id)" (change)="toggleForum(forum.id)">
+              {{ forum.name }}
+            </label>
+          }
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <h4>Персонажи</h4>
+        <div class="autocomplete-wrapper">
+          <input type="text" placeholder="Поиск персонажа..." (input)="searchChars($event)">
+          <div class="selected-tags">
+            @for (char of selectedCharacters; track char.id) {
+              <span class="tag">{{ char.name }} <i (click)="removeChar(char.id)">×</i></span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <h4>Фракции участников</h4>
+        <div class="checkbox-list">
+          @for (group of characterGroups; track group) {
+            <label>
+              <input type="checkbox" (change)="toggleGroup(group)">
+              {{ group }}
+            </label>
+          }
+        </div>
+      </div>
+    </aside>
+
+    <section class="table-area">
+      <div class="search-bar">
+        <input type="text" placeholder="Поиск по названию темы..." [(ngModel)]="searchQuery">
+      </div>
+
+      <table class="episode-table" cellspacing="0">
+        <thead>
+        <tr>
+          <th class="tcl">Название темы</th>
+          <th class="tc2">Подфорум</th>
+          <th class="tc3">Статус</th>
+          <th class="tc4">Участники</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (topic of topics; track topic.id) {
+            <tr>
+              <td class="tcl">
+                <a [routerLink]="['/topic', topic.id]" class="topic-link">{{ topic.name }}</a>
+              </td>
+              <td class="tc2">{{ topic.forumId }}</td>
+              <td class="tc3">
+                <span [class]="'status-badge ' + topic.status">
+                  {{ topic.status === 'open' ? 'В процессе' : 'Завершен' }}
+                </span>
+              </td>
+              <td class="tc4">
+                <div class="character-avatars">
+                  @for (char of topic.characters; track char.id) {
+                    <img [src]="char.image" [title]="char.name" [routerLink]="['/character', char.id]">
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <div class="pagination">
+        <button [disabled]="currentPage === 1">Назад</button>
+        <span>Страница {{ currentPage }} из {{ totalPages }}</span>
+        <button [disabled]="currentPage === totalPages">Вперед</button>
+      </div>
+    </section>
+  </div>
+</div>

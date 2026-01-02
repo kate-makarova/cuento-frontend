@@ -13,6 +13,7 @@ export class Topic {
   type: 'standard' | 'episode' = 'standard';
   defaultCharacterId: number|null = null;
   posts: Post[] = [];
+  status: string = 'active';
 
 
   constructor(id: number, name: string, forumId: number,
