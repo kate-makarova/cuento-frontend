@@ -1,6 +1,6 @@
 <div id="pun-main" class="main">
     <div class="main-header"></div>
-  @for (category of categoryService.homeCategories(); track category.id) {
+  @for (category of categories(); track category.id) {
     <div id="category-{{category.id}}" class="category">
       <div class="maintitle">
         <h2><span>{{category.name}}</span></h2>
@@ -29,8 +29,8 @@
                   </div>
                 </div>
               </td>
-              <td class="tc2">0</td>
-              <td class="tc3">0</td>
+              <td class="tc2">{{subforum.topic_number}}</td>
+              <td class="tc3">{{subforum.post_number}}</td>
               <td class="tcr"><span>Нет сообщений</span></td>
             </tr>
             }

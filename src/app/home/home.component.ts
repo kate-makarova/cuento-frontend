@@ -16,6 +16,7 @@ export class HomeComponent implements OnInit {
   boardService = inject(BoardService);
   categoryService = inject(CategoryService);
   board = this.boardService.board;
+  categories = this.categoryService.homeCategories;
 
   ngOnInit() {
     this.boardService.loadBoard();

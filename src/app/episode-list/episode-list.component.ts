@@ -26,11 +26,7 @@ export class EpisodeListComponent {
     new Episode(1, 'My Dear Na-Baron', 1, '2025-12-12', '2025-12-12',
       [new CharacterShort(1, 'Piter de Vries', '')], '', '')
   ];
-  protected subforums: Subforum[] = [
-    new Subforum(1, 'Present', '', 2, 1),
-    new Subforum(2, 'Past', '', 3, 2),
-    new Subforum(3, 'Future', '', 4, 3)
-  ];
+  protected subforums: Subforum[] = [];
   protected selectedCharacters: CharacterShort[] = [];
   protected searchQuery: string = '';
 
