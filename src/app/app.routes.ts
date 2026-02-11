@@ -8,6 +8,7 @@ import {CharacterSheetComponent} from './character-sheet/character-sheet.compone
 import {CharacterviewComponent} from './characterview/characterview.component';
 import {CharacterListComponent} from './character-list/character-list.component';
 import {EpisodeListComponent} from './episode-list/episode-list.component';
+import {LoginComponent} from './login/login.component';
 
 export const routes: Routes = [
   {
@@ -15,6 +16,11 @@ export const routes: Routes = [
     component: HomeComponent,
     title: 'Home page',
     data: { pageId: 'pun-index' }
+  },
+  {
+    path: 'login',
+    component: LoginComponent,
+    data: { pageId: 'pun-login' }
   },
   {
     path: 'messenger',

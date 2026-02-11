@@ -2,13 +2,17 @@
     <ul>
       <li id="navindex" class="isactive"><a routerLink="/"><span>Форум</span></a></li>
       <li id="navсharacterlist"><a routerLink="character-list"><span>Список персонажей</span></a></li>
+      @if(isAuthenticated()) {
       <li id="navprofile"><a routerLink="profile"><span>Профиль</span></a></li>
       <li id="nachat"><a routerLink="messenger"><span>Личные сообщения</span></a></li>
-      <li id="navsearch"><a href="/search.php"><span>Поиск</span></a></li>
+      }
+      <li id="navsearch"><a href="/search"><span>Поиск</span></a></li>
+      @if(isAuthenticated()) {
       <li id="navlogin"><a routerLink="logout"><span>Выход</span></a></li>
-      @if(false) {
-      <li id="navregister"><a href="/register.php"><span>Регистрация</span></a></li>
-      <li id="navlogin"><a href="/login.php"><span>Войти</span></a></li>
+      }
+      @if(!isAuthenticated()) {
+      <li id="navregister"><a routerLink="/register"><span>Регистрация</span></a></li>
+      <li id="navlogin"><a routerLink="/login"><span>Войти</span></a></li>
       }
     </ul>
 </div>

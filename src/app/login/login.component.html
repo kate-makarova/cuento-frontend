@@ -1,0 +1,48 @@
+<div class="login-container">
+  <div class="formal">
+    <h2>Welcome Back</h2>
+    <p>Please enter your details</p>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="container">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input
+          id="username"
+          type="text"
+          formControlName="username"
+          placeholder="Enter your username"
+          [class.error]="isFieldInvalid('username')"
+        />
+        @if (isFieldInvalid('username')) {
+          <small class="error-text">Username is required</small>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          placeholder="••••••••"
+          [class.error]="isFieldInvalid('password')"
+        />
+        @if (isFieldInvalid('password')) {
+          <small class="error-text">Password must be at least 6 characters</small>
+        }
+      </div>
+
+      <button type="submit" [disabled]="loginForm.invalid || isLoading()">
+        @if (isLoading()) {
+          <span>Logging in...</span>
+        } @else {
+          <span>Sign In</span>
+        }
+      </button>
+
+      <div class="form-footer">
+        <p>Don't have an account? <a routerLink="/register">Register</a></p>
+      </div>
+    </form>
+  </div>
+</div>
