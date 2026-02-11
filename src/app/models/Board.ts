@@ -1,13 +1,11 @@
-export class Board {
-  name: string;
-  domainName: string;
-  characterNumber: number;
-  userNumber: number;
-
-  constructor(name: string, domainName: string, characterNumber: number) {
-    this.name = name;
-    this.domainName = domainName;
-    this.characterNumber = characterNumber;
-    this.userNumber = characterNumber;
-  }
+export interface Board {
+  site_name: string;
+  domain: string;
+  total_user_number: number;
+  total_character_number: number;
+  total_topic_number: number;
+  total_post_number: number;
+  total_episode_number: number;
+  total_episode_post_number: number;
+  last_registered_user: string | null;
 }

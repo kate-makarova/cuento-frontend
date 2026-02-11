@@ -2,8 +2,6 @@ import {Component, inject, OnInit} from '@angular/core';
 import {RouterLink} from '@angular/router';
 import {BoardService} from '../services/board.service';
 import {CategoryService} from '../services/category.service';
-import {Category} from '../models/Category';
-import {delay, of} from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -17,8 +15,10 @@ import {delay, of} from 'rxjs';
 export class HomeComponent implements OnInit {
   boardService = inject(BoardService);
   categoryService = inject(CategoryService);
+  board = this.boardService.board;
 
   ngOnInit() {
+    this.boardService.loadBoard();
     this.categoryService.loadHomeCategories();
   }
 }
