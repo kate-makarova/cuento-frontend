@@ -36,7 +36,7 @@
                 <div class="icon"><div class="nosize">1</div></div>
                 <div class="tclcon">
                   <h3><a routerLink="/viewtopic/{{topic.id}}">{{topic.name}}</a></h3>
-                  <span class="byuser">от <a href="/profile/{{topic.author_user_id}}">{{topic.author_username}}</a></span>
+                  <span class="byuser">от <a routerLink="/profile/{{topic.author_user_id}}">{{topic.author_username}}</a></span>
                 </div>
               </div>
             </td>
@@ -60,12 +60,12 @@
     </div>
   </div>
 
-  <div id="pun-info" class="main-item">
-    <div class="main-content">
-      <p class="conl"><span><a href="/extern.php?action=feed&amp;fid=2&amp;type=rss">RSS-лента этого форума</a></span></p>
-      <div class="clearer"></div>
-    </div>
-  </div>
+<!--  <div id="pun-info" class="main-item">-->
+<!--    <div class="main-content">-->
+<!--      <p class="conl"><span><a href="/extern.php?action=feed&amp;fid=2&amp;type=rss">RSS-лента этого форума</a></span></p>-->
+<!--      <div class="clearer"></div>-->
+<!--    </div>-->
+<!--  </div>-->
 
   <div class="main-footer"></div>
 </div>

@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 
 interface AuthResponse {
   token: string;
-  user: { id: number; email: string; name: string };
+  user: { id: number; email: string; username: string };
 }
 
 @Injectable({ providedIn: 'root' })
@@ -17,7 +17,7 @@ export class AuthService {
   // State management using Signals
   // Initial value checks if a token exists in storage
   currentUser = signal<AuthResponse['user'] | null>(null);
-  isAuthenticated = computed(() => !!this.currentUser());
+  isAuthenticated = computed(() => !!this.currentUser()?.id);
 
   constructor() {
     // Optional: Re-hydrate user state from token on app load
@@ -25,6 +25,12 @@ export class AuthService {
     const userString = localStorage.getItem('user');
     if (token && userString) {
       this.currentUser.set(JSON.parse(userString));
+    } else {
+      this.currentUser.set({
+        id: 0,
+        username: 'Гость',
+        email: ""
+      })
     }
   }
 

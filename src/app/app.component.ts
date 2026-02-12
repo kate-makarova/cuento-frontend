@@ -5,6 +5,7 @@ import {NavlinksComponent} from './components/navlinks/navlinks.component';
 import {filter, map, mergeMap} from 'rxjs';
 import {ToastComponent} from './components/toast/toast.component';
 import {BoardService} from './services/board.service';
+import {AuthService} from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +19,9 @@ export class AppComponent implements OnInit {
   title = 'dunebb';
   pageId = 'pun-main';
   boardService = inject(BoardService);
+  authService = inject(AuthService);
+  currentUser = this.authService.currentUser;
+  currentDate = new Date();
 
   constructor() {
     this.router.events.pipe(
@@ -39,4 +43,6 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.boardService.loadBoard();
   }
+
+  protected readonly Date = Date;
 }

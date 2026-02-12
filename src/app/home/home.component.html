@@ -31,7 +31,15 @@
               </td>
               <td class="tc2">{{subforum.topic_number}}</td>
               <td class="tc3">{{subforum.post_number}}</td>
-              <td class="tcr"><span>Нет сообщений</span></td>
+              <td class="tcr">
+                <a class="lastpost-link" routerLink="/viewforum/{{subforum.last_post_topic_id}}">{{subforum.last_post_topic_name}}</a>
+                <br>
+                <span class="lastpost">
+                  <span class="datetime">{{subforum.date_last_post_id}}</span>
+                  -
+                  <span class="byuser">{{subforum.last_post_author_user_name}}</span>
+                </span>
+              </td>
             </tr>
             }
             </tbody>

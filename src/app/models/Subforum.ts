@@ -1,5 +1,3 @@
-import {Category} from './Category';
-
 export interface Subforum {
   id: number;
   name: string;
@@ -11,4 +9,9 @@ export interface Subforum {
   topic_number: number;
   post_number: number;
   is_game_subforum: boolean;
+  last_post_topic_id: number;
+  last_post_topic_name: string;
+  last_post_id: number;
+  date_last_post_id: string;
+  last_post_author_user_name: string;
 }
