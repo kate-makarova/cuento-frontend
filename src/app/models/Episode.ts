@@ -1,18 +1,23 @@
-import {Topic} from './Topic';
+import {TopicStatus, TopicType} from './Topic';
 import {CharacterShort} from './CharacterShort';
+import {Post} from './Post';
 
-export class Episode extends Topic{
+export interface Episode {
+  id: number;
+  name: string;
+  forum_id: number;
+  created_at: string;
+  date_last_post: string;
+  author_user_id: number;
+  author_username: string;
+  post_number: number;
+  last_post_author_user_id: number|null;
+  last_post_author_username: string|null;
+  type: TopicType;
+  posts: Post[];
+  status: TopicStatus;
+
  summary: string;
  characters: CharacterShort[];
  image: string|null;
-  constructor(id: number, name: string, forumId: number,
-              createdAt: string, lastPostDate: string,
-              characters: CharacterShort[], summary: string, image: string|null) {
-   super(id, name, forumId, createdAt, lastPostDate);
-   this.mode = "character_only";
-   this.type = 'episode';
-   this.image = image;
-   this.characters = characters;
-   this.summary = summary;
-  }
 }

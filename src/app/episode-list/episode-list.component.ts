@@ -5,6 +5,7 @@ import {Subforum} from '../models/Subforum';
 import {CharacterShort} from '../models/CharacterShort';
 import {FormsModule} from '@angular/forms';
 import {Character} from '../models/Character';
+import {TopicStatus} from '../models/Topic';
 
 @Component({
   selector: 'app-episode-list',
@@ -22,10 +23,7 @@ export class EpisodeListComponent {
     'House Harkonnen',
     'House Atreides'
   ];
-  protected topics: Episode[] = [
-    new Episode(1, 'My Dear Na-Baron', 1, '2025-12-12', '2025-12-12',
-      [new CharacterShort(1, 'Piter de Vries', '')], '', '')
-  ];
+  protected topics: Episode[] = [];
   protected subforums: Subforum[] = [];
   protected selectedCharacters: CharacterShort[] = [];
   protected searchQuery: string = '';
@@ -49,4 +47,6 @@ export class EpisodeListComponent {
   protected toggleGroup(group: any) {
 
   }
+
+  protected readonly TopicStatus = TopicStatus;
 }

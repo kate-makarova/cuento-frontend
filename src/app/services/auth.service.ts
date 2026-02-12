@@ -22,9 +22,9 @@ export class AuthService {
   constructor() {
     // Optional: Re-hydrate user state from token on app load
     const token = localStorage.getItem('jwt_token');
-    if (token) {
-      // You could also decode the JWT here to get user info
-      // or call a /me endpoint to verify validity
+    const userString = localStorage.getItem('user');
+    if (token && userString) {
+      this.currentUser.set(JSON.parse(userString));
     }
   }
 
@@ -48,6 +48,7 @@ export class AuthService {
 
   private handleAuth(response: AuthResponse) {
     localStorage.setItem('jwt_token', response.token);
+    localStorage.setItem('user', JSON.stringify(response.user));
     this.currentUser.set(response.user);
     this.router.navigate(['/dashboard']);
   }

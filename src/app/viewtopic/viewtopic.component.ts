@@ -23,8 +23,5 @@ export class ViewtopicComponent implements OnInit {
   @Input() id?: number;
 
   ngOnInit() {
-    if (this.id) {
-      this.topicService.loadTopic(this.id);
-    }
   }
 }

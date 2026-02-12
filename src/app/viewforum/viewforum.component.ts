@@ -1,7 +1,7 @@
 import {Component, inject, Input, input, OnInit} from '@angular/core';
 import {ActivatedRoute, RouterLink} from '@angular/router';
-import {TopicService} from '../services/topic.service';
 import {NgIf} from '@angular/common';
+import {ForumService} from '../services/forum.service';
 
 @Component({
   selector: 'app-viewforum',
@@ -13,13 +13,14 @@ import {NgIf} from '@angular/common';
   styleUrl: './viewforum.component.css'
 })
 export class ViewforumComponent implements OnInit {
-  topicService = inject(TopicService);
+  forumService = inject(ForumService);
   @Input() id?: number;
+  @Input() page?: number;
+  topics = this.forumService.subforumTopics;
 
   ngOnInit(): void {
     if(this.id) {
-      this.topicService.loadTopicList(this.id, 1, 20)
+      this.forumService.loadSubforumPage(this.id, this.page)
     }
   }
-
 }

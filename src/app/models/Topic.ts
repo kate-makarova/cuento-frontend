@@ -1,27 +1,27 @@
 import {Post} from './Post';
 
-export class Topic {
+export interface Topic {
   id: number;
   name: string;
-  forumId: number;
-  createdAt: string;
-  lastPostDate: string;
-  postNumber: number = 0;
-  lastPostAuthorUser: string|null = null;
-  lastPostAuthorCharacter: string|null = null;
-  mode: 'character_only' | 'user_only' | 'any' = 'any';
-  type: 'standard' | 'episode' = 'standard';
-  defaultCharacterId: number|null = null;
-  posts: Post[] = [];
-  status: string = 'active';
+  forum_id: number;
+  created_at: string;
+  date_last_post: string;
+  author_user_id: number;
+  author_username: string;
+  post_number: number;
+  last_post_author_user_id: number|null;
+  last_post_author_username: string|null;
+  type: TopicType;
+  posts: Post[];
+  status: TopicStatus;
+}
 
+export enum TopicType {
+  general = 0,
+  episode = 1
+}
 
-  constructor(id: number, name: string, forumId: number,
-              createdAt: string, lastPostDate: string) {
-    this.id = id;
-    this.name = name;
-    this.forumId = forumId;
-    this.createdAt = createdAt;
-    this.lastPostDate = lastPostDate;
-  }
+export enum TopicStatus {
+  active = 0,
+  inactive = 1
 }

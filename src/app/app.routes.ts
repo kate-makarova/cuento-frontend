@@ -9,6 +9,7 @@ import {CharacterviewComponent} from './characterview/characterview.component';
 import {CharacterListComponent} from './character-list/character-list.component';
 import {EpisodeListComponent} from './episode-list/episode-list.component';
 import {LoginComponent} from './login/login.component';
+import {RegisterComponent} from './register/register.component';
 
 export const routes: Routes = [
   {
@@ -21,6 +22,11 @@ export const routes: Routes = [
     path: 'login',
     component: LoginComponent,
     data: { pageId: 'pun-login' }
+  },
+  {
+    path: 'register',
+    component: RegisterComponent,
+    data: { pageId: 'pun-register' }
   },
   {
     path: 'messenger',

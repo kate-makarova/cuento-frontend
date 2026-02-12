@@ -64,10 +64,10 @@
               <td class="tcl">
                 <a [routerLink]="['/topic', topic.id]" class="topic-link">{{ topic.name }}</a>
               </td>
-              <td class="tc2">{{ topic.forumId }}</td>
+              <td class="tc2">{{ topic.forum_id }}</td>
               <td class="tc3">
                 <span [class]="'status-badge ' + topic.status">
-                  {{ topic.status === 'open' ? 'В процессе' : 'Завершен' }}
+                  {{ topic.status === TopicStatus.active ? 'В процессе' : 'Завершен' }}
                 </span>
               </td>
               <td class="tc4">

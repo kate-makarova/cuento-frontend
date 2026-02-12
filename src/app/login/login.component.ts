@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -12,6 +13,8 @@ import { AuthService } from '../services/auth.service';
 export class LoginComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private router = inject(Router);
+
 
   isLoading = signal(false);
 
@@ -31,7 +34,10 @@ export class LoginComponent {
       const credentials = this.loginForm.value;
 
       this.authService.login(credentials as any).subscribe({
-        next: () => this.isLoading.set(false),
+        next: (response) => {
+          this.isLoading.set(false);
+          this.router.navigate(['/']);
+        },
         error: () => this.isLoading.set(false)
       });
     }
