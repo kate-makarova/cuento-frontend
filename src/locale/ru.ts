@@ -54,6 +54,8 @@ export const TRANSLATIONS_RU = {
   "topiccreate.generic": "Стандартная",
   "topiccreate.episode": "Эпизод",
   "topiccreate.character": "Анкета персонажа",
+  "episodecreate.characters": "Персонажи",
+  "episodecreate.addCharacter": "Добавить персонажа",
   "app.hello": "Привет",
   "app.date": "Дата",
   "nav.forum": "Форум",

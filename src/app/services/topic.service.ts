@@ -1,8 +1,11 @@
-import {Injectable, signal} from '@angular/core';
+import {inject, Injectable, signal} from '@angular/core';
 import {Topic, TopicStatus, TopicType} from '../models/Topic';
+import {Category} from '../models/Category';
+import {ApiService} from './api.service';
 
 @Injectable({ providedIn: 'root' })
 export class TopicService {
+  private apiService = inject(ApiService);
   private topicSignal = signal<Topic>({
     id: 0,
     name: '',
@@ -20,3 +23,5 @@ export class TopicService {
   });
   readonly topic = this.topicSignal.asReadonly();
 }
+
+

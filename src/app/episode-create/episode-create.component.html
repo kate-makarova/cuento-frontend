@@ -1,1 +1,45 @@
-<p>episode-create works!</p>
+<div id="post-form" class="formal">
+  <form id="post" class="container" method="post" action="https://viperstest.rusff.me/post.php?action=post&amp;fid=2">
+    <fieldset>
+      <legend><span i18n="@@topiccreate.writeMessage">Write your message and click "Send"</span></legend>
+      <div class="fs-box hashelp">
+        <div id="formkey"></div>
+        <div id="formetc" style="display:none"></div>
+        <input type="hidden" name="form_sent" value="1" />
+        <input type="hidden" name="form_user" value="viper" />
+
+        <p class="inputfield required longinput">
+          <label for="fld3"><ng-container i18n="@@topiccreate.subject">Subject</ng-container> <em><ng-container i18n="@@topiccreate.required">(Required)</ng-container></em></label><br />
+          <span class="input"><input id="fld3" type="text" name="req_subject" value="" size="80" maxlength="70" /></span>
+        </p>
+
+        <div class="inputfield required longinput">
+          <label><ng-container i18n="@@episodecreate.characters">Characters</ng-container></label><br />
+          @for (control of characterControls.controls; track control; let i = $index) {
+          <div class="character-input-group">
+            <span class="input">
+              <input type="text" [formControl]="control" placeholder="Search characters..." />
+            </span>
+            @if (i > 0) {
+              <span class="remove-char" (click)="removeCharacterField(i)">x</span>
+            }
+            @if (filteredCharacters[i] && filteredCharacters[i].length > 0) {
+            <ul class="autocomplete-list">
+              @for (char of filteredCharacters[i]; track char.id) {
+              <li (click)="selectCharacter(i, char.name)">{{ char.name }}</li>
+              }
+            </ul>
+            }
+          </div>
+          }
+          <button type="button" class="button" (click)="addCharacterField()" i18n="@@episodecreate.addCharacter">Add character</button>
+        </div>
+
+        <p class="checkfield"><input type="checkbox" id="fld6" name="subscribe" value="1" /><label for="fld6" i18n="@@topiccreate.subscribe">Subscribe to this topic</label></p>
+        <p class="checkfield"><input type="checkbox" id="fld10" name="firstpost" value="1" /><label for="fld10" i18n="@@topiccreate.firstPost">Pin the first post</label></p>
+      </div>
+    </fieldset>
+    <p class="formsubmit"><input type="submit" class="button submit" name="submit" value="Send" i18n-value="@@topiccreate.send" accesskey="s" /> <input type="submit" class="button preview" name="preview" value="Preview" i18n-value="@@topiccreate.preview" accesskey="p" /></p>
+  </form>
+</div>
+<div id="ajaxpostpreview"></div>
