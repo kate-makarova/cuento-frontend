@@ -5,8 +5,8 @@
 
   <div class="linkst">
     <div class="inbox">
-      <p class="pagelink conl"><span>Страницы: <strong>1</strong></span></p>
-      <p class="postlink conr"><a href="/post.php?tid=8"><span>Ответить</span></a></p>
+      <p class="pagelink conl"><span><ng-container i18n="@@viewtopic.pages">Pages</ng-container>: <strong>1</strong></span></p>
+      <p class="postlink conr"><a href="/post.php?tid=8"><span i18n="@@viewtopic.reply">Reply</span></a></p>
       <div class="clearer"></div>
     </div>
   </div>
@@ -15,7 +15,7 @@
   <div id="{{post.id}}" class="post" [class.altstyle]="isEven">
     <h3>
       <span>
-        <a class="sharelink" rel="nofollow" href="#p{{ post.id }}" onclick="return false;" title="">Поделиться</a>
+        <a class="sharelink" rel="nofollow" href="#p{{ post.id }}" onclick="return false;" title="" i18n="@@viewtopic.share">Share</a>
         <strong>{{ i + 1 }}</strong>
         <a class="permalink" rel="nofollow"
            href="https://viperstest.rusff.me/viewtopic.php?id=16#p358">{{ post.createdAt }}</a></span></h3>
@@ -25,7 +25,7 @@
           <div class="post-author post-character">
             <ul>
               <li class="pa-author"><a routerLink="/character/{{ post.authorCharacterProfile.id }}">{{ post.authorCharacterProfile.name }}</a></li>
-              <li class="pa-avatar"><img src="{{ post.authorCharacterProfile.image }}" alt="Аватар" /></li>
+              <li class="pa-avatar"><img src="{{ post.authorCharacterProfile.image }}" alt="Avatar" /></li>
               @for(field of post.authorCharacterProfile.customFields; track field.fieldMachineName; let j = $index) {
                 <li class="pa-fld{{ j }}">
                   @switch (field.type) {
@@ -48,7 +48,7 @@
           <div class="post-author">
             <ul>
               <li class="pa-author"><a href="/profile/{{ post.authorUserProfile.id }}">{{ post.authorUserProfile.userName }}</a></li>
-              <li class="pa-avatar"><img src="{{ post.authorUserProfile.avatar }}" alt="Аватар" /></li>
+              <li class="pa-avatar"><img src="{{ post.authorUserProfile.avatar }}" alt="Avatar" /></li>
             </ul>
           </div>
         }
@@ -64,10 +64,10 @@
       </div>
       <div class="post-footer">
         <div class="conl">
-          <p class="post-contacts"><span><a href="/profile/{{ post.authorUserProfile.id }}">Профиль</a></span></p>
+          <p class="post-contacts"><span><a href="/profile/{{ post.authorUserProfile.id }}" i18n="@@viewtopic.profile">Profile</a></span></p>
         </div>
         <div class="conr">
-          <p class="post-links"><span><a href="/post.php?tid=8&amp;qid=21">Цитировать</a></span></p>
+          <p class="post-links"><span><a href="/post.php?tid=8&amp;qid=21" i18n="@@viewtopic.quote">Quote</a></span></p>
         </div>
         <div class="clearer"></div>
       </div>
@@ -75,44 +75,10 @@
   </div>
   }
 
-<!--  <div id="p22" class="post altstyle">-->
-<!--    <div class="container">-->
-<!--      <div class="post-header">-->
-<!--        <span class="conr">#2</span>-->
-<!--        <a href="/viewtopic.php?pid=22#p22">2025-12-30 14:25:10</a>-->
-<!--      </div>-->
-<!--      <div class="post-main">-->
-<!--        <div class="post-author">-->
-<!--          <ul>-->
-<!--            <li class="pa-author"><a href="/profile.php?id=3">User</a></li>-->
-<!--            <li class="pa-title">Участник</li>-->
-<!--          </ul>-->
-<!--        </div>-->
-<!--        <div class="post-body">-->
-<!--          <div class="post-box">-->
-<!--            <div class="post-content">-->
-<!--              <p>Спасибо! Рад быть здесь.</p>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--        <div class="clearer"></div>-->
-<!--      </div>-->
-<!--      <div class="post-footer">-->
-<!--        <div class="conl">-->
-<!--          <p class="post-contacts"><span><a href="/profile.php?id=3">Профиль</a></span></p>-->
-<!--        </div>-->
-<!--        <div class="conr">-->
-<!--          <p class="post-links"><span><a href="/post.php?tid=8&amp;qid=22">Цитировать</a></span></p>-->
-<!--        </div>-->
-<!--        <div class="clearer"></div>-->
-<!--      </div>-->
-<!--    </div>-->
-<!--  </div>-->
-
   <div class="linksb">
     <div class="inbox">
-      <p class="postlink conr"><a href="/post.php?tid=8"><span>Ответить</span></a></p>
-      <p class="pagelink conl"><span>Страницы: <strong>1</strong></span></p>
+      <p class="postlink conr"><a href="/post.php?tid=8"><span i18n="@@viewtopic.reply">Reply</span></a></p>
+      <p class="pagelink conl"><span><ng-container i18n="@@viewtopic.pages">Pages</ng-container>: <strong>1</strong></span></p>
       <div class="clearer"></div>
     </div>
   </div>

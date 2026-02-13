@@ -1,19 +1,18 @@
 <div class="container">
     <ul>
-      <li id="navindex" class="isactive"><a routerLink="/"><span>Форум</span></a></li>
-      <li id="navсharacterlist"><a routerLink="character-list"><span>Список персонажей</span></a></li>
+      <li id="navindex" class="isactive"><a routerLink="/"><span i18n="@@nav.forum">Forum</span></a></li>
+      <li id="navсharacterlist"><a routerLink="character-list"><span i18n="@@nav.characterList">Character list</span></a></li>
       @if(isAuthenticated()) {
-      <li id="navprofile"><a routerLink="profile"><span>Профиль</span></a></li>
-      <li id="nachat"><a routerLink="messenger"><span>Личные сообщения</span></a></li>
+      <li id="navprofile"><a routerLink="profile"><span i18n="@@nav.profile">Profile</span></a></li>
+      <li id="nachat"><a routerLink="messenger"><span i18n="@@nav.messages">Messages</span></a></li>
       }
-      <li id="navsearch"><a href="/search"><span>Поиск</span></a></li>
+      <li id="navsearch"><a href="/search"><span i18n="@@nav.search">Search</span></a></li>
       @if(isAuthenticated()) {
-      <li id="navlogin"><a routerLink="logout"><span>Выход</span></a></li>
+      <li id="navlogin"><a routerLink="logout"><span i18n="@@nav.logout">Logout</span></a></li>
       }
       @if(!isAuthenticated()) {
-      <li id="navregister"><a routerLink="/register"><span>Регистрация</span></a></li>
-      <li id="navlogin"><a routerLink="/login"><span>Войти</span></a></li>
+      <li id="navregister"><a routerLink="/register"><span i18n="@@nav.register">Register</span></a></li>
+      <li id="navlogin"><a routerLink="/login"><span i18n="@@nav.login">Login</span></a></li>
       }
     </ul>
 </div>
-

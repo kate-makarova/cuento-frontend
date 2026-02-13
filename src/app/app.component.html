@@ -14,8 +14,8 @@
 
     <div id="pun-status" class="section">
       <div class="container">
-        <p class="conl"><span>Привет, {{currentUser()?.username}}!</span></p>
-        <p class="conr"><span>Дата: {{currentDate.toLocaleDateString()}}</span></p>
+        <p class="conl"><span><ng-container i18n="@@app.hello">Hello</ng-container>, {{currentUser()?.username}}!</span></p>
+        <p class="conr"><span><ng-container i18n="@@app.date">Date</ng-container>: {{currentDate.toLocaleDateString()}}</span></p>
       </div>
     </div>
 <router-outlet />
@@ -25,4 +25,3 @@
 <div id="html-bottom"></div>
 </div>
 <app-toast></app-toast>
-
