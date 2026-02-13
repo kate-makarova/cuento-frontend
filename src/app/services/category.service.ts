@@ -1,23 +1,21 @@
 import {inject, Injectable, signal} from '@angular/core';
 import {Category} from '../models/Category';
-import {HttpClient} from '@angular/common/http';
+import {ApiService} from './api.service';
 
 @Injectable({ providedIn: 'root' })
 export class CategoryService {
   private homeCategoriesSignal = signal<Category[]>([]);
   readonly homeCategories = this.homeCategoriesSignal.asReadonly();
 
-  private http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost/api/categories/home';
+  private apiService = inject(ApiService);
 
   loadHomeCategories() {
-    this.http.get<Category[]>(this.apiUrl).subscribe({
+    this.apiService.get<Category[]>('categories/home').subscribe({
       next: (data) => {
         this.homeCategoriesSignal.set(data);
       },
       error: (err) => {
         console.error('Failed to load categories', err);
-        // Handle error (e.g., set a default state or alert user)
       }
     });
   }

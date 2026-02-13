@@ -18,6 +18,7 @@ export class AuthService {
   // Initial value checks if a token exists in storage
   currentUser = signal<AuthResponse['user'] | null>(null);
   isAuthenticated = computed(() => !!this.currentUser()?.id);
+  authToken = signal<string|null>(null);
 
   constructor() {
     // Optional: Re-hydrate user state from token on app load
@@ -25,6 +26,7 @@ export class AuthService {
     const userString = localStorage.getItem('user');
     if (token && userString) {
       this.currentUser.set(JSON.parse(userString));
+      this.authToken.set(token);
     } else {
       this.currentUser.set({
         id: 0,
@@ -49,6 +51,7 @@ export class AuthService {
   logout() {
     localStorage.removeItem('jwt_token');
     this.currentUser.set(null);
+    this.authToken.set(null);
     this.router.navigate(['/login']);
   }
 
@@ -56,6 +59,7 @@ export class AuthService {
     localStorage.setItem('jwt_token', response.token);
     localStorage.setItem('user', JSON.stringify(response.user));
     this.currentUser.set(response.user);
+    this.authToken.set(response.token);
     this.router.navigate(['/dashboard']);
   }
 }

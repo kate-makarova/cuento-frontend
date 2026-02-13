@@ -10,6 +10,7 @@ import {CharacterListComponent} from './character-list/character-list.component'
 import {EpisodeListComponent} from './episode-list/episode-list.component';
 import {LoginComponent} from './login/login.component';
 import {RegisterComponent} from './register/register.component';
+import {TopicCreateWrapperComponent} from './topic-create-wrapper/topic-create-wrapper.component';
 
 export const routes: Routes = [
   {
@@ -38,6 +39,12 @@ export const routes: Routes = [
     component: ViewforumComponent,
     title: 'View Forum',
     data: { pageId: 'pun-viewforum' }
+  },
+  {
+    path: 'topic-create',
+    component: TopicCreateWrapperComponent,
+    title: 'Create Topic',
+    data: { pageId: 'pun-create-topic' }
   },
   {
     path: 'viewtopic/:id',

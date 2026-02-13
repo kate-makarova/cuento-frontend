@@ -1,0 +1,51 @@
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { AuthService } from './auth.service';
+import { Observable } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ApiService {
+  private http = inject(HttpClient);
+  private authService = inject(AuthService);
+  private readonly apiUrl = 'http://localhost/api';
+
+  private getHeaders(): HttpHeaders {
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+
+    const token = this.authService.authToken();
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    return headers;
+  }
+
+  get<T>(endpoint: string, params?: HttpParams): Observable<T> {
+    return this.http.get<T>(`${this.apiUrl}/${endpoint}`, {
+      headers: this.getHeaders(),
+      params
+    });
+  }
+
+  post<T>(endpoint: string, body: any): Observable<T> {
+    return this.http.post<T>(`${this.apiUrl}/${endpoint}`, body, {
+      headers: this.getHeaders()
+    });
+  }
+
+  put<T>(endpoint: string, body: any): Observable<T> {
+    return this.http.put<T>(`${this.apiUrl}/${endpoint}`, body, {
+      headers: this.getHeaders()
+    });
+  }
+
+  delete<T>(endpoint: string): Observable<T> {
+    return this.http.delete<T>(`${this.apiUrl}/${endpoint}`, {
+      headers: this.getHeaders()
+    });
+  }
+}

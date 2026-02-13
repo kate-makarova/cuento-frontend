@@ -1,12 +1,10 @@
 import { Injectable, signal, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { ApiService } from './api.service';
 import { Board } from '../models/Board';
 
 @Injectable({ providedIn: 'root' })
 export class BoardService {
-  // Use inject() for a more modern Angular style, or use the constructor
-  private http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost/api/board/info';
+  private apiService = inject(ApiService);
 
   private boardSignal = signal<Board>({
     site_name: "",
@@ -22,13 +20,12 @@ export class BoardService {
   readonly board = this.boardSignal.asReadonly();
 
   loadBoard(): void {
-    this.http.get<Board>(this.apiUrl).subscribe({
+    this.apiService.get<Board>('board/info').subscribe({
       next: (data) => {
         this.boardSignal.set(data);
       },
       error: (err) => {
         console.error('Failed to load board info', err);
-        // Handle error (e.g., set a default state or alert user)
       }
     });
   }

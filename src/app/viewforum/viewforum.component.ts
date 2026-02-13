@@ -1,13 +1,11 @@
-import {Component, inject, Input, input, OnInit} from '@angular/core';
-import {ActivatedRoute, RouterLink} from '@angular/router';
-import {NgIf} from '@angular/common';
+import {Component, inject, Input, OnInit} from '@angular/core';
+import {RouterLink} from '@angular/router';
 import {ForumService} from '../services/forum.service';
 
 @Component({
   selector: 'app-viewforum',
   imports: [
     RouterLink,
-    NgIf
   ],
   templateUrl: './viewforum.component.html',
   styleUrl: './viewforum.component.css'
