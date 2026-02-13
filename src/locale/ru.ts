@@ -1,0 +1,15 @@
+export const TRANSLATIONS_RU = {
+  "home.forum": "Форум",
+  "home.topics": "Тем",
+  "home.posts": "Сообщений",
+  "home.lastPost": "Последнее сообщение",
+  "home.noPosts": "Нет сообщений",
+  "home.statistics": "Статистика форума",
+  "home.totalTopics": "Всего тем",
+  "home.totalPosts": "Всего сообщений",
+  "home.totalUsers": "Зарегистрированных пользователей",
+  "home.newestUser": "Последним зарегистрировался",
+  "home.totalEpisodes": "Всего игровых эпизодов",
+  "home.totalGamePosts": "Всего игровых постов",
+  "home.totalCharacters": "Всего персонажей",
+};

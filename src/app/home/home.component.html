@@ -10,10 +10,10 @@
           <table cellspacing="0">
             <thead>
             <tr>
-              <th class="tcl" scope="col">Форум</th>
-              <th class="tc2" scope="col">Тем</th>
-              <th class="tc3" scope="col">Сообщений</th>
-              <th class="tcr" scope="col">Последнее сообщение</th>
+              <th class="tcl" scope="col" i18n="@@home.forum">Forum</th>
+              <th class="tc2" scope="col" i18n="@@home.topics">Topics</th>
+              <th class="tc3" scope="col" i18n="@@home.posts">Posts</th>
+              <th class="tcr" scope="col" i18n="@@home.lastPost">Last post</th>
             </tr>
             </thead>
             <tbody>
@@ -32,6 +32,9 @@
               <td class="tc2">{{subforum.topic_number}}</td>
               <td class="tc3">{{subforum.post_number}}</td>
               <td class="tcr">
+                @if (subforum.last_post_topic_id == null) {
+                  <span i18n="@@home.noPosts">No posts</span>
+                } @else {
                 <a class="lastpost-link" routerLink="/viewforum/{{subforum.last_post_topic_id}}">{{subforum.last_post_topic_name}}</a>
                 <br>
                 <span class="lastpost">
@@ -39,6 +42,7 @@
                   -
                   <span class="byuser">{{subforum.last_post_author_user_name}}</span>
                 </span>
+                }
               </td>
             </tr>
             }
@@ -51,23 +55,21 @@
 
     <div id="pun-statistics" class="main-item">
       <div class="maintitle">
-        <h2><span>Статистика форума</span></h2>
+        <h2><span i18n="@@home.statistics">Board statistics</span></h2>
       </div>
       <div class="main-content">
         <div class="statscon">
-          <p><span>Всего тем: <strong>{{board().total_character_number}}</strong></span></p>
-          <p><span>Всего сообщений: <strong>{{board().total_post_number}}</strong></span></p>
-          <p><span>Зарегистрированных пользователей: <strong>{{board().total_user_number}}</strong></span></p>
-          <p><span>Последним зарегистрировался: <strong><a href="/profile.php?id=2">Admin</a></strong></span></p>
+          <p><span><ng-container i18n="@@home.totalTopics">Total topics</ng-container>: <strong>{{board().total_character_number}}</strong></span></p>
+          <p><span><ng-container i18n="@@home.totalPosts">Total posts</ng-container>: <strong>{{board().total_post_number}}</strong></span></p>
+          <p><span><ng-container i18n="@@home.totalUsers">Total users</ng-container>: <strong>{{board().total_user_number}}</strong></span></p>
+          <p><span><ng-container i18n="@@home.newestUser">Newest user</ng-container>: <strong><a href="/profile.php?id=2">Admin</a></strong></span></p>
         </div>
         <div class="statscon">
-          <p><span>Всего игровых эпизодов: <strong>{{board().total_episode_number}}</strong></span></p>
-          <p><span>Всего игровых постов: <strong>{{board().total_episode_post_number}}</strong></span></p>
-          <p><span>Всего персонажей: <strong>{{board().total_character_number}}</strong></span></p>
+          <p><span><ng-container i18n="@@home.totalEpisodes">Total episodes</ng-container>: <strong>{{board().total_episode_number}}</strong></span></p>
+          <p><span><ng-container i18n="@@home.totalGamePosts">Total game posts</ng-container>: <strong>{{board().total_episode_post_number}}</strong></span></p>
+          <p><span><ng-container i18n="@@home.totalCharacters">Total characters</ng-container>: <strong>{{board().total_character_number}}</strong></span></p>
           </div>
       </div>
     </div>
     <div class="main-footer"></div>
   </div>
-
-
