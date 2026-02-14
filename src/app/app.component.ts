@@ -6,10 +6,11 @@ import {filter, map, mergeMap} from 'rxjs';
 import {ToastComponent} from './components/toast/toast.component';
 import {BoardService} from './services/board.service';
 import {AuthService} from './services/auth.service';
+import {NotificationsComponent} from './components/notifications/notifications.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, FooterComponent, NavlinksComponent, ToastComponent],
+  imports: [RouterOutlet, FooterComponent, NavlinksComponent, ToastComponent, NotificationsComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

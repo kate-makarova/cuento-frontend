@@ -61,10 +61,20 @@ export const TRANSLATIONS_RU = {
   "nav.forum": "Форум",
   "nav.characterList": "Список персонажей",
   "nav.profile": "Профиль",
+  "nav.characters": "Мои персонажи",
   "nav.messages": "Личные сообщения",
   "nav.search": "Поиск",
   "nav.logout": "Выход",
   "nav.register": "Регистрация",
   "nav.login": "Войти",
-  "footer.poweredBy": "Работает на Cuento"
+  "footer.poweredBy": "Работает на Cuento",
+  "notifications.announcements": "Объявления",
+  "notifications.myGamePosts": "Посты в моих играх",
+  "notifications.newGames": "Новые игры",
+  "notifications.systemMessages": "Системные сообщения",
+  "notifications.episode": "Эпизод",
+  "notifications.author": "Автор",
+  "notifications.date": "Дата",
+  "notifications.subforum": "Подфорум",
+  "notifications.characters": "Персонажи"
 };

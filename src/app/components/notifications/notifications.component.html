@@ -1,0 +1,109 @@
+<div class="notifications-container">
+  @if (notifications().announcements > 0) {
+    <div class="notification-block announcement" (click)="openModal('announcements')">
+      <span class="count">{{ notifications().announcements }}</span>
+      <span class="label" i18n="@@notifications.announcements">Announcements</span>
+    </div>
+  }
+
+  @if (notifications().myGamePosts > 0) {
+    <div class="notification-block game-posts" (click)="openModal('myGamePosts')">
+      <span class="count">{{ notifications().myGamePosts }}</span>
+      <span class="label" i18n="@@notifications.myGamePosts">Posts in my games</span>
+    </div>
+  }
+
+  @if (notifications().newGames > 0) {
+    <div class="notification-block new-games" (click)="openModal('newGames')">
+      <span class="count">{{ notifications().newGames }}</span>
+      <span class="label" i18n="@@notifications.newGames">New games</span>
+    </div>
+  }
+
+  @if (notifications().systemMessages > 0) {
+    <div class="notification-block system-messages" (click)="openModal('systemMessages')">
+      <span class="count">{{ notifications().systemMessages }}</span>
+      <span class="label" i18n="@@notifications.systemMessages">System messages</span>
+    </div>
+  }
+</div>
+
+@if (activeModal) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <span class="close-button" (click)="closeModal()">&times;</span>
+
+      @if (activeModal === 'announcements') {
+        <h2 i18n="@@notifications.announcements">Announcements</h2>
+        <div class="feed-list">
+          @for (item of announcements; track item.id) {
+            <div class="feed-item">
+              <h3>{{ item.title }}</h3>
+              <span class="date">{{ item.date }}</span>
+              <p>{{ item.preview | slice:0:200 }}...</p>
+            </div>
+          }
+        </div>
+      }
+
+      @if (activeModal === 'systemMessages') {
+        <h2 i18n="@@notifications.systemMessages">System messages</h2>
+        <div class="feed-list">
+          @for (item of systemMessages; track item.id) {
+            <div class="feed-item">
+              <h3>{{ item.title }}</h3>
+              <span class="date">{{ item.date }}</span>
+              <p>{{ item.preview | slice:0:200 }}...</p>
+            </div>
+          }
+        </div>
+      }
+
+      @if (activeModal === 'myGamePosts') {
+        <h2 i18n="@@notifications.myGamePosts">Posts in my games</h2>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th i18n="@@notifications.episode">Episode</th>
+              <th i18n="@@notifications.author">Author</th>
+              <th i18n="@@notifications.date">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (post of myGamePosts; track post.id) {
+              <tr>
+                <td><a href="#">{{ post.episodeName }}</a></td>
+                <td>{{ post.author }}</td>
+                <td>{{ post.date }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+
+      @if (activeModal === 'newGames') {
+        <h2 i18n="@@notifications.newGames">New games</h2>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th i18n="@@notifications.episode">Episode</th>
+              <th i18n="@@notifications.subforum">Subforum</th>
+              <th i18n="@@notifications.characters">Characters</th>
+              <th i18n="@@notifications.date">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (game of newGames; track game.id) {
+              <tr>
+                <td><a href="#">{{ game.episodeName }}</a></td>
+                <td>{{ game.subforum }}</td>
+                <td>{{ game.characters.join(', ') }}</td>
+                <td>{{ game.date }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  </div>
+}

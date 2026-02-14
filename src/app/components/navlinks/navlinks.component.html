@@ -1,10 +1,10 @@
 <div class="container">
     <ul>
-      <li id="navindex" class="isactive"><a routerLink="/"><span i18n="@@nav.forum">Forum</span></a></li>
-      <li id="navсharacterlist"><a routerLink="character-list"><span i18n="@@nav.characterList">Character list</span></a></li>
+      <li id="navindex" class="isactive"><a routerLink="/"><span i18n="@@nav.home">Home</span></a></li>
       @if(isAuthenticated()) {
       <li id="navprofile"><a routerLink="profile"><span i18n="@@nav.profile">Profile</span></a></li>
-      <li id="nachat"><a routerLink="messenger"><span i18n="@@nav.messages">Messages</span></a></li>
+      <li id="navcharacters"><a routerLink="profile"><span i18n="@@nav.characters">My characters</span></a></li>
+      <li id="navchat"><a routerLink="messenger"><span i18n="@@nav.messages">Messages</span></a></li>
       }
       <li id="navsearch"><a href="/search"><span i18n="@@nav.search">Search</span></a></li>
       @if(isAuthenticated()) {
@@ -15,4 +15,12 @@
       <li id="navlogin"><a routerLink="/login"><span i18n="@@nav.login">Login</span></a></li>
       }
     </ul>
+</div>
+<div id="pun-ulinks" class="section">
+  <ul class="container">
+    <li class="item1" id="h-about"><a i18n="@@nav.about" routerLink="/about">About the forum</a></li>
+    <li class="item2" id="h-characters"><a i18n="@@nav.characterlist" routerLink="/character-list">Character List</a></li>
+    <li class="item3" id="h-episodes"><a i18n="@@nav.episodelist" routerLink="/episode list">Episode List</a></li>
+    <li class="item4" id="h-rules"><a i18n="@@nav.rules" routerLink="/rules">Rules</a></li>
+  </ul>
 </div>

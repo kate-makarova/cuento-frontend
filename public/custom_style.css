@@ -218,6 +218,7 @@ body::before {
   padding: 20px 0;
   border-bottom: 1px double #d1bc9b;
   margin-bottom: 20px;
+  height: 55px!important;
 }
 
 #pun-navlinks ul {
@@ -243,3 +244,4 @@ body::before {
 #pun-footer .container {
   text-align: center;
 }
+
