@@ -49,8 +49,20 @@ export class AuthService {
   }
 
   logout() {
+    this.http.post(`${this.apiUrl}/logout`, {}).subscribe({
+      next: () => this.clearAuth(),
+      error: () => this.clearAuth()
+    });
+  }
+
+  private clearAuth() {
     localStorage.removeItem('jwt_token');
-    this.currentUser.set(null);
+    localStorage.removeItem('user');
+    this.currentUser.set({
+      id: 0,
+      username: 'Гость',
+      email: ""
+    });
     this.authToken.set(null);
     this.router.navigate(['/login']);
   }

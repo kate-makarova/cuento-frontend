@@ -8,7 +8,7 @@
       }
       <li id="navsearch"><a href="/search"><span i18n="@@nav.search">Search</span></a></li>
       @if(isAuthenticated()) {
-      <li id="navlogin"><a routerLink="logout"><span i18n="@@nav.logout">Logout</span></a></li>
+      <li id="navlogout"><a href="#" (click)="logout($event)"><span i18n="@@nav.logout">Logout</span></a></li>
       }
       @if(!isAuthenticated()) {
       <li id="navregister"><a routerLink="/register"><span i18n="@@nav.register">Register</span></a></li>

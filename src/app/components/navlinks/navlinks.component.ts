@@ -15,4 +15,8 @@ export class NavlinksComponent {
   private authService = inject(AuthService);
   public isAuthenticated = this.authService.isAuthenticated;
 
+  logout(event: Event) {
+    event.preventDefault();
+    this.authService.logout();
+  }
 }

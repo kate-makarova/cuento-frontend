@@ -7,6 +7,7 @@ import {Chat} from '../models/Chat';
   selector: 'app-messenger',
   imports: [],
   templateUrl: './messenger.component.html',
+  standalone: true,
   styleUrl: './messenger.component.css'
 })
 export class MessengerComponent {
