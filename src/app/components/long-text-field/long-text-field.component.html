@@ -1,4 +1,59 @@
 @if (showFieldName) {
   <label [for]="fieldName">{{ fieldName }}</label>
 }
-<textarea [id]="fieldName" [value]="fieldValue"></textarea>
+
+<div id="form-buttons">
+  <table cellspacing="0" cellpadding="0">
+    <tbody>
+    <tr>
+      <td id="button-font" title="Font" i18n-title="@@postform.font" (click)="toggleArea('font')"><i class="bi bi-fonts"></i></td>
+      <td id="button-size" title="Size" i18n-title="@@postform.size" (click)="toggleArea('size')"><i class="bi bi-type-h1"></i></td>
+      <td id="button-bold" title="Bold" i18n-title="@@postform.bold" (click)="insertTag('b')"><i class="bi bi-type-bold"></i></td>
+      <td id="button-italic" title="Italic" i18n-title="@@postform.italic" (click)="insertTag('i')"><i class="bi bi-type-italic"></i></td>
+      <td id="button-underline" title="Underline" i18n-title="@@postform.underline" (click)="insertTag('u')"><i class="bi bi-type-underline"></i></td>
+      <td id="button-strike" title="Strikethrough" i18n-title="@@postform.strike" (click)="insertTag('strike')"><i class="bi bi-type-strikethrough"></i></td>
+      <td id="button-center" title="Center" i18n-title="@@postform.center" (click)="insertTag('center')"><i class="bi bi-text-center"></i></td>
+      <td id="button-link" title="Link" i18n-title="@@postform.link" (click)="insertTag('url')"><i class="bi bi-link-45deg"></i></td>
+      <td id="button-quote" title="Quote" i18n-title="@@postform.quote" (click)="insertTag('quote')"><i class="bi bi-quote"></i></td>
+      <td id="button-code" title="Code" i18n-title="@@postform.code" (click)="insertTag('code')"><i class="bi bi-code-slash"></i></td>
+      <td id="button-color" title="Color" i18n-title="@@postform.color" (click)="toggleArea('color')"><i class="bi bi-palette"></i></td>
+      <td id="button-smile" title="Smile" i18n-title="@@postform.smile" (click)="toggleArea('smile')"><i class="bi bi-emoji-smile"></i></td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+<div id="tags">
+  @if (activeArea === 'font') {
+  <div class="container" id="font-area">
+    @for (font of fonts; track font) {
+    <div [style.font-family]="font" (click)="insertTag('font=' + font)">
+      <span>{{ font }}</span>
+    </div>
+    }
+  </div>
+  }
+
+  @if (activeArea === 'size') {
+  <div class="container" id="size-area">
+    @for (size of [8, 10, 12, 14, 16, 18, 20]; track size) {
+    <div [style.font-size.px]="size" (click)="insertTag('size=' + size)">
+      <span>{{ size }}px</span>
+    </div>
+    }
+  </div>
+  }
+
+  @if (activeArea === 'color') {
+  <div class="container" id="color-area">
+    <table>
+      <tr>
+        @for (color of colors; track color) {
+        <td [style.background-color]="color" (click)="insertTag('color=' + color)"></td>
+        }
+      </tr>
+    </table>
+  </div>
+  }
+</div>
+
+<textarea #messageField [id]="fieldName" [name]="name" [rows]="rows" [value]="fieldValue"></textarea>

@@ -1,0 +1,32 @@
+#form-buttons td {
+  width: 23px; /* Standard Rusff button width */
+  height: 22px; /* Standard Rusff button height */
+  cursor: pointer;
+  display: table-cell;
+}
+
+/* Ensure the background images from the external CSS still show up */
+#form-buttons td {
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+#font-area div, #size-area div {
+  cursor: pointer;
+  padding: 2px 5px;
+  border: 1px solid #ccc;
+}
+
+#color-area td {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+}
