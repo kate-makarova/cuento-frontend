@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {Toast} from '../../models/Toast';
+import {Notification} from '../../models/Notification';
 
 @Component({
   selector: 'app-toast',
@@ -8,7 +8,12 @@ import {Toast} from '../../models/Toast';
   styleUrl: './toast.component.css'
 })
 export class ToastComponent {
-  toasts: Toast[] = [];
+  notifications: Notification[] = [{
+    id: 1,
+    title: "Test",
+    message: "Sample message",
+    from: "system"
+  }];
 
   remove(toastId: number) {}
 }

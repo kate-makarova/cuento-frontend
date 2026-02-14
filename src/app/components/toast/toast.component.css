@@ -9,62 +9,69 @@
 }
 
 .toast-item {
-  width: 280px;
-  background: rgba(10, 20, 10, 0.95); /* Semi-transparent dark green */
-  border: 1px solid #3e5c3e;
-  color: #fff;
+  width: 300px;
+  background-color: #f1f1f1;
+  border: 1px solid #0066b3; /* Blue border */
+  color: #333;
   display: flex;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   animation: slideInRight 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  font-family: Verdana, Helvetica, Arial, sans-serif;
+  font-size: 11px;
 }
 
 .toast-side-accent {
   width: 4px;
-  background: #4ade80; /* Glow green */
-  box-shadow: 0 0 10px #4ade80;
+  background: #0066b3; /* Blue accent */
 }
 
-.game-update .toast-side-accent {
-  background: #facc15; /* Yellow accent for game-specific alerts */
-  box-shadow: 0 0 10px #facc15;
+.toast-item.error .toast-side-accent {
+  background: #d9534f; /* Red for errors */
+}
+
+.toast-item.info .toast-side-accent {
+  background: #5bc0de; /* Light Blue for info */
 }
 
 .toast-main {
-  padding: 10px;
+  padding: 8px 10px;
   flex: 1;
 }
 
 .toast-header {
   display: flex;
   justify-content: space-between;
-  font-size: 10px;
   font-weight: bold;
-  letter-spacing: 1px;
-  margin-bottom: 5px;
-  color: #4ade80;
+  margin-bottom: 4px;
+  color: #0066b3; /* Blue header text */
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 2px;
 }
 
 .toast-sender {
   font-weight: bold;
-  color: #fff;
+  color: #333;
   margin-right: 5px;
 }
 
 .toast-text {
-  color: #ccc;
-  font-size: 13px;
+  color: #333;
+  line-height: 1.4;
 }
 
 .toast-close {
   background: none;
   border: none;
-  color: #3e5c3e;
-  padding: 5px 10px;
+  color: #888;
+  padding: 5px 8px;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 16px;
+  align-self: flex-start;
 }
 
-.toast-close:hover { color: #fff; }
+.toast-close:hover {
+  color: #333;
+}
 
 @keyframes slideInRight {
   0% { transform: translateX(100%); opacity: 0; }

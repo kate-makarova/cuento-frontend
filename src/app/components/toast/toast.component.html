@@ -1,18 +1,18 @@
 <div class="toast-overlay">
-  @for (toast of toasts; track toast.id) {
-    <div class="toast-item" [class.game-update]="toast.category === 'game'">
+  @for (notification of notifications; track notification.id) {
+    <div class="toast-item">
       <div class="toast-side-accent"></div>
       <div class="toast-main">
         <div class="toast-header">
-          <span class="toast-label">{{ toast.category === 'game' ? 'GAME LOG' : 'SYSTEM MSG' }}</span>
+          <span class="toast-label">{{ notification.title }}</span>
           <span class="toast-time">now</span>
         </div>
         <div class="toast-content">
-          <span class="toast-sender">{{ toast.from }}:</span>
-          <span class="toast-text">{{ toast.message }}</span>
+          <span class="toast-sender">{{ notification.from }}:</span>
+          <span class="toast-text">{{ notification.message }}</span>
         </div>
       </div>
-      <button class="toast-close" (click)="remove(toast.id)">&times;</button>
+      <button class="toast-close" (click)="remove(notification.id)">&times;</button>
     </div>
   }
 </div>
