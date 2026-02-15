@@ -20,6 +20,12 @@ interface FactionLevel {
 export class FactionChooseComponent {
   factionService = inject(FactionService);
   factionLevels: FactionLevel[] = [];
+  showModal = false;
+  modalLevelIndex: number | null = null;
+  newFactionName = '';
+  newFactionDescription = '';
+  newFactionIcon = '';
+  private tempIdCounter = -1;
 
   constructor() {
     // Initialize with the first faction level
@@ -49,10 +55,8 @@ export class FactionChooseComponent {
     this.factionService.setCurrentFaction(0);
   }
 
-  onFactionChange(levelIndex: number, factionId: string) {
-    const selectedId = Number(factionId);
-    // Update the selected value
-    this.factionLevels[levelIndex].selectedId = selectedId;
+  onFactionChange(levelIndex: number, selectedId: number | null) {
+    if (selectedId === null) return;
 
     // Remove all levels after this one
     this.factionLevels = this.factionLevels.slice(0, levelIndex + 1);
@@ -66,5 +70,51 @@ export class FactionChooseComponent {
       options: [],
       selectedId: null
     });
+  }
+
+  openModal(levelIndex: number) {
+    this.modalLevelIndex = levelIndex;
+    this.showModal = true;
+    this.newFactionName = '';
+    this.newFactionDescription = '';
+    this.newFactionIcon = '';
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.modalLevelIndex = null;
+  }
+
+  submitNewFaction() {
+    if (this.modalLevelIndex !== null && this.newFactionName.trim()) {
+      const level = this.factionLevels[this.modalLevelIndex];
+      const parentId = this.modalLevelIndex > 0
+        ? this.factionLevels[this.modalLevelIndex - 1].selectedId
+        : 0;
+
+      // Create temporary faction with negative ID
+      const tempId = this.tempIdCounter--;
+      const newFaction: Faction = {
+        id: tempId,
+        name: this.newFactionName,
+        parent_id: parentId,
+        level: this.modalLevelIndex,
+        description: this.newFactionDescription || null,
+        icon: this.newFactionIcon || null,
+        show_on_profile: false,
+        characters: []
+      };
+
+      // Add to options
+      level.options.push(newFaction);
+
+      // Select the new faction
+      level.selectedId = tempId;
+
+      // Remove all levels after this one
+      this.factionLevels = this.factionLevels.slice(0, this.modalLevelIndex + 1);
+
+      this.closeModal();
+    }
   }
 }

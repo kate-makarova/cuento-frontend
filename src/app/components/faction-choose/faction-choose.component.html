@@ -6,14 +6,41 @@
       <label [for]="'faction-' + $index">{{ level.label }}:</label>
       <select
         [id]="'faction-' + $index"
-        [value]="level.selectedId ?? ''"
-        (change)="onFactionChange($index, $any($event.target).value)"
+        [(ngModel)]="level.selectedId"
+        (ngModelChange)="onFactionChange($index, $event)"
         [disabled]="level.options.length === 0">
-        <option value="">Select a faction</option>
+        <option [value]="null">Select a faction</option>
         @for (faction of level.options; track faction.id) {
           <option [value]="faction.id">{{ faction.name }}</option>
         }
       </select>
+      <button type="button" (click)="openModal($index)">+</button>
     </div>
   }
 </fieldset>
+
+@if (showModal) {
+  <div class="modal-backdrop" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h2>Create New Faction</h2>
+      <form (submit)="submitNewFaction(); $event.preventDefault()">
+        <div>
+          <label for="faction-name">Name:</label>
+          <input id="faction-name" name="name" type="text" [(ngModel)]="newFactionName" required>
+        </div>
+        <div>
+          <label for="faction-description">Description:</label>
+          <textarea id="faction-description" name="description" [(ngModel)]="newFactionDescription"></textarea>
+        </div>
+        <div>
+          <label for="faction-icon">Icon:</label>
+          <input id="faction-icon" name="icon" type="text" [(ngModel)]="newFactionIcon">
+        </div>
+        <div class="modal-actions">
+          <button type="submit">Create</button>
+          <button type="button" (click)="closeModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
