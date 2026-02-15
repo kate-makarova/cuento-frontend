@@ -35,7 +35,13 @@ export class FactionChooseComponent {
 
       if (this.factionLevels.length > 0) {
         const lastLevel = this.factionLevels[this.factionLevels.length - 1];
-        lastLevel.options = children;
+
+        if (children.length === 0 && lastLevel.options.length === 0 && this.factionLevels.length > 1) {
+          // Remove the last level if no children were returned (but keep at least one level)
+          this.factionLevels.pop();
+        } else {
+          lastLevel.options = children;
+        }
       }
     });
 
