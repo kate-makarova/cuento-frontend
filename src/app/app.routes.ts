@@ -4,7 +4,6 @@ import {ViewforumComponent} from './viewforum/viewforum.component';
 import {ViewtopicComponent} from './viewtopic/viewtopic.component';
 import {MessengerComponent} from './messenger/messenger.component';
 import {UserProfileComponent} from './user-profile/user-profile.component';
-import {CharacterSheetComponent} from './character-sheet/character-sheet.component';
 import {CharacterviewComponent} from './characterview/characterview.component';
 import {CharacterListComponent} from './character-list/character-list.component';
 import {EpisodeListComponent} from './episode-list/episode-list.component';
@@ -74,11 +73,5 @@ export const routes: Routes = [
     component: EpisodeListComponent,
     title: 'Episode List',
     data: { pageId: 'pun-episode-list' }
-  },
-  {
-    path: 'character-sheet/new',
-    component: CharacterSheetComponent,
-    title: 'New Character Sheet',
-    data: { pageId: 'pun-character-sheet' }
-  },
+  }
 ];
