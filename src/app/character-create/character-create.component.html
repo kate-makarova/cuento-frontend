@@ -20,8 +20,25 @@
       @for (field of characterTemplate(); track field.order) {
         <div class="fs-box hashelp">
           <p class="inputfield required">
-            <label for="{{field.machine_field_name}}"><ng-container>{{field.human_field_name}}</ng-container></label>
-            <span class="input"><input id="{{field.machine_field_name}}" type="{{field.field_type}}"></span>
+            @if (field.content_field_type === 'short_text' || field.content_field_type === 'number') {
+              <app-short-text-field
+                [fieldName]="field.human_field_name"
+                [name]="field.machine_field_name">
+              </app-short-text-field>
+            }
+            @if (field.content_field_type === 'long_text') {
+              <app-long-text-field
+                [fieldName]="field.human_field_name"
+                [name]="field.machine_field_name"
+                [rows]="10">
+              </app-long-text-field>
+            }
+            @if (field.content_field_type === 'image') {
+              <app-image-field
+                [fieldName]="field.human_field_name"
+                [name]="field.machine_field_name">
+              </app-image-field>
+            }
           </p>
         </div>
       }

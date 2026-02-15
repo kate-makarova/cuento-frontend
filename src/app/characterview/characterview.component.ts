@@ -17,19 +17,26 @@ import {
     ShortTextFieldDisplayComponent
   ],
   templateUrl: './characterview.component.html',
+  standalone: true,
   styleUrl: './characterview.component.css'
 })
 export class CharacterviewComponent {
-char: Character = new Character(
-  1,
-    'Character Name',
-    '',
-    'elf',
-    'shooting',
-  new UserShort(1, 'Username',  ''),
-  'House Harkonnen',
-  'Close Circle'
-);
+char: Character = {
+  id: 0,
+  name: '',
+  image: '',
+  status: '',
+  createdAt: '',
+  user: {
+    id: 0,
+    username: '',
+    avatar: null
+  },
+  group: '',
+  subgroup: '',
+  subsubgroup: '',
+  customFields: []
+}
 isOwner: boolean = true;
 recentTopics: Topic[] = [];
 }

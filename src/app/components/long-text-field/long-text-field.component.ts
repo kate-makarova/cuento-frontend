@@ -4,6 +4,7 @@ import { Component, ElementRef, Input, ViewChild } from '@angular/core';
   selector: 'app-long-text-field',
   imports: [],
   templateUrl: './long-text-field.component.html',
+  standalone: true,
   styleUrl: './long-text-field.component.css'
 })
 export class LongTextFieldComponent {

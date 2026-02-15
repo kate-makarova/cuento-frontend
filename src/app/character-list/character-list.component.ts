@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
-import {Character} from '../models/Character';
 import {RouterLink} from '@angular/router';
-import {UserShort} from '../models/UserShort';
+import {CharacterService} from '../services/character.service';
+import {inject} from '@angular/core';
 
 @Component({
   selector: 'app-character-list',
@@ -9,24 +9,15 @@ import {UserShort} from '../models/UserShort';
     RouterLink
   ],
   templateUrl: './character-list.component.html',
+  standalone: true,
   styleUrl: './character-list.component.css'
 })
 export class CharacterListComponent {
-  characters: Character[] = [
-    new Character(1, 'Feyd-Rautha Harkonnen', '', 'active', '2025-12-12',
-      new UserShort(1, 'Antilia', ''), 'House Harkonnen'),
-    new Character(2, 'Piter de Vries', '', 'active', '2025-12-12',
-      new UserShort(1, 'viper', ''), 'House Harkonnen'),
-    new Character(3, 'Ariste Atreides', '', 'active', '2025-12-12',
-      new UserShort(1, 'ari', ''), 'House Atreides'),
-  ];
+  characterService = inject(CharacterService);
+  characterList = this.characterService.characterList;
 
-  // Helper to get unique groups
-  get groups() {
-    return [...new Set(this.characters.map(c => c.group || 'Без фракции'))];
-  }
 
-  getCharactersByGroup(group: string | null) {
-    return this.characters.filter(c => (c.group || 'Без фракции') === group);
+  ngOnInit() {
+    this.characterService.loadCharacterList();
   }
 }

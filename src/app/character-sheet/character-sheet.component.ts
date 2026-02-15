@@ -14,11 +14,22 @@ import {UserShort} from '../models/UserShort';
 })
 export class CharacterSheetComponent {
 
-  newChar = new Character(
-    1, 'Piter the Mentat', '',
-    'mentat',
-    '2025-12-12', new UserShort(1, 'viper',  '')
-  );
+  newChar = {
+    id: 0,
+    name: '',
+    image: '',
+    status: '',
+    createdAt: '',
+    user: {
+      id: 0,
+      username: '',
+      avatar: null
+    },
+    group: '',
+    subgroup: '',
+    subsubgroup: '',
+    customFields: []
+  }
 
   saveCharacter(event: Event) {}
   goBack() {}
