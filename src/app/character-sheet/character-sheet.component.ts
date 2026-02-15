@@ -10,6 +10,7 @@ import {UserShort} from '../models/UserShort';
     FormsModule
   ],
   templateUrl: './character-sheet.component.html',
+  standalone: true,
   styleUrl: './character-sheet.component.css'
 })
 export class CharacterSheetComponent {
@@ -18,7 +19,7 @@ export class CharacterSheetComponent {
     id: 0,
     name: '',
     image: '',
-    status: '',
+    character_status: '',
     createdAt: '',
     user: {
       id: 0,

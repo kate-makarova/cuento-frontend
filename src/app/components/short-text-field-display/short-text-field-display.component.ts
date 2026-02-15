@@ -4,6 +4,7 @@ import {Component, Input} from '@angular/core';
   selector: 'app-short-text-field-display',
   imports: [],
   templateUrl: './short-text-field-display.component.html',
+  standalone: true,
   styleUrl: './short-text-field-display.component.css'
 })
 export class ShortTextFieldDisplayComponent {

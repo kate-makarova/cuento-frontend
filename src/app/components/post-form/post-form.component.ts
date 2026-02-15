@@ -4,6 +4,7 @@ import {Component, ElementRef, ViewChild} from '@angular/core';
   selector: 'app-post-form',
   imports: [],
   templateUrl: './post-form.component.html',
+  standalone: true,
   styleUrl: './post-form.component.css'
 })
 export class PostFormComponent {

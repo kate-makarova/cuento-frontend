@@ -4,6 +4,7 @@ import {Component, Input} from '@angular/core';
   selector: 'app-long-text-field-display',
   imports: [],
   templateUrl: './long-text-field-display.component.html',
+  standalone: true,
   styleUrl: './long-text-field-display.component.css'
 })
 export class LongTextFieldDisplayComponent {

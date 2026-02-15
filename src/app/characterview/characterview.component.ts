@@ -25,7 +25,7 @@ char: Character = {
   id: 0,
   name: '',
   image: '',
-  status: '',
+  character_status: 0,
   createdAt: '',
   user: {
     id: 0,

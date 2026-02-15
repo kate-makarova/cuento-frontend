@@ -5,7 +5,7 @@ export interface Character {
   id: number;
   name: string;
   image: string;
-  status: string;
+  character_status: number;
   createdAt: string;
   user: UserShort;
   group: string|null;

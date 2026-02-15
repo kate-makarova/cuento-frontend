@@ -16,6 +16,7 @@ import {LongTextFieldDisplayComponent} from '../components/long-text-field-displ
     LongTextFieldDisplayComponent
   ],
   templateUrl: './viewtopic.component.html',
+  standalone: true,
   styleUrl: './viewtopic.component.css'
 })
 export class ViewtopicComponent implements OnInit {
