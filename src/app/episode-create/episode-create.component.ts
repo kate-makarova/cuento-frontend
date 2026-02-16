@@ -1,14 +1,22 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormArray, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { EpisodeService } from '../services/episode.service';
+import { ShortTextFieldComponent } from '../components/short-text-field/short-text-field.component';
+import { LongTextFieldComponent } from '../components/long-text-field/long-text-field.component';
+import { ImageFieldComponent } from '../components/image-field/image-field.component';
 
 @Component({
   selector: 'app-episode-create',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ShortTextFieldComponent, LongTextFieldComponent, ImageFieldComponent],
   templateUrl: './episode-create.component.html',
+  standalone: true,
   styleUrl: './episode-create.component.css'
 })
-export class EpisodeCreateComponent {
+export class EpisodeCreateComponent implements OnInit {
+  episodeService = inject(EpisodeService);
+  episodeTemplate = this.episodeService.episodeTemplate;
+
   // Character inputs
   characterControls = new FormArray([new FormControl('')]);
   allCharacters = [
@@ -22,6 +30,10 @@ export class EpisodeCreateComponent {
 
   constructor() {
     this.setupAutocomplete(0);
+  }
+
+  ngOnInit() {
+    this.episodeService.loadEpisodeTemplate();
   }
 
   setupAutocomplete(index: number) {

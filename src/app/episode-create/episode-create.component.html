@@ -1,3 +1,4 @@
+<h1><span i18n="@@topiccreate.title">Start a new game</span></h1>
 <div id="post-form" class="formal">
   <form id="post" class="container" method="post" action="https://viperstest.rusff.me/post.php?action=post&amp;fid=2">
     <fieldset>
@@ -39,6 +40,35 @@
         <p class="checkfield"><input type="checkbox" id="fld10" name="firstpost" value="1" /><label for="fld10" i18n="@@topiccreate.firstPost">Pin the first post</label></p>
       </div>
     </fieldset>
+
+    <fieldset>
+      @for (field of episodeTemplate(); track field.order) {
+        <div class="fs-box hashelp">
+          <p class="inputfield required">
+            @if (field.content_field_type === 'short_text' || field.content_field_type === 'number') {
+              <app-short-text-field
+                [fieldName]="field.human_field_name"
+                [name]="field.machine_field_name">
+              </app-short-text-field>
+            }
+            @if (field.content_field_type === 'long_text') {
+              <app-long-text-field
+                [fieldName]="field.human_field_name"
+                [name]="field.machine_field_name"
+                [rows]="10">
+              </app-long-text-field>
+            }
+            @if (field.content_field_type === 'image') {
+              <app-image-field
+                [fieldName]="field.human_field_name"
+                [name]="field.machine_field_name">
+              </app-image-field>
+            }
+          </p>
+        </div>
+      }
+    </fieldset>
+
     <p class="formsubmit"><input type="submit" class="button submit" name="submit" value="Send" i18n-value="@@topiccreate.send" accesskey="s" /> <input type="submit" class="button preview" name="preview" value="Preview" i18n-value="@@topiccreate.preview" accesskey="p" /></p>
   </form>
 </div>

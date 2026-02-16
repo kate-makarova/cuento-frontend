@@ -9,10 +9,13 @@ import {CharacterListComponent} from './character-list/character-list.component'
 import {EpisodeListComponent} from './episode-list/episode-list.component';
 import {LoginComponent} from './login/login.component';
 import {RegisterComponent} from './register/register.component';
-import {TopicCreateWrapperComponent} from './topic-create-wrapper/topic-create-wrapper.component';
 import {AdminWrapperComponent} from './admin/admin-wrapper/admin-wrapper.component';
 import {AdminNotificationsComponent} from './admin/admin-notifications/admin-notifications.component';
 import {CharacterTemplateEditComponent} from './admin/character-template-edit/character-template-edit.component';
+import {TopicCreateComponent} from './topic-create/topic-create.component';
+import {EpisodeCreateComponent} from './episode-create/episode-create.component';
+import {CharacterCreateComponent} from './character-create/character-create.component';
+import {EpisodeTemplateEditComponent} from './admin/episode-template-edit/episode-template-edit.component';
 
 export const routes: Routes = [
   {
@@ -44,9 +47,21 @@ export const routes: Routes = [
   },
   {
     path: 'topic-create',
-    component: TopicCreateWrapperComponent,
+    component: TopicCreateComponent,
     title: 'Create Topic',
     data: { pageId: 'pun-create-topic' }
+  },
+  {
+    path: 'episode-create',
+    component: EpisodeCreateComponent,
+    title: 'Create Episode',
+    data: { pageId: 'pun-create-episode' }
+  },
+  {
+    path: 'character-create',
+    component: CharacterCreateComponent,
+    title: 'Create Character',
+    data: { pageId: 'pun-create-character' }
   },
   {
     path: 'viewtopic/:id',
@@ -91,6 +106,11 @@ export const routes: Routes = [
         path: 'character-template',
         component: CharacterTemplateEditComponent,
         title: 'Admin - Character Template'
+      },
+      {
+        path: 'episode-template',
+        component: EpisodeTemplateEditComponent,
+        title: 'Admin - Episode Template'
       }
     ]
   }
