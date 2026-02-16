@@ -15,3 +15,8 @@ export interface Subforum {
   date_last_post_id: string;
   last_post_author_user_name: string;
 }
+
+export interface SubforumShort {
+  id: number;
+  name: string;
+}

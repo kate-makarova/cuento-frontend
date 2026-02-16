@@ -10,3 +10,8 @@ export interface Faction {
   show_on_profile: boolean,
   characters: Character[]
 }
+
+export interface FactionShort {
+  id: number,
+  name: string,
+}

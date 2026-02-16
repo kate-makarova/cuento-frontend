@@ -1,5 +1,5 @@
 import {TopicStatus, TopicType} from './Topic';
-import {CharacterShort} from './CharacterShort';
+import {CharacterShort} from './Character';
 import {Post} from './Post';
 
 export interface Episode {

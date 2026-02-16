@@ -10,7 +10,7 @@
       <div class="filter-group">
         <h4>Разделы</h4>
         <div class="checkbox-list">
-          @for (forum of subforums; track forum.id) {
+          @for (forum of subforums(); track forum.id) {
             <label>
               <input type="checkbox" [checked]="isSelected(forum.id)" (change)="toggleForum(forum.id)">
               {{ forum.name }}
@@ -22,7 +22,21 @@
       <div class="filter-group">
         <h4>Персонажи</h4>
         <div class="autocomplete-wrapper">
-          <input type="text" placeholder="Поиск персонажа..." (input)="searchChars($event)">
+          <input
+            type="text"
+            placeholder="Поиск персонажа..."
+            [(ngModel)]="characterSearchQuery"
+            (ngModelChange)="onSearchChange()">
+          @if (characterSuggestions().length > 0) {
+            <div class="suggestions-dropdown">
+              @for (character of characterSuggestions(); track character.id) {
+                <div class="suggestion-item" (click)="selectCharacter(character)">
+                  <img [src]="character.image" [alt]="character.name">
+                  <span>{{ character.name }}</span>
+                </div>
+              }
+            </div>
+          }
           <div class="selected-tags">
             @for (char of selectedCharacters; track char.id) {
               <span class="tag">{{ char.name }} <i (click)="removeChar(char.id)">×</i></span>

@@ -13,3 +13,9 @@ export interface Character {
   subsubgroup: string|null;
   customFields: Field[];
 }
+
+export interface CharacterShort {
+  id: number;
+  name: string;
+  image: string;
+}
