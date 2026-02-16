@@ -90,12 +90,10 @@ export class AuthService {
 
   public hasRole(name: string) {
     const user = this.currentUser();
-    console.log('hasRole check:', { name, user, roles: user?.roles });
     if (user == null || user.id === 0) {
       return false;
     }
     const role = user.roles?.find(role => role.name === name);
-    console.log('Role found:', role);
     return !!role;
   }
 }
