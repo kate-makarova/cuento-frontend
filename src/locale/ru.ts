@@ -12,6 +12,7 @@ export const TRANSLATIONS_RU = {
   "home.totalEpisodes": "Всего игровых эпизодов",
   "home.totalGamePosts": "Всего игровых постов",
   "home.totalCharacters": "Всего персонажей",
+  "characterList.title": "Список персонажей",
   "viewforum.moderators": "Модераторы",
   "viewforum.pages": "Страницы",
   "viewforum.newTopic": "Новая тема",

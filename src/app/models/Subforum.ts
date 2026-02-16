@@ -14,9 +14,21 @@ export interface Subforum {
   last_post_id: number;
   date_last_post_id: string;
   last_post_author_user_name: string;
+  permissions: SubforumPermissions|null;
 }
 
 export interface SubforumShort {
   id: number;
   name: string;
+}
+
+export interface SubforumPermissions {
+  subforum_create_general_topic: boolean;
+  subforum_create_episode_topic: boolean;
+  subforum_create_character_topic: boolean;
+  subforum_post: boolean;
+  subforum_delete_topic: boolean;
+  subforum_delete_others_topic: boolean;
+  subforum_edit_others_post: boolean;
+  subforum_edit_own_post: boolean;
 }

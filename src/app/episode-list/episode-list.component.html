@@ -22,21 +22,24 @@
       <div class="filter-group">
         <h4 i18n="@@episodelist.characters">Characters</h4>
         <div class="autocomplete-wrapper">
-          <input
-            type="text"
-            placeholder="Search character..."
-            i18n-placeholder="@@episodelist.searchCharacter"
-            [(ngModel)]="characterSearchQuery"
-            (ngModelChange)="onSearchChange()">
-          @if (characterSuggestions().length > 0) {
-            <div class="suggestions-dropdown">
-              @for (character of characterSuggestions(); track character.id) {
-                <div class="suggestion-item" (click)="selectCharacter(character)">
-                  <span>{{ character.name }}</span>
-                </div>
-              }
-            </div>
-          }
+          <div class="input-wrapper" style="position: relative;">
+            <input
+              type="text"
+              placeholder="Search character..."
+              i18n-placeholder="@@episodelist.searchCharacter"
+              [(ngModel)]="characterSearchQuery"
+              (ngModelChange)="onSearchChange()">
+            @if (characterSuggestions().length > 0) {
+              <div class="suggestions-dropdown">
+                @for (character of characterSuggestions(); track character.id) {
+                  <div class="suggestion-item" (click)="selectCharacter(character)">
+                    <img [src]="character.image" [alt]="character.name">
+                    <span>{{ character.name }}</span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
           <div class="selected-tags">
             @for (char of selectedCharacters; track char.id) {
               <span class="tag">{{ char.name }} <i (click)="removeChar(char.id)">×</i></span>
@@ -71,7 +74,7 @@
           <th class="tcl" i18n="@@episodelist.topicTitle">Topic Title</th>
           <th class="tc2" i18n="@@episodelist.subforum">Subforum</th>
           <th class="tc3" i18n="@@episodelist.status">Status</th>
-          <th class="tc4" i18n="@@episodelist.lastPost">Last Post Date</th>
+          <th class="tc4" i18n="@@episodelist.dateLastPost">Last Post Date</th>
         </tr>
         </thead>
         <tbody>

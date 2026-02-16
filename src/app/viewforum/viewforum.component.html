@@ -1,6 +1,6 @@
 <div id="pun-main" class="main">
   <div class="main-header">
-    <h1><span>Тестовый форум</span></h1>
+    <h1><span>{{subforum()?.name}}</span></h1>
     <p class="modlist"><span><ng-container i18n="@@viewforum.moderators">Moderators</ng-container>: <strong>Admin</strong></span></p>
   </div>
 
@@ -15,7 +15,17 @@
     <div class="main-content">
       <div class="main-item">
         <div class="buttons">
-          <p class="conl"><a routerLink="/topic-create"><span i18n="@@viewforum.newTopic">New topic</span></a></p>
+          <div class="conl">
+            @if (subforum()?.permissions?.subforum_create_general_topic) {
+              <a routerLink="/topic-create" [queryParams]="{type: 'topic-create'}" class="button"><span i18n="@@topiccreate.generic">Standard</span></a>
+            }
+            @if (subforum()?.permissions?.subforum_create_episode_topic) {
+              <a routerLink="/topic-create" [queryParams]="{type: 'episode-create'}" class="button"><span i18n="@@topiccreate.episode">Game</span></a>
+            }
+            @if (subforum()?.permissions?.subforum_create_character_topic) {
+              <a routerLink="/topic-create" [queryParams]="{type: 'character-create'}" class="button"><span i18n="@@topiccreate.character">Character</span></a>
+            }
+          </div>
           <div class="clearer"></div>
         </div>
 
@@ -52,7 +62,17 @@
         </table>
 
         <div class="buttons">
-          <p class="conl"><a routerLink="/topic-create"><span i18n="@@viewforum.newTopic">New topic</span></a></p>
+          <div class="conl">
+            @if (subforum()?.permissions?.subforum_create_general_topic) {
+              <a routerLink="/topic-create" [queryParams]="{type: 'topic-create'}" class="button"><span i18n="@@topiccreate.generic">Standard</span></a>
+            }
+            @if (subforum()?.permissions?.subforum_create_episode_topic) {
+              <a routerLink="/topic-create" [queryParams]="{type: 'episode-create'}" class="button"><span i18n="@@topiccreate.episode">Game</span></a>
+            }
+            @if (subforum()?.permissions?.subforum_create_character_topic) {
+              <a routerLink="/topic-create" [queryParams]="{type: 'character-create'}" class="button"><span i18n="@@topiccreate.character">Character</span></a>
+            }
+          </div>
           <p class="conr"><span><ng-container i18n="@@viewforum.pages">Pages</ng-container>: <strong>1</strong></span></p>
           <div class="clearer"></div>
         </div>

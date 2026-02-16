@@ -1,10 +1,5 @@
 <div id="pun-main" class="main">
   <h1><span i18n="@@topiccreate.title">Start a new topic</span></h1>
-  <select (change)="onTypeChange($event)">
-    <option value="topic-create" i18n="@@topiccreate.generic">Standard</option>
-    <option value="episode-create" i18n="@@topiccreate.episode">Game</option>
-    <option value="character-create" i18n="@@topiccreate.character">Character</option>
-  </select>
 
   <app-topic-create *ngIf="selectedType === 'topic-create'"></app-topic-create>
   <app-episode-create *ngIf="selectedType === 'episode-create'"></app-episode-create>
