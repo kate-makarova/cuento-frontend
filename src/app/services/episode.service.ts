@@ -75,4 +75,8 @@ export class EpisodeService {
     })
   }
 
+  createEpisode(data: any) {
+    return this.apiService.post('episode/create', data);
+  }
+
 }

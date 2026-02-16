@@ -13,6 +13,8 @@ export class CharacterService {
   readonly characterList = this.characterListSignal.asReadonly();
   private shortCharacterListSignal = signal<CharacterShort[]>([]);
   readonly shortCharacterList = this.shortCharacterListSignal.asReadonly();
+  private userCharactersSignal = signal<CharacterShort[]>([]);
+  readonly userCharacters = this.userCharactersSignal.asReadonly();
 
   loadCharacterTemplate(): void {
     this.apiService.get<FieldTemplate[]>('template/character/get').subscribe({
@@ -60,6 +62,17 @@ export class CharacterService {
       error: (err) => {
         console.error('Failed to load short character list', err);
         this.shortCharacterListSignal.set([]);
+      }
+    })
+  }
+
+  loadUserCharacters(): void {
+    this.apiService.get<CharacterShort[]>('user/characters').subscribe({
+      next: (data) => {
+        this.userCharactersSignal.set(data);
+      },
+      error: (err) => {
+        console.error('Failed to load user characters', err);
       }
     })
   }
