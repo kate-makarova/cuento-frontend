@@ -14,7 +14,8 @@ export class CharacterService {
   loadCharacterTemplate(): void {
     this.apiService.get<FieldTemplate[]>('template/character/get').subscribe({
       next: (data) => {
-        this.characterTemplateSignal.set(data);
+        const sortedData = data.sort((a, b) => a.order - b.order);
+        this.characterTemplateSignal.set(sortedData);
       },
       error: (err) => {
         console.error('Failed to load character template', err);

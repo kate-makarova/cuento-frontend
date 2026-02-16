@@ -65,6 +65,7 @@ export class CharacterTemplateEditComponent implements OnInit {
 
   saveTemplate() {
     console.log('Saving template:', this.fields);
-    this.characterService.saveCharacterTemplate(this.fields);
+    let data = this.fields.filter(field => field.machine_field_name !== '');
+    this.characterService.saveCharacterTemplate(data);
   }
 }
