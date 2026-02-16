@@ -22,11 +22,14 @@ export class CharacterTemplateEditComponent implements OnInit {
   fieldTypes = ['string', 'text', 'int', 'decimal', 'date'];
   contentFieldTypes = ['short_text', 'number', 'decimal', 'long_text', 'image'];
 
+  private templateLoaded = false;
+
   constructor() {
     // Watch for template changes
     effect(() => {
       const template = this.characterService.characterTemplate();
-      if (template.length > 0 && this.fields.length === 0) {
+      if (template.length > 0 && !this.templateLoaded) {
+        this.templateLoaded = true;
         this.fields = template.map((field, index) => ({ ...field, id: index }));
         // Add one empty fieldset
         this.addEmptyField();
@@ -42,7 +45,7 @@ export class CharacterTemplateEditComponent implements OnInit {
       if (this.fields.length === 0) {
         this.addEmptyField();
       }
-    }, 100);
+    }, 200);
   }
 
   addEmptyField() {
@@ -62,6 +65,6 @@ export class CharacterTemplateEditComponent implements OnInit {
 
   saveTemplate() {
     console.log('Saving template:', this.fields);
-    // TODO: Implement save functionality
+    this.characterService.saveCharacterTemplate(this.fields);
   }
 }

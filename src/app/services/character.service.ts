@@ -32,4 +32,15 @@ export class CharacterService {
       }
     })
   }
+
+  saveCharacterTemplate(template: FieldTemplate[]): void {
+    this.apiService.post('template/character/update', template).subscribe({
+      next: (data) => {
+        console.log('Character template saved successfully', data);
+      },
+      error: (err) => {
+        console.error('Failed to save character template', err);
+      }
+    })
+  }
 }
