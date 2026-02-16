@@ -1,14 +1,14 @@
 <div id="pun-main" class="main episode-dashboard">
   <div class="main-header">
-    <h1><span>Эпизоды игры</span></h1>
+    <h1><span i18n="@@episodelist.title">Game Episodes</span></h1>
   </div>
 
   <div class="dashboard-layout">
     <aside class="filter-sidebar">
-      <h3>Фильтры</h3>
+      <h3 i18n="@@episodelist.filters">Filters</h3>
 
       <div class="filter-group">
-        <h4>Разделы</h4>
+        <h4 i18n="@@episodelist.sections">Sections</h4>
         <div class="checkbox-list">
           @for (forum of subforums(); track forum.id) {
             <label>
@@ -20,11 +20,12 @@
       </div>
 
       <div class="filter-group">
-        <h4>Персонажи</h4>
+        <h4 i18n="@@episodelist.characters">Characters</h4>
         <div class="autocomplete-wrapper">
           <input
             type="text"
-            placeholder="Поиск персонажа..."
+            placeholder="Search character..."
+            i18n-placeholder="@@episodelist.searchCharacter"
             [(ngModel)]="characterSearchQuery"
             (ngModelChange)="onSearchChange()">
           @if (characterSuggestions().length > 0) {
@@ -46,12 +47,12 @@
       </div>
 
       <div class="filter-group">
-        <h4>Фракции участников</h4>
+        <h4 i18n="@@episodelist.factions">Factions</h4>
         <div class="checkbox-list">
-          @for (group of characterGroups; track group) {
-            <label>
-              <input type="checkbox" (change)="toggleGroup(group)">
-              {{ group }}
+          @for (faction of factions(); track faction.id) {
+            <label [style.padding-left.rem]="faction.level > 0 ? faction.level * 1.5 : 0">
+              <input type="checkbox" (change)="toggleGroup(faction)">
+              {{ faction.name }}
             </label>
           }
         </div>
@@ -60,16 +61,16 @@
 
     <section class="table-area">
       <div class="search-bar">
-        <input type="text" placeholder="Поиск по названию темы..." [(ngModel)]="searchQuery">
+        <input type="text" placeholder="Search by topic title..." i18n-placeholder="@@episodelist.searchByTopicTitle" [(ngModel)]="searchQuery">
       </div>
 
       <table class="episode-table" cellspacing="0">
         <thead>
         <tr>
-          <th class="tcl">Название темы</th>
-          <th class="tc2">Подфорум</th>
-          <th class="tc3">Статус</th>
-          <th class="tc4">Участники</th>
+          <th class="tcl" i18n="@@episodelist.topicTitle">Topic Title</th>
+          <th class="tc2" i18n="@@episodelist.subforum">Subforum</th>
+          <th class="tc3" i18n="@@episodelist.status">Status</th>
+          <th class="tc4" i18n="@@episodelist.participants">Participants</th>
         </tr>
         </thead>
         <tbody>
@@ -81,7 +82,11 @@
               <td class="tc2">{{ topic.forum_id }}</td>
               <td class="tc3">
                 <span [class]="'status-badge ' + topic.status">
-                  {{ topic.status === TopicStatus.active ? 'В процессе' : 'Завершен' }}
+                  @if (topic.status === TopicStatus.active) {
+                    <ng-container i18n="@@episodelist.inProgress">In Progress</ng-container>
+                  } @else {
+                    <ng-container i18n="@@episodelist.completed">Completed</ng-container>
+                  }
                 </span>
               </td>
               <td class="tc4">
@@ -97,9 +102,11 @@
       </table>
 
       <div class="pagination">
-        <button [disabled]="currentPage === 1">Назад</button>
-        <span>Страница {{ currentPage }} из {{ totalPages }}</span>
-        <button [disabled]="currentPage === totalPages">Вперед</button>
+        <button [disabled]="currentPage === 1" i18n="@@episodelist.previous">Previous</button>
+        <span>
+          <ng-container i18n="@@episodelist.page">Page</ng-container> {{ currentPage }} <ng-container i18n="@@episodelist.of">of</ng-container> {{ totalPages }}
+        </span>
+        <button [disabled]="currentPage === totalPages" i18n="@@episodelist.next">Next</button>
       </div>
     </section>
   </div>

@@ -11,6 +11,9 @@ export class FactionService {
 
   // Signal to hold the children of the current faction
   currentFactionChildren = signal<Faction[]>([]);
+  factionsSignal = signal<Faction[]>([]);
+  readonly factions = this.factionsSignal.asReadonly();
+
 
   constructor() {
     // Effect to automatically load children whenever currentFactionId changes
@@ -37,5 +40,16 @@ export class FactionService {
   // Method to update the current faction, which triggers the effect
   setCurrentFaction(id: number) {
     this.currentFactionId.set(id);
+  }
+
+  loadFactions(): void {
+    this.apiService.get<Faction[]>('factions/get').subscribe({
+      next: (data) => {
+        this.factionsSignal.set(data);
+      },
+      error: (err) => {
+        console.error('Failed to load factions', err);
+      }
+    })
   }
 }

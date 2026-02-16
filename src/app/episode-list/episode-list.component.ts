@@ -6,6 +6,7 @@ import {FormsModule} from '@angular/forms';
 import {TopicStatus} from '../models/Topic';
 import {EpisodeService} from '../services/episode.service';
 import {CharacterService} from '../services/character.service';
+import {FactionService} from '../services/faction.service';
 import {CommonModule} from '@angular/common';
 import {debounceTime, distinctUntilChanged, Subject} from 'rxjs';
 
@@ -24,10 +25,6 @@ import {debounceTime, distinctUntilChanged, Subject} from 'rxjs';
 export class EpisodeListComponent implements OnInit {
   protected currentPage: number = 1;
   protected totalPages: number = 1;
-  protected characterGroups: string[] = [
-    'House Harkonnen',
-    'House Atreides'
-  ];
   protected topics: Episode[] = [];
   protected selectedCharacters: CharacterShort[] = [];
   protected selectedSubforums: number[] = [];
@@ -35,14 +32,17 @@ export class EpisodeListComponent implements OnInit {
   protected characterSearchQuery: string = '';
   protected episodeService = inject(EpisodeService);
   protected characterService = inject(CharacterService);
+  protected factionService = inject(FactionService);
   protected subforums = this.episodeService.subforumList;
   protected characterSuggestions = this.characterService.shortCharacterList;
+  protected factions = this.factionService.factions;
 
   // Subject to handle search input debouncing
   private characterSearchTerms = new Subject<string>();
 
   constructor() {
     this.episodeService.loadSubforumList();
+    this.factionService.loadFactions();
   }
 
   public ngOnInit(): void {

@@ -76,5 +76,22 @@ export const TRANSLATIONS_RU = {
   "notifications.author": "Автор",
   "notifications.date": "Дата",
   "notifications.subforum": "Подфорум",
-  "notifications.characters": "Персонажи"
+  "notifications.characters": "Персонажи",
+  "episodelist.title": "Эпизоды игры",
+  "episodelist.filters": "Фильтры",
+  "episodelist.sections": "Разделы",
+  "episodelist.characters": "Персонажи",
+  "episodelist.searchCharacter": "Поиск персонажа...",
+  "episodelist.factions": "Фракции участников",
+  "episodelist.searchByTopicTitle": "Поиск по названию темы...",
+  "episodelist.topicTitle": "Название темы",
+  "episodelist.subforum": "Подфорум",
+  "episodelist.status": "Статус",
+  "episodelist.participants": "Участники",
+  "episodelist.inProgress": "В процессе",
+  "episodelist.completed": "Завершен",
+  "episodelist.previous": "Назад",
+  "episodelist.next": "Вперед",
+  "episodelist.page": "Страница",
+  "episodelist.of": "из"
 };
