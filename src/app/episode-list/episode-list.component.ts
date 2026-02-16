@@ -1,6 +1,6 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {RouterLink} from '@angular/router';
-import {Episode} from '../models/Episode';
+import {Episode, EpisodeFilterRequest} from '../models/Episode';
 import {CharacterShort} from '../models/Character';
 import {FormsModule} from '@angular/forms';
 import {TopicStatus} from '../models/Topic';
@@ -9,6 +9,7 @@ import {CharacterService} from '../services/character.service';
 import {FactionService} from '../services/faction.service';
 import {CommonModule} from '@angular/common';
 import {debounceTime, distinctUntilChanged, Subject} from 'rxjs';
+import {Faction} from '../models/Faction';
 
 
 @Component({
@@ -23,16 +24,18 @@ import {debounceTime, distinctUntilChanged, Subject} from 'rxjs';
   styleUrl: './episode-list.component.css'
 })
 export class EpisodeListComponent implements OnInit {
-  protected currentPage: number = 1;
-  protected totalPages: number = 1;
-  protected topics: Episode[] = [];
-  protected selectedCharacters: CharacterShort[] = [];
-  protected selectedSubforums: number[] = [];
-  protected searchQuery: string = '';
-  protected characterSearchQuery: string = '';
   protected episodeService = inject(EpisodeService);
   protected characterService = inject(CharacterService);
   protected factionService = inject(FactionService);
+
+  protected currentPage: number = 1;
+  protected totalPages: number = 1;
+  protected topics = this.episodeService.episodeListPage;
+  protected selectedCharacters: CharacterShort[] = [];
+  protected selectedSubforums: number[] = [];
+  protected selectedFactions: number[] = [];
+  protected searchQuery: string = '';
+  protected characterSearchQuery: string = '';
   protected subforums = this.episodeService.subforumList;
   protected characterSuggestions = this.characterService.shortCharacterList;
   protected factions = this.factionService.factions;
@@ -52,6 +55,8 @@ export class EpisodeListComponent implements OnInit {
     ).subscribe(term => {
       this.characterService.loadShortCharacterList(term);
     });
+
+    this.applyFilters();
   }
 
   protected isSelected(id: number): boolean {
@@ -89,8 +94,24 @@ export class EpisodeListComponent implements OnInit {
     }
   }
 
-  protected toggleGroup(group: any) {
+  protected toggleGroup(faction: Faction) {
+    const index = this.selectedFactions.indexOf(faction.id);
+    if (index > -1) {
+      this.selectedFactions.splice(index, 1);
+    } else {
+      this.selectedFactions.push(faction.id);
+    }
+  }
 
+  protected applyFilters() {
+    const request: EpisodeFilterRequest = {
+      subforum_ids: this.selectedSubforums,
+      character_ids: this.selectedCharacters.map(c => c.id),
+      faction_ids: this.selectedFactions,
+      page: this.currentPage
+    };
+
+    this.episodeService.loadEpisodeListPage(this.currentPage, request);
   }
 
   protected readonly TopicStatus = TopicStatus;

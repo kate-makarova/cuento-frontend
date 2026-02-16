@@ -49,12 +49,17 @@ export class CharacterService {
   }
 
   loadShortCharacterList(term: string): void {
+    if (!term || term.trim() === '') {
+      this.shortCharacterListSignal.set([]);
+      return;
+    }
     this.apiService.get<CharacterShort[]>(`character-autocomplete/${term}`).subscribe({
       next: (data) => {
         this.shortCharacterListSignal.set(data);
       },
       error: (err) => {
         console.error('Failed to load short character list', err);
+        this.shortCharacterListSignal.set([]);
       }
     })
   }

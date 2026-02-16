@@ -21,3 +21,20 @@ export interface Episode {
  characters: CharacterShort[];
  image: string|null;
 }
+
+export interface EpisodeFilterRequest {
+  subforum_ids: number[];
+  character_ids: number[];
+  faction_ids: number[];
+  page: number;
+}
+
+export interface EpisodeListItem {
+  id: number;
+  name: string;
+  topic_id: number;
+  subforum_id: number;
+  subforum_name: string;
+  topic_status: number;
+  last_post_date: string;
+}

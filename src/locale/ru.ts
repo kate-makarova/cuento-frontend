@@ -87,11 +87,12 @@ export const TRANSLATIONS_RU = {
   "episodelist.topicTitle": "Название темы",
   "episodelist.subforum": "Подфорум",
   "episodelist.status": "Статус",
-  "episodelist.participants": "Участники",
+  "episodelist.lastPost": "Дата последнего сообщения",
   "episodelist.inProgress": "В процессе",
   "episodelist.completed": "Завершен",
   "episodelist.previous": "Назад",
   "episodelist.next": "Вперед",
   "episodelist.page": "Страница",
-  "episodelist.of": "из"
+  "episodelist.of": "из",
+  "episodelist.applyFilters": "Применить фильтры"
 };
