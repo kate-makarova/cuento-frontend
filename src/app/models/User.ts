@@ -1,13 +1,12 @@
-export class User {
+export interface User {
   id: number;
   username: string;
   email: string;
   avatar: string;
+  roles: Role[];
+}
 
-  constructor(id: number, username: string, email: string, avatar: string) {
-    this.id = id;
-    this.username = username;
-    this.email = email;
-    this.avatar = avatar;
-  }
+export interface Role {
+  id: number;
+  name: string;
 }

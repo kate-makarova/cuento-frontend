@@ -10,6 +10,9 @@ import {EpisodeListComponent} from './episode-list/episode-list.component';
 import {LoginComponent} from './login/login.component';
 import {RegisterComponent} from './register/register.component';
 import {TopicCreateWrapperComponent} from './topic-create-wrapper/topic-create-wrapper.component';
+import {AdminWrapperComponent} from './admin/admin-wrapper/admin-wrapper.component';
+import {AdminNotificationsComponent} from './admin/admin-notifications/admin-notifications.component';
+import {CharacterTemplateEditComponent} from './admin/character-template-edit/character-template-edit.component';
 
 export const routes: Routes = [
   {
@@ -73,5 +76,22 @@ export const routes: Routes = [
     component: EpisodeListComponent,
     title: 'Episode List',
     data: { pageId: 'pun-episode-list' }
+  },
+  {
+    path: 'admin',
+    component: AdminWrapperComponent,
+    data: { pageId: 'pun-admin' },
+    children: [
+      {
+        path: 'notifications',
+        component: AdminNotificationsComponent,
+        title: 'Admin - Notifications'
+      },
+      {
+        path: 'character-template',
+        component: CharacterTemplateEditComponent,
+        title: 'Admin - Character Template'
+      }
+    ]
   }
 ];

@@ -13,7 +13,13 @@ import {Chat} from '../models/Chat';
 export class MessengerComponent {
   @ViewChild('chatInput') messageField!: ElementRef<HTMLTextAreaElement>;
 
-  activeUser: User  = new User(1, 'test', 'test', 'test');
+  activeUser: User  = {
+    id: 0,
+    username: "",
+    email: '',
+    avatar: '',
+    roles: []
+  };
   messages: Message[] = [
     new Message(1, 'Hi!', 'today', false)
   ];

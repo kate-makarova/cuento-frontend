@@ -1,0 +1,43 @@
+#admin-wrapper {
+  display: flex;
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+#admin-nav {
+  flex: 0 0 250px;
+  min-width: 250px;
+}
+
+#admin-nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#admin-nav li {
+  margin-bottom: 0.5rem;
+}
+
+#admin-nav a {
+  display: block;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  color: #333;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+#admin-nav a:hover {
+  background-color: #f0f0f0;
+}
+
+#admin-nav a.active {
+  background-color: #007bff;
+  color: white;
+}
+
+#admin-content {
+  flex: 1;
+  min-width: 0;
+}

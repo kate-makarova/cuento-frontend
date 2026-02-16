@@ -2,10 +2,12 @@ import { Injectable, signal, inject, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { User } from '../models/User';
+
 
 interface AuthResponse {
   token: string;
-  user: { id: number; email: string; username: string };
+  user: User;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -19,6 +21,7 @@ export class AuthService {
   currentUser = signal<AuthResponse['user'] | null>(null);
   isAuthenticated = computed(() => !!this.currentUser()?.id);
   authToken = signal<string|null>(null);
+  isAdmin = computed(() => this.hasRole('admin'));
 
   constructor() {
     // Optional: Re-hydrate user state from token on app load
@@ -31,7 +34,12 @@ export class AuthService {
       this.currentUser.set({
         id: 0,
         username: 'Гость',
-        email: ""
+        email: "",
+        avatar: "",
+        roles: [{
+          id: 1,
+          name: 'guest'
+        }]
       })
     }
   }
@@ -61,7 +69,12 @@ export class AuthService {
     this.currentUser.set({
       id: 0,
       username: 'Гость',
-      email: ""
+      email: "",
+      avatar: "",
+      roles: [{
+        id: 1,
+        name: 'guest'
+      }]
     });
     this.authToken.set(null);
     this.router.navigate(['/login']);
@@ -73,5 +86,16 @@ export class AuthService {
     this.currentUser.set(response.user);
     this.authToken.set(response.token);
     this.router.navigate(['/dashboard']);
+  }
+
+  public hasRole(name: string) {
+    const user = this.currentUser();
+    console.log('hasRole check:', { name, user, roles: user?.roles });
+    if (user == null || user.id === 0) {
+      return false;
+    }
+    const role = user.roles?.find(role => role.name === name);
+    console.log('Role found:', role);
+    return !!role;
   }
 }

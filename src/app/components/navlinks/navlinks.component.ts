@@ -12,8 +12,9 @@ import {AuthService} from '../../services/auth.service';
   styleUrl: './navlinks.component.css'
 })
 export class NavlinksComponent {
-  private authService = inject(AuthService);
+  protected authService = inject(AuthService);
   public isAuthenticated = this.authService.isAuthenticated;
+  public currentUser = this.authService.currentUser;
 
   logout(event: Event) {
     event.preventDefault();

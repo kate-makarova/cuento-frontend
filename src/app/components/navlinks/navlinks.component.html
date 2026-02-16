@@ -6,6 +6,9 @@
       <li id="navcharacters"><a routerLink="profile"><span i18n="@@nav.characters">My characters</span></a></li>
       <li id="navchat"><a routerLink="messenger"><span i18n="@@nav.messages">Messages</span></a></li>
       }
+      @if(authService.isAdmin()) {
+        <li id="navadmin"><a routerLink="admin/notifications"><span i18n="@@nav.admin">Admin</span></a></li>
+      }
       <li id="navsearch"><a href="/search"><span i18n="@@nav.search">Search</span></a></li>
       @if(isAuthenticated()) {
       <li id="navlogout"><a href="#" (click)="logout($event)"><span i18n="@@nav.logout">Logout</span></a></li>
