@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { Post } from '../../models/Post';
 import { ShortTextFieldDisplayComponent } from '../short-text-field-display/short-text-field-display.component';
 import { LongTextFieldDisplayComponent } from '../long-text-field-display/long-text-field-display.component';
-import { CharacterProfile } from '../../models/Character';
+import { CharacterProfile, CustomFieldsData } from '../../models/Character';
 import { FormsModule } from '@angular/forms';
 import { CharacterService } from '../../services/character.service';
 
@@ -43,10 +43,10 @@ export class CharacterProfileComponent implements OnInit {
   private initFromPost() {
     if (this.post!.useCharacterProfile && this.post!.authorCharacterProfile !== null) {
       this.isCharacter = true;
-      this.displayName = this.post!.authorCharacterProfile.name;
+      this.displayName = this.post!.authorCharacterProfile.character_name;
       this.displayAvatar = this.post!.authorCharacterProfile.avatar;
       this.profileLink = `/character/${this.post!.authorCharacterProfile.id}`;
-      this.customFields = this.post!.authorCharacterProfile.customFields;
+      this.customFields = this.processCustomFields(this.post!.authorCharacterProfile.custom_fields);
     } else {
       this.isCharacter = false;
       this.displayName = this.post!.authorUserProfile.userName;
@@ -72,11 +72,26 @@ export class CharacterProfileComponent implements OnInit {
       const char = this.characters().find(c => c.id === +this.selectedCharacterId);
       if (char) {
         this.isCharacter = true;
-        this.displayName = char.name;
+        this.displayName = char.character_name;
         this.displayAvatar = char.avatar;
-        this.customFields = char.customFields;
+        this.customFields = this.processCustomFields(char.custom_fields);
         this.characterSelected.emit(char.id);
       }
     }
+  }
+
+  private processCustomFields(data: CustomFieldsData): any[] {
+    if (!data || !data.field_config) return [];
+
+    return data.field_config.map(config => {
+      return {
+        fieldMachineName: config.machine_field_name,
+        fieldName: config.human_field_name,
+        fieldValue: data.custom_fields ? data.custom_fields[config.machine_field_name] : null,
+        type: config.content_field_type,
+        showFieldName: true,
+        order: config.order
+      };
+    }).sort((a, b) => a.order - b.order);
   }
 }

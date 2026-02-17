@@ -3,7 +3,7 @@
     <select [(ngModel)]="selectedCharacterId" (change)="onSelect()" style="width: 100%; margin-bottom: 10px;">
       <option value="account"><ng-container i18n="@@postform.account">Account</ng-container>: {{ accountName }}</option>
       @for (char of characters(); track char.id) {
-        <option [value]="char.id">{{ char.name }}</option>
+        <option [value]="char.character_id">{{ char.character_name }}</option>
       }
     </select>
   </div>

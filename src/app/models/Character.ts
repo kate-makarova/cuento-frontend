@@ -1,5 +1,6 @@
 import {UserShort} from './UserShort';
 import {Field} from './Field';
+import {FieldTemplate} from './FieldTemplate';
 
 export interface Character {
   id: number;
@@ -20,9 +21,15 @@ export interface CharacterShort {
   image: string;
 }
 
+export interface CustomFieldsData {
+  custom_fields: { [key: string]: any };
+  field_config: FieldTemplate[];
+}
+
 export interface CharacterProfile {
   id: number;
-  name: string;
+  character_id: number;
+  character_name: string;
   avatar: string;
-  customFields: Field[];
+  custom_fields: CustomFieldsData;
 }
