@@ -11,8 +11,8 @@
     </div>
   </div>
 
-  @if(isEpisode()) {
-    <app-episode-header [episode]="episode()" ></app-episode-header>
+  @if(topic().episode != null) {
+    <app-episode-header [episode]="topic().episode" ></app-episode-header>
   }
 
 

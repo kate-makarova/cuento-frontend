@@ -13,7 +13,7 @@ import { CustomFieldsData } from '../../models/Character';
   styleUrl: './episode-header.component.css'
 })
 export class EpisodeHeaderComponent implements OnInit {
-  @Input() episode!: Episode;
+  @Input() episode!: Episode|null;
   customFields: any[] = [];
 
   ngOnInit() {

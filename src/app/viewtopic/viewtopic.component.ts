@@ -17,8 +17,6 @@ import {Post} from '../models/Post';
   imports: [
     PostFormComponent,
     RouterLink,
-    ShortTextFieldDisplayComponent,
-    LongTextFieldDisplayComponent,
     CommonModule,
     CharacterProfileComponent,
     EpisodeHeaderComponent
@@ -32,36 +30,10 @@ export class ViewtopicComponent implements OnInit {
   @Input() id?: number;
 
   topic = this.topicService.topic;
-  episode = this.topicService.episode;
-  topicType = this.topicService.topicType;
-  entity: Signal<any> = this.topic;
   posts:Post[] = []
 
   accountName = 'User123'; // This should come from AuthService
   selectedCharacterId: number | null = null;
-
-  constructor() {
-    effect(() => {
-      const type = this.topicType();
-      if (type === TopicType.episode ) {
-        this.entity = this.episode;
-      } else {
-        this.entity = this.topic;
-      }
-    });
-  }
-
-  isEpisode() {
-    return this.topicType() === TopicType.episode;
-  }
-
-  isGeneral() {
-    return this.topicType() === TopicType.general;
-  }
-
-  isCharacter() {
-    return this.topicType() === TopicType.character;
-  }
 
   ngOnInit() {
     if (this.id) {

@@ -1,4 +1,4 @@
-import {Post} from './Post';
+import {Episode} from './Episode';
 
 export interface Topic {
   id: number;
@@ -13,6 +13,7 @@ export interface Topic {
   last_post_author_username: string|null;
   type: TopicType;
   status: TopicStatus;
+  episode: Episode|null;
 }
 
 export enum TopicType {
