@@ -9,8 +9,8 @@ export class TopicService {
   private topicSignal = signal<Topic>({
     id: 0,
     name: '',
-    forum_id: 0,
-    created_at: '',
+    subforum_id: 0,
+    date_created: '',
     date_last_post: '',
     author_user_id: 0,
     author_username: '',
@@ -25,10 +25,8 @@ export class TopicService {
 
 
   loadTopic(id: number) {
-    this.apiService.get<any>('topic/get/' + id.toString()).subscribe(data => {
-      this.topicSignal.set(data.type);
+    this.apiService.get<Topic>('topic/get/' + id.toString()).subscribe(data => {
+      this.topicSignal.set(data);
     });
   }
 }
-
-

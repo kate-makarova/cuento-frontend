@@ -35,6 +35,19 @@ export class ViewtopicComponent implements OnInit {
   accountName = 'User123'; // This should come from AuthService
   selectedCharacterId: number | null = null;
 
+
+  isEpisode() {
+    return this.topic().type === TopicType.episode;
+  }
+
+  isGeneral() {
+    return this.topic().type === TopicType.general;
+  }
+
+  isCharacter() {
+    return this.topic().type === TopicType.character;
+  }
+
   ngOnInit() {
     if (this.id) {
       this.topicService.loadTopic(this.id);

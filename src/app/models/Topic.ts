@@ -3,8 +3,8 @@ import {Episode} from './Episode';
 export interface Topic {
   id: number;
   name: string;
-  forum_id: number;
-  created_at: string;
+  subforum_id: number;
+  date_created: string;
   date_last_post: string;
   author_user_id: number;
   author_username: string;

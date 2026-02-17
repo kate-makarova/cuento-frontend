@@ -8,7 +8,6 @@
       <div class="character-list">
         @for (char of episode.characters; track char.id) {
           <div class="character-item">
-            <img [src]="char.image" [alt]="char.name" [title]="char.name">
             {{ char.name }}
           </div>
         }
