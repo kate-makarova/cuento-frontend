@@ -1,5 +1,5 @@
 import {TopicStatus, TopicType} from './Topic';
-import {CharacterShort} from './Character';
+import {CharacterShort, CustomFieldsData} from './Character';
 import {Post} from './Post';
 
 export interface Episode {
@@ -17,9 +17,8 @@ export interface Episode {
   posts: Post[];
   status: TopicStatus;
 
- summary: string;
  characters: CharacterShort[];
- image: string|null;
+ custom_fields: CustomFieldsData;
 }
 
 export interface EpisodeFilterRequest {

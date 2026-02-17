@@ -11,7 +11,12 @@
     </div>
   </div>
 
-  @for(post of topicService.topic().posts; track post.id; let i = $index; let isEven = $even) {
+  @if(isEpisode()) {
+    <app-episode-header [episode]="episode()" ></app-episode-header>
+  }
+
+
+  @for(post of entity().posts; track post.id; let i = $index; let isEven = $even) {
   <div id="{{post.id}}" class="post" [class.altstyle]="isEven">
     <h3>
       <span>

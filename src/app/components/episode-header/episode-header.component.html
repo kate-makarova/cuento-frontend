@@ -1,42 +1,40 @@
-<div class="post rpg-header">
-  <div class="container">
-    <div class="post-main">
-      <div class="post-body">
-        <div class="post-box">
-          <div class="post-content">
+<div class="episode-header">
+  <div class="episode-info">
+    <h2>{{ episode.name }}</h2>
 
-            <div class="rpg-header-grid">
-
-              <div class="rpg-header-image">
-                <img [src]="headerData.image" alt="Topic Scene">
-              </div>
-
-              <div class="rpg-header-info">
-                <h2 class="rpg-title">{{ headerData.title }}</h2>
-
-                <ul class="rpg-details">
-                  <li><i class="bi bi-geo-alt"></i> <strong>Место:</strong> {{ headerData.location }}</li>
-                  <li><i class="bi bi-clock"></i> <strong>Время:</strong> {{ headerData.time }}</li>
-                  <li><i class="bi bi-people"></i> <strong>Участники:</strong>
-                    <span class="char-links">
-                      @for (char of headerData.participants; track char.id) {
-                        <a [routerLink]="['/character', char.id]">{{ char.name }}</a>{{ $last ? '' : ', ' }}
-                      }
-                    </span>
-                  </li>
-                </ul>
-
-                <hr class="rpg-divider">
-
-                <div class="rpg-summary">
-                  <p>{{ headerData.summary }}</p>
-                </div>
-              </div>
-
-            </div> </div>
-        </div>
+    <div class="episode-characters">
+      <h3>Participants</h3>
+      <div class="character-list">
+        @for (char of episode.characters; track char.id) {
+          <div class="character-item">
+            <img [src]="char.image" [alt]="char.name" [title]="char.name">
+            <a [routerLink]="['/character', char.id]">{{ char.name }}</a>
+          </div>
+        }
       </div>
-      <div class="clearer"></div>
     </div>
+
+    @if (customFields.length > 0) {
+      <div class="episode-custom-fields">
+        <ul>
+          @for(field of customFields; track field.fieldMachineName; let j = $index) {
+            <li class="ep-fld{{ j }}">
+              @switch (field.type) {
+                @case('short_text') {
+                  <app-short-text-field-display [fieldName]="field.fieldName" [fieldValue]="field.fieldValue" ></app-short-text-field-display>
+                }
+                @case('long_text') {
+                  <app-long-text-field-display
+                    [fieldMachineName]="field.fieldMachineName"
+                    [showFieldName]="field.showFieldName"
+                    [fieldName]="field.fieldName"
+                    [fieldValue]="field.fieldValue" ></app-long-text-field-display>
+                }
+              }
+            </li>
+          }
+        </ul>
+      </div>
+    }
   </div>
 </div>

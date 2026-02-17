@@ -18,7 +18,8 @@ export interface Topic {
 
 export enum TopicType {
   general = 0,
-  episode = 1
+  episode = 1,
+  character = 2
 }
 
 export enum TopicStatus {
