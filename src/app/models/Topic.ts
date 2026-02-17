@@ -12,7 +12,6 @@ export interface Topic {
   last_post_author_user_id: number|null;
   last_post_author_username: string|null;
   type: TopicType;
-  posts: Post[];
   status: TopicStatus;
 }
 

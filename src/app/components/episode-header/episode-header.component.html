@@ -8,7 +8,7 @@
         @for (char of episode.characters; track char.id) {
           <div class="character-item">
             <img [src]="char.image" [alt]="char.name" [title]="char.name">
-            <a [routerLink]="['/character', char.id]">{{ char.name }}</a>
+            {{ char.name }}
           </div>
         }
       </div>

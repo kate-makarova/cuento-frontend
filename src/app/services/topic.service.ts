@@ -21,7 +21,6 @@ export class TopicService {
     last_post_author_user_id: null,
     last_post_author_username: null,
     type: TopicType.general,
-    posts: [],
     status: TopicStatus.active
   });
   readonly topic = this.topicSignal.asReadonly();
@@ -38,16 +37,17 @@ export class TopicService {
     last_post_author_user_id: null,
     last_post_author_username: null,
     type: TopicType.episode,
-    posts: [],
     status: TopicStatus.active,
-    summary: '',
     characters: [],
-    image: null
+    custom_fields: {
+      custom_fields: {},
+      field_config: []
+    }
   });
   readonly episode = this.episodeSignal.asReadonly();
 
   loadTopic(id: number) {
-    this.apiService.get<any>('topic/git/' + id.toString()).subscribe(data => {
+    this.apiService.get<any>('topic/get/' + id.toString()).subscribe(data => {
       switch(data.type) {
         case TopicType.general:
           this.topicSignal.set({

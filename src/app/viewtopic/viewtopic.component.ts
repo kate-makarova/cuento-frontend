@@ -9,6 +9,8 @@ import {LongTextFieldDisplayComponent} from '../components/long-text-field-displ
 import {CommonModule} from '@angular/common';
 import {CharacterProfileComponent} from '../components/character-profile/character-profile.component';
 import {TopicType} from '../models/Topic';
+import {EpisodeHeaderComponent} from '../components/episode-header/episode-header.component';
+import {Post} from '../models/Post';
 
 @Component({
   selector: 'app-viewtopic',
@@ -18,7 +20,8 @@ import {TopicType} from '../models/Topic';
     ShortTextFieldDisplayComponent,
     LongTextFieldDisplayComponent,
     CommonModule,
-    CharacterProfileComponent
+    CharacterProfileComponent,
+    EpisodeHeaderComponent
   ],
   templateUrl: './viewtopic.component.html',
   standalone: true,
@@ -32,6 +35,7 @@ export class ViewtopicComponent implements OnInit {
   episode = this.topicService.episode;
   topicType = this.topicService.topicType;
   entity: Signal<any> = this.topic;
+  posts:Post[] = []
 
   accountName = 'User123'; // This should come from AuthService
   selectedCharacterId: number | null = null;

@@ -16,7 +16,7 @@
   }
 
 
-  @for(post of entity().posts; track post.id; let i = $index; let isEven = $even) {
+  @for(post of posts; track post.id; let i = $index; let isEven = $even) {
   <div id="{{post.id}}" class="post" [class.altstyle]="isEven">
     <h3>
       <span>
