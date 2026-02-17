@@ -17,41 +17,10 @@
       <span>
         <a class="sharelink" rel="nofollow" href="#p{{ post.id }}" onclick="return false;" title="" i18n="@@viewtopic.share">Share</a>
         <strong>{{ i + 1 }}</strong>
-        <a class="permalink" rel="nofollow"
-           href="https://viperstest.rusff.me/viewtopic.php?id=16#p358">{{ post.createdAt }}</a></span></h3>
+        <a class="permalink" rel="nofollow">{{ post.createdAt }}</a></span></h3>
     <div class="container">
       <div class="post-main">
-        @if(post.useCharacterProfile && post.authorCharacterProfile !== null) {
-          <div class="post-author post-character">
-            <ul>
-              <li class="pa-author"><a routerLink="/character/{{ post.authorCharacterProfile.id }}">{{ post.authorCharacterProfile.name }}</a></li>
-              <li class="pa-avatar"><img src="{{ post.authorCharacterProfile.image }}" alt="Avatar" /></li>
-              @for(field of post.authorCharacterProfile.customFields; track field.fieldMachineName; let j = $index) {
-                <li class="pa-fld{{ j }}">
-                  @switch (field.type) {
-                    @case('short_text') {
-                      <app-short-text-field-display [fieldName]="field.fieldName" [fieldValue]="field.fieldValue" ></app-short-text-field-display>
-                    }
-                    @case('long_text') {
-                      <app-long-text-field-display
-                        [fieldMachineName]="field.fieldMachineName"
-                        [showFieldName]="field.showFieldName"
-                        [fieldName]="field.fieldName"
-                        [fieldValue]="field.fieldValue" ></app-long-text-field-display>
-                    }
-                  }
-                </li>
-              }
-            </ul>
-          </div>
-        } @else {
-          <div class="post-author">
-            <ul>
-              <li class="pa-author"><a href="/profile/{{ post.authorUserProfile.id }}">{{ post.authorUserProfile.userName }}</a></li>
-              <li class="pa-avatar"><img src="{{ post.authorUserProfile.avatar }}" alt="Avatar" /></li>
-            </ul>
-          </div>
-        }
+        <app-character-profile [post]="post"></app-character-profile>
 
         <div class="post-body">
           <div class="post-box">
@@ -83,7 +52,35 @@
     </div>
   </div>
 
-  <app-post-form></app-post-form>
+  <div id="post-form" class="formal">
+    <h2><span i18n="@@postform.quickReply">Quick reply</span></h2>
+    <form id="post" class="container">
+      <fieldset>
+        <legend><span i18n="@@postform.writeMessage">Write your message and click "Send"</span></legend>
+        <div class="fs-box hashelp">
+
+          <div class="post-editor-container" style="display: flex; gap: 15px;">
+            <div class="profile-sidebar" style="width: 200px;">
+              <app-character-profile
+                [accountName]="accountName"
+                (characterSelected)="onCharacterSelected($event)">
+              </app-character-profile>
+            </div>
+
+            <div class="form-content" style="flex: 1;">
+              <app-post-form></app-post-form>
+            </div>
+          </div>
+
+          <div class="buttons" style="margin-top: 15px; text-align: right;">
+            <input type="submit" value="Send" i18n-value="@@postform.send" class="button">
+            <input type="button" value="Preview" i18n-value="@@postform.preview" class="button">
+          </div>
+
+        </div>
+      </fieldset>
+    </form>
+  </div>
 
   <div class="main-footer"></div>
 </div>

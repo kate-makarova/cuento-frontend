@@ -19,3 +19,10 @@ export interface CharacterShort {
   name: string;
   image: string;
 }
+
+export interface CharacterProfile {
+  id: number;
+  name: string;
+  avatar: string;
+  customFields: Field[];
+}

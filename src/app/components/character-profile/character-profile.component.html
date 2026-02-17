@@ -1,0 +1,41 @@
+@if (!post) {
+  <div class="character-selector">
+    <select [(ngModel)]="selectedCharacterId" (change)="onSelect()" style="width: 100%; margin-bottom: 10px;">
+      <option value="account"><ng-container i18n="@@postform.account">Account</ng-container>: {{ accountName }}</option>
+      @for (char of characters(); track char.id) {
+        <option [value]="char.id">{{ char.name }}</option>
+      }
+    </select>
+  </div>
+}
+
+<div class="post-author" [class.post-character]="isCharacter">
+  <ul>
+    <li class="pa-author">
+      @if (profileLink) {
+        <a [routerLink]="profileLink">{{ displayName }}</a>
+      } @else {
+        {{ displayName }}
+      }
+    </li>
+    <li class="pa-avatar"><img [src]="displayAvatar" alt="Avatar" /></li>
+    @if (isCharacter && customFields.length > 0) {
+      @for(field of customFields; track field.fieldMachineName; let j = $index) {
+        <li class="pa-fld{{ j }}">
+          @switch (field.type) {
+            @case('short_text') {
+              <app-short-text-field-display [fieldName]="field.fieldName" [fieldValue]="field.fieldValue" ></app-short-text-field-display>
+            }
+            @case('long_text') {
+              <app-long-text-field-display
+                [fieldMachineName]="field.fieldMachineName"
+                [showFieldName]="field.showFieldName"
+                [fieldName]="field.fieldName"
+                [fieldValue]="field.fieldValue" ></app-long-text-field-display>
+            }
+          }
+        </li>
+      }
+    }
+  </ul>
+</div>

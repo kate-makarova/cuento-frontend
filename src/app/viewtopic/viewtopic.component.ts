@@ -6,6 +6,8 @@ import {
   ShortTextFieldDisplayComponent
 } from '../components/short-text-field-display/short-text-field-display.component';
 import {LongTextFieldDisplayComponent} from '../components/long-text-field-display/long-text-field-display.component';
+import {CommonModule} from '@angular/common';
+import {CharacterProfileComponent} from '../components/character-profile/character-profile.component';
 
 @Component({
   selector: 'app-viewtopic',
@@ -13,16 +15,26 @@ import {LongTextFieldDisplayComponent} from '../components/long-text-field-displ
     PostFormComponent,
     RouterLink,
     ShortTextFieldDisplayComponent,
-    LongTextFieldDisplayComponent
+    LongTextFieldDisplayComponent,
+    CommonModule,
+    CharacterProfileComponent
   ],
   templateUrl: './viewtopic.component.html',
   standalone: true,
   styleUrl: './viewtopic.component.css'
 })
-export class ViewtopicComponent implements OnInit {
+export class ViewtopicComponent {
   topicService = inject(TopicService);
   @Input() id?: number;
 
+  accountName = 'User123'; // This should come from AuthService
+  selectedCharacterId: number | null = null;
+
   ngOnInit() {
+  }
+
+  onCharacterSelected(characterId: number | null) {
+    this.selectedCharacterId = characterId;
+    console.log('Selected character ID:', this.selectedCharacterId);
   }
 }

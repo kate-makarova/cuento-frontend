@@ -2,7 +2,7 @@ import { Injectable, signal, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { FieldTemplate } from "../models/FieldTemplate";
 import { Faction } from "../models/Faction";
-import { CharacterShort } from "../models/Character";
+import { CharacterShort, CharacterProfile } from "../models/Character";
 
 @Injectable({ providedIn: 'root' })
 export class CharacterService {
@@ -15,6 +15,10 @@ export class CharacterService {
   readonly shortCharacterList = this.shortCharacterListSignal.asReadonly();
   private userCharactersSignal = signal<CharacterShort[]>([]);
   readonly userCharacters = this.userCharactersSignal.asReadonly();
+  private userCharacterProfilesSignal = signal<CharacterProfile[]>([]);
+  readonly userCharacterProfiles = this.userCharacterProfilesSignal.asReadonly();
+  private characterProfileTemplateSignal = signal<FieldTemplate[]>([]);
+  readonly characterProfileTemplate = this.characterProfileTemplateSignal.asReadonly();
 
   loadCharacterTemplate(): void {
     this.apiService.get<FieldTemplate[]>('template/character/get').subscribe({
@@ -73,6 +77,40 @@ export class CharacterService {
       },
       error: (err) => {
         console.error('Failed to load user characters', err);
+      }
+    })
+  }
+
+  loadUserCharacterProfiles(): void {
+    this.apiService.get<CharacterProfile[]>('user/character-profiles').subscribe({
+      next: (data) => {
+        this.userCharacterProfilesSignal.set(data);
+      },
+      error: (err) => {
+        console.error('Failed to load user character profiles', err);
+      }
+    })
+  }
+
+  loadCharacterProfileTemplate(): void {
+    this.apiService.get<FieldTemplate[]>('template/character_profile/get').subscribe({
+      next: (data) => {
+        const sortedData = data.sort((a, b) => a.order - b.order);
+        this.characterProfileTemplateSignal.set(sortedData);
+      },
+      error: (err) => {
+        console.error('Failed to load character profile template', err);
+      }
+    });
+  }
+
+  saveCharacterProfileTemplate(template: FieldTemplate[]): void {
+    this.apiService.post('template/character_profile/update', template).subscribe({
+      next: (data) => {
+        console.log('Character profile template saved successfully', data);
+      },
+      error: (err) => {
+        console.error('Failed to save character profile template', err);
       }
     })
   }

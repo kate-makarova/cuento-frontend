@@ -31,11 +31,8 @@
   overflow-y: auto;
   background: white;
   position: absolute;
-  top: 100%;
-  left: 0;
   z-index: 1000;
-  width: 100%;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  width: 300px;
 }
 
 .autocomplete-list li {

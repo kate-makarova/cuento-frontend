@@ -7,27 +7,31 @@ import { ShortTextFieldComponent } from '../components/short-text-field/short-te
 import { LongTextFieldComponent } from '../components/long-text-field/long-text-field.component';
 import { ImageFieldComponent } from '../components/image-field/image-field.component';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CreateEpisodeRequest } from '../models/Episode';
 
 @Component({
   selector: 'app-episode-create',
   imports: [CommonModule, ReactiveFormsModule, ShortTextFieldComponent, LongTextFieldComponent, ImageFieldComponent],
   templateUrl: './episode-create.component.html',
-  standalone: true,
   styleUrl: './episode-create.component.css'
 })
 export class EpisodeCreateComponent implements OnInit {
   episodeService = inject(EpisodeService);
   characterService = inject(CharacterService);
   router = inject(Router);
+  route = inject(ActivatedRoute);
   episodeTemplate = this.episodeService.episodeTemplate;
   characterSuggestions = this.characterService.shortCharacterList;
 
   // Character inputs
   characterControls = new FormArray([new FormControl('')]);
+  selectedCharacterIds: (number | null)[] = [null];
 
   // Track which input is currently active for suggestions
   activeInputIndex: number | null = null;
+
+  subforumId: number = 0;
 
   constructor() {
     this.setupAutocomplete(0);
@@ -35,6 +39,11 @@ export class EpisodeCreateComponent implements OnInit {
 
   ngOnInit() {
     this.episodeService.loadEpisodeTemplate();
+    this.route.queryParams.subscribe(params => {
+      if (params['fid']) {
+        this.subforumId = +params['fid'];
+      }
+    });
   }
 
   setupAutocomplete(index: number) {
@@ -52,20 +61,24 @@ export class EpisodeCreateComponent implements OnInit {
     });
   }
 
-  selectCharacter(index: number, charName: string) {
+  selectCharacter(index: number, charName: string, charId: number) {
     this.characterControls.at(index).setValue(charName, { emitEvent: false });
+    this.selectedCharacterIds[index] = charId;
     this.activeInputIndex = null;
     this.characterService.loadShortCharacterList('');
   }
 
   addCharacterField() {
     this.characterControls.push(new FormControl(''));
+    this.selectedCharacterIds.push(null);
     this.setupAutocomplete(this.characterControls.length - 1);
   }
 
   removeCharacterField(index: number) {
     if (this.characterControls.length > 1) {
       this.characterControls.removeAt(index);
+      this.selectedCharacterIds.splice(index, 1);
+
       // If we removed the active input, clear suggestions
       if (this.activeInputIndex === index) {
         this.activeInputIndex = null;
@@ -82,20 +95,27 @@ export class EpisodeCreateComponent implements OnInit {
     const form = event.target as HTMLFormElement;
     const formData = new FormData(form);
 
-    const data: any = {};
-    formData.forEach((value, key) => {
-      data[key] = value;
+    const customFields: any = {};
+
+    // Iterate over template to get custom fields
+    this.episodeTemplate().forEach(field => {
+      const value = formData.get(field.machine_field_name);
+      if (value !== null) {
+        customFields[field.machine_field_name] = value;
+      }
     });
 
-    // Add characters manually
-    // Filter out empty values
-    data['characters'] = this.characterControls.value.filter((c: string|null) => c && c.trim() !== '');
+    const request: CreateEpisodeRequest = {
+      subforum_id: this.subforumId,
+      name: formData.get('req_subject') as string,
+      character_ids: this.selectedCharacterIds.filter((id): id is number => id !== null),
+      custom_fields: customFields
+    };
 
-    this.episodeService.createEpisode(data).subscribe({
+    this.episodeService.createEpisode(request).subscribe({
       next: (response) => {
         console.log('Episode created successfully', response);
-        // Navigate to episode list or the new episode
-        this.router.navigate(['/episode-list']);
+        this.router.navigate(['/viewforum', this.subforumId]);
       },
       error: (err) => {
         console.error('Failed to create episode', err);

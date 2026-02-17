@@ -1,5 +1,6 @@
-import {CharacterProfile} from './CharacterProfile';
 import {UserProfile} from './UserProfile';
+import {CharacterProfile} from './Character';
+
 
 export class Post {
   id: number;

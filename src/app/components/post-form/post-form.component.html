@@ -1,6 +1,4 @@
-<div id="post-form" class="formal">
-  <h2><span i18n="@@postform.quickReply">Quick reply</span></h2>
-  <form id="post" class="container">
+
     <fieldset>
       <legend><span i18n="@@postform.writeMessage">Write your message and click "Send"</span></legend>
       <div class="fs-box hashelp">
@@ -62,34 +60,10 @@
 
         <div class="post-editor-container">
 
-          <div class="profile-sidebar">
-            <div class="character-selector">
-              <select (change)="onCharacterChange($event)">
-                <option value="account"><ng-container i18n="@@postform.account">Account</ng-container>: {{ accountName }}</option>
-                @for (char of characters; track char.id) {
-                  <option [value]="char.id">{{ char.name }}</option>
-                }
-              </select>
-            </div>
-
-            <div class="current-identity">
-              <p class="identity-name">{{ currentName }}</p>
-              <div class="avatar-box">
-                <img [src]="currentAvatarUrl" alt="Avatar" />
-              </div>
-            </div>
-          </div>
-
           <div class="textarea-wrapper">
             <textarea #messageField name="req_message" rows="12"></textarea>
           </div>
         </div>
-
-        <div class="buttons">
-          <input type="submit" value="Send" i18n-value="@@postform.send" class="button">
-          <input type="button" value="Preview" i18n-value="@@postform.preview" class="button">
-        </div>
       </div>
     </fieldset>
-  </form>
-</div>
+

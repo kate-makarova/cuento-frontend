@@ -38,3 +38,10 @@ export interface EpisodeListItem {
   topic_status: number;
   last_post_date: string;
 }
+
+export interface CreateEpisodeRequest {
+subforum_id: number;
+name: string;
+character_ids: number[];
+custom_fields: any;
+}

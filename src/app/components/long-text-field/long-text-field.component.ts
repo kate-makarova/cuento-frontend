@@ -1,16 +1,15 @@
 import { Component, ElementRef, Input, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-long-text-field',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './long-text-field.component.html',
   standalone: true,
   styleUrl: './long-text-field.component.css'
 })
 export class LongTextFieldComponent {
   @Input() fieldName: string | undefined;
-  @Input() fieldValue: string = '';
+  @Input() fieldValue: string | undefined;
   @Input() showFieldName: boolean = true;
   @Input() name: string | undefined;
   @Input() rows: number = 20;

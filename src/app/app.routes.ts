@@ -16,6 +16,7 @@ import {TopicCreateComponent} from './topic-create/topic-create.component';
 import {EpisodeCreateComponent} from './episode-create/episode-create.component';
 import {CharacterCreateComponent} from './character-create/character-create.component';
 import {EpisodeTemplateEditComponent} from './admin/episode-template-edit/episode-template-edit.component';
+import {CharacterProfileTemplateEditComponent} from './admin/character-profile-template-edit/character-profile-template-edit.component';
 
 export const routes: Routes = [
   {
@@ -111,6 +112,11 @@ export const routes: Routes = [
         path: 'episode-template',
         component: EpisodeTemplateEditComponent,
         title: 'Admin - Episode Template'
+      },
+      {
+        path: 'character-profile-template',
+        component: CharacterProfileTemplateEditComponent,
+        title: 'Admin - Character Profile Template'
       }
     ]
   }

@@ -22,7 +22,7 @@
             @if (activeInputIndex === i && characterSuggestions().length > 0) {
             <ul class="autocomplete-list">
               @for (char of characterSuggestions(); track char.id) {
-              <li (click)="selectCharacter(i, char.name)">{{ char.name }}</li>
+              <li (click)="selectCharacter(i, char.name, char.id)">{{ char.name }}</li>
               }
             </ul>
             }
