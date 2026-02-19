@@ -7,6 +7,7 @@ import { LongTextFieldDisplayComponent } from '../long-text-field-display/long-t
 import { CharacterProfile, CustomFieldsData } from '../../models/Character';
 import { FormsModule } from '@angular/forms';
 import { CharacterService } from '../../services/character.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-character-profile',
@@ -17,6 +18,7 @@ import { CharacterService } from '../../services/character.service';
 })
 export class CharacterProfileComponent implements OnInit {
   private characterService = inject(CharacterService);
+  private authService = inject(AuthService);
 
   @Input() post?: Post;
   @Input() accountName: string = '';
@@ -41,31 +43,31 @@ export class CharacterProfileComponent implements OnInit {
   }
 
   private initFromPost() {
-    if (this.post!.useCharacterProfile && this.post!.authorCharacterProfile !== null) {
+    if (this.post!.character_profile && this.post!.character_profile !== null) {
       this.isCharacter = true;
-      this.displayName = this.post!.authorCharacterProfile.character_name;
-      this.displayAvatar = this.post!.authorCharacterProfile.avatar;
-      this.profileLink = `/character/${this.post!.authorCharacterProfile.id}`;
-      this.customFields = this.processCustomFields(this.post!.authorCharacterProfile.custom_fields);
+      this.displayName = this.post!.character_profile.character_name;
+      this.displayAvatar = this.post!.character_profile.avatar;
+      this.profileLink = `/character/${this.post!.character_profile.id}`;
+      this.customFields = this.processCustomFields(this.post!.character_profile.custom_fields);
     } else {
       this.isCharacter = false;
-      this.displayName = this.post!.authorUserProfile.userName;
-      this.displayAvatar = this.post!.authorUserProfile.avatar;
-      this.profileLink = `/profile/${this.post!.authorUserProfile.id}`;
+      this.displayName = this.post!.user_profile?.user_name ?? '';
+      this.displayAvatar = this.post!.user_profile?.avatar ?? '';
+      this.profileLink = `/profile/${this.post!.user_profile?.user_id}`;
     }
   }
 
   private initForForm() {
     this.isCharacter = false;
     this.displayName = this.accountName;
-    this.displayAvatar = 'assets/default-avatar.png'; // Default or from user profile if available
+    this.displayAvatar = this.authService.currentUser()?.avatar ?? '';
   }
 
   onSelect() {
     if (this.selectedCharacterId === 'account') {
       this.isCharacter = false;
       this.displayName = this.accountName;
-      this.displayAvatar = 'assets/default-avatar.png';
+      this.displayAvatar = this.authService.currentUser()?.avatar ?? '';
       this.customFields = [];
       this.characterSelected.emit(null);
     } else {

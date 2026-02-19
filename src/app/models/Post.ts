@@ -1,25 +1,13 @@
-import {UserProfile} from './UserProfile';
+import {UserProfile} from './User';
 import {CharacterProfile} from './Character';
 
 
-export class Post {
+export interface Post {
   id: number;
-  topicId: number;
-  authorUserProfile: UserProfile;
-  useCharacterProfile: boolean = false;
-  authorCharacterProfile: CharacterProfile|null = null;
-  message: string;
-  createdAt: string;
-
-  constructor(id: number, topicId: number, authorUser: UserProfile,
-              message: string, createdAt: string, authorCharacter: CharacterProfile|null = null,
-              useCharacterProfile: boolean = false) {
-    this.id = id;
-    this.topicId = topicId;
-    this.authorUserProfile = authorUser;
-    this.message = message;
-    this.createdAt = createdAt;
-    this.authorCharacterProfile = authorCharacter;
-    this.useCharacterProfile = useCharacterProfile;
-  }
+  topic_id: number;
+  user_profile: UserProfile|null;
+  use_character_profile: boolean;
+  character_profile: CharacterProfile|null;
+  content: string;
+  date_created: string;
 }

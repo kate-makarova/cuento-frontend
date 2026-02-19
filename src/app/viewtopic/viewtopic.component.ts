@@ -30,7 +30,7 @@ export class ViewtopicComponent implements OnInit {
   @Input() id?: number;
 
   topic = this.topicService.topic;
-  posts:Post[] = []
+  posts = this.topicService.posts;
 
   accountName = 'User123'; // This should come from AuthService
   selectedCharacterId: number | null = null;
@@ -51,6 +51,7 @@ export class ViewtopicComponent implements OnInit {
   ngOnInit() {
     if (this.id) {
       this.topicService.loadTopic(this.id);
+      this.topicService.loadPosts(this.id, 1);
     }
   }
 

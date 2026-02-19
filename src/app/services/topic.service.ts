@@ -1,6 +1,7 @@
 import {inject, Injectable, signal} from '@angular/core';
 import {Topic, TopicStatus, TopicType} from '../models/Topic';
 import {ApiService} from './api.service';
+import {Post} from '../models/Post';
 
 @Injectable({ providedIn: 'root' })
 export class TopicService {
@@ -23,10 +24,22 @@ export class TopicService {
   });
   readonly topic = this.topicSignal.asReadonly();
 
+  private postsSignal = signal<Post[]>([]);
+  readonly posts = this.postsSignal.asReadonly();
+
 
   loadTopic(id: number) {
     this.apiService.get<Topic>('topic/get/' + id.toString()).subscribe(data => {
       this.topicSignal.set(data);
+    });
+  }
+
+  loadPosts(topicId: number, page: number) {
+    if(page == undefined) {
+      page = 1;
+    }
+    this.apiService.get<Post[]>(`topic-posts/${topicId}/${page}`).subscribe(data => {
+      this.postsSignal.set(data);
     });
   }
 }

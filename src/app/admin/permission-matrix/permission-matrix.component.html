@@ -1,0 +1,43 @@
+<div class="permission-matrix-container">
+  <h2>Permission Matrix</h2>
+
+  <form (submit)="saveMatrix(); $event.preventDefault()">
+    @for (key of matrixKeys(); track key) {
+      <fieldset class="matrix-group">
+        <legend>Matrix for ID: {{ key }}</legend>
+        <div class="table-wrapper">
+          <table class="permission-table">
+            <thead>
+              <tr>
+                <th>Permission</th>
+                @for (role of roles(); track role[0]) {
+                  <th>{{ role[1] }}</th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (permission of permissions(); track permission[0]) {
+                <tr>
+                  <td>{{ permission[1] }}</td>
+                  @for (role of roles(); track role[0]) {
+                    <td>
+                      <input
+                        type="checkbox"
+                        [name]="key + '_' + permission[0] + '_' + role[0]"
+                        [(ngModel)]="getMatrixFor(key).matrix[permission[0]][+role[0]]"
+                      />
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </fieldset>
+    }
+
+    <div class="form-actions">
+      <button type="submit" class="btn-primary">Save Permissions</button>
+    </div>
+  </form>
+</div>

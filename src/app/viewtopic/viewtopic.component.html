@@ -1,6 +1,6 @@
 <div id="pun-main" class="main">
   <div class="main-header">
-    <h1><span>{{ topicService.topic().name }}</span></h1>
+    <h1><span>{{ topic().name }}</span></h1>
   </div>
 
   <div class="linkst">
@@ -16,13 +16,13 @@
   }
 
 
-  @for(post of posts; track post.id; let i = $index; let isEven = $even) {
+  @for(post of posts(); track post.id; let i = $index; let isEven = $even) {
   <div id="{{post.id}}" class="post" [class.altstyle]="isEven">
     <h3>
       <span>
         <a class="sharelink" rel="nofollow" href="#p{{ post.id }}" onclick="return false;" title="" i18n="@@viewtopic.share">Share</a>
         <strong>{{ i + 1 }}</strong>
-        <a class="permalink" rel="nofollow">{{ post.createdAt }}</a></span></h3>
+        <a class="permalink" rel="nofollow">{{ post.date_created }}</a></span></h3>
     <div class="container">
       <div class="post-main">
         <app-character-profile [post]="post"></app-character-profile>
@@ -30,7 +30,7 @@
         <div class="post-body">
           <div class="post-box">
             <div class="post-content">
-              {{ post.message }}
+              {{ post.content }}
             </div>
           </div>
         </div>
@@ -38,7 +38,7 @@
       </div>
       <div class="post-footer">
         <div class="conl">
-          <p class="post-contacts"><span><a href="/profile/{{ post.authorUserProfile.id }}" i18n="@@viewtopic.profile">Profile</a></span></p>
+          <p class="post-contacts"><span><a href="/profile/{{ post.user_profile?.user_id }}" i18n="@@viewtopic.profile">Profile</a></span></p>
         </div>
         <div class="conr">
           <p class="post-links"><span><a href="/post.php?tid=8&amp;qid=21" i18n="@@viewtopic.quote">Quote</a></span></p>

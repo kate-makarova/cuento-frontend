@@ -98,16 +98,6 @@ body::before {
   position: relative;
 }
 
-/* Texture Overlay: Adds organic grain without an image file */
-#pun-main::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  pointer-events: none;
-  opacity: 0.18;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
 /* The Category Wrapper */
 .category {
   margin-bottom: 25px;
@@ -245,3 +235,122 @@ body::before {
   text-align: center;
 }
 
+/* Episode Header Styles */
+.episode-header {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.episode-info {
+  flex: 1;
+}
+
+.episode-info h2 {
+  margin-top: 0;
+  font-size: 2em;
+  color: #333;
+}
+
+.episode-summary {
+  margin-bottom: 20px;
+  font-size: 1.1em;
+  color: #555;
+}
+
+.episode-characters h3,
+.episode-custom-fields h3 {
+  font-size: 1.2em;
+  color: #444;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+.character-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.character-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #fff;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+}
+
+.character-item img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+
+.character-item a {
+  text-decoration: none;
+  color: #007bff;
+  font-weight: bold;
+}
+
+.character-item a:hover {
+  text-decoration: underline;
+}
+
+.episode-custom-fields ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.episode-custom-fields li {
+  margin-bottom: 10px;
+}
+
+.episode-image {
+  flex-shrink: 0;
+  width: 200px;
+}
+
+.episode-image img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+/* Custom Field Display Styles */
+.custom-field-display {
+  margin-bottom: 10px;
+}
+
+.custom-field-display label {
+  font-weight: bold;
+  color: #555;
+  display: block;
+  margin-bottom: 3px;
+}
+
+.custom-field-display span,
+.custom-field-display div {
+  font-size: 1em;
+  color: #333;
+}
+
+.long-text-field div {
+  white-space: pre-wrap; /* Preserve line breaks */
+  background-color: #fdfdfd;
+  border: 1px solid #eee;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.pa-avatar img {
+  width: 180px;
+  height: 180px;
+}
