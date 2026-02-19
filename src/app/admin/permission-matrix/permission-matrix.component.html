@@ -4,7 +4,7 @@
   <form (submit)="saveMatrix(); $event.preventDefault()">
     @for (key of matrixKeys(); track key) {
       <fieldset class="matrix-group">
-        <legend>Matrix for ID: {{ key }}</legend>
+        <legend>Permissions: {{ getPermissionTypeName(key) }}</legend>
         <div class="table-wrapper">
           <table class="permission-table">
             <thead>

@@ -5,7 +5,7 @@ export interface PermissionMatrixObject {
   permission_order: string[]
 }
 
-enum PermissionType {
+export enum PermissionType {
   "Endpoint Permission" = 0,
   "Subforum Permission" = 1
 }

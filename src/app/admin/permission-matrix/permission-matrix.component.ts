@@ -2,7 +2,7 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PermissionService } from '../../services/permission.service';
-import { PermissionMatrixObject } from '../../models/Permission';
+import { PermissionMatrixObject, PermissionType } from '../../models/Permission';
 
 @Component({
   selector: 'app-permission-matrix',
@@ -50,7 +50,30 @@ export class PermissionMatrixComponent implements OnInit {
     return sortedPermissions;
   }
 
+  getPermissionTypeName(key: string): string {
+    const numericKey = +key;
+    return PermissionType[numericKey];
+  }
+
   saveMatrix() {
-    console.log('Saving Matrix:', this.matrixMap());
+    const checkedPermissions: string[] = [];
+    const matrixMap = this.matrixMap();
+
+    for (const matrixKey in matrixMap) {
+      const matrixObject = matrixMap[matrixKey];
+      for (const permissionKey in matrixObject.matrix) {
+        for (const roleKey in matrixObject.matrix[permissionKey]) {
+          if (matrixObject.matrix[permissionKey][roleKey]) {
+            const roleName = matrixObject.roles[roleKey];
+            checkedPermissions.push(`${matrixKey}.${roleName}.${permissionKey}`);
+          }
+        }
+      }
+    }
+
+    this.permissionService.savePermissionMatrix(checkedPermissions).subscribe({
+      next: () => console.log('Permissions saved successfully'),
+      error: (err) => console.error('Failed to save permissions', err)
+    });
   }
 }
