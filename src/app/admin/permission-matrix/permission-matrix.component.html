@@ -23,7 +23,7 @@
                     <td>
                       <input
                         type="checkbox"
-                        [name]="key + '_' + permission[0] + '_' + role[0]"
+                        [name]="key + '.' + role[1] + '.' + permission[0]"
                         [(ngModel)]="getMatrixFor(key).matrix[permission[0]][+role[0]]"
                       />
                     </td>
