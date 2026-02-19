@@ -21,11 +21,6 @@ export class PermissionMatrixComponent implements OnInit {
     return firstMatrix ? Object.entries(firstMatrix.roles) : [];
   });
 
-  permissions = computed(() => {
-    const firstMatrix = this.getFirstMatrix();
-    return firstMatrix ? Object.entries(firstMatrix.permissions) : [];
-  });
-
   matrixKeys = computed(() => Object.keys(this.matrixMap()));
 
   ngOnInit() {
@@ -44,8 +39,18 @@ export class PermissionMatrixComponent implements OnInit {
     return this.matrixMap()[+key];
   }
 
+  getPermissionsFor(key: string): [string, string][] {
+    const matrixObject = this.getMatrixFor(key);
+    if (!matrixObject) return [];
+
+    const sortedPermissions = matrixObject.permission_order.map(permissionKey => {
+      return [permissionKey, matrixObject.permissions[permissionKey]] as [string, string];
+    });
+
+    return sortedPermissions;
+  }
+
   saveMatrix() {
     console.log('Saving Matrix:', this.matrixMap());
-    // this.permissionService.savePermissionMatrix(this.matrixMap());
   }
 }

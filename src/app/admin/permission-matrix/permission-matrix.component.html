@@ -16,7 +16,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (permission of permissions(); track permission[0]) {
+              @for (permission of getPermissionsFor(key); track permission[0]) {
                 <tr>
                   <td>{{ permission[1] }}</td>
                   @for (role of roles(); track role[0]) {

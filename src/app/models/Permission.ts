@@ -1,7 +1,8 @@
 export interface PermissionMatrixObject {
-  roles:       { [key: number]: string }
-  permissions: { [key: string]: string }
-  matrix:      {[key: string]: {[key: number]: boolean}}
+  roles:       { [key: number]: string };
+  permissions: { [key: string]: string };
+  matrix:      {[key: string]: {[key: number]: boolean}};
+  permission_order: string[]
 }
 
 enum PermissionType {
