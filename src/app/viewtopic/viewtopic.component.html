@@ -29,9 +29,7 @@
 
         <div class="post-body">
           <div class="post-box">
-            <div class="post-content">
-              {{ post.content }}
-            </div>
+            <div class="post-content" [innerHTML]="post.content_html"></div>
           </div>
         </div>
         <div class="clearer"></div>

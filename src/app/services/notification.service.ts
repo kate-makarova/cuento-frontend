@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
+import { PostCreatedEvent, TopicCreatedEvent, NotificationEvent, WebSocketEvent } from '../models/event';
 
 /**
  * A service for handling live notifications via WebSockets.
@@ -18,8 +19,14 @@ export class NotificationService {
   private maxReconnectInterval = 30000; // Max reconnect delay (30s)
   private reconnectTimer: number | null = null;
 
-  private notificationSubject = new Subject<any>();
-  public notifications$ = this.notificationSubject.asObservable();
+  private postCreatedSubject = new Subject<PostCreatedEvent>();
+  public postCreated$ = this.postCreatedSubject.asObservable();
+
+  private topicCreatedSubject = new Subject<TopicCreatedEvent>();
+  public topicCreated$ = this.topicCreatedSubject.asObservable();
+
+  private notificationSubject = new Subject<NotificationEvent>();
+  public notification$ = this.notificationSubject.asObservable();
 
   /**
    * A flag to indicate if the disconnection was intentional (e.g., user logout).
@@ -148,7 +155,19 @@ export class NotificationService {
     this.reconnectTimer = window.setTimeout(() => this._doConnect(), timeout);
   }
 
-  private handleNotification(notification: unknown): void {
-    this.notificationSubject.next(notification);
+  private handleNotification(notification: WebSocketEvent): void {
+    switch (notification.type) {
+      case 'post_created':
+        this.postCreatedSubject.next(notification as PostCreatedEvent);
+        break;
+      case 'topic_created':
+        this.topicCreatedSubject.next(notification as TopicCreatedEvent);
+        break;
+      case 'notification':
+        this.notificationSubject.next(notification as NotificationEvent);
+        break;
+      default:
+        console.warn('NotificationService: Unknown notification type:', notification);
+    }
   }
 }

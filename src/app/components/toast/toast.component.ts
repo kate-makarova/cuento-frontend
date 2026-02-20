@@ -1,20 +1,38 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {Notification} from '../../models/Notification';
+import {NotificationService} from '../../services/notification.service';
+import {CommonModule} from '@angular/common';
 
 @Component({
   selector: 'app-toast',
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './toast.component.html',
   standalone: true,
   styleUrl: './toast.component.css'
 })
-export class ToastComponent {
-  notifications: Notification[] = [{
-    id: 1,
-    title: "Test",
-    message: "Sample message",
-    from: "system"
-  }];
+export class ToastComponent implements OnInit {
+  private notificationService = inject(NotificationService);
+  notifications: Notification[] = [];
 
-  remove(toastId: number) {}
+  ngOnInit() {
+    this.notificationService.notification$.subscribe(event => {
+      const newNotification: Notification = {
+        id: Date.now(),
+        title: event.message_type,
+        message: event.message,
+        from: 'System'
+      };
+
+      this.notifications.push(newNotification);
+
+      // Auto-dismiss after 5 minutes (300000 ms)
+      setTimeout(() => {
+        this.remove(newNotification.id);
+      }, 300000);
+    });
+  }
+
+  remove(toastId: number) {
+    this.notifications = this.notifications.filter(n => n.id !== toastId);
+  }
 }

@@ -30,12 +30,10 @@ export class TopicService {
   readonly posts = this.postsSignal.asReadonly();
 
   constructor() {
-    this.notificationService.notifications$.subscribe(notification => {
-      if (notification.type === 'post_created') {
-        const currentTopicId = this.topic().id;
-        if (notification.topic_id === currentTopicId) {
-          this.handleNewPost(notification.post);
-        }
+    this.notificationService.postCreated$.subscribe(event => {
+      const currentTopicId = this.topic().id;
+      if (event.topic_id === currentTopicId) {
+        this.handleNewPost(event.post);
       }
     });
   }
@@ -56,17 +54,7 @@ export class TopicService {
     return this.apiService.post('post/create', data);
   }
 
-  private handleNewPost(postData: any) {
-    const newPost: Post = {
-      id: postData.id,
-      topic_id: postData.topic_id,
-      user_profile: postData.user_profile,
-      use_character_profile: postData.use_character_profile,
-      character_profile: postData.character_profile,
-      content: postData.content_html, // Use content_html as content
-      date_created: postData.date_created
-    };
-
-    this.postsSignal.update(posts => [...posts, newPost]);
+  private handleNewPost(post: Post) {
+    this.postsSignal.update(posts => [...posts, post]);
   }
 }

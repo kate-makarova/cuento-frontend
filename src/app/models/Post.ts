@@ -9,5 +9,6 @@ export interface Post {
   use_character_profile: boolean;
   character_profile: CharacterProfile|null;
   content: string;
+  content_html: string;
   date_created: string;
 }
