@@ -1,4 +1,4 @@
-import {Component, effect, inject, Input, OnInit, Signal} from '@angular/core';
+import {Component, inject, Input, OnInit, ViewChild} from '@angular/core';
 import {PostFormComponent} from '../components/post-form/post-form.component';
 import {TopicService} from '../services/topic.service';
 import {RouterLink} from '@angular/router';
@@ -28,6 +28,7 @@ import {Post} from '../models/Post';
 export class ViewtopicComponent implements OnInit {
   topicService = inject(TopicService);
   @Input() id?: number;
+  @Input() page: number = 1;
 
   topic = this.topicService.topic;
   posts = this.topicService.posts;
@@ -35,6 +36,7 @@ export class ViewtopicComponent implements OnInit {
   accountName = 'User123'; // This should come from AuthService
   selectedCharacterId: number | null = null;
 
+  @ViewChild(PostFormComponent) postForm!: PostFormComponent;
 
   isEpisode() {
     return this.topic().type === TopicType.episode;
@@ -51,12 +53,34 @@ export class ViewtopicComponent implements OnInit {
   ngOnInit() {
     if (this.id) {
       this.topicService.loadTopic(this.id);
-      this.topicService.loadPosts(this.id, 1);
+      this.topicService.loadPosts(this.id, this.page);
     }
   }
 
   onCharacterSelected(characterId: number | null) {
     this.selectedCharacterId = characterId;
     console.log('Selected character ID:', this.selectedCharacterId);
+  }
+
+  onSubmit(event: Event) {
+    event.preventDefault();
+    const message = this.postForm.messageField.nativeElement.value;
+
+    if (!message || !this.id) return;
+
+    const payload = {
+      topic_id: +this.id,
+      content: message,
+      use_character_profile: this.selectedCharacterId !== null,
+      character_profile_id: this.selectedCharacterId
+    };
+
+    this.topicService.createPost(payload).subscribe({
+      next: () => {
+        console.log('Post created successfully');
+        this.postForm.messageField.nativeElement.value = '';
+      },
+      error: (err) => console.error('Failed to create post', err)
+    });
   }
 }

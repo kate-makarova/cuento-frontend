@@ -29,7 +29,7 @@ export class NotificationService {
       throw new Error('The baseUrl must be a valid HTTP/HTTPS URL.');
     }
     // Derives WebSocket URL (ws:// or wss://) from the base HTTP/HTTPS URL.
-    this.url = baseUrl.replace(/^http/, 'ws');
+    this.url = baseUrl.replace(/^http/, 'ws') + '/ws';
   }
 
   /**

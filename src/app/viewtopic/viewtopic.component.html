@@ -59,7 +59,7 @@
 
   <div id="post-form" class="formal">
     <h2><span i18n="@@postform.quickReply">Quick reply</span></h2>
-    <form id="post" class="container">
+    <form id="post" class="container" (submit)="onSubmit($event)">
       <fieldset>
         <legend><span i18n="@@postform.writeMessage">Write your message and click "Send"</span></legend>
         <div class="fs-box hashelp">

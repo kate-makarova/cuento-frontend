@@ -69,8 +69,8 @@ export class AppComponent implements OnInit {
   private listenForAuthChanges(): void {
     this.authChannel.onmessage = (event) => {
       if (event.data === 'logout') {
-        // When another tab logs out, update this tab's state
-        this.authService.logout(); // This will clear local state and navigate
+        // When another tab logs out, update this tab's state without notifying back
+        this.authService.clearLocalAuth(false);
       } else if (event.data === 'login') {
         // When another tab logs in, reload the page to get the new state
         window.location.reload();

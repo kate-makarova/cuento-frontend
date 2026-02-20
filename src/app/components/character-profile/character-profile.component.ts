@@ -43,11 +43,11 @@ export class CharacterProfileComponent implements OnInit {
   }
 
   private initFromPost() {
-    if (this.post!.character_profile && this.post!.character_profile !== null) {
+    if (this.post!.use_character_profile && this.post!.character_profile !== null) {
       this.isCharacter = true;
       this.displayName = this.post!.character_profile.character_name;
       this.displayAvatar = this.post!.character_profile.avatar;
-      this.profileLink = `/character/${this.post!.character_profile.id}`;
+      this.profileLink = `/character/${this.post!.character_profile.character_id}`;
       this.customFields = this.processCustomFields(this.post!.character_profile.custom_fields);
     } else {
       this.isCharacter = false;
@@ -77,7 +77,7 @@ export class CharacterProfileComponent implements OnInit {
         this.displayName = char.character_name;
         this.displayAvatar = char.avatar;
         this.customFields = this.processCustomFields(char.custom_fields);
-        this.characterSelected.emit(char.id);
+        this.characterSelected.emit(char.character_id);
       }
     }
   }

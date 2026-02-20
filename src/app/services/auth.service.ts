@@ -48,17 +48,19 @@ export class AuthService {
 
   logout() {
     this.http.post(`${this.apiUrl}/logout`, {}).subscribe({
-      next: () => this.clearAuth(),
-      error: () => this.clearAuth()
+      next: () => this.clearLocalAuth(true),
+      error: () => this.clearLocalAuth(true)
     });
   }
 
-  private clearAuth() {
+  public clearLocalAuth(notify: boolean = true) {
     localStorage.removeItem('jwt_token');
     localStorage.removeItem('user');
     this.setGuestUser();
     this.authToken.set(null);
-    this.authChannel.postMessage('logout');
+    if (notify) {
+      this.authChannel.postMessage('logout');
+    }
     this.router.navigate(['/login']);
   }
 

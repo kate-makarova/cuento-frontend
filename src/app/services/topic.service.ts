@@ -35,11 +35,12 @@ export class TopicService {
   }
 
   loadPosts(topicId: number, page: number) {
-    if(page == undefined) {
-      page = 1;
-    }
     this.apiService.get<Post[]>(`topic-posts/${topicId}/${page}`).subscribe(data => {
       this.postsSignal.set(data);
     });
+  }
+
+  createPost(data: any) {
+    return this.apiService.post('post/create', data);
   }
 }
