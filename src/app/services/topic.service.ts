@@ -2,10 +2,12 @@ import {inject, Injectable, signal} from '@angular/core';
 import {Topic, TopicStatus, TopicType} from '../models/Topic';
 import {ApiService} from './api.service';
 import {Post} from '../models/Post';
+import {NotificationService} from './notification.service';
 
 @Injectable({ providedIn: 'root' })
 export class TopicService {
   private apiService = inject(ApiService);
+  private notificationService = inject(NotificationService);
 
   private topicSignal = signal<Topic>({
     id: 0,
@@ -27,6 +29,16 @@ export class TopicService {
   private postsSignal = signal<Post[]>([]);
   readonly posts = this.postsSignal.asReadonly();
 
+  constructor() {
+    this.notificationService.notifications$.subscribe(notification => {
+      if (notification.type === 'post_created') {
+        const currentTopicId = this.topic().id;
+        if (notification.topic_id === currentTopicId) {
+          this.handleNewPost(notification.post);
+        }
+      }
+    });
+  }
 
   loadTopic(id: number) {
     this.apiService.get<Topic>('topic/get/' + id.toString()).subscribe(data => {
@@ -42,5 +54,19 @@ export class TopicService {
 
   createPost(data: any) {
     return this.apiService.post('post/create', data);
+  }
+
+  private handleNewPost(postData: any) {
+    const newPost: Post = {
+      id: postData.id,
+      topic_id: postData.topic_id,
+      user_profile: postData.user_profile,
+      use_character_profile: postData.use_character_profile,
+      character_profile: postData.character_profile,
+      content: postData.content_html, // Use content_html as content
+      date_created: postData.date_created
+    };
+
+    this.postsSignal.update(posts => [...posts, newPost]);
   }
 }

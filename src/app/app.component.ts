@@ -27,10 +27,9 @@ export class AppComponent implements OnInit {
   authService = inject(AuthService);
   currentUser = this.authService.currentUser;
   currentDate = new Date();
-  private notificationService: NotificationService;
+  private notificationService = inject(NotificationService);
 
   constructor() {
-    this.notificationService = new NotificationService('http://localhost:8080');
     this.listenForAuthChanges();
     this.setupRouteListener();
 

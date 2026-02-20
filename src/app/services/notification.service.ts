@@ -1,7 +1,11 @@
+import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
+
 /**
  * A service for handling live notifications via WebSockets.
  * It includes a robust reconnection strategy with exponential backoff and jitter.
  */
+@Injectable({ providedIn: 'root' })
 export class NotificationService {
   private ws: WebSocket | null = null;
   private readonly url: string;
@@ -14,21 +18,17 @@ export class NotificationService {
   private maxReconnectInterval = 30000; // Max reconnect delay (30s)
   private reconnectTimer: number | null = null;
 
+  private notificationSubject = new Subject<any>();
+  public notifications$ = this.notificationSubject.asObservable();
+
   /**
    * A flag to indicate if the disconnection was intentional (e.g., user logout).
    * This prevents reconnection attempts on explicit disconnects.
    */
   private explicitlyClosed = false;
 
-  /**
-   * @param baseUrl The base URL of the backend API (e.g., 'https://api.example.com').
-   * The WebSocket URL will be derived from this.
-   */
-  constructor(baseUrl: string) {
-    if (!baseUrl.startsWith('http')) {
-      throw new Error('The baseUrl must be a valid HTTP/HTTPS URL.');
-    }
-    // Derives WebSocket URL (ws:// or wss://) from the base HTTP/HTTPS URL.
+  constructor() {
+    const baseUrl = 'http://localhost:8080'; // Hardcoded for now, should be from config
     this.url = baseUrl.replace(/^http/, 'ws') + '/ws';
   }
 
@@ -149,9 +149,6 @@ export class NotificationService {
   }
 
   private handleNotification(notification: unknown): void {
-    // TODO: Implement your application-specific logic here.
-    // This could involve updating a UI component, storing data,
-    // or showing a browser notification.
-    console.log('Handling notification:', notification);
+    this.notificationSubject.next(notification);
   }
 }
