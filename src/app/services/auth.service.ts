@@ -15,32 +15,22 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
   private readonly apiUrl = 'http://localhost/api';
+  private authChannel = new BroadcastChannel('auth_channel');
 
   // State management using Signals
-  // Initial value checks if a token exists in storage
   currentUser = signal<AuthResponse['user'] | null>(null);
   isAuthenticated = computed(() => !!this.currentUser()?.id);
   authToken = signal<string|null>(null);
   isAdmin = computed(() => this.hasRole('admin'));
 
   constructor() {
-    // Optional: Re-hydrate user state from token on app load
     const token = localStorage.getItem('jwt_token');
     const userString = localStorage.getItem('user');
     if (token && userString) {
       this.currentUser.set(JSON.parse(userString));
       this.authToken.set(token);
     } else {
-      this.currentUser.set({
-        id: 0,
-        username: 'Гость',
-        email: "",
-        avatar: "",
-        roles: [{
-          id: 1,
-          name: 'guest'
-        }]
-      })
+      this.setGuestUser();
     }
   }
 
@@ -66,6 +56,22 @@ export class AuthService {
   private clearAuth() {
     localStorage.removeItem('jwt_token');
     localStorage.removeItem('user');
+    this.setGuestUser();
+    this.authToken.set(null);
+    this.authChannel.postMessage('logout');
+    this.router.navigate(['/login']);
+  }
+
+  private handleAuth(response: AuthResponse) {
+    localStorage.setItem('jwt_token', response.token);
+    localStorage.setItem('user', JSON.stringify(response.user));
+    this.currentUser.set(response.user);
+    this.authToken.set(response.token);
+    this.authChannel.postMessage('login');
+    this.router.navigate(['/dashboard']);
+  }
+
+  private setGuestUser() {
     this.currentUser.set({
       id: 0,
       username: 'Гость',
@@ -76,16 +82,6 @@ export class AuthService {
         name: 'guest'
       }]
     });
-    this.authToken.set(null);
-    this.router.navigate(['/login']);
-  }
-
-  private handleAuth(response: AuthResponse) {
-    localStorage.setItem('jwt_token', response.token);
-    localStorage.setItem('user', JSON.stringify(response.user));
-    this.currentUser.set(response.user);
-    this.authToken.set(response.token);
-    this.router.navigate(['/dashboard']);
   }
 
   public hasRole(name: string) {

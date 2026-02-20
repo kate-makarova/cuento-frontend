@@ -5,6 +5,7 @@ import {Notification} from '../../models/Notification';
   selector: 'app-toast',
   imports: [],
   templateUrl: './toast.component.html',
+  standalone: true,
   styleUrl: './toast.component.css'
 })
 export class ToastComponent {

@@ -1,0 +1,157 @@
+/**
+ * A service for handling live notifications via WebSockets.
+ * It includes a robust reconnection strategy with exponential backoff and jitter.
+ */
+export class NotificationService {
+  private ws: WebSocket | null = null;
+  private readonly url: string;
+  private token: string | null = null;
+
+  // Reconnection strategy parameters
+  private reconnectAttempts = 0;
+  private maxReconnectAttempts = 10;
+  private reconnectInterval = 1000; // Initial reconnect delay (1s)
+  private maxReconnectInterval = 30000; // Max reconnect delay (30s)
+  private reconnectTimer: number | null = null;
+
+  /**
+   * A flag to indicate if the disconnection was intentional (e.g., user logout).
+   * This prevents reconnection attempts on explicit disconnects.
+   */
+  private explicitlyClosed = false;
+
+  /**
+   * @param baseUrl The base URL of the backend API (e.g., 'https://api.example.com').
+   * The WebSocket URL will be derived from this.
+   */
+  constructor(baseUrl: string) {
+    if (!baseUrl.startsWith('http')) {
+      throw new Error('The baseUrl must be a valid HTTP/HTTPS URL.');
+    }
+    // Derives WebSocket URL (ws:// or wss://) from the base HTTP/HTTPS URL.
+    this.url = baseUrl.replace(/^http/, 'ws');
+  }
+
+  /**
+   * Establishes the WebSocket connection.
+   * Should be called after the user is authenticated.
+   * @param authToken The user's authentication token.
+   */
+  public connect(authToken: string): void {
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      console.log('NotificationService: WebSocket is already connected.');
+      return;
+    }
+
+    if (!authToken) {
+      console.error('NotificationService: Auth token is required to connect.');
+      return;
+    }
+
+    this.token = authToken;
+    this.explicitlyClosed = false;
+    this._doConnect();
+  }
+
+  /**
+   * Closes the WebSocket connection permanently.
+   * Should be called on user logout.
+   */
+  public disconnect(): void {
+    if (this.ws) {
+      console.log('NotificationService: Disconnecting explicitly.');
+      this.explicitlyClosed = true;
+      // Clear any pending reconnect timers
+      if (this.reconnectTimer) {
+        clearTimeout(this.reconnectTimer);
+        this.reconnectTimer = null;
+      }
+      this.ws.close();
+    }
+  }
+
+  /**
+   * Sends a message to the server.
+   * @param message The data to send, which will be JSON.stringified.
+   */
+  public sendMessage(message: unknown): void {
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify(message));
+    } else {
+      console.error('NotificationService: Cannot send message, WebSocket is not open.');
+    }
+  }
+
+  /**
+   * The core connection logic.
+   */
+  private _doConnect(): void {
+    if (!this.token) {
+      console.error("NotificationService: Cannot connect without an auth token.");
+      return;
+    }
+
+    // NOTE: Appending the token to the URL is a common method for WebSocket
+    // authentication, but be aware of the security implications (e.g., tokens in server logs).
+    const urlWithAuth = `${this.url}?token=${this.token}`;
+    this.ws = new WebSocket(urlWithAuth);
+
+    this.ws.onopen = () => {
+      console.log('NotificationService: Connection established.');
+      // On a successful connection, reset the reconnect counter.
+      this.reconnectAttempts = 0;
+    };
+
+    this.ws.onmessage = (event) => {
+      console.log('NotificationService: Message received.', event.data);
+      // Process the incoming notification
+      try {
+        const notification = JSON.parse(event.data);
+        this.handleNotification(notification);
+      } catch (error) {
+        console.error('NotificationService: Error parsing incoming message.', error);
+      }
+    };
+
+    this.ws.onerror = (event) => {
+      console.error('NotificationService: WebSocket error.', event);
+      // The 'error' event is typically followed by a 'close' event,
+      // which is where we'll handle the reconnection logic.
+    };
+
+    this.ws.onclose = (event) => {
+      this.ws = null;
+      if (this.explicitlyClosed) {
+        console.log('NotificationService: Connection closed intentionally.');
+      } else {
+        console.warn(`NotificationService: Connection closed unexpectedly. Code: ${event.code}, Reason: ${event.reason}`);
+        this.scheduleReconnect();
+      }
+    };
+  }
+
+  private scheduleReconnect(): void {
+    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+      console.error('NotificationService: Max reconnect attempts reached. Giving up.');
+      return;
+    }
+
+    this.reconnectAttempts++;
+
+    // Exponential backoff with jitter to prevent thundering herd
+    const backoff = Math.min(this.maxReconnectInterval, this.reconnectInterval * Math.pow(2, this.reconnectAttempts));
+    const jitter = backoff * 0.5 * Math.random();
+    const timeout = backoff - jitter;
+
+    console.log(`NotificationService: Scheduling reconnect in ${Math.round(timeout / 1000)}s (attempt ${this.reconnectAttempts}).`);
+
+    this.reconnectTimer = window.setTimeout(() => this._doConnect(), timeout);
+  }
+
+  private handleNotification(notification: unknown): void {
+    // TODO: Implement your application-specific logic here.
+    // This could involve updating a UI component, storing data,
+    // or showing a browser notification.
+    console.log('Handling notification:', notification);
+  }
+}

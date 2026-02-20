@@ -28,6 +28,7 @@ interface NewGame {
   selector: 'app-notifications',
   imports: [CommonModule],
   templateUrl: './notifications.component.html',
+  standalone: true,
   styleUrl: './notifications.component.css'
 })
 export class NotificationsComponent {
