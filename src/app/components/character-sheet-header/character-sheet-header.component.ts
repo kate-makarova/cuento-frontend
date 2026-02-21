@@ -1,10 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Character } from '../../models/Character';
+import { Character, CustomFieldsData, CustomFieldValue } from '../../models/Character';
 import { ShortTextFieldDisplayComponent } from '../short-text-field-display/short-text-field-display.component';
 import { LongTextFieldDisplayComponent } from '../long-text-field-display/long-text-field-display.component';
 import { NumberFieldDisplayComponent } from '../number-field-display/number-field-display.component';
-import { CustomFieldsData } from '../../models/Character';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-character-sheet-header',
@@ -15,6 +15,9 @@ import { CustomFieldsData } from '../../models/Character';
 })
 export class CharacterSheetHeaderComponent implements OnInit {
   @Input() character!: Character | null;
+  private authService = inject(AuthService);
+
+  isAdmin = this.authService.isAdmin;
   customFields: any[] = [];
 
   ngOnInit() {
@@ -27,14 +30,26 @@ export class CharacterSheetHeaderComponent implements OnInit {
     if (!data || !data.field_config) return [];
 
     return data.field_config.map(config => {
+      const customField: CustomFieldValue | undefined = data.custom_fields ? data.custom_fields[config.machine_field_name] : undefined;
+      let fieldValue: any = '';
+
+      if (customField) {
+        fieldValue = config.content_field_type === 'long_text' ? customField.content_html : customField.content;
+      }
+
       return {
         fieldMachineName: config.machine_field_name,
         fieldName: config.human_field_name,
-        fieldValue: (data.custom_fields ? data.custom_fields[config.machine_field_name] : '') ?? '',
+        fieldValue: fieldValue ?? '',
         type: config.content_field_type,
         showFieldName: true,
         order: config.order
       };
     }).sort((a, b) => a.order - b.order);
+  }
+
+  acceptCharacter() {
+    // TODO: Implement character acceptance logic
+    console.log('Character accepted:', this.character?.id);
   }
 }

@@ -4,7 +4,7 @@ import { Episode } from '../../models/Episode';
 import { ShortTextFieldDisplayComponent } from '../short-text-field-display/short-text-field-display.component';
 import { LongTextFieldDisplayComponent } from '../long-text-field-display/long-text-field-display.component';
 import { NumberFieldDisplayComponent } from '../number-field-display/number-field-display.component';
-import { CustomFieldsData } from '../../models/Character';
+import { CustomFieldsData, CustomFieldValue } from '../../models/Character';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -28,10 +28,17 @@ export class EpisodeHeaderComponent implements OnInit {
     if (!data || !data.field_config) return [];
 
     return data.field_config.map(config => {
+      const customField: CustomFieldValue | undefined = data.custom_fields ? data.custom_fields[config.machine_field_name] : undefined;
+      let fieldValue: any = '';
+
+      if (customField) {
+        fieldValue = config.content_field_type === 'long_text' ? customField.content_html : customField.content;
+      }
+
       return {
         fieldMachineName: config.machine_field_name,
         fieldName: config.human_field_name,
-        fieldValue: (data.custom_fields ? data.custom_fields[config.machine_field_name] : '') ?? '',
+        fieldValue: fieldValue ?? '',
         type: config.content_field_type,
         showFieldName: true,
         order: config.order

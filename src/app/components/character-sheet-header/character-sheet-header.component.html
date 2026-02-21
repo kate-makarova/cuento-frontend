@@ -31,4 +31,10 @@
     }
   </div>
 </div>
+
+@if (isAdmin()) {
+  <div class="admin-actions">
+    <button class="button" (click)="acceptCharacter()">Accept</button>
+  </div>
+}
 }

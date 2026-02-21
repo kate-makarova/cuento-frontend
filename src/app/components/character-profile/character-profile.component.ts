@@ -4,14 +4,15 @@ import { RouterLink } from '@angular/router';
 import { Post } from '../../models/Post';
 import { ShortTextFieldDisplayComponent } from '../short-text-field-display/short-text-field-display.component';
 import { LongTextFieldDisplayComponent } from '../long-text-field-display/long-text-field-display.component';
-import { CharacterProfile, CustomFieldsData } from '../../models/Character';
+import { CharacterProfile, CustomFieldsData, CustomFieldValue } from '../../models/Character';
 import { FormsModule } from '@angular/forms';
 import { CharacterService } from '../../services/character.service';
 import { AuthService } from '../../services/auth.service';
+import { NumberFieldDisplayComponent } from '../number-field-display/number-field-display.component';
 
 @Component({
   selector: 'app-character-profile',
-  imports: [CommonModule, RouterLink, ShortTextFieldDisplayComponent, LongTextFieldDisplayComponent, FormsModule],
+  imports: [CommonModule, RouterLink, ShortTextFieldDisplayComponent, LongTextFieldDisplayComponent, NumberFieldDisplayComponent, FormsModule],
   templateUrl: './character-profile.component.html',
   standalone: true,
   styleUrl: './character-profile.component.css'
@@ -86,10 +87,17 @@ export class CharacterProfileComponent implements OnInit {
     if (!data || !data.field_config) return [];
 
     return data.field_config.map(config => {
+      const customField: CustomFieldValue | undefined = data.custom_fields ? data.custom_fields[config.machine_field_name] : undefined;
+      let fieldValue: any = '';
+
+      if (customField) {
+        fieldValue = config.content_field_type === 'long_text' ? customField.content_html : customField.content;
+      }
+
       return {
         fieldMachineName: config.machine_field_name,
         fieldName: config.human_field_name,
-        fieldValue: data.custom_fields ? data.custom_fields[config.machine_field_name] : null,
+        fieldValue: fieldValue ?? '',
         type: config.content_field_type,
         showFieldName: true,
         order: config.order

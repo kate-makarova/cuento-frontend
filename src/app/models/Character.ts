@@ -22,8 +22,13 @@ export interface CharacterShort {
   avatar: string;
 }
 
+export interface CustomFieldValue {
+  content: any;
+  content_html: string;
+}
+
 export interface CustomFieldsData {
-  custom_fields: { [key: string]: any };
+  custom_fields: { [key: string]: CustomFieldValue };
   field_config: FieldTemplate[];
 }
 
