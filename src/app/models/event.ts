@@ -1,4 +1,5 @@
 import { Post } from './Post';
+import { UserShort } from './UserShort';
 
 export interface TopicCreatedEvent {
   type: 'topic_created';
@@ -20,9 +21,14 @@ export interface PostCreatedEvent {
 export interface NotificationEvent {
   type: 'notification';
   user_id: number;
-  message_type: string; // Renamed from 'type' to avoid conflict with event type
+  message_type: string;
   message: string;
   data?: any;
 }
 
-export type WebSocketEvent = TopicCreatedEvent | PostCreatedEvent | NotificationEvent;
+export interface TopicViewersUpdateEvent {
+  type: 'topic_viewers_update';
+  data: UserShort[];
+}
+
+export type WebSocketEvent = TopicCreatedEvent | PostCreatedEvent | NotificationEvent | TopicViewersUpdateEvent;

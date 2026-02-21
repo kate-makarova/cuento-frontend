@@ -1,7 +1,10 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { UserService } from '../../services/user.service';
+import { NotificationService } from '../../services/notification.service';
+import { UserShort } from '../../models/UserShort';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-topic-read-by',
@@ -10,14 +13,22 @@ import { UserService } from '../../services/user.service';
   standalone: true,
   styleUrl: './topic-read-by.component.css'
 })
-export class TopicReadByComponent implements OnInit {
-  @Input() topicId!: number;
-  private userService = inject(UserService);
-  users = this.userService.usersOnPage;
+export class TopicReadByComponent implements OnInit, OnDestroy {
+  private notificationService = inject(NotificationService);
+  private destroy$ = new Subject<void>();
+
+  users = signal<UserShort[]>([]);
 
   ngOnInit() {
-    if (this.topicId) {
-      this.userService.loadUsersOnPage('topic', this.topicId);
-    }
+    this.notificationService.topicViewersUpdate$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(event => {
+        this.users.set(event.data);
+      });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
