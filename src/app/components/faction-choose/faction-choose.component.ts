@@ -28,22 +28,17 @@ export class FactionChooseComponent {
   private tempIdCounter = -1;
 
   constructor() {
-    // Initialize with the first faction level
     this.factionLevels.push({
       label: 'Faction 1',
       options: this.factionService.currentFactionChildren(),
       selectedId: null
     });
 
-    // Watch for faction children updates and update the last level's options
     effect(() => {
       const children = this.factionService.currentFactionChildren();
-
       if (this.factionLevels.length > 0) {
         const lastLevel = this.factionLevels[this.factionLevels.length - 1];
-
         if (children.length === 0 && lastLevel.options.length === 0 && this.factionLevels.length > 1) {
-          // Remove the last level if no children were returned (but keep at least one level)
           this.factionLevels.pop();
         } else {
           lastLevel.options = children;
@@ -51,20 +46,15 @@ export class FactionChooseComponent {
       }
     });
 
-    // Load initial children (parent id 0)
     this.factionService.setCurrentFaction(0);
   }
 
   onFactionChange(levelIndex: number, selectedId: number | null) {
     if (selectedId === null) return;
 
-    // Remove all levels after this one
     this.factionLevels = this.factionLevels.slice(0, levelIndex + 1);
-
-    // Set the current faction in the service to load its children
     this.factionService.setCurrentFaction(selectedId);
 
-    // Add a new level for the children (will be populated by the effect)
     this.factionLevels.push({
       label: `Faction ${this.factionLevels.length + 1}`,
       options: [],
@@ -88,11 +78,8 @@ export class FactionChooseComponent {
   submitNewFaction() {
     if (this.modalLevelIndex !== null && this.newFactionName.trim()) {
       const level = this.factionLevels[this.modalLevelIndex];
-      const parentId = this.modalLevelIndex > 0
-        ? this.factionLevels[this.modalLevelIndex - 1].selectedId
-        : 0;
+      const parentId = this.modalLevelIndex > 0 ? this.factionLevels[this.modalLevelIndex - 1].selectedId : 0;
 
-      // Create temporary faction with negative ID
       const tempId = this.tempIdCounter--;
       const newFaction: Faction = {
         id: tempId,
@@ -105,16 +92,23 @@ export class FactionChooseComponent {
         characters: []
       };
 
-      // Add to options
       level.options.push(newFaction);
-
-      // Select the new faction
       level.selectedId = tempId;
-
-      // Remove all levels after this one
       this.factionLevels = this.factionLevels.slice(0, this.modalLevelIndex + 1);
-
       this.closeModal();
     }
+  }
+
+  public getSelectedFactions(): Faction[] {
+    const selectedFactions: Faction[] = [];
+    this.factionLevels.forEach(level => {
+      if (level.selectedId !== null) {
+        const faction = level.options.find(f => f.id === level.selectedId);
+        if (faction) {
+          selectedFactions.push(faction);
+        }
+      }
+    });
+    return selectedFactions;
   }
 }

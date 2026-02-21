@@ -1,6 +1,7 @@
 import {UserShort} from './UserShort';
 import {Field} from './Field';
 import {FieldTemplate} from './FieldTemplate';
+import {Faction} from './Faction';
 
 export interface Character {
   id: number;
@@ -32,4 +33,12 @@ export interface CharacterProfile {
   character_name: string;
   avatar: string;
   custom_fields: CustomFieldsData;
+}
+
+export interface CreateCharacterRequest {
+  subforum_id: number;
+  name: string;
+  avatar: string | null;
+  custom_fields: { [key: string]: any };
+  factions: Faction[];
 }

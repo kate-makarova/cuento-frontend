@@ -2,7 +2,7 @@ import { Injectable, signal, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { FieldTemplate } from "../models/FieldTemplate";
 import { Faction } from "../models/Faction";
-import { CharacterShort, CharacterProfile } from "../models/Character";
+import { CharacterShort, CharacterProfile, CreateCharacterRequest } from "../models/Character";
 
 @Injectable({ providedIn: 'root' })
 export class CharacterService {
@@ -113,5 +113,9 @@ export class CharacterService {
         console.error('Failed to save character profile template', err);
       }
     })
+  }
+
+  createCharacter(data: CreateCharacterRequest) {
+    return this.apiService.post('/character/create', data);
   }
 }
