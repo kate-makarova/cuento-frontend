@@ -1,0 +1,9 @@
+<div id="topic-users-in" class="modmenu">
+  <p class="container" style="text-align:left">
+    <span style="font-weight:bold"><ng-container i18n="@@topicreadby.title">Topic is read by</ng-container></span>
+    ({{ usersCount }})
+    @for (user of users; track user.id; let last = $last) {
+      <a [class]="user.groupClass" [routerLink]="['/profile', user.id]">{{ user.name }}</a>@if(!last){, }
+    }
+  </p>
+</div>

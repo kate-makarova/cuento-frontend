@@ -95,5 +95,8 @@ export const TRANSLATIONS_RU = {
   "episodelist.page": "Страница",
   "episodelist.of": "из",
   "episodelist.applyFilters": "Применить фильтры",
-  "breadcrumbs.youAreHere": "Вы здесь"
+  "breadcrumbs.youAreHere": "Вы здесь",
+  "topicreadby.title": "Тему просматривают",
+  "topicreadby.guests": "Гостей",
+  "topicreadby.users": "Пользователей"
 };

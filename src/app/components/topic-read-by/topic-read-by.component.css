@@ -1,0 +1,23 @@
+.modmenu {
+  margin-bottom: 10px;
+}
+
+.modmenu .container {
+  padding: 10px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+}
+
+.modmenu a {
+  margin-left: 5px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.modmenu a:hover {
+  text-decoration: underline;
+}
+
+.group4 {
+  color: #0066b3; /* Example color for group4 */
+}

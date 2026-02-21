@@ -13,6 +13,7 @@ import {EpisodeHeaderComponent} from '../components/episode-header/episode-heade
 import {Post} from '../models/Post';
 import {BreadcrumbItem, BreadcrumbsComponent} from '../components/breadcrumbs/breadcrumbs.component';
 import {ForumService} from '../services/forum.service';
+import {TopicReadByComponent} from '../components/topic-read-by/topic-read-by.component';
 
 @Component({
   selector: 'app-viewtopic',
@@ -22,7 +23,8 @@ import {ForumService} from '../services/forum.service';
     CommonModule,
     CharacterProfileComponent,
     EpisodeHeaderComponent,
-    BreadcrumbsComponent
+    BreadcrumbsComponent,
+    TopicReadByComponent
   ],
   templateUrl: './viewtopic.component.html',
   standalone: true,
