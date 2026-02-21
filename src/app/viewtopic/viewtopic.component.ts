@@ -11,6 +11,7 @@ import {BreadcrumbItem, BreadcrumbsComponent} from '../components/breadcrumbs/br
 import {ForumService} from '../services/forum.service';
 import {TopicReadByComponent} from '../components/topic-read-by/topic-read-by.component';
 import { CharacterSheetHeaderComponent } from '../components/character-sheet-header/character-sheet-header.component';
+import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
 
 @Component({
   selector: 'app-viewtopic',
@@ -22,7 +23,8 @@ import { CharacterSheetHeaderComponent } from '../components/character-sheet-hea
     EpisodeHeaderComponent,
     BreadcrumbsComponent,
     TopicReadByComponent,
-    CharacterSheetHeaderComponent
+    CharacterSheetHeaderComponent,
+    SafeHtmlPipe
   ],
   templateUrl: './viewtopic.component.html',
   standalone: true,
