@@ -3,17 +3,18 @@ import { CommonModule } from '@angular/common';
 import { Character } from '../../models/Character';
 import { ShortTextFieldDisplayComponent } from '../short-text-field-display/short-text-field-display.component';
 import { LongTextFieldDisplayComponent } from '../long-text-field-display/long-text-field-display.component';
+import { NumberFieldDisplayComponent } from '../number-field-display/number-field-display.component';
 import { CustomFieldsData } from '../../models/Character';
 
 @Component({
   selector: 'app-character-sheet-header',
-  imports: [CommonModule, ShortTextFieldDisplayComponent, LongTextFieldDisplayComponent],
+  imports: [CommonModule, ShortTextFieldDisplayComponent, LongTextFieldDisplayComponent, NumberFieldDisplayComponent],
   templateUrl: './character-sheet-header.component.html',
   standalone: true,
   styleUrl: './character-sheet-header.component.css'
 })
 export class CharacterSheetHeaderComponent implements OnInit {
-  @Input() character!: Character|null;
+  @Input() character!: Character | null;
   customFields: any[] = [];
 
   ngOnInit() {

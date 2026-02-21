@@ -1,97 +1,51 @@
-<div id="pun-main" class="main character-view">
+<div id="pun-main" class="main">
   <div class="main-header">
-    <h1><span>Профиль персонажа: {{ char.name }}</span></h1>
+    <h1>{{ char.name }}</h1>
   </div>
 
-  <div class="category">
-    <div class="maintitle">
-      <p class="conl">Личное дело №{{ char.id }}</p>
-      @if (isOwner) {
-        <p class="conr"><a [routerLink]="['/edit-character', char.id]">Редактировать</a></p>
-      }
-      <div class="clearer"></div>
-    </div>
-
-    <div class="main-content char-sheet-wrapper">
-      <div class="main-item">
-
-        <div class="char-sheet-layout">
-          <div class="char-portrait">
-            <div class="portrait-frame">
-              <img [src]="char.avatar" [alt]="char.name">
-            </div>
-            <div class="char-meta-sidebar">
-              <p><strong>Игрок:</strong> <a href="#">{{ char.user.username }}</a></p>
-              <p><strong>Дата создания:</strong> {{ char.createdAt }}</p>
-              <button class="button pm-button"><span>Написать игроку</span></button>
-            </div>
-          </div>
-
-          <div class="char-data">
-            <h2 class="char-name-title">{{ char.name }}</h2>
-
-            @if (char.group) {
-              <div class="char-group-path">
-                <span class="group-label">Фракция:</span>
-                <span class="group-item main-group">{{ char.group }}</span>
-
-                @if (char.subgroup) {
-                  <span class="group-separator">»</span>
-                  <span class="group-item">{{ char.subgroup }}</span>
+  <div class="main-content">
+    <div class="container">
+      <div class="post-author">
+        <ul>
+          <li class="pa-author"><a [routerLink]="['/character', char.id]">{{ char.name }}</a></li>
+          <li class="pa-avatar"><img [src]="char.avatar" alt="Avatar" /></li>
+          @for (field of char.custom_fields.field_config; track field.machine_field_name) {
+            <li>
+              @switch (field.content_field_type) {
+                @case('short_text') {
+                  <app-short-text-field-display [fieldName]="field.human_field_name" [fieldValue]="char.custom_fields.custom_fields[field.machine_field_name]"></app-short-text-field-display>
                 }
-
-                @if (char.subsubgroup) {
-                  <span class="group-separator">»</span>
-                  <span class="group-item">{{ char.subsubgroup }}</span>
+                @case('long_text') {
+                  <app-long-text-field-display [fieldName]="field.human_field_name" [fieldValue]="char.custom_fields.custom_fields[field.machine_field_name]"></app-long-text-field-display>
                 }
-              </div>
-            }
-
-            <div class="char-biography">
-              <h3>Информация</h3>
-              @for(field of char.custom_fields.field_config; track field.machine_field_name) {
-              <div class="field">
-                @switch (field.field_type) {
-                  @case('short_text') {
-                    <app-short-text-field-display [fieldName]="field.machine_field_name" [fieldValue]="char.custom_fields.custom_fields[field.machine_field_name]" [showFieldName]="true" ></app-short-text-field-display>
-                  }
-                  @case('long_text') {
-                    <app-long-text-field-display
-                      [fieldMachineName]="field.machine_field_name"
-                      [showFieldName]="true"
-                      [fieldName]="field.machine_field_name"
-                      [fieldValue]="char.custom_fields.custom_fields[field.machine_field_name]" ></app-long-text-field-display>
-                  }
+                @case('number') {
+                  <app-number-field-display [fieldName]="field.human_field_name" [fieldValue]="char.custom_fields.custom_fields[field.machine_field_name]"></app-number-field-display>
                 }
-              </div>
               }
-            </div>
-          </div>
-        </div>
-
+            </li>
+          }
+        </ul>
+      </div>
+      <div class="post-body">
+        <p>This is a placeholder for the character's main content, which might include a detailed biography, story connections, or other narrative elements.</p>
       </div>
     </div>
   </div>
 
-  <div class="category">
-    <div class="maintitle">Последние игры с участием {{ char.name }}</div>
-    <div class="main-content">
-      <table cellspacing="0" class="char-activity-table">
-        <thead>
-        <tr>
-          <th class="tcl">Тема</th>
-          <th class="tc2">Дата</th>
-        </tr>
-        </thead>
-        <tbody>
-          @for (topic of recentTopics; track topic.id) {
-            <tr>
-              <td class="tcl"><a href="#">{{ topic.name }}</a></td>
-              <td class="tc2">{{ topic.date_last_post }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
+  @if (isOwner) {
+    <div class="main-options">
+      <a [routerLink]="['/character/edit', char.id]">Edit Character</a>
+    </div>
+  }
+
+  <div class="main-content">
+    <h2>Recent Activity</h2>
+    <div class="container">
+      <ul>
+        @for (topic of recentTopics; track topic.id) {
+          <li><a [routerLink]="['/viewtopic', topic.id]">{{ topic.name }}</a> - Last post on {{ topic.date_last_post }}</li>
+        }
+      </ul>
     </div>
   </div>
 </div>

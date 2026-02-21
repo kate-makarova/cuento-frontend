@@ -1,4 +1,4 @@
-@if(episode !== null) {
+@if(episode != null) {
 <div class="episode-header">
   <div class="episode-info">
     <h2>{{ episode.name }}</h2>
@@ -8,7 +8,8 @@
       <div class="character-list">
         @for (char of episode.characters; track char.id) {
           <div class="character-item">
-            {{ char.name }}
+            <img [src]="char.avatar" [alt]="char.name" [title]="char.name">
+            <a routerLink="/character/{{ char.id }}" class="character-link">{{ char.name }}</a>
           </div>
         }
       </div>
@@ -17,18 +18,17 @@
     @if (customFields.length > 0) {
       <div class="episode-custom-fields">
         <ul>
-          @for(field of customFields; track field.fieldMachineName; let j = $index) {
-            <li class="ep-fld{{ j }}">
+          @for(field of customFields; track field.fieldMachineName) {
+            <li class="ep-fld">
               @switch (field.type) {
                 @case('short_text') {
-                  <app-short-text-field-display [fieldName]="field.fieldName" [fieldValue]="field.fieldValue" ></app-short-text-field-display>
+                  <app-short-text-field-display [fieldName]="field.fieldName" [fieldValue]="field.fieldValue"></app-short-text-field-display>
                 }
                 @case('long_text') {
-                  <app-long-text-field-display
-                    [fieldMachineName]="field.fieldMachineName"
-                    [showFieldName]="field.showFieldName"
-                    [fieldName]="field.fieldName"
-                    [fieldValue]="field.fieldValue" ></app-long-text-field-display>
+                  <app-long-text-field-display [fieldName]="field.fieldName" [fieldValue]="field.fieldValue"></app-long-text-field-display>
+                }
+                @case('number') {
+                  <app-number-field-display [fieldName]="field.fieldName" [fieldValue]="field.fieldValue"></app-number-field-display>
                 }
               }
             </li>

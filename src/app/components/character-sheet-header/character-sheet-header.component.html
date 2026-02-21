@@ -20,6 +20,9 @@
                 @case('long_text') {
                   <app-long-text-field-display [fieldName]="field.fieldName" [fieldValue]="field.fieldValue"></app-long-text-field-display>
                 }
+                @case('number') {
+                  <app-number-field-display [fieldName]="field.fieldName" [fieldValue]="field.fieldValue"></app-number-field-display>
+                }
               }
             </li>
           }
