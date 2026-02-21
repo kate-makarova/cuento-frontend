@@ -1,3 +1,5 @@
+<app-breadcrumbs [items]="breadcrumbs"></app-breadcrumbs>
+
 <div id="pun-main" class="main">
   <div class="main-header">
     <h1><span>{{subforum()?.name}}</span></h1>
@@ -17,13 +19,13 @@
         <div class="buttons">
           <div class="conl">
             @if (subforum()?.permissions?.subforum_create_general_topic) {
-              <a routerLink="/topic-create" class="button"><span i18n="@@topiccreate.generic">Standard</span></a>
+              <a routerLink="/topic-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.generic">Standard</span></a>
             }
             @if (subforum()?.permissions?.subforum_create_episode_topic) {
-              <a routerLink="/episode-create" class="button"><span i18n="@@topiccreate.episode">Game</span></a>
+              <a routerLink="/episode-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.episode">Game</span></a>
             }
             @if (subforum()?.permissions?.subforum_create_character_topic) {
-              <a routerLink="/character-create" class="button"><span i18n="@@topiccreate.character">Character</span></a>
+              <a routerLink="/character-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.character">Character</span></a>
             }
           </div>
           <div class="clearer"></div>
@@ -64,13 +66,13 @@
         <div class="buttons">
           <div class="conl">
             @if (subforum()?.permissions?.subforum_create_general_topic) {
-              <a routerLink="/topic-create" class="button"><span i18n="@@topiccreate.generic">Standard</span></a>
+              <a routerLink="/topic-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.generic">Standard</span></a>
             }
             @if (subforum()?.permissions?.subforum_create_episode_topic) {
-              <a routerLink="/episode-create" class="button"><span i18n="@@topiccreate.episode">Game</span></a>
+              <a routerLink="/episode-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.episode">Game</span></a>
             }
             @if (subforum()?.permissions?.subforum_create_character_topic) {
-              <a routerLink="/character-create" class="button"><span i18n="@@topiccreate.character">Character</span></a>
+              <a routerLink="/character-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.character">Character</span></a>
             }
           </div>
           <p class="conr"><span><ng-container i18n="@@viewforum.pages">Pages</ng-container>: <strong>1</strong></span></p>

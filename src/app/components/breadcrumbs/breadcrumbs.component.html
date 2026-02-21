@@ -1,0 +1,13 @@
+<div id="pun-crumbs1" class="section">
+  <p class="container crumbs">
+    <strong><ng-container i18n="@@breadcrumbs.youAreHere">You are here</ng-container></strong>
+    @for (item of items; track item.label; let last = $last) {
+      <em>&nbsp;»&nbsp;</em>
+      @if (item.link && !last) {
+        <a [routerLink]="item.link">{{ item.label }}</a>
+      } @else {
+        {{ item.label }}
+      }
+    }
+  </p>
+</div>

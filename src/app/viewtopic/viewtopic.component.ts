@@ -1,4 +1,4 @@
-import {Component, inject, Input, OnInit, ViewChild} from '@angular/core';
+import {Component, effect, inject, Input, OnInit, ViewChild} from '@angular/core';
 import {PostFormComponent} from '../components/post-form/post-form.component';
 import {TopicService} from '../services/topic.service';
 import {RouterLink} from '@angular/router';
@@ -11,6 +11,8 @@ import {CharacterProfileComponent} from '../components/character-profile/charact
 import {TopicType} from '../models/Topic';
 import {EpisodeHeaderComponent} from '../components/episode-header/episode-header.component';
 import {Post} from '../models/Post';
+import {BreadcrumbItem, BreadcrumbsComponent} from '../components/breadcrumbs/breadcrumbs.component';
+import {ForumService} from '../services/forum.service';
 
 @Component({
   selector: 'app-viewtopic',
@@ -19,7 +21,8 @@ import {Post} from '../models/Post';
     RouterLink,
     CommonModule,
     CharacterProfileComponent,
-    EpisodeHeaderComponent
+    EpisodeHeaderComponent,
+    BreadcrumbsComponent
   ],
   templateUrl: './viewtopic.component.html',
   standalone: true,
@@ -27,16 +30,40 @@ import {Post} from '../models/Post';
 })
 export class ViewtopicComponent implements OnInit {
   topicService = inject(TopicService);
+  forumService = inject(ForumService);
   @Input() id?: number;
   @Input() page: number = 1;
 
   topic = this.topicService.topic;
   posts = this.topicService.posts;
+  subforum = this.forumService.subforum;
 
   accountName = 'User123'; // This should come from AuthService
   selectedCharacterId: number | null = null;
 
+  breadcrumbs: BreadcrumbItem[] = [];
+
   @ViewChild(PostFormComponent) postForm!: PostFormComponent;
+
+  constructor() {
+    effect(() => {
+      const t = this.topic();
+      const s = this.subforum();
+
+      if (t.id !== 0) {
+        // If we have topic, we might need to load subforum if not already loaded or different
+        if (s?.id !== t.subforum_id) {
+           this.forumService.loadSubforum(t.subforum_id);
+        }
+
+        this.breadcrumbs = [
+          { label: 'Home', link: '/' },
+          ...(s ? [{ label: s.name, link: `/viewforum/${s.id}` }] : []),
+          { label: t.name }
+        ];
+      }
+    });
+  }
 
   isEpisode() {
     return this.topic().type === TopicType.episode;
