@@ -1,0 +1,21 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+label {
+  font-weight: bold;
+  font-size: 0.9em;
+  color: #555;
+}
+
+div {
+  font-size: 1em;
+  color: #333;
+  white-space: pre-wrap;
+  background-color: #fdfdfd;
+  border: 1px solid #eee;
+  padding: 10px;
+  border-radius: 4px;
+}
