@@ -6,7 +6,8 @@ import { User } from '../models/User';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 interface AuthResponse {
-  token: string;
+  access_token: string;
+  refresh_token: string;
   user: User;
 }
 
@@ -17,16 +18,16 @@ export class AuthService {
   private readonly apiUrl = 'http://localhost/api';
   private authChannel = new BroadcastChannel('auth_channel');
 
-  currentUser = signal<AuthResponse['user'] | null>(null);
+  currentUser = signal<User | null>(null);
   isAuthenticated = computed(() => !!this.currentUser()?.id);
-  authToken = signal<string|null>(null);
+  authToken = signal<string | null>(null);
   isAdmin = computed(() => this.hasRole('admin'));
 
   isRefreshing = false;
   refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
   constructor() {
-    const token = localStorage.getItem('jwt_token');
+    const token = localStorage.getItem('access_token');
     const userString = localStorage.getItem('user');
     if (token && userString) {
       this.currentUser.set(JSON.parse(userString));
@@ -37,7 +38,8 @@ export class AuthService {
   }
 
   refreshToken(): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/refresh`, {}).pipe(
+    const refreshToken = localStorage.getItem('refresh_token');
+    return this.http.post<AuthResponse>(`${this.apiUrl}/refresh`, { refresh_token: refreshToken }).pipe(
       tap((response: AuthResponse) => {
         this.handleAuth(response, false);
       })
@@ -64,7 +66,8 @@ export class AuthService {
   }
 
   public clearLocalAuth(notify: boolean = true) {
-    localStorage.removeItem('jwt_token');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
     localStorage.removeItem('user');
     this.setGuestUser();
     this.authToken.set(null);
@@ -75,10 +78,11 @@ export class AuthService {
   }
 
   private handleAuth(response: AuthResponse, navigate: boolean = true) {
-    localStorage.setItem('jwt_token', response.token);
+    localStorage.setItem('access_token', response.access_token);
+    localStorage.setItem('refresh_token', response.refresh_token);
     localStorage.setItem('user', JSON.stringify(response.user));
     this.currentUser.set(response.user);
-    this.authToken.set(response.token);
+    this.authToken.set(response.access_token);
     this.authChannel.postMessage('login');
     if (navigate) {
       this.router.navigate(['/dashboard']);

@@ -30,8 +30,8 @@ const handle401Error = (request: HttpRequest<any>, next: HttpHandlerFn, authServ
     return authService.refreshToken().pipe(
       switchMap((response) => {
         authService.isRefreshing = false;
-        authService.refreshTokenSubject.next(response.token);
-        return next(addTokenHeader(request, response.token));
+        authService.refreshTokenSubject.next(response.access_token);
+        return next(addTokenHeader(request, response.access_token));
       }),
       catchError((err) => {
         authService.isRefreshing = false;
