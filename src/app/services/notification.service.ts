@@ -28,6 +28,8 @@ export class NotificationService {
   private notificationSubject = new Subject<NotificationEvent>();
   public notification$ = this.notificationSubject.asObservable();
 
+  private messageQueue: string[] = [];
+
   /**
    * A flag to indicate if the disconnection was intentional (e.g., user logout).
    * This prevents reconnection attempts on explicit disconnects.
@@ -82,11 +84,21 @@ export class NotificationService {
    * @param message The data to send, which will be JSON.stringified.
    */
   public sendMessage(message: unknown): void {
+    const msgString = JSON.stringify(message);
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify(message));
+      this.ws.send(msgString);
     } else {
-      console.error('NotificationService: Cannot send message, WebSocket is not open.');
+      console.log('NotificationService: WebSocket not open, queuing message.');
+      this.messageQueue.push(msgString);
     }
+  }
+
+  public sendPageChange(pageType: string, pageId: number): void {
+    this.sendMessage({
+      type: 'page_change',
+      page_type: pageType,
+      page_id: pageId
+    });
   }
 
   /**
@@ -107,6 +119,7 @@ export class NotificationService {
       console.log('NotificationService: Connection established.');
       // On a successful connection, reset the reconnect counter.
       this.reconnectAttempts = 0;
+      this.processMessageQueue();
     };
 
     this.ws.onmessage = (event) => {
@@ -135,6 +148,15 @@ export class NotificationService {
         this.scheduleReconnect();
       }
     };
+  }
+
+  private processMessageQueue() {
+    while (this.messageQueue.length > 0 && this.ws && this.ws.readyState === WebSocket.OPEN) {
+      const msg = this.messageQueue.shift();
+      if (msg) {
+        this.ws.send(msg);
+      }
+    }
   }
 
   private scheduleReconnect(): void {

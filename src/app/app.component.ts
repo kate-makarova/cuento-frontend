@@ -59,9 +59,44 @@ export class AppComponent implements OnInit {
         while (route.firstChild) route = route.firstChild;
         return route;
       }),
-      mergeMap(route => route.data)
-    ).subscribe(data => {
+      mergeMap(route => {
+        // We need both data and params
+        return route.data.pipe(
+          map(data => ({ data, params: route.snapshot.params }))
+        );
+      })
+    ).subscribe(({ data, params }) => {
       this.pageId = data['pageId'] || 'pun-index';
+
+      // Send page change notification
+      let pageType = 'unknown';
+      let pageId = 0;
+
+      switch (this.pageId) {
+        case 'pun-viewtopic':
+          pageType = 'topic';
+          pageId = +params['id'] || 0;
+          break;
+        case 'pun-viewforum':
+          pageType = 'forum';
+          pageId = +params['id'] || 0;
+          break;
+        case 'pun-index':
+          pageType = 'home';
+          break;
+        case 'pun-profile':
+          pageType = 'profile';
+          pageId = +params['id'] || 0;
+          break;
+        case 'pun-character':
+          pageType = 'character';
+          pageId = +params['id'] || 0;
+          break;
+        default:
+          pageType = this.pageId.replace('pun-', '');
+      }
+
+      this.notificationService.sendPageChange(pageType, pageId);
     });
   }
 

@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-topic-read-by',
@@ -9,11 +10,14 @@ import { RouterLink } from '@angular/router';
   standalone: true,
   styleUrl: './topic-read-by.component.css'
 })
-export class TopicReadByComponent {
-  guestsCount = 0;
-  usersCount = 2;
-  users = [
-    { id: 1333, name: 'viper', groupClass: 'group4' },
-    { id: 11, name: 'Химера', groupClass: 'group4' }
-  ];
+export class TopicReadByComponent implements OnInit {
+  @Input() topicId!: number;
+  private userService = inject(UserService);
+  users = this.userService.usersOnPage;
+
+  ngOnInit() {
+    if (this.topicId) {
+      this.userService.loadUsersOnPage('topic', this.topicId);
+    }
+  }
 }

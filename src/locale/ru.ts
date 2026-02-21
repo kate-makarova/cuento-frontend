@@ -12,6 +12,7 @@ export const TRANSLATIONS_RU = {
   "home.totalEpisodes": "Всего игровых эпизодов",
   "home.totalGamePosts": "Всего игровых постов",
   "home.totalCharacters": "Всего персонажей",
+  "characterList.title": "Список персонажей",
   "viewforum.moderators": "Модераторы",
   "viewforum.pages": "Страницы",
   "viewforum.newTopic": "Новая тема",
@@ -87,16 +88,12 @@ export const TRANSLATIONS_RU = {
   "episodelist.topicTitle": "Название темы",
   "episodelist.subforum": "Подфорум",
   "episodelist.status": "Статус",
-  "episodelist.participants": "Участники",
+  "episodelist.lastPost": "Дата последнего сообщения",
   "episodelist.inProgress": "В процессе",
   "episodelist.completed": "Завершен",
   "episodelist.previous": "Назад",
   "episodelist.next": "Вперед",
   "episodelist.page": "Страница",
   "episodelist.of": "из",
-  "episodelist.applyFilters": "Применить фильтры",
-  "breadcrumbs.youAreHere": "Вы здесь",
-  "topicreadby.title": "Тему просматривают",
-  "topicreadby.guests": "Гостей",
-  "topicreadby.users": "Пользователей"
+  "episodelist.applyFilters": "Применить фильтры"
 };
