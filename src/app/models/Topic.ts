@@ -1,4 +1,5 @@
 import {Episode} from './Episode';
+import {Character} from './Character';
 
 export interface Topic {
   id: number;
@@ -14,6 +15,7 @@ export interface Topic {
   type: TopicType;
   status: TopicStatus;
   episode: Episode|null;
+  character: Character|null;
 }
 
 export enum TopicType {

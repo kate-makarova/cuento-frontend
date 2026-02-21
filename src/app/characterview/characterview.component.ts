@@ -24,7 +24,7 @@ export class CharacterviewComponent {
 char: Character = {
   id: 0,
   name: '',
-  image: '',
+  avatar: '',
   character_status: 0,
   createdAt: '',
   user: {
@@ -35,7 +35,10 @@ char: Character = {
   group: '',
   subgroup: '',
   subsubgroup: '',
-  customFields: []
+  custom_fields: {
+    custom_fields: {},
+    field_config: []
+  }
 }
 isOwner: boolean = true;
 recentTopics: Topic[] = [];

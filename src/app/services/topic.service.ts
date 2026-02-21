@@ -22,7 +22,8 @@ export class TopicService {
     last_post_author_username: null,
     type: TopicType.general,
     status: TopicStatus.active,
-    episode: null
+    episode: null,
+    character: null
   });
   readonly topic = this.topicSignal.asReadonly();
 

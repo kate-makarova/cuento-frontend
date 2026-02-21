@@ -6,20 +6,20 @@ import {Faction} from './Faction';
 export interface Character {
   id: number;
   name: string;
-  image: string;
+  avatar: string;
   character_status: number;
   createdAt: string;
   user: UserShort;
   group: string|null;
   subgroup: string|null;
   subsubgroup: string|null;
-  customFields: Field[];
+  custom_fields: CustomFieldsData;
 }
 
 export interface CharacterShort {
   id: number;
   name: string;
-  image: string;
+  avatar: string;
 }
 
 export interface CustomFieldsData {

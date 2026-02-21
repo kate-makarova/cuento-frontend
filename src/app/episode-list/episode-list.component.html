@@ -33,7 +33,7 @@
               <div class="suggestions-dropdown">
                 @for (character of characterSuggestions(); track character.id) {
                   <div class="suggestion-item" (click)="selectCharacter(character)">
-                    <img [src]="character.image" [alt]="character.name">
+                    <img [src]="character.avatar" [alt]="character.name">
                     <span>{{ character.name }}</span>
                   </div>
                 }

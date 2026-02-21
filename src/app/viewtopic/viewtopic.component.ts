@@ -2,10 +2,6 @@ import {Component, effect, inject, Input, OnInit, ViewChild} from '@angular/core
 import {PostFormComponent} from '../components/post-form/post-form.component';
 import {TopicService} from '../services/topic.service';
 import {RouterLink} from '@angular/router';
-import {
-  ShortTextFieldDisplayComponent
-} from '../components/short-text-field-display/short-text-field-display.component';
-import {LongTextFieldDisplayComponent} from '../components/long-text-field-display/long-text-field-display.component';
 import {CommonModule} from '@angular/common';
 import {CharacterProfileComponent} from '../components/character-profile/character-profile.component';
 import {TopicType} from '../models/Topic';
@@ -14,6 +10,7 @@ import {Post} from '../models/Post';
 import {BreadcrumbItem, BreadcrumbsComponent} from '../components/breadcrumbs/breadcrumbs.component';
 import {ForumService} from '../services/forum.service';
 import {TopicReadByComponent} from '../components/topic-read-by/topic-read-by.component';
+import { CharacterSheetHeaderComponent } from '../components/character-sheet-header/character-sheet-header.component';
 
 @Component({
   selector: 'app-viewtopic',
@@ -24,7 +21,8 @@ import {TopicReadByComponent} from '../components/topic-read-by/topic-read-by.co
     CharacterProfileComponent,
     EpisodeHeaderComponent,
     BreadcrumbsComponent,
-    TopicReadByComponent
+    TopicReadByComponent,
+    CharacterSheetHeaderComponent
   ],
   templateUrl: './viewtopic.component.html',
   standalone: true,
@@ -53,7 +51,6 @@ export class ViewtopicComponent implements OnInit {
       const s = this.subforum();
 
       if (t.id !== 0) {
-        // If we have topic, we might need to load subforum if not already loaded or different
         if (s?.id !== t.subforum_id) {
            this.forumService.loadSubforum(t.subforum_id);
         }
@@ -88,7 +85,6 @@ export class ViewtopicComponent implements OnInit {
 
   onCharacterSelected(characterId: number | null) {
     this.selectedCharacterId = characterId;
-    console.log('Selected character ID:', this.selectedCharacterId);
   }
 
   onSubmit(event: Event) {
@@ -106,7 +102,6 @@ export class ViewtopicComponent implements OnInit {
 
     this.topicService.createPost(payload).subscribe({
       next: () => {
-        console.log('Post created successfully');
         this.postForm.messageField.nativeElement.value = '';
       },
       error: (err) => console.error('Failed to create post', err)

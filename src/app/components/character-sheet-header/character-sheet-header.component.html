@@ -1,0 +1,31 @@
+@if(character != null) {
+<div class="character-sheet-header">
+  <div class="character-sheet-avatar">
+    @if (character.avatar) {
+      <img [src]="character.avatar" [alt]="character.name">
+    }
+  </div>
+  <div class="character-sheet-info">
+    <h2>{{ character.name }}</h2>
+
+    @if (customFields.length > 0) {
+      <div class="character-sheet-custom-fields">
+        <ul>
+          @for(field of customFields; track field.fieldMachineName) {
+            <li>
+              @switch (field.type) {
+                @case('short_text') {
+                  <app-short-text-field-display [fieldName]="field.fieldName" [fieldValue]="field.fieldValue"></app-short-text-field-display>
+                }
+                @case('long_text') {
+                  <app-long-text-field-display [fieldName]="field.fieldName" [fieldValue]="field.fieldValue"></app-long-text-field-display>
+                }
+              }
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  </div>
+</div>
+}

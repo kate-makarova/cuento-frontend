@@ -18,7 +18,7 @@
         <div class="char-sheet-layout">
           <div class="char-portrait">
             <div class="portrait-frame">
-              <img [src]="char.image" [alt]="char.name">
+              <img [src]="char.avatar" [alt]="char.name">
             </div>
             <div class="char-meta-sidebar">
               <p><strong>Игрок:</strong> <a href="#">{{ char.user.username }}</a></p>
@@ -49,18 +49,18 @@
 
             <div class="char-biography">
               <h3>Информация</h3>
-              @for(field of char.customFields; track field.fieldMachineName) {
+              @for(field of char.custom_fields.field_config; track field.machine_field_name) {
               <div class="field">
-                @switch (field.type) {
+                @switch (field.field_type) {
                   @case('short_text') {
-                    <app-short-text-field-display [fieldName]="field.fieldName" [fieldValue]="field.fieldValue" ></app-short-text-field-display>
+                    <app-short-text-field-display [fieldName]="field.machine_field_name" [fieldValue]="char.custom_fields.custom_fields[field.machine_field_name]" [showFieldName]="true" ></app-short-text-field-display>
                   }
                   @case('long_text') {
                     <app-long-text-field-display
-                      [fieldMachineName]="field.fieldMachineName"
-                      [showFieldName]="field.showFieldName"
-                      [fieldName]="field.fieldName"
-                      [fieldValue]="field.fieldValue" ></app-long-text-field-display>
+                      [fieldMachineName]="field.machine_field_name"
+                      [showFieldName]="true"
+                      [fieldName]="field.machine_field_name"
+                      [fieldValue]="char.custom_fields.custom_fields[field.machine_field_name]" ></app-long-text-field-display>
                   }
                 }
               </div>
