@@ -9,7 +9,7 @@ import { Component, Input } from '@angular/core';
 })
 export class ImageFieldComponent {
   @Input() fieldName: string | undefined;
-  @Input() fieldValue: string | undefined;
+  @Input() fieldValue: string = '';
   @Input() showFieldName: boolean = true;
   @Input() name: string | undefined;
 }
