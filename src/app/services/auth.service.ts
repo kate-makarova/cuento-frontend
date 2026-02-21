@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { User } from '../models/User';
-
+import { BehaviorSubject, Observable } from 'rxjs';
 
 interface AuthResponse {
   token: string;
@@ -17,11 +17,13 @@ export class AuthService {
   private readonly apiUrl = 'http://localhost/api';
   private authChannel = new BroadcastChannel('auth_channel');
 
-  // State management using Signals
   currentUser = signal<AuthResponse['user'] | null>(null);
   isAuthenticated = computed(() => !!this.currentUser()?.id);
   authToken = signal<string|null>(null);
   isAdmin = computed(() => this.hasRole('admin'));
+
+  isRefreshing = false;
+  refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
   constructor() {
     const token = localStorage.getItem('jwt_token');
@@ -32,6 +34,14 @@ export class AuthService {
     } else {
       this.setGuestUser();
     }
+  }
+
+  refreshToken(): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/refresh`, {}).pipe(
+      tap((response: AuthResponse) => {
+        this.handleAuth(response, false);
+      })
+    );
   }
 
   register(data: any) {
@@ -64,13 +74,15 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 
-  private handleAuth(response: AuthResponse) {
+  private handleAuth(response: AuthResponse, navigate: boolean = true) {
     localStorage.setItem('jwt_token', response.token);
     localStorage.setItem('user', JSON.stringify(response.user));
     this.currentUser.set(response.user);
     this.authToken.set(response.token);
     this.authChannel.postMessage('login');
-    this.router.navigate(['/dashboard']);
+    if (navigate) {
+      this.router.navigate(['/dashboard']);
+    }
   }
 
   private setGuestUser() {
