@@ -354,3 +354,145 @@ body::before {
   width: 180px;
   height: 180px;
 }
+
+/* Viewtopic Styles */
+.post {
+  margin-bottom: 20px;
+  border: 1px solid #d1bc9b;
+  background-color: #fffdf7;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.post h3 {
+  background: #e9e3d5;
+  border-bottom: 1px solid #d1bc9b;
+  padding: 8px 15px;
+  margin: 0;
+  font-size: 0.9em;
+  color: #555;
+  display: flex;
+  justify-content: space-between;
+}
+
+.post h3 span {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.post h3 a {
+  color: #7a5d3b;
+  text-decoration: none;
+}
+
+.post h3 a:hover {
+  text-decoration: underline;
+}
+
+.post-main {
+  display: flex;
+  padding: 15px;
+}
+
+.post-author {
+  flex: 0 0 200px;
+  border-right: 1px solid #eee;
+  padding-right: 15px;
+}
+
+.post-author ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.post-author li {
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.pa-author {
+  font-weight: bold;
+  font-size: 1.1em;
+  margin-bottom: 10px;
+}
+
+.pa-author a {
+  color: #1b3a6d;
+  text-decoration: none;
+}
+
+.pa-avatar img {
+  border: 3px solid #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  border-radius: 4px;
+}
+
+.post-body {
+  flex: 1;
+  padding-left: 15px;
+}
+
+.punbb .post-body {
+  margin-left: 0 !important;
+  border-left: none !important;
+}
+
+.post-content {
+  font-size: 1.05em;
+  line-height: 1.6;
+  color: #333;
+}
+
+.post-footer {
+  background: #fcfaf2;
+  border-top: none; /* Removed border */
+  padding: 8px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.post-contacts a,
+.post-links a {
+  color: #7a5d3b;
+  text-decoration: none;
+  font-size: 0.9em;
+  margin-right: 10px;
+}
+
+.post-contacts a:hover,
+.post-links a:hover {
+  text-decoration: underline;
+}
+
+.sharelink {
+  margin-right: 15px;
+}
+
+.post-meta {
+  display: flex;
+  align-items: center;
+}
+
+.punbb .post-links {
+  border: none !important;
+}
+
+.punbb textarea,
+.punbb .longinput input {
+  width: 96%;
+}
+
+.punbb .post .post-author {
+  margin-top: -3.5em;
+}
+
+.post-author li {
+  margin-bottom: 2em;
+}
+
+.punbb .post h3 span {
+  margin-left: 21em;
+  border: none !important;
+}

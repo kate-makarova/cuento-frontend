@@ -21,10 +21,12 @@
   @for(post of posts(); track post.id; let i = $index; let isEven = $even) {
   <div id="{{post.id}}" class="post" [class.altstyle]="isEven">
     <h3>
-      <span>
+      <span class="post-meta">
         <a class="sharelink" rel="nofollow" href="#p{{ post.id }}" onclick="return false;" title="" i18n="@@viewtopic.share">Share</a>
-        <strong>{{ i + 1 }}</strong>
-        <a class="permalink" rel="nofollow">{{ post.date_created }}</a></span></h3>
+        <a class="permalink" rel="nofollow">{{ post.date_created }}</a>
+      </span>
+      <strong class="post-number">{{ i + 1 }}</strong>
+    </h3>
     <div class="container">
       <div class="post-main">
         <app-character-profile [post]="post"></app-character-profile>
