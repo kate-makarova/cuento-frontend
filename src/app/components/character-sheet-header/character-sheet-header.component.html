@@ -8,6 +8,17 @@
   <div class="character-sheet-info">
     <h2>{{ character.name }}</h2>
 
+    @if (character.factions && character.factions.length > 0) {
+      <div class="character-sheet-factions">
+        <h3>Factions</h3>
+        <ul>
+          @for (faction of character.factions; track faction.id) {
+            <li>{{ faction.name }}</li>
+          }
+        </ul>
+      </div>
+    }
+
     @if (customFields.length > 0) {
       <div class="character-sheet-custom-fields">
         <ul>

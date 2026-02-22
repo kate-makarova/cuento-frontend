@@ -1,4 +1,4 @@
-import { Component, inject, effect } from '@angular/core';
+import { Component, inject, effect, signal, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FactionService } from '../../services/faction.service';
@@ -18,97 +18,62 @@ interface FactionLevel {
   styleUrl: './faction-choose.component.css'
 })
 export class FactionChooseComponent {
-  factionService = inject(FactionService);
-  factionLevels: FactionLevel[] = [];
-  showModal = false;
-  modalLevelIndex: number | null = null;
-  newFactionName = '';
-  newFactionDescription = '';
-  newFactionIcon = '';
-  private tempIdCounter = -1;
+  private factionService = inject(FactionService);
+
+  @Output() selectionChange = new EventEmitter<Faction[]>();
+
+  factionLevels = signal<FactionLevel[]>([]);
 
   constructor() {
-    this.factionLevels.push({
-      label: 'Faction 1',
-      options: this.factionService.currentFactionChildren(),
-      selectedId: null
-    });
+    this.addFactionLevel(0);
+  }
 
-    effect(() => {
-      const children = this.factionService.currentFactionChildren();
-      if (this.factionLevels.length > 0) {
-        const lastLevel = this.factionLevels[this.factionLevels.length - 1];
-        if (children.length === 0 && lastLevel.options.length === 0 && this.factionLevels.length > 1) {
-          this.factionLevels.pop();
-        } else {
-          lastLevel.options = children;
-        }
+  addFactionLevel(parentId: number) {
+    this.factionService.getFactionChildren(parentId).subscribe(children => {
+      if (children.length > 0 || this.factionLevels().length === 0) {
+        this.factionLevels.update(levels => [
+          ...levels,
+          {
+            label: `Faction ${levels.length + 1}`,
+            options: children,
+            selectedId: null
+          }
+        ]);
       }
     });
-
-    this.factionService.setCurrentFaction(0);
   }
 
-  onFactionChange(levelIndex: number, selectedId: number | null) {
-    if (selectedId === null) return;
+  onFactionChange(levelIndex: number) {
+    const currentLevels = this.factionLevels();
+    let selectedId = currentLevels[levelIndex].selectedId;
 
-    this.factionLevels = this.factionLevels.slice(0, levelIndex + 1);
-    this.factionService.setCurrentFaction(selectedId);
-
-    this.factionLevels.push({
-      label: `Faction ${this.factionLevels.length + 1}`,
-      options: [],
-      selectedId: null
-    });
-  }
-
-  openModal(levelIndex: number) {
-    this.modalLevelIndex = levelIndex;
-    this.showModal = true;
-    this.newFactionName = '';
-    this.newFactionDescription = '';
-    this.newFactionIcon = '';
-  }
-
-  closeModal() {
-    this.showModal = false;
-    this.modalLevelIndex = null;
-  }
-
-  submitNewFaction() {
-    if (this.modalLevelIndex !== null && this.newFactionName.trim()) {
-      const level = this.factionLevels[this.modalLevelIndex];
-      const parentId = this.modalLevelIndex > 0 ? this.factionLevels[this.modalLevelIndex - 1].selectedId : 0;
-
-      const tempId = this.tempIdCounter--;
-      const newFaction: Faction = {
-        id: tempId,
-        name: this.newFactionName,
-        parent_id: parentId,
-        level: this.modalLevelIndex,
-        description: this.newFactionDescription || null,
-        icon: this.newFactionIcon || null,
-        show_on_profile: false,
-        characters: []
-      };
-
-      level.options.push(newFaction);
-      level.selectedId = tempId;
-      this.factionLevels = this.factionLevels.slice(0, this.modalLevelIndex + 1);
-      this.closeModal();
+    if (selectedId !== null) {
+      selectedId = +selectedId;
+      currentLevels[levelIndex].selectedId = selectedId;
     }
+
+    const nextLevels = currentLevels.slice(0, levelIndex + 1);
+    this.factionLevels.set(nextLevels);
+
+    if (selectedId !== null) {
+      this.addFactionLevel(selectedId);
+    }
+
+    this.emitSelection();
   }
 
+  private emitSelection() {
+    const selectedFactions = this.factionLevels()
+      .map(level => level.options.find(f => f.id == level.selectedId))
+      .filter((f): f is Faction => f !== undefined);
+
+    this.selectionChange.emit(selectedFactions);
+  }
+
+  // Keep this for backward compatibility if needed, but prefer the event
   public getSelectedFactions(): Faction[] {
-    const selectedFactions: Faction[] = [];
-    this.factionLevels.forEach(level => {
-      if (level.selectedId !== null) {
-        const faction = level.options.find(f => f.id === level.selectedId);
-        if (faction) {
-          selectedFactions.push(faction);
-        }
-      }
-    });
-    return selectedFactions;
+    return this.factionLevels()
+      .map(level => level.options.find(f => f.id == level.selectedId))
+      .filter((f): f is Faction => f !== undefined);
   }
 }

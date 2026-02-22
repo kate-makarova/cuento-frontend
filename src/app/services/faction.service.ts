@@ -1,33 +1,31 @@
 import { Injectable, signal, inject, effect } from '@angular/core';
 import { ApiService } from './api.service';
 import { Faction } from '../models/Faction';
+import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class FactionService {
   private apiService = inject(ApiService);
 
-  // Signal to hold the current faction ID. 0 represents the root.
   currentFactionId = signal<number>(0);
-
-  // Signal to hold the children of the current faction
   currentFactionChildren = signal<Faction[]>([]);
   factionsSignal = signal<Faction[]>([]);
   readonly factions = this.factionsSignal.asReadonly();
 
-
   constructor() {
-    // Effect to automatically load children whenever currentFactionId changes
     effect(() => {
       const parentId = this.currentFactionId();
       this.loadFactionChildren(parentId);
     });
   }
 
+  getFactionChildren(id: number): Observable<Faction[]> {
+    return this.apiService.get<Faction[]>(`faction-children/${id}/get`);
+  }
+
   loadFactionChildren(id: number): void {
-    console.log('Loading faction children for id:', id);
-    this.apiService.get<Faction[]>(`faction-children/${id}/get`).subscribe({
+    this.getFactionChildren(id).subscribe({
       next: (data) => {
-        console.log('Received faction children:', data);
         this.currentFactionChildren.set(data);
       },
       error: (err) => {
@@ -37,7 +35,6 @@ export class FactionService {
     });
   }
 
-  // Method to update the current faction, which triggers the effect
   setCurrentFaction(id: number) {
     this.currentFactionId.set(id);
   }

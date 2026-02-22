@@ -14,6 +14,7 @@ export interface Character {
   subgroup: string|null;
   subsubgroup: string|null;
   custom_fields: CustomFieldsData;
+  factions: Faction[] | null;
 }
 
 export interface CharacterShort {

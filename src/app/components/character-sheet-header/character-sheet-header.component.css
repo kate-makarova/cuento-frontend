@@ -49,6 +49,35 @@
   border: 1px solid #e9e3d5;
 }
 
+.character-sheet-factions {
+  margin-bottom: 20px;
+}
+
+.character-sheet-factions h3 {
+  font-size: 1.2em;
+  color: #555;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #e9e3d5;
+  padding-bottom: 5px;
+}
+
+.character-sheet-factions ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.character-sheet-factions li {
+  background-color: #e9e3d5;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 0.9em;
+  color: #3d2f21;
+}
+
 .admin-actions {
   display: flex;
   justify-content: flex-end;

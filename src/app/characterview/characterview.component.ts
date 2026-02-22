@@ -36,7 +36,8 @@ export class CharacterviewComponent {
     custom_fields: {
       custom_fields: {},
       field_config: []
-    }
+    },
+    factions: []
   }
   isOwner: boolean = true;
   recentTopics: Topic[] = [];

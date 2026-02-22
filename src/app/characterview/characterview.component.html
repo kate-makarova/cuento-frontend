@@ -13,13 +13,13 @@
             <li>
               @switch (field.content_field_type) {
                 @case('short_text') {
-                  <app-short-text-field-display [fieldName]="field.human_field_name" [fieldValue]="char.custom_fields.custom_fields[field.machine_field_name]"></app-short-text-field-display>
+                  <app-short-text-field-display [fieldName]="field.human_field_name" [fieldValue]="char.custom_fields.custom_fields[field.machine_field_name]?.content ?? ''"></app-short-text-field-display>
                 }
                 @case('long_text') {
-                  <app-long-text-field-display [fieldName]="field.human_field_name" [fieldValue]="char.custom_fields.custom_fields[field.machine_field_name]"></app-long-text-field-display>
+                  <app-long-text-field-display [fieldName]="field.human_field_name" [fieldValue]="char.custom_fields.custom_fields[field.machine_field_name]?.content_html ?? ''"></app-long-text-field-display>
                 }
                 @case('number') {
-                  <app-number-field-display [fieldName]="field.human_field_name" [fieldValue]="char.custom_fields.custom_fields[field.machine_field_name]"></app-number-field-display>
+                  <app-number-field-display [fieldName]="field.human_field_name" [fieldValue]="char.custom_fields.custom_fields[field.machine_field_name]?.content ?? null"></app-number-field-display>
                 }
               }
             </li>

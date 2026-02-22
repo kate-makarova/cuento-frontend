@@ -1,11 +1,12 @@
-import {Component, inject, OnInit, ViewChild} from '@angular/core';
-import {CharacterService} from '../services/character.service';
-import {ShortTextFieldComponent} from '../components/short-text-field/short-text-field.component';
-import {LongTextFieldComponent} from '../components/long-text-field/long-text-field.component';
-import {ImageFieldComponent} from '../components/image-field/image-field.component';
-import {FactionChooseComponent} from '../components/faction-choose/faction-choose.component';
-import {ActivatedRoute, Router} from '@angular/router';
-import {CreateCharacterRequest} from '../models/Character';
+import { Component, inject, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CharacterService } from '../services/character.service';
+import { ShortTextFieldComponent } from '../components/short-text-field/short-text-field.component';
+import { LongTextFieldComponent } from '../components/long-text-field/long-text-field.component';
+import { ImageFieldComponent } from '../components/image-field/image-field.component';
+import { FactionChooseComponent } from '../components/faction-choose/faction-choose.component';
+import { CreateCharacterRequest } from '../models/Character';
+import { Faction } from '../models/Faction';
 
 @Component({
   selector: 'app-character-create',
@@ -14,16 +15,14 @@ import {CreateCharacterRequest} from '../models/Character';
   standalone: true,
   styleUrl: './character-create.component.css'
 })
-export class CharacterCreateComponent implements OnInit
-{
+export class CharacterCreateComponent implements OnInit {
   characterService = inject(CharacterService);
   router = inject(Router);
   route = inject(ActivatedRoute);
   characterTemplate = this.characterService.characterTemplate;
 
   subforumId: number = 0;
-
-  @ViewChild(FactionChooseComponent) factionChoose!: FactionChooseComponent;
+  selectedFactions: Faction[] = [];
 
   ngOnInit() {
     this.characterService.loadCharacterTemplate();
@@ -34,6 +33,11 @@ export class CharacterCreateComponent implements OnInit
     });
   }
 
+  onFactionsChanged(factions: any[]) {
+    console.log('--- CharacterCreate: onFactionsChanged called with:', factions);
+    this.selectedFactions = factions;
+  }
+
   onSubmit(event: Event) {
     event.preventDefault();
     const form = event.target as HTMLFormElement;
@@ -41,18 +45,29 @@ export class CharacterCreateComponent implements OnInit
 
     const customFields: { [key: string]: any } = {};
     this.characterTemplate().forEach(field => {
-      const value = formData.get(field.machine_field_name);
+      let value: any = formData.get(field.machine_field_name);
       if (value !== null) {
+        if (field.field_type === 'int') {
+          value = parseInt(value, 10);
+        }
         customFields[field.machine_field_name] = {
           'content': value
         };
       }
     });
 
-    const factions = this.factionChoose.getSelectedFactions().map(f => ({
-      ...f,
+    console.log('--- CharacterCreate: onSubmit selectedFactions:', this.selectedFactions);
+
+    const factions = this.selectedFactions.map(f => ({
+      id: f.id,
+      name: f.name,
+      parent_id: f.parent_id,
+      level: f.level,
+      description: f.description,
+      icon: f.icon,
+      show_on_profile: true,
       faction_status: 0,
-      show_on_profile: true
+      characters: []
     }));
 
     const request: CreateCharacterRequest = {

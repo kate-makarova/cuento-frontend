@@ -17,7 +17,7 @@
 
       </div>
     </fieldset>
-    <app-faction-choose></app-faction-choose>
+    <app-faction-choose (selectionChange)="onFactionsChanged($event)"></app-faction-choose>
     <fieldset>
       @for (field of characterTemplate(); track field.order) {
         <div class="fs-box hashelp">
