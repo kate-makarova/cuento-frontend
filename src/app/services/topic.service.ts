@@ -1,5 +1,5 @@
 import {inject, Injectable, signal} from '@angular/core';
-import {Topic, TopicStatus, TopicType} from '../models/Topic';
+import {Topic, TopicStatus, TopicType, CreateTopicRequest} from '../models/Topic';
 import {ApiService} from './api.service';
 import {Post} from '../models/Post';
 import {NotificationService} from './notification.service';
@@ -53,6 +53,10 @@ export class TopicService {
 
   createPost(data: any) {
     return this.apiService.post('post/create', data);
+  }
+
+  createTopic(data: CreateTopicRequest) {
+    return this.apiService.post('topic/create', data);
   }
 
   private handleNewPost(post: Post) {

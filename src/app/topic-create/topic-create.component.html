@@ -1,6 +1,6 @@
 <h1><span i18n="@@topiccreate.title">Start a new topic</span></h1>
   <div id="post-form" class="formal">
-    <form id="post" class="container" method="post" action="">
+    <form id="post" class="container" (submit)="onSubmit($event)">
       <fieldset id="post-preview" style="display:none">
         <legend><span i18n="@@topiccreate.previewMessage">Message preview</span></legend>
         <div class="fs-box">

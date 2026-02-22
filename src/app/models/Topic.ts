@@ -28,3 +28,11 @@ export enum TopicStatus {
   active = 0,
   inactive = 1
 }
+
+export interface CreateTopicRequest {
+  subforum_id: number;
+  title: string;
+  content: string;
+  use_character_profile: boolean;
+  character_profile_id: number | null;
+}
