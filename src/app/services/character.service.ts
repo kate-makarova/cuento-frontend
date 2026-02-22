@@ -23,6 +23,9 @@ export class CharacterService {
   private characterSignal = signal<Character | null>(null);
   readonly character = this.characterSignal.asReadonly();
 
+  private characterProfileSignal = signal<CharacterProfile | null>(null);
+  readonly characterProfile = this.characterProfileSignal.asReadonly();
+
   loadCharacterTemplate(): void {
     this.apiService.get<FieldTemplate[]>('template/character/get').subscribe({
       next: (data) => {
@@ -132,5 +135,21 @@ export class CharacterService {
         this.characterSignal.set(null);
       }
     });
+  }
+
+  loadCharacterProfile(id: number): void {
+    this.apiService.get<CharacterProfile>(`character-profile/${id}/get`).subscribe({
+      next: (data) => {
+        this.characterProfileSignal.set(data);
+      },
+      error: (err) => {
+        console.error('Failed to load character profile', err);
+        this.characterProfileSignal.set(null);
+      }
+    });
+  }
+
+  updateCharacterProfile(id: number, data: any) {
+    return this.apiService.post(`character-profile/${id}/update`, data);
   }
 }

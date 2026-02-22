@@ -1,0 +1,59 @@
+<h1>Edit Character Profile</h1>
+<div id="post-form" class="formal">
+  <form id="post" class="container" (submit)="onSubmit($event)">
+    <fieldset>
+      <legend>Character Details</legend>
+      <div class="fs-box hashelp">
+        <p class="inputfield required">
+          <label for="char_name">Name <em>(Required)</em></label><br />
+          <span class="input"><input id="char_name" type="text" name="character_name" [(ngModel)]="characterName" size="80" maxlength="70" required readonly class="readonly-input" /></span>
+        </p>
+
+        <p class="inputfield required">
+          <label for="char_avatar">Avatar URL</label><br />
+          <span class="input"><input id="char_avatar" type="text" name="avatar" [(ngModel)]="characterAvatar" size="80" maxlength="255" /></span>
+        </p>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Custom Fields</legend>
+      @for (field of template(); track field.order) {
+        <div class="fs-box hashelp">
+          <p class="inputfield required">
+            @if (field.content_field_type === 'short_text') {
+              <app-short-text-field
+                [fieldName]="field.human_field_name"
+                [name]="field.machine_field_name"
+                [fieldValue]="getFieldValue(field.machine_field_name)">
+              </app-short-text-field>
+            }
+            @if (field.content_field_type === 'long_text') {
+              <app-long-text-field
+                [fieldName]="field.human_field_name"
+                [name]="field.machine_field_name"
+                [fieldValue]="getFieldValue(field.machine_field_name)"
+                [rows]="10">
+              </app-long-text-field>
+            }
+            @if (field.content_field_type === 'image') {
+              <app-image-field
+                [fieldName]="field.human_field_name"
+                [name]="field.machine_field_name"
+                [fieldValue]="getFieldValue(field.machine_field_name)">
+              </app-image-field>
+            }
+            @if (field.content_field_type === 'number') {
+              <app-number-field
+                [fieldName]="field.human_field_name"
+                [name]="field.machine_field_name"
+                [fieldValue]="getFieldValue(field.machine_field_name)">
+              </app-number-field>
+            }
+          </p>
+        </div>
+      }
+    </fieldset>
+    <p class="formsubmit"><input type="submit" class="button submit" name="submit" value="Update" accesskey="s" /></p>
+  </form>
+</div>

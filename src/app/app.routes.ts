@@ -18,6 +18,7 @@ import {CharacterCreateComponent} from './character-create/character-create.comp
 import {EpisodeTemplateEditComponent} from './admin/episode-template-edit/episode-template-edit.component';
 import {CharacterProfileTemplateEditComponent} from './admin/character-profile-template-edit/character-profile-template-edit.component';
 import {PermissionMatrixComponent} from './admin/permission-matrix/permission-matrix.component';
+import {CharacterProfileEditComponent} from './character-profile-edit/character-profile-edit.component';
 
 
 export const routes: Routes = [
@@ -95,6 +96,12 @@ export const routes: Routes = [
     component: EpisodeListComponent,
     title: 'Episode List',
     data: { pageId: 'pun-episode-list' }
+  },
+  {
+    path: 'character-profile-update/:id',
+    component: CharacterProfileEditComponent,
+    title: 'Update Character Profile',
+    data: { pageId: 'pun-character-profile-update' }
   },
   {
     path: 'admin',
