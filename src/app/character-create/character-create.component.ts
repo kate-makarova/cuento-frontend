@@ -43,7 +43,9 @@ export class CharacterCreateComponent implements OnInit
     this.characterTemplate().forEach(field => {
       const value = formData.get(field.machine_field_name);
       if (value !== null) {
-        customFields[field.machine_field_name] = value;
+        customFields[field.machine_field_name] = {
+          'content': value
+        };
       }
     });
 

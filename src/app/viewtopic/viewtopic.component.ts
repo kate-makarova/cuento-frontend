@@ -6,12 +6,11 @@ import {CommonModule} from '@angular/common';
 import {CharacterProfileComponent} from '../components/character-profile/character-profile.component';
 import {TopicType} from '../models/Topic';
 import {EpisodeHeaderComponent} from '../components/episode-header/episode-header.component';
-import {Post} from '../models/Post';
 import {BreadcrumbItem, BreadcrumbsComponent} from '../components/breadcrumbs/breadcrumbs.component';
 import {ForumService} from '../services/forum.service';
 import {TopicReadByComponent} from '../components/topic-read-by/topic-read-by.component';
 import { CharacterSheetHeaderComponent } from '../components/character-sheet-header/character-sheet-header.component';
-import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
+import { SafeHtmlPipe } from '../pipes/safe-html.pipe'
 
 @Component({
   selector: 'app-viewtopic',
