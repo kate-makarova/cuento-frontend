@@ -5,16 +5,24 @@ import {Faction} from './Faction';
 
 export interface Character {
   id: number;
+  user_id: number;
   name: string;
-  avatar: string;
-  character_status: number;
-  createdAt: string;
-  user: UserShort;
-  group: string|null;
-  subgroup: string|null;
-  subsubgroup: string|null;
+  avatar: string | null;
   custom_fields: CustomFieldsData;
+  character_status: number;
+  topic_id: number;
+  total_episodes: number;
   factions: Faction[] | null;
+  episodes: CharacterEpisode[];
+}
+
+export interface CharacterEpisode {
+  id: number;
+  name: string;
+  topic_id: number;
+  characters: CharacterShort[];
+  date_last_post: string | null;
+  last_post_author_username: string | null;
 }
 
 export interface CharacterShort {

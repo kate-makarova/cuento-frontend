@@ -1,17 +1,18 @@
+@if (userProfile(); as profile) {
 <div id="pun-main" class="main">
   <div class="main-header">
-    <h1><span><ng-container i18n="@@userprofile.title">User Profile</ng-container> {{ user.username }}</span></h1>
+    <h1><span><ng-container i18n="@@userprofile.title">User Profile</ng-container> {{ profile.username }}</span></h1>
   </div>
 
   <div class="category">
     <div class="main-content">
       <div class="main-item user-minimal-info">
         <div class="user-avatar">
-          <img [src]="user.avatar" alt="Avatar">
+          <img [src]="profile.avatar" alt="Avatar">
         </div>
         <div class="user-details">
-          <p><strong><ng-container i18n="@@userprofile.username">Username</ng-container>:</strong> {{ user.username }}</p>
-          <p><strong><ng-container i18n="@@userprofile.registrationDate">Registration Date</ng-container>:</strong> {{ user.registrationDate }}</p>
+          <p><strong><ng-container i18n="@@userprofile.username">Username</ng-container>:</strong> {{ profile.username }}</p>
+          <p><strong><ng-container i18n="@@userprofile.registrationDate">Registration Date</ng-container>:</strong> {{ profile.registration_date | date }}</p>
         </div>
         <div class="clearer"></div>
       </div>
@@ -31,19 +32,23 @@
           </tr>
         </thead>
         <tbody>
-          @for (char of characters; track char.id; let isEven = $even) {
+          @for (char of profile.characters; track char.id; let isEven = $even) {
             <tr [class.altstyle]="isEven">
               <td>
                 <div class="intd">
                   <div class="tclcon">
-<!--                    <a [routerLink]="['/character', char.id]">{{ char.name }}</a>-->
+                    <a [routerLink]="['/character', char.id]">{{ char.name }}</a>
                   </div>
                 </div>
               </td>
-<!--              <td>{{ char.factions }}</td>-->
-<!--              <td>{{ char.episodesCount }}</td>-->
-<!--              <td>{{ char.postsCount }}</td>-->
-<!--              <td>{{ char.lastPostDate }}</td>-->
+              <td>
+                @for (faction of char.factions; track faction.id; let last = $last) {
+                  {{ faction.name }}@if(!last){, }
+                }
+              </td>
+              <td>{{ char.total_episodes }}</td>
+              <td>{{ char.total_posts }}</td>
+              <td>{{ char.last_post_date | date }}</td>
             </tr>
           } @empty {
             <tr>
@@ -59,3 +64,4 @@
     </div>
   </div>
 </div>
+}

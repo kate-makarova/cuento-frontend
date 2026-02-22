@@ -1,44 +1,31 @@
-import { Component } from '@angular/core';
-import { Character } from '../models/Character';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Topic } from '../models/Topic';
-import { LongTextFieldDisplayComponent } from '../components/long-text-field-display/long-text-field-display.component';
-import { ShortTextFieldDisplayComponent } from '../components/short-text-field-display/short-text-field-display.component';
-import { NumberFieldDisplayComponent } from '../components/number-field-display/number-field-display.component';
+import { CharacterSheetHeaderComponent } from '../components/character-sheet-header/character-sheet-header.component';
+import { CommonModule, DatePipe } from '@angular/common';
+import { CharacterService } from '../services/character.service';
 
 @Component({
   selector: 'app-characterview',
   imports: [
     RouterLink,
-    LongTextFieldDisplayComponent,
-    ShortTextFieldDisplayComponent,
-    NumberFieldDisplayComponent
+    CharacterSheetHeaderComponent,
+    CommonModule,
+    DatePipe
   ],
   templateUrl: './characterview.component.html',
   standalone: true,
   styleUrl: './characterview.component.css'
 })
-export class CharacterviewComponent {
-  char: Character = {
-    id: 0,
-    name: '',
-    avatar: '',
-    character_status: 0,
-    createdAt: '',
-    user: {
-      id: 0,
-      username: '',
-      avatar: null
-    },
-    group: '',
-    subgroup: '',
-    subsubgroup: '',
-    custom_fields: {
-      custom_fields: {},
-      field_config: []
-    },
-    factions: []
+export class CharacterviewComponent implements OnInit {
+  @Input() id?: number;
+
+  private characterService = inject(CharacterService);
+
+  character = this.characterService.character;
+
+  ngOnInit() {
+    if (this.id) {
+      this.characterService.loadCharacter(this.id);
+    }
   }
-  isOwner: boolean = true;
-  recentTopics: Topic[] = [];
 }

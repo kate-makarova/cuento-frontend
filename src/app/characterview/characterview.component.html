@@ -1,51 +1,52 @@
+@if (character(); as char) {
 <div id="pun-main" class="main">
-  <div class="main-header">
-    <h1>{{ char.name }}</h1>
-  </div>
+  <app-character-sheet-header [character]="char"></app-character-sheet-header>
 
-  <div class="main-content">
-    <div class="container">
-      <div class="post-author">
-        <ul>
-          <li class="pa-author"><a [routerLink]="['/character', char.id]">{{ char.name }}</a></li>
-          <li class="pa-avatar"><img [src]="char.avatar" alt="Avatar" /></li>
-          @for (field of char.custom_fields.field_config; track field.machine_field_name) {
-            <li>
-              @switch (field.content_field_type) {
-                @case('short_text') {
-                  <app-short-text-field-display [fieldName]="field.human_field_name" [fieldValue]="char.custom_fields.custom_fields[field.machine_field_name]?.content ?? ''"></app-short-text-field-display>
+  <div class="category">
+    <div class="maintitle">
+      <p>Episodes</p>
+    </div>
+    <div class="main-content">
+      <table cellspacing="0">
+        <thead>
+          <tr>
+            <th class="tcl" scope="col">Episode Name</th>
+            <th class="tc2" scope="col">Characters</th>
+            <th class="tcr" scope="col">Last Post</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (episode of char.episodes; track episode.id; let isEven = $even) {
+            <tr [class.altstyle]="isEven">
+              <td class="tcl">
+                <div class="intd">
+                  <div class="tclcon">
+                    <a [routerLink]="['/viewtopic', episode.topic_id]">{{ episode.name }}</a>
+                  </div>
+                </div>
+              </td>
+              <td class="tc2">
+                @for (charShort of episode.characters; track charShort.id; let last = $last) {
+                  <a [routerLink]="['/character', charShort.id]">{{ charShort.name }}</a>@if(!last){, }
                 }
-                @case('long_text') {
-                  <app-long-text-field-display [fieldName]="field.human_field_name" [fieldValue]="char.custom_fields.custom_fields[field.machine_field_name]?.content_html ?? ''"></app-long-text-field-display>
-                }
-                @case('number') {
-                  <app-number-field-display [fieldName]="field.human_field_name" [fieldValue]="char.custom_fields.custom_fields[field.machine_field_name]?.content ?? null"></app-number-field-display>
-                }
-              }
-            </li>
+              </td>
+              <td class="tcr">
+                {{ episode.date_last_post | date }}<br>
+                <span class="byuser">by {{ episode.last_post_author_username }}</span>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="3" class="tcl">
+                <div class="intd">
+                  <p>No episodes found.</p>
+                </div>
+              </td>
+            </tr>
           }
-        </ul>
-      </div>
-      <div class="post-body">
-        <p>This is a placeholder for the character's main content, which might include a detailed biography, story connections, or other narrative elements.</p>
-      </div>
-    </div>
-  </div>
-
-  @if (isOwner) {
-    <div class="main-options">
-      <a [routerLink]="['/character/edit', char.id]">Edit Character</a>
-    </div>
-  }
-
-  <div class="main-content">
-    <h2>Recent Activity</h2>
-    <div class="container">
-      <ul>
-        @for (topic of recentTopics; track topic.id) {
-          <li><a [routerLink]="['/viewtopic', topic.id]">{{ topic.name }}</a> - Last post on {{ topic.date_last_post }}</li>
-        }
-      </ul>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
+}

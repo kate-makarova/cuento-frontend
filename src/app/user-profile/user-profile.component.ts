@@ -1,47 +1,39 @@
-import { Component } from '@angular/core';
-
-interface Character {
-  id: number;
-  name: string;
-  avatar: string;
-  bio: string;
-  race: string;
-  status: string;
-}
+import { Component, inject, Input, OnInit, computed } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { UserService } from '../services/user.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-user-profile',
   standalone: true,
+  imports: [CommonModule, RouterLink, DatePipe],
   templateUrl: './user-profile.component.html',
   styleUrls: ['./user-profile.component.css']
 })
-export class UserProfileComponent {
-  user = {
-    username: 'Viper',
-    avatar: 'https://viperstest.rusff.me/i/avatars/00/00/00/01.png',
-    registrationDate: '2025-10-12'
-  };
+export class UserProfileComponent implements OnInit {
+  @Input() id?: number;
 
-  isOwnProfile = true;
+  private userService = inject(UserService);
+  private authService = inject(AuthService);
 
-  characters: Character[] = [
-    {
-      id: 101,
-      name: 'Soren the Exile',
-      avatar: 'https://i.pravatar.cc/150?u=soren',
-      bio: 'A disgraced knight from the northern reaches, wandering the wastes in search of redemption. He carries a shattered blade that still hums with ancestral magic.',
-      race: 'Human',
-      status: 'Active'
-    },
-    {
-      id: 102,
-      name: 'Valerius Vance',
-      avatar: 'https://i.pravatar.cc/150?u=valerius',
-      bio: 'A smooth-talking merchant with a hidden talent for shadow-weaving. He deals in information and rare artifacts, always keeping one eye on the nearest exit.',
-      race: 'Elf',
-      status: 'In Prison'
+  userProfile = this.userService.userProfile;
+  currentUser = this.authService.currentUser;
+
+  isOwnProfile = computed(() => {
+    const profile = this.userProfile();
+    const current = this.currentUser();
+    return profile && current && profile.user_id === current.id;
+  });
+
+  ngOnInit() {
+    if (this.id) {
+      this.userService.loadUserProfile(this.id);
     }
-  ];
+  }
 
-  addCharacter() {}
+  addCharacter() {
+    // Navigate to character creation or open modal
+    console.log('Add character clicked');
+  }
 }

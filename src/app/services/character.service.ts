@@ -2,7 +2,7 @@ import { Injectable, signal, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { FieldTemplate } from "../models/FieldTemplate";
 import { Faction } from "../models/Faction";
-import { CharacterShort, CharacterProfile, CreateCharacterRequest } from "../models/Character";
+import { CharacterShort, CharacterProfile, CreateCharacterRequest, Character } from "../models/Character";
 
 @Injectable({ providedIn: 'root' })
 export class CharacterService {
@@ -19,6 +19,9 @@ export class CharacterService {
   readonly userCharacterProfiles = this.userCharacterProfilesSignal.asReadonly();
   private characterProfileTemplateSignal = signal<FieldTemplate[]>([]);
   readonly characterProfileTemplate = this.characterProfileTemplateSignal.asReadonly();
+
+  private characterSignal = signal<Character | null>(null);
+  readonly character = this.characterSignal.asReadonly();
 
   loadCharacterTemplate(): void {
     this.apiService.get<FieldTemplate[]>('template/character/get').subscribe({
@@ -117,5 +120,17 @@ export class CharacterService {
 
   createCharacter(data: CreateCharacterRequest) {
     return this.apiService.post('/character/create', data);
+  }
+
+  loadCharacter(id: number): void {
+    this.apiService.get<Character>(`character/get/${id}`).subscribe({
+      next: (data) => {
+        this.characterSignal.set(data);
+      },
+      error: (err) => {
+        console.error('Failed to load character', err);
+        this.characterSignal.set(null);
+      }
+    });
   }
 }
