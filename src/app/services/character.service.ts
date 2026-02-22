@@ -98,6 +98,18 @@ export class CharacterService {
     })
   }
 
+  loadUserCharacterProfilesForTopic(topicId: number): void {
+    this.apiService.get<CharacterProfile[]>(`user/character-profiles-topic/${topicId}`).subscribe({
+      next: (data) => {
+        this.userCharacterProfilesSignal.set(data);
+      },
+      error: (err) => {
+        console.error('Failed to load user character profiles for topic', err);
+        this.userCharacterProfilesSignal.set([]);
+      }
+    })
+  }
+
   loadCharacterProfileTemplate(): void {
     this.apiService.get<FieldTemplate[]>('template/character_profile/get').subscribe({
       next: (data) => {
@@ -138,7 +150,7 @@ export class CharacterService {
   }
 
   loadCharacterProfile(id: number): void {
-    this.apiService.get<CharacterProfile>(`character-profile/${id}/get`).subscribe({
+    this.apiService.get<CharacterProfile>(`character-profile/get/${id}`).subscribe({
       next: (data) => {
         this.characterProfileSignal.set(data);
       },
@@ -150,6 +162,6 @@ export class CharacterService {
   }
 
   updateCharacterProfile(id: number, data: any) {
-    return this.apiService.post(`character-profile/${id}/update`, data);
+    return this.apiService.post(`character-profile/update/${id}`, data);
   }
 }

@@ -63,6 +63,7 @@
     </div>
   </div>
 
+  @if (showPostForm()) {
   <div id="post-form" class="formal">
     <h2><span i18n="@@postform.quickReply">Quick reply</span></h2>
     <form id="post" class="container" (submit)="onSubmit($event)">
@@ -74,6 +75,8 @@
             <div class="profile-sidebar" style="width: 200px;">
               <app-character-profile
                 [accountName]="accountName"
+                [loadProfiles]="loadProfiles"
+                [showAccount]="showAccount"
                 (characterSelected)="onCharacterSelected($event)">
               </app-character-profile>
             </div>
@@ -92,6 +95,7 @@
       </fieldset>
     </form>
   </div>
+  }
 
   <div class="main-footer"></div>
 </div>

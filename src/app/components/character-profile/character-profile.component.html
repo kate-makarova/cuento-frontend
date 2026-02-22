@@ -1,8 +1,10 @@
 @if (!post) {
   <div class="character-selector">
     <select [(ngModel)]="selectedCharacterId" (change)="onSelect()" style="width: 100%; margin-bottom: 10px;">
-      <option value="account"><ng-container i18n="@@postform.account">Account</ng-container>: {{ accountName }}</option>
-      @for (char of characters(); track char.id) {
+      @if (showAccount) {
+        <option value="account"><ng-container i18n="@@postform.account">Account</ng-container>: {{ accountName }}</option>
+      }
+      @for (char of characters(); track char.character_id) {
         <option [value]="char.character_id">{{ char.character_name }}</option>
       }
     </select>
@@ -32,6 +34,9 @@
                 [showFieldName]="field.showFieldName"
                 [fieldName]="field.fieldName"
                 [fieldValue]="field.fieldValue" ></app-long-text-field-display>
+            }
+            @case('number') {
+              <app-number-field-display [fieldName]="field.fieldName" [fieldValue]="field.fieldValue"></app-number-field-display>
             }
           }
         </li>

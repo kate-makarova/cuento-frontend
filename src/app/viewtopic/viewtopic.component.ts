@@ -1,4 +1,4 @@
-import {Component, effect, inject, Input, OnInit, ViewChild} from '@angular/core';
+import {Component, effect, inject, Input, OnInit, ViewChild, signal} from '@angular/core';
 import {PostFormComponent} from '../components/post-form/post-form.component';
 import {TopicService} from '../services/topic.service';
 import {RouterLink} from '@angular/router';
@@ -6,11 +6,14 @@ import {CommonModule} from '@angular/common';
 import {CharacterProfileComponent} from '../components/character-profile/character-profile.component';
 import {TopicType} from '../models/Topic';
 import {EpisodeHeaderComponent} from '../components/episode-header/episode-header.component';
+import {Post} from '../models/Post';
 import {BreadcrumbItem, BreadcrumbsComponent} from '../components/breadcrumbs/breadcrumbs.component';
 import {ForumService} from '../services/forum.service';
 import {TopicReadByComponent} from '../components/topic-read-by/topic-read-by.component';
 import { CharacterSheetHeaderComponent } from '../components/character-sheet-header/character-sheet-header.component';
 import { SafeHtmlPipe } from '../pipes/safe-html.pipe'
+import { CharacterService } from '../services/character.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-viewtopic',
@@ -32,17 +35,24 @@ import { SafeHtmlPipe } from '../pipes/safe-html.pipe'
 export class ViewtopicComponent implements OnInit {
   topicService = inject(TopicService);
   forumService = inject(ForumService);
+  characterService = inject(CharacterService);
+  authService = inject(AuthService);
+
   @Input() id?: number;
   @Input() page: number = 1;
 
   topic = this.topicService.topic;
   posts = this.topicService.posts;
   subforum = this.forumService.subforum;
+  userCharacterProfiles = this.characterService.userCharacterProfiles;
 
-  accountName = 'User123'; // This should come from AuthService
+  accountName = this.authService.currentUser()?.username || 'Guest';
   selectedCharacterId: number | null = null;
 
   breadcrumbs: BreadcrumbItem[] = [];
+  showPostForm = signal<boolean>(true);
+  loadProfiles = true;
+  showAccount = true;
 
   @ViewChild(PostFormComponent) postForm!: PostFormComponent;
 
@@ -61,6 +71,33 @@ export class ViewtopicComponent implements OnInit {
           ...(s ? [{ label: s.name, link: `/viewforum/${s.id}` }] : []),
           { label: t.name }
         ];
+
+        // Handle character profiles based on topic type
+        if (t.type === TopicType.character) {
+          this.loadProfiles = false;
+          this.showAccount = true;
+          // "always use user account" - handled by CharacterProfileComponent when list is empty
+        } else if (t.type === TopicType.episode) {
+          this.loadProfiles = false;
+          this.showAccount = false;
+          this.characterService.loadUserCharacterProfilesForTopic(t.id);
+        } else if (t.type === TopicType.general) {
+          this.loadProfiles = false;
+          this.showAccount = true;
+          this.characterService.loadUserCharacterProfilesForTopic(t.id);
+        }
+      }
+    });
+
+    // Effect to check if we should show the post form for episodes
+    effect(() => {
+      const t = this.topic();
+      const profiles = this.userCharacterProfiles();
+
+      if (t.type === TopicType.episode) {
+        this.showPostForm.set(profiles.length > 0);
+      } else {
+        this.showPostForm.set(true);
       }
     });
   }

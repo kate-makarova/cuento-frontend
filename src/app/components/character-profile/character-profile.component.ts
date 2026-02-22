@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Post } from '../../models/Post';
@@ -23,6 +23,8 @@ export class CharacterProfileComponent implements OnInit {
 
   @Input() post?: Post;
   @Input() accountName: string = '';
+  @Input() loadProfiles: boolean = true;
+  @Input() showAccount: boolean = true;
   @Output() characterSelected = new EventEmitter<number | null>();
 
   characters = this.characterService.userCharacterProfiles;
@@ -34,11 +36,24 @@ export class CharacterProfileComponent implements OnInit {
   isCharacter: boolean = false;
   customFields: any[] = [];
 
+  constructor() {
+    effect(() => {
+      const chars = this.characters();
+      if (!this.post && !this.showAccount && chars.length > 0 && this.selectedCharacterId === 'account') {
+        // If account is hidden and we have characters, select the first one
+        this.selectedCharacterId = chars[0].character_id;
+        this.onSelect();
+      }
+    });
+  }
+
   ngOnInit() {
     if (this.post) {
       this.initFromPost();
     } else {
-      this.characterService.loadUserCharacterProfiles();
+      if (this.loadProfiles) {
+        this.characterService.loadUserCharacterProfiles();
+      }
       this.initForForm();
     }
   }
@@ -59,9 +74,20 @@ export class CharacterProfileComponent implements OnInit {
   }
 
   private initForForm() {
-    this.isCharacter = false;
-    this.displayName = this.accountName;
-    this.displayAvatar = this.authService.currentUser()?.avatar ?? '';
+    if (this.showAccount) {
+      this.isCharacter = false;
+      this.displayName = this.accountName;
+      this.displayAvatar = this.authService.currentUser()?.avatar ?? '';
+      this.selectedCharacterId = 'account';
+    } else {
+      // If account is hidden, we wait for characters to load (handled by effect)
+      // or if already loaded, select first
+      const chars = this.characters();
+      if (chars.length > 0) {
+        this.selectedCharacterId = chars[0].character_id;
+        this.onSelect();
+      }
+    }
   }
 
   onSelect() {
@@ -72,7 +98,7 @@ export class CharacterProfileComponent implements OnInit {
       this.customFields = [];
       this.characterSelected.emit(null);
     } else {
-      const char = this.characters().find(c => c.id === +this.selectedCharacterId);
+      const char = this.characters().find(c => c.character_id === +this.selectedCharacterId);
       if (char) {
         this.isCharacter = true;
         this.displayName = char.character_name;
