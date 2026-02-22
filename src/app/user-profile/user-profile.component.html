@@ -1,20 +1,17 @@
 <div id="pun-main" class="main">
   <div class="main-header">
-    <h1><span>Профиль пользователя {{ user.username }}</span></h1>
+    <h1><span><ng-container i18n="@@userprofile.title">User Profile</ng-container> {{ user.username }}</span></h1>
   </div>
 
   <div class="category">
-    <div class="maintitle">
-      <p>Основная информация</p>
-    </div>
     <div class="main-content">
       <div class="main-item user-minimal-info">
         <div class="user-avatar">
           <img [src]="user.avatar" alt="Avatar">
         </div>
         <div class="user-details">
-          <p><strong>Имя пользователя:</strong> {{ user.username }}</p>
-          <p><strong>Дата регистрации:</strong> {{ user.registrationDate }}</p>
+          <p><strong><ng-container i18n="@@userprofile.username">Username</ng-container>:</strong> {{ user.username }}</p>
+          <p><strong><ng-container i18n="@@userprofile.registrationDate">Registration Date</ng-container>:</strong> {{ user.registrationDate }}</p>
         </div>
         <div class="clearer"></div>
       </div>
@@ -22,37 +19,43 @@
   </div>
 
   <div class="category character-section">
-    <div class="maintitle">
-      <p class="conl">Персонажи ({{ characters.length }})</p>
-      @if (isOwnProfile) {
-        <p class="conr"><a (click)="addCharacter()" class="add-char-link">+ Добавить персонажа</a></p>
-      }
-      <div class="clearer"></div>
-    </div>
-
-    <div class="main-content character-grid">
-      @for (char of characters; track char.id) {
-        <div class="main-item char-card">
-          <div class="char-avatar">
-            <img [src]="char.avatar" alt="Char Avatar">
-          </div>
-          <div class="char-info">
-            <h3>{{ char.name }}</h3>
-            <div class="char-bio">
-              <p>{{ char.bio }}</p>
-            </div>
-            <ul class="char-fields">
-              <li><strong>Раса:</strong> {{ char.race }}</li>
-              <li><strong>Статус:</strong> {{ char.status }}</li>
-            </ul>
-          </div>
-          <div class="clearer"></div>
-        </div>
-      } @empty {
-        <div class="main-item">
-          <p>У данного пользователя пока нет созданных персонажей.</p>
-        </div>
-      }
+    <div class="main-content">
+      <table cellspacing="0">
+        <thead>
+          <tr>
+            <th scope="col" i18n="@@userprofile.charName">Character Name</th>
+            <th scope="col" i18n="@@userprofile.factions">Factions</th>
+            <th scope="col" i18n="@@userprofile.episodes">Episodes</th>
+            <th scope="col" i18n="@@userprofile.posts">Posts</th>
+            <th scope="col" i18n="@@userprofile.lastPost">Last Post</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (char of characters; track char.id; let isEven = $even) {
+            <tr [class.altstyle]="isEven">
+              <td>
+                <div class="intd">
+                  <div class="tclcon">
+<!--                    <a [routerLink]="['/character', char.id]">{{ char.name }}</a>-->
+                  </div>
+                </div>
+              </td>
+<!--              <td>{{ char.factions }}</td>-->
+<!--              <td>{{ char.episodesCount }}</td>-->
+<!--              <td>{{ char.postsCount }}</td>-->
+<!--              <td>{{ char.lastPostDate }}</td>-->
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5">
+                <div class="intd">
+                  <p i18n="@@userprofile.noCharacters">This user has no characters yet.</p>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
