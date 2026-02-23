@@ -31,4 +31,9 @@ export class NotificationsComponent implements OnInit {
   closeModal() {
     this.activeModal = null;
   }
+
+  dismissNotification(notification: NotificationData, event: MouseEvent) {
+    event.stopPropagation(); // Prevent modal from closing
+    this.notificationService.dismissNotification(notification);
+  }
 }

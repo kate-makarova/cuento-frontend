@@ -57,6 +57,22 @@ export class NotificationService {
     });
   }
 
+  public dismissNotification(notification: NotificationData): void {
+    this.apiService.post(`notifications/dismiss/${notification.id}`, {}).subscribe({
+      next: () => {
+        // On success, remove the notification from the corresponding list
+        if (notification.type === 'system') {
+          this.systemNotificationsSignal.update(current => current.filter(n => n.id !== notification.id));
+        } else if (notification.type === 'game') {
+          this.gameNotificationsSignal.update(current => current.filter(n => n.id !== notification.id));
+        } else if (notification.type === 'mention') {
+          this.mentionNotificationsSignal.update(current => current.filter(n => n.id !== notification.id));
+        }
+      },
+      error: (err) => console.error('Failed to dismiss notification', err)
+    });
+  }
+
   public connect(authToken: string): void {
     if (this.ws && this.ws.readyState === WebSocket.OPEN && this.token === authToken) {
       return;

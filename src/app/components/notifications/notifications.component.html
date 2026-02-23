@@ -29,10 +29,13 @@
       @if (activeModal === 'system') {
         <h2 i18n="@@notifications.systemMessages">System messages</h2>
         <div class="feed-list">
-          @for (item of systemNotifications(); track item) {
+          @for (item of systemNotifications(); track item.id) {
             <div class="feed-item">
-              <span class="date">{{ item.date_created | date:'short' }}</span>
-              <p>{{ item.message }}</p>
+              <div class="feed-item-content">
+                <span class="date">{{ item.date_created | date:'short' }}</span>
+                <p>{{ item.message }}</p>
+              </div>
+              <button class="dismiss-button" (click)="dismissNotification(item, $event)">&times;</button>
             </div>
           }
         </div>
@@ -46,10 +49,11 @@
               <th i18n="@@notifications.episode">Episode</th>
               <th i18n="@@notifications.author">Author</th>
               <th i18n="@@notifications.date">Date</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
-            @for (item of gameNotifications(); track item) {
+            @for (item of gameNotifications(); track item.id) {
               <tr>
                 <td>
                   @if (item.game?.topic_id) {
@@ -60,6 +64,7 @@
                 </td>
                 <td>{{ item.game?.character_name || 'Unknown' }}</td>
                 <td>{{ item.date_created | date:'short' }}</td>
+                <td><button class="dismiss-button" (click)="dismissNotification(item, $event)">&times;</button></td>
               </tr>
             }
           </tbody>
@@ -69,17 +74,20 @@
       @if (activeModal === 'mention') {
         <h2>Mentions</h2>
         <div class="feed-list">
-          @for (item of mentionNotifications(); track item) {
+          @for (item of mentionNotifications(); track item.id) {
             <div class="feed-item">
-              <span class="date">[{{ item.date_created | date:'short' }}]</span>
-              <span>
-                {{ item.mention?.user_name || 'User' }} mentioned you in
-                @if (item.mention?.topic_id) {
-                  <a [routerLink]="['/viewtopic', item.mention!.topic_id]">{{ item.title || 'Topic' }}</a>
-                } @else {
-                  {{ item.title || 'Topic' }}
-                }
-              </span>
+              <div class="feed-item-content">
+                <span class="date">[{{ item.date_created | date:'short' }}]</span>
+                <span>
+                  {{ item.mention?.user_name || 'User' }} mentioned you in
+                  @if (item.mention?.topic_id) {
+                    <a [routerLink]="['/viewtopic', item.mention!.topic_id]">{{ item.title || 'Topic' }}</a>
+                  } @else {
+                    {{ item.title || 'Topic' }}
+                  }
+                </span>
+              </div>
+              <button class="dismiss-button" (click)="dismissNotification(item, $event)">&times;</button>
             </div>
           }
         </div>
