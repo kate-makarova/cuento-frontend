@@ -48,6 +48,12 @@ export interface NotificationEvent {
   game: NotificationGame | null;
 }
 
+export interface UnreadNotificationsResponse {
+  system: NotificationEvent[];
+  game: NotificationEvent[];
+  mention: NotificationEvent[];
+}
+
 export interface TopicViewersUpdateEvent {
   type: 'topic_viewers_update';
   data: UserShort[];

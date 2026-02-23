@@ -1,11 +1,13 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Subject } from 'rxjs';
-import { PostCreatedEvent, TopicCreatedEvent, NotificationEvent, WebSocketEvent, TopicViewersUpdateEvent } from '../models/event';
+import { PostCreatedEvent, TopicCreatedEvent, NotificationEvent, WebSocketEvent, TopicViewersUpdateEvent, UnreadNotificationsResponse } from '../models/event';
 import { AuthService } from './auth.service';
+import { ApiService } from './api.service';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
   private authService = inject(AuthService);
+  private apiService = inject(ApiService);
   private ws: WebSocket | null = null;
   private readonly url: string;
   private token: string | null = null;
@@ -22,11 +24,19 @@ export class NotificationService {
   private topicCreatedSubject = new Subject<TopicCreatedEvent>();
   public topicCreated$ = this.topicCreatedSubject.asObservable();
 
-  private notificationSubject = new Subject<NotificationEvent>();
-  public notification$ = this.notificationSubject.asObservable();
-
   private topicViewersUpdateSubject = new Subject<TopicViewersUpdateEvent>();
   public topicViewersUpdate$ = this.topicViewersUpdateSubject.asObservable();
+
+  private systemNotificationsSignal = signal<NotificationEvent[]>([]);
+  public systemNotifications = this.systemNotificationsSignal.asReadonly();
+  private gameNotificationsSignal = signal<NotificationEvent[]>([]);
+  public gameNotifications = this.gameNotificationsSignal.asReadonly();
+  private mentionNotificationsSignal = signal<NotificationEvent[]>([]);
+  public mentionNotifications = this.mentionNotificationsSignal.asReadonly();
+
+  // Subject for real-time toast notifications
+  private notificationSubject = new Subject<NotificationEvent>();
+  public notification$ = this.notificationSubject.asObservable();
 
   private messageQueue: string[] = [];
   private explicitlyClosed = false;
@@ -34,6 +44,17 @@ export class NotificationService {
   constructor() {
     const baseUrl = 'http://localhost:8080';
     this.url = baseUrl.replace(/^http/, 'ws') + '/ws';
+  }
+
+  public loadUnreadNotifications(): void {
+    this.apiService.get<UnreadNotificationsResponse>('notifications/unread').subscribe({
+      next: (response) => {
+        this.systemNotificationsSignal.set(response.system || []);
+        this.gameNotificationsSignal.set(response.game || []);
+        this.mentionNotificationsSignal.set(response.mention || []);
+      },
+      error: (err) => console.error('Failed to load unread notifications', err)
+    });
   }
 
   public connect(authToken: string): void {
@@ -143,7 +164,18 @@ export class NotificationService {
         this.topicCreatedSubject.next(notification as TopicCreatedEvent);
         break;
       case 'notification':
-        this.notificationSubject.next(notification as NotificationEvent);
+        const event = notification as NotificationEvent;
+        // Push to subject for real-time toast
+        this.notificationSubject.next(event);
+
+        // Also update the corresponding signal for the notification list
+        if (event.notification_type === 'system') {
+          this.systemNotificationsSignal.update(current => [event, ...current]);
+        } else if (event.notification_type === 'game') {
+          this.gameNotificationsSignal.update(current => [event, ...current]);
+        } else if (event.notification_type === 'mention') {
+          this.mentionNotificationsSignal.update(current => [event, ...current]);
+        }
         break;
       case 'topic_viewers_update':
         this.topicViewersUpdateSubject.next(notification as TopicViewersUpdateEvent);

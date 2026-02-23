@@ -1,7 +1,6 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { NotificationService } from '../../services/notification.service';
-import { NotificationEvent } from '../../models/event';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -14,26 +13,14 @@ import { RouterLink } from '@angular/router';
 export class NotificationsComponent implements OnInit {
   private notificationService = inject(NotificationService);
 
-  notifications = signal<NotificationEvent[]>([]);
-
-  systemNotifications = signal<NotificationEvent[]>([]);
-  gameNotifications = signal<NotificationEvent[]>([]);
-  mentionNotifications = signal<NotificationEvent[]>([]);
+  systemNotifications = this.notificationService.systemNotifications;
+  gameNotifications = this.notificationService.gameNotifications;
+  mentionNotifications = this.notificationService.mentionNotifications;
 
   activeModal: string | null = null;
 
   ngOnInit() {
-    this.notificationService.notification$.subscribe(notification => {
-      this.notifications.update(current => [notification, ...current]);
-      this.categorizeNotifications();
-    });
-  }
-
-  private categorizeNotifications() {
-    const all = this.notifications();
-    this.systemNotifications.set(all.filter(n => n.notification_type === 'system'));
-    this.gameNotifications.set(all.filter(n => n.notification_type === 'game'));
-    this.mentionNotifications.set(all.filter(n => n.notification_type === 'mention'));
+    this.notificationService.loadUnreadNotifications();
   }
 
   openModal(type: string) {
