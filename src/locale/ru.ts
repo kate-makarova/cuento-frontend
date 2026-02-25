@@ -140,8 +140,6 @@ export const TRANSLATIONS_RU = {
   "userprofile.noCharacters": "У данного пользователя пока нет созданных персонажей.",
   "breadcrumbs.youAreHere": "Вы здесь",
   "topicreadby.title": "Тему просматривают",
-  "topicreadby.guests": "Гостей",
-  "topicreadby.users": "Пользователей",
   "userlist.title": "Список пользователей",
   "userlist.username": "Имя пользователя",
   "userlist.characters": "Персонажи",
