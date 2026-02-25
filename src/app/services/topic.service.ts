@@ -77,12 +77,15 @@ export class TopicService {
   }
 
   updateLocalPost(updatedPost: Post) {
-    this.postsSignal.update(posts => posts.map(p => p.id === updatedPost.id ? updatedPost : p));
+    const enrichedPost = this.enrichPostWithPermissions(updatedPost);
+    this.postsSignal.update(posts => posts.map(p => p.id === enrichedPost.id ? enrichedPost : p));
   }
 
   private handleNewPost(post: Post) {
+    const enrichedPost = this.enrichPostWithPermissions(post);
+
     // Add the new post to the list
-    this.postsSignal.update(posts => [...posts, post]);
+    this.postsSignal.update(posts => [...posts, enrichedPost]);
 
     // Increment the post count in the topic
     this.topicSignal.update(topic => {
@@ -94,10 +97,22 @@ export class TopicService {
 
     // Check if the current user is the author and redirect if so
     const currentUser = this.authService.currentUser();
-    if (currentUser && post.user_profile && currentUser.id === post.user_profile.user_id) {
+    if (currentUser && enrichedPost.user_profile && currentUser.id === enrichedPost.user_profile.user_id) {
       const totalPosts = this.topic().post_number;
       const lastPage = Math.ceil(totalPosts / this.postsPerPage);
       this.router.navigate(['/viewtopic', this.topic().id], { queryParams: { page: lastPage } });
     }
+  }
+
+  private enrichPostWithPermissions(post: Post): Post {
+    const currentUser = this.authService.currentUser();
+    if (currentUser && post.user_profile && currentUser.id === post.user_profile.user_id) {
+      return { ...post, can_edit: true };
+    }
+    // Also check for admin role if needed, but for now just author
+    if (this.authService.isAdmin()) {
+        return { ...post, can_edit: true };
+    }
+    return post;
   }
 }
