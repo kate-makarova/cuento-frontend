@@ -16,6 +16,11 @@ export interface PostCreatedEvent {
   data: Post;
 }
 
+export interface PostUpdatedEvent {
+  type: 'post_updated';
+  data: Post;
+}
+
 export interface NotificationMention {
   user_id: number;
   user_name: string;
@@ -63,4 +68,4 @@ export interface TopicViewersUpdateEvent {
   data: UserShort[];
 }
 
-export type WebSocketEvent = TopicCreatedEvent | PostCreatedEvent | NotificationEvent | TopicViewersUpdateEvent;
+export type WebSocketEvent = TopicCreatedEvent | PostCreatedEvent | PostUpdatedEvent | NotificationEvent | TopicViewersUpdateEvent;

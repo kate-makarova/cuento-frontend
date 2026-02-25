@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Subject } from 'rxjs';
-import { PostCreatedEvent, TopicCreatedEvent, NotificationEvent, WebSocketEvent, TopicViewersUpdateEvent, UnreadNotificationsResponse, NotificationData } from '../models/event';
+import { PostCreatedEvent, TopicCreatedEvent, NotificationEvent, WebSocketEvent, TopicViewersUpdateEvent, UnreadNotificationsResponse, NotificationData, PostUpdatedEvent } from '../models/event';
 import { AuthService } from './auth.service';
 import { ApiService } from './api.service';
 
@@ -20,6 +20,9 @@ export class NotificationService {
 
   private postCreatedSubject = new Subject<PostCreatedEvent>();
   public postCreated$ = this.postCreatedSubject.asObservable();
+
+  private postUpdatedSubject = new Subject<PostUpdatedEvent>();
+  public postUpdated$ = this.postUpdatedSubject.asObservable();
 
   private topicCreatedSubject = new Subject<TopicCreatedEvent>();
   public topicCreated$ = this.topicCreatedSubject.asObservable();
@@ -175,6 +178,9 @@ export class NotificationService {
     switch (notification.type) {
       case 'post_created':
         this.postCreatedSubject.next(notification as PostCreatedEvent);
+        break;
+      case 'post_updated':
+        this.postUpdatedSubject.next(notification as PostUpdatedEvent);
         break;
       case 'topic_created':
         this.topicCreatedSubject.next(notification as TopicCreatedEvent);

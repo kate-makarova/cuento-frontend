@@ -43,6 +43,13 @@ export class TopicService {
         this.handleNewPost(event.data);
       }
     });
+
+    this.notificationService.postUpdated$.subscribe(event => {
+      const currentTopicId = this.topic().id;
+      if (event.data.topic_id == currentTopicId) {
+        this.updateLocalPost(event.data);
+      }
+    });
   }
 
   loadTopic(id: number) {
@@ -61,8 +68,8 @@ export class TopicService {
     return this.apiService.post('post/create', data);
   }
 
-  updatePost(data: any) {
-    return this.apiService.post('post/update', data);
+  updatePost(id: number, data: any) {
+    return this.apiService.post(`post/update/${id}`, data);
   }
 
   createTopic(data: CreateTopicRequest) {

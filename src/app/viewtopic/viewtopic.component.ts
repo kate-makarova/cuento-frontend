@@ -175,11 +175,6 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     let quoteContent = '';
     const selection = window.getSelection();
 
-    // Check if there is a selection and if it's within the post content
-    // This is a bit tricky because the selection might span multiple elements
-    // For simplicity, we'll just check if there is text selected.
-    // Ideally, we should check if the selection is inside the specific post's container.
-
     if (selection && selection.toString().trim().length > 0) {
       quoteContent = selection.toString().trim();
     } else {
@@ -213,11 +208,10 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     if (!content) return;
 
     const payload = {
-      post_id: postId,
       content: content
     };
 
-    this.topicService.updatePost(payload).subscribe({
+    this.topicService.updatePost(postId, payload).subscribe({
       next: (updatedPost: any) => {
         if (updatedPost && updatedPost.id) {
              this.topicService.updateLocalPost(updatedPost);
