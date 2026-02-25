@@ -79,7 +79,7 @@ export class TopicService {
 
     // Check if the current user is the author and redirect if so
     const currentUser = this.authService.currentUser();
-    if (currentUser && currentUser.id === post.author_user_id) {
+    if (currentUser && post.user_profile && currentUser.id === post.user_profile.user_id) {
       const totalPosts = this.topic().post_number;
       const lastPage = Math.ceil(totalPosts / this.postsPerPage);
       this.router.navigate(['/viewtopic', this.topic().id], { queryParams: { page: lastPage } });

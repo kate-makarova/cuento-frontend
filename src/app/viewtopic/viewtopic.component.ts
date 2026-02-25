@@ -1,7 +1,7 @@
-import {Component, effect, inject, Input, OnInit, ViewChild, signal, computed, numberAttribute} from '@angular/core';
+import {Component, effect, inject, Input, OnInit, OnDestroy, ViewChild, signal, computed, numberAttribute} from '@angular/core';
 import {PostFormComponent} from '../components/post-form/post-form.component';
 import {TopicService} from '../services/topic.service';
-import {Router, RouterLink} from '@angular/router';
+import {Router, RouterLink, ActivatedRoute} from '@angular/router';
 import {CommonModule} from '@angular/common';
 import {CharacterProfileComponent} from '../components/character-profile/character-profile.component';
 import {TopicType} from '../models/Topic';
@@ -14,6 +14,7 @@ import { CharacterSheetHeaderComponent } from '../components/character-sheet-hea
 import { SafeHtmlPipe } from '../pipes/safe-html.pipe'
 import { CharacterService } from '../services/character.service';
 import { AuthService } from '../services/auth.service';
+import { Subject, takeUntil, combineLatest } from 'rxjs';
 
 function coerceToPage(value: unknown): number {
   const num = numberAttribute(value, 1);
@@ -37,12 +38,13 @@ function coerceToPage(value: unknown): number {
   standalone: true,
   styleUrl: './viewtopic.component.css'
 })
-export class ViewtopicComponent implements OnInit {
+export class ViewtopicComponent implements OnInit, OnDestroy {
   topicService = inject(TopicService);
   forumService = inject(ForumService);
   characterService = inject(CharacterService);
   authService = inject(AuthService);
   router = inject(Router);
+  route = inject(ActivatedRoute);
 
   @Input({ transform: numberAttribute }) id?: number;
   @Input({ transform: coerceToPage, alias: 'page' }) pageNumber: number = 1;
@@ -65,6 +67,8 @@ export class ViewtopicComponent implements OnInit {
     const totalPosts = this.topic()?.post_number || 0;
     return Math.ceil(totalPosts / this.postsPerPage);
   });
+
+  private destroy$ = new Subject<void>();
 
   @ViewChild(PostFormComponent) postForm!: PostFormComponent;
 
@@ -111,15 +115,6 @@ export class ViewtopicComponent implements OnInit {
         this.showPostForm.set(true);
       }
     });
-
-    // Effect to reload posts when page or topic ID changes
-    effect(() => {
-      const topicId = this.id;
-      const currentPage = this.pageNumber;
-      if (topicId) {
-        this.topicService.loadPosts(topicId, currentPage);
-      }
-    });
   }
 
   isEpisode() { return this.topic().type === TopicType.episode; }
@@ -127,9 +122,26 @@ export class ViewtopicComponent implements OnInit {
   isCharacter() { return this.topic().type === TopicType.character; }
 
   ngOnInit() {
-    if (this.id) {
-      this.topicService.loadTopic(this.id);
-    }
+    combineLatest([this.route.paramMap, this.route.queryParamMap])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([paramMap, queryParamMap]) => {
+        const topicId = Number(paramMap.get('id'));
+        const page = coerceToPage(queryParamMap.get('page'));
+
+        if (topicId) {
+          // Only reload the main topic data if the ID has actually changed
+          if (this.topic().id !== topicId) {
+            this.topicService.loadTopic(topicId);
+          }
+          // Always reload posts for the current page
+          this.topicService.loadPosts(topicId, page);
+        }
+      });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onCharacterSelected(characterId: number | null) {
@@ -152,11 +164,7 @@ export class ViewtopicComponent implements OnInit {
     this.topicService.createPost(payload).subscribe({
       next: () => {
         this.postForm.messageField.nativeElement.value = '';
-        // After posting, we might want to navigate to the last page
-        // For now, just re-fetch posts for the current page
-        if (this.id) {
-          this.topicService.loadPosts(this.id, this.pageNumber);
-        }
+        // After posting, the WebSocket event will trigger a redirect if needed
       },
       error: (err) => console.error('Failed to create post', err)
     });
