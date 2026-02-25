@@ -1,7 +1,9 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { UserShort } from '../models/UserShort';
-import { UserProfileResponse, UpdateSettingsRequest } from '../models/User';
+import { UserProfileResponse, UpdateSettingsRequest, User, UpdateSettingsResponse } from '../models/User';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -37,7 +39,9 @@ export class UserService {
     });
   }
 
-  updateUserSettings(settings: UpdateSettingsRequest) {
-    return this.apiService.post('user/settings/update', settings);
+  updateUserSettings(settings: UpdateSettingsRequest): Observable<User> {
+    return this.apiService.post<UpdateSettingsResponse>('user/settings/update', settings).pipe(
+      map(response => response.user)
+    );
   }
 }

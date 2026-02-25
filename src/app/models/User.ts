@@ -4,6 +4,8 @@ export interface User {
   id: number;
   username: string;
   avatar: string;
+  interface_language: string;
+  interface_timezone: string;
   roles: Role[];
 }
 export interface Role {
@@ -39,4 +41,9 @@ export interface UpdateSettingsRequest {
   interface_timezone?: string;
   interface_language?: string;
   password?: string;
+}
+
+export interface UpdateSettingsResponse {
+  message: string;
+  user: User;
 }

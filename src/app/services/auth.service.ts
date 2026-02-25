@@ -30,8 +30,10 @@ export class AuthService {
     const token = localStorage.getItem('access_token');
     const userString = localStorage.getItem('user');
     if (token && userString) {
-      this.currentUser.set(JSON.parse(userString));
+      const user: User = JSON.parse(userString);
+      this.currentUser.set(user);
       this.authToken.set(token);
+      localStorage.setItem('locale', user.interface_language);
     } else {
       this.setGuestUser();
     }
@@ -87,6 +89,7 @@ export class AuthService {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('user');
+    localStorage.removeItem('locale');
     this.setGuestUser();
     this.authToken.set(null);
     if (notify) {
@@ -95,11 +98,20 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 
+  public updateUser(user: User) {
+    localStorage.setItem('user', JSON.stringify(user));
+    this.currentUser.set(user);
+    // Also update locale if it has changed
+    if (localStorage.getItem('locale') !== user.interface_language) {
+      localStorage.setItem('locale', user.interface_language);
+      window.location.reload();
+    }
+  }
+
   private handleAuth(response: AuthResponse, navigate: boolean = true) {
     localStorage.setItem('access_token', response.access_token);
     localStorage.setItem('refresh_token', response.refresh_token);
-    localStorage.setItem('user', JSON.stringify(response.user));
-    this.currentUser.set(response.user);
+    this.updateUser(response.user);
     this.authToken.set(response.access_token);
     this.authChannel.postMessage('login');
     if (navigate) {

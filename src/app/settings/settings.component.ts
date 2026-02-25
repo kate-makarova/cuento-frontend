@@ -32,7 +32,12 @@ export class SettingsComponent implements OnInit {
   ];
 
   ngOnInit() {
-    this.avatarUrl = this.authService.currentUser()?.avatar || '';
+    const currentUser = this.authService.currentUser();
+    if (currentUser) {
+      this.avatarUrl = currentUser.avatar || '';
+      this.language = currentUser.interface_language || 'en-US';
+      this.timezone = currentUser.interface_timezone || 'UTC';
+    }
   }
 
   async onSubmit(event: Event) {
@@ -49,9 +54,9 @@ export class SettingsComponent implements OnInit {
     }
 
     this.userService.updateUserSettings(payload).subscribe({
-      next: () => {
+      next: (updatedUser) => {
         console.log('Settings updated successfully');
-        // Optionally, update local user data?
+        this.authService.updateUser(updatedUser);
       },
       error: (err) => console.error('Failed to update settings', err)
     });

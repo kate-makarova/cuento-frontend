@@ -16,7 +16,9 @@ export class MessengerComponent {
   activeUser: User  = {
     id: 0,
     username: "",
-    email: '',
+    interface_timezone: '',
+    interface_language: '',
+
     avatar: '',
     roles: []
   };
