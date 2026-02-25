@@ -54,7 +54,12 @@
           <p class="post-contacts"><span><a href="/profile/{{ post.user_profile?.user_id }}" i18n="@@viewtopic.profile">Profile</a></span></p>
         </div>
         <div class="conr">
-          <p class="post-links"><span><a href="/post.php?tid=8&amp;qid=21" i18n="@@viewtopic.quote">Quote</a></span></p>
+          <p class="post-links">
+            <span><a href="/post.php?tid=8&amp;qid=21" i18n="@@viewtopic.quote">Quote</a></span>
+            @if(post.can_edit) {
+              <span><a href="#" i18n="@@viewtopic.edit">Edit</a></span>
+            }
+          </p>
         </div>
         <div class="clearer"></div>
       </div>

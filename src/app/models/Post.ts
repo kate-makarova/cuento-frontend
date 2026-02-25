@@ -11,4 +11,5 @@ export interface Post {
   content: string;
   content_html: string;
   date_created: string;
+  can_edit?: boolean;
 }
