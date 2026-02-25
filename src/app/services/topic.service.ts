@@ -54,13 +54,15 @@ export class TopicService {
 
   loadTopic(id: number) {
     this.apiService.get<Topic>('topic/get/' + id.toString()).subscribe(data => {
-      this.topicSignal.set(data);
+      const enrichedTopic = this.enrichTopicWithPermissions(data);
+      this.topicSignal.set(enrichedTopic);
     });
   }
 
   loadPosts(topicId: number, page: number) {
     this.apiService.get<Post[]>(`topic-posts/${topicId}/${page}`).subscribe(data => {
-      this.postsSignal.set(data);
+      const enrichedPosts = data.map(post => this.enrichPostWithPermissions(post));
+      this.postsSignal.set(enrichedPosts);
     });
   }
 
@@ -114,5 +116,16 @@ export class TopicService {
         return { ...post, can_edit: true };
     }
     return post;
+  }
+
+  private enrichTopicWithPermissions(topic: Topic): Topic {
+    const currentUser = this.authService.currentUser();
+    if (currentUser && currentUser.id === topic.author_user_id) {
+      return { ...topic, can_edit: true };
+    }
+    if (this.authService.isAdmin()) {
+      return { ...topic, can_edit: true };
+    }
+    return topic;
   }
 }

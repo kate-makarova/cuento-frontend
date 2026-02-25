@@ -16,6 +16,7 @@ export interface Topic {
   status: TopicStatus;
   episode: Episode|null;
   character: Character|null;
+  can_edit?: boolean;
 }
 
 export enum TopicType {
