@@ -1,8 +1,9 @@
 <div id="topic-users-in" class="modmenu">
   <p class="container" style="text-align:left">
-    <span style="font-weight:bold"><ng-container i18n="@@topicreadby.title">Topic is read by</ng-container></span>
-    ({{ users().length }})
-    @for (user of users(); track user.id; let last = $last) {
+    <span style="font-weight:bold" i18n="@@topicreadby.title">Topic is read by</span>
+    <span i18n="@@topicreadby.guests">Guests</span>: 0,
+    <span i18n="@@topicreadby.users">Users</span>:
+    @for (user of users(); track (user.id || $index); let last = $last) {
       <a class="group4" [routerLink]="['/profile', user.id]">{{ user.username }}</a>@if(!last){, }
     }
   </p>
