@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { FactionChooseComponent } from './faction-choose.component';
 
 describe('FactionChooseComponent', () => {
@@ -8,7 +8,7 @@ describe('FactionChooseComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FactionChooseComponent]
+      imports: [FactionChooseComponent, HttpClientTestingModule]
     })
     .compileComponents();
 

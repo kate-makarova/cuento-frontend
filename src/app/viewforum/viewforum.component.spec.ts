@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 import { ViewforumComponent } from './viewforum.component';
 
 describe('ViewforumComponent', () => {
@@ -8,7 +9,7 @@ describe('ViewforumComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ViewforumComponent]
+      imports: [ViewforumComponent, HttpClientTestingModule, RouterTestingModule]
     })
     .compileComponents();
 

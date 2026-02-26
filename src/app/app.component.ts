@@ -21,7 +21,7 @@ export class AppComponent implements OnInit {
   private activatedRoute = inject(ActivatedRoute);
   private authChannel = new BroadcastChannel('auth_channel');
 
-  title = 'dunebb';
+  title = 'Cuento';
   pageId = 'pun-main';
   boardService = inject(BoardService);
   authService = inject(AuthService);

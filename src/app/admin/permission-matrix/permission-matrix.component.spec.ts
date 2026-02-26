@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { PermissionMatrixComponent } from './permission-matrix.component';
 
 describe('PermissionMatrixComponent', () => {
@@ -8,7 +8,7 @@ describe('PermissionMatrixComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PermissionMatrixComponent]
+      imports: [PermissionMatrixComponent, HttpClientTestingModule]
     })
     .compileComponents();
 

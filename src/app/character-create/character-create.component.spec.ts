@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 import { CharacterCreateComponent } from './character-create.component';
 
 describe('CharacterCreateComponent', () => {
@@ -8,7 +9,7 @@ describe('CharacterCreateComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CharacterCreateComponent]
+      imports: [CharacterCreateComponent, HttpClientTestingModule, RouterTestingModule]
     })
     .compileComponents();
 

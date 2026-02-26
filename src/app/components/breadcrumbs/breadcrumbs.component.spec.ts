@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { BreadcrumbsComponent } from './breadcrumbs.component';
 import { RouterTestingModule } from '@angular/router/testing';
-import { AdminWrapperComponent } from './admin-wrapper.component';
 
-describe('AdminWrapperComponent', () => {
-  let component: AdminWrapperComponent;
-  let fixture: ComponentFixture<AdminWrapperComponent>;
+describe('BreadcrumbsComponent', () => {
+  let component: BreadcrumbsComponent;
+  let fixture: ComponentFixture<BreadcrumbsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AdminWrapperComponent, RouterTestingModule]
+      imports: [BreadcrumbsComponent, RouterTestingModule]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(AdminWrapperComponent);
+    fixture = TestBed.createComponent(BreadcrumbsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

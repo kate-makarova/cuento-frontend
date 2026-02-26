@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { EpisodeTemplateEditComponent } from './episode-template-edit.component';
 
 describe('EpisodeTemplateEditComponent', () => {
@@ -8,7 +8,7 @@ describe('EpisodeTemplateEditComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EpisodeTemplateEditComponent]
+      imports: [EpisodeTemplateEditComponent, HttpClientTestingModule]
     })
     .compileComponents();
 
