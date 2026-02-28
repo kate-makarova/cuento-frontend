@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Episode } from '../../models/Episode';
 import { ShortTextFieldDisplayComponent } from '../short-text-field-display/short-text-field-display.component';
@@ -14,13 +14,25 @@ import { RouterLink } from '@angular/router';
   standalone: true,
   styleUrl: './episode-header.component.css'
 })
-export class EpisodeHeaderComponent implements OnInit {
+export class EpisodeHeaderComponent implements OnInit, OnChanges {
   @Input() episode!: Episode | null;
   customFields: any[] = [];
 
   ngOnInit() {
+    this.updateCustomFields();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['episode']) {
+      this.updateCustomFields();
+    }
+  }
+
+  private updateCustomFields() {
     if (this.episode && this.episode.custom_fields) {
       this.customFields = this.processCustomFields(this.episode.custom_fields);
+    } else {
+      this.customFields = [];
     }
   }
 

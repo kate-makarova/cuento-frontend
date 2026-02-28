@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Character, CustomFieldsData, CustomFieldValue } from '../../models/Character';
 import { ShortTextFieldDisplayComponent } from '../short-text-field-display/short-text-field-display.component';
@@ -14,7 +14,7 @@ import { CharacterService } from '../../services/character.service';
   standalone: true,
   styleUrl: './character-sheet-header.component.css'
 })
-export class CharacterSheetHeaderComponent implements OnInit {
+export class CharacterSheetHeaderComponent implements OnInit, OnChanges {
   @Input() character!: Character | null;
   @Input() context: 'topic' | 'page' = 'page';
 
@@ -25,8 +25,20 @@ export class CharacterSheetHeaderComponent implements OnInit {
   customFields: any[] = [];
 
   ngOnInit() {
+    this.updateCustomFields();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['character']) {
+      this.updateCustomFields();
+    }
+  }
+
+  private updateCustomFields() {
     if (this.character && this.character.custom_fields) {
       this.customFields = this.processCustomFields(this.character.custom_fields);
+    } else {
+      this.customFields = [];
     }
   }
 
