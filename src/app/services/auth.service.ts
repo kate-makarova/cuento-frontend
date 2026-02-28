@@ -4,6 +4,7 @@ import { tap, switchMap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { User } from '../models/User';
 import { BehaviorSubject, Observable, from } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 interface AuthResponse {
   access_token: string;
@@ -15,7 +16,7 @@ interface AuthResponse {
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
-  private readonly apiUrl = 'http://localhost/api';
+  private readonly apiUrl = environment.apiUrl;
   private authChannel = new BroadcastChannel('auth_channel');
 
   currentUser = signal<User | null>(null);

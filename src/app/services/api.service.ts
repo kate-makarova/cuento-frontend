@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { AuthService } from './auth.service';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +10,7 @@ import { Observable } from 'rxjs';
 export class ApiService {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
-  private readonly apiUrl = 'http://localhost/api';
+  private readonly apiUrl = environment.apiUrl;
 
   private getHeaders(): HttpHeaders {
     let headers = new HttpHeaders({
