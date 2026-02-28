@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FactionService } from '../../services/faction.service';
 import { Faction } from '../../models/Faction';
+import { FactionCreateModalComponent } from '../faction-create-modal/faction-create-modal.component';
 
 interface FactionLevel {
   label: string;
@@ -13,7 +14,7 @@ interface FactionLevel {
 @Component({
   selector: 'app-faction-choose',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, FactionCreateModalComponent],
   templateUrl: './faction-choose.component.html',
   styleUrl: './faction-choose.component.css'
 })
@@ -24,6 +25,10 @@ export class FactionChooseComponent implements OnInit {
   @Output() selectionChange = new EventEmitter<Faction[]>();
 
   factionLevels = signal<FactionLevel[]>([]);
+
+  showModal = false;
+  activeLevelIndex: number | null = null;
+  activeParentId: number | null = null;
 
   constructor() {
     // Constructor logic moved to ngOnInit or handled there
@@ -39,6 +44,13 @@ export class FactionChooseComponent implements OnInit {
 
   loadInitialFactions(index: number) {
     const parentId = index === 0 ? 0 : this.initialFactions[index - 1].id;
+
+    // If parentId is temporary (negative), we can't load children from backend.
+    // We assume no children for temporary factions yet, unless we manage them locally.
+    if (parentId < 0) {
+       // Handle local children if needed, for now stop loading.
+       return;
+    }
 
     this.factionService.getFactionChildren(parentId).subscribe(children => {
       if (children.length > 0 || this.factionLevels().length === 0) {
@@ -61,6 +73,9 @@ export class FactionChooseComponent implements OnInit {
   }
 
   addFactionLevel(parentId: number) {
+    // If parentId is temporary (negative), don't load from backend
+    if (parentId < 0) return;
+
     this.factionService.getFactionChildren(parentId).subscribe(children => {
       if (children.length > 0 || this.factionLevels().length === 0) {
         this.factionLevels.update(levels => [
@@ -92,6 +107,37 @@ export class FactionChooseComponent implements OnInit {
     }
 
     this.emitSelection();
+  }
+
+  openCreateModal(levelIndex: number) {
+    const levels = this.factionLevels();
+    // Parent ID is the selected ID of the previous level, or 0 if this is the first level
+    this.activeParentId = levelIndex === 0 ? 0 : levels[levelIndex - 1].selectedId;
+    this.activeLevelIndex = levelIndex;
+    this.showModal = true;
+  }
+
+  onModalClose() {
+    this.showModal = false;
+    this.activeLevelIndex = null;
+    this.activeParentId = null;
+  }
+
+  onFactionCreated(newFaction: Faction) {
+    if (this.activeLevelIndex !== null) {
+      const index = this.activeLevelIndex;
+      this.factionLevels.update(currentLevels => {
+        const updatedLevels = [...currentLevels];
+        // Add new faction to options
+        updatedLevels[index].options = [...updatedLevels[index].options, newFaction];
+        // Select it
+        updatedLevels[index].selectedId = newFaction.id;
+        return updatedLevels;
+      });
+
+      // Trigger change to update selection and potentially add next level (though empty for new faction)
+      this.onFactionChange(index);
+    }
   }
 
   private emitSelection() {

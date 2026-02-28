@@ -5,7 +5,7 @@
       <legend><span i18n="@@topiccreate.writeMessage">Write your message and click "Send"</span></legend>
       <div class="fs-box hashelp">
         <p class="inputfield required longinput">
-          <label for="fld3"><ng-container i18n="@@topiccreate.subject">Name</ng-container> <em><ng-container i18n="@@topiccreate.required">(Required)</ng-container></em></label><br />
+          <label for="fld3"><ng-container i18n="@@topiccreate.characterName">Name</ng-container> <em><ng-container i18n="@@topiccreate.required">(Required)</ng-container></em></label><br />
           <span class="input"><input id="fld3" type="text" name="req_name" [value]="characterName" size="80" maxlength="70" /></span>
         </p>
 
@@ -14,10 +14,16 @@
           <span class="input"><input id="fld4" type="text" name="req_avatar" [value]="characterAvatar" size="80" maxlength="255" /></span>
         </p>
 
-        <app-faction-choose
-          [initialFactions]="selectedFactions"
-          (selectionChange)="onFactionsChanged($event)">
-        </app-faction-choose>
+        <div class="factions-container">
+          @for (path of factionPaths; track $index) {
+            <div class="faction-path-group">
+              <app-faction-choose
+                [initialFactions]="path"
+                (selectionChange)="onFactionsChanged($index, $event)">
+              </app-faction-choose>
+            </div>
+          }
+        </div>
 
       </div>
     </fieldset>

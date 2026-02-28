@@ -49,4 +49,8 @@ export class FactionService {
       }
     })
   }
+
+  createFaction(name: string, parentId: number | null): Observable<Faction> {
+    return this.apiService.post<Faction>('faction/create', { name, parent_id: parentId });
+  }
 }

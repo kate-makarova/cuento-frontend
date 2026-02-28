@@ -1,22 +1,25 @@
 import { Component, inject, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CharacterService } from '../services/character.service';
+import { FactionService } from '../services/faction.service';
 import { ShortTextFieldComponent } from '../components/short-text-field/short-text-field.component';
 import { LongTextFieldComponent } from '../components/long-text-field/long-text-field.component';
 import { ImageFieldComponent } from '../components/image-field/image-field.component';
 import { FactionChooseComponent } from '../components/faction-choose/faction-choose.component';
 import { CreateCharacterRequest, Character } from '../models/Character';
 import { Faction } from '../models/Faction';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-character-create',
-  imports: [ShortTextFieldComponent, LongTextFieldComponent, ImageFieldComponent, FactionChooseComponent],
+  imports: [ShortTextFieldComponent, LongTextFieldComponent, ImageFieldComponent, FactionChooseComponent, CommonModule],
   templateUrl: './character-create.component.html',
   standalone: true,
   styleUrl: './character-create.component.css'
 })
 export class CharacterCreateComponent implements OnInit {
   characterService = inject(CharacterService);
+  factionService = inject(FactionService);
   router = inject(Router);
   route = inject(ActivatedRoute);
   characterTemplate = this.characterService.characterTemplate;
@@ -26,7 +29,7 @@ export class CharacterCreateComponent implements OnInit {
   @Output() cancel = new EventEmitter<void>();
 
   subforumId: number = 0;
-  selectedFactions: Faction[] = [];
+  factionPaths: Faction[][] = [[]]; // Start with one empty path
 
   characterName: string = '';
   characterAvatar: string = '';
@@ -47,14 +50,35 @@ export class CharacterCreateComponent implements OnInit {
   populateForm(data: Character) {
     this.characterName = data.name;
     this.characterAvatar = data.avatar || '';
-    if (data.factions) {
-      this.selectedFactions = data.factions;
+    if (data.factions && data.factions.length > 0) {
+      const roots = data.factions.filter(f => !f.parent_id || f.parent_id === 0);
+
+      if (roots.length > 0) {
+        this.factionPaths = roots.map(root => {
+           return data.factions!.filter(f => f.id === root.id || this.isDescendant(f, root, data.factions!));
+        });
+      } else {
+         this.factionPaths = [data.factions];
+      }
     }
   }
 
-  onFactionsChanged(factions: any[]) {
-    console.log('--- CharacterCreate: onFactionsChanged called with:', factions);
-    this.selectedFactions = factions;
+  isDescendant(child: Faction, root: Faction, all: Faction[]): boolean {
+      return true;
+  }
+
+  onFactionsChanged(index: number, factions: Faction[]) {
+    this.factionPaths[index] = factions;
+  }
+
+  addFactionPath() {
+    this.factionPaths.push([]);
+  }
+
+  removeFactionPath(index: number) {
+    if (this.factionPaths.length > 1) {
+      this.factionPaths.splice(index, 1);
+    }
   }
 
   getFieldValue(machineName: string): any {
@@ -83,9 +107,13 @@ export class CharacterCreateComponent implements OnInit {
       }
     });
 
-    console.log('--- CharacterCreate: onSubmit selectedFactions:', this.selectedFactions);
+    // Flatten all selected factions
+    const allSelectedFactions = this.factionPaths.flat();
 
-    const factions = this.selectedFactions.map(f => ({
+    // Remove duplicates if any
+    const uniqueFactions = Array.from(new Map(allSelectedFactions.map(f => [f.id, f])).values());
+
+    const factions = uniqueFactions.map(f => ({
       id: f.id,
       name: f.name,
       parent_id: f.parent_id,

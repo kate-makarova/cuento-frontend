@@ -48,6 +48,7 @@ export const TRANSLATIONS_RU = {
   "topiccreate.previewMessage": "Предварительный просмотр сообщения",
   "topiccreate.writeMessage": "Напишите ваше сообщение и нажмите «Отправить»",
   "topiccreate.subject": "Заголовок",
+  "topiccreate.characterName": "Имя персонажа",
   "topiccreate.required": "(Обязательно)",
   "topiccreate.subscribe": "Подписаться и следить за ответами в этой теме",
   "topiccreate.firstPost": "Закрепить первое сообщение на всех страницах темы",

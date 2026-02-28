@@ -1,19 +1,31 @@
 <fieldset>
   <legend>Choose Faction</legend>
 
-  @for (level of factionLevels(); track $index) {
+  @for (level of factionLevels(); track $index; let i = $index) {
     <div class="faction-field">
-      <label [for]="'faction-' + $index">{{ level.label }}:</label>
-      <select
-        [id]="'faction-' + $index"
-        [name]="'faction-level-' + $index"
-        [(ngModel)]="level.selectedId"
-        (ngModelChange)="onFactionChange($index)">
-        <option [value]="null">Select a faction</option>
-        @for (faction of level.options; track faction.id) {
-          <option [value]="faction.id">{{ faction.name }}</option>
-        }
-      </select>
+      <label [for]="'faction-' + i">{{ level.label }}:</label>
+
+      <div class="select-group">
+        <select
+          [id]="'faction-' + i"
+          [name]="'faction-level-' + i"
+          [(ngModel)]="level.selectedId"
+          (ngModelChange)="onFactionChange(i)">
+          <option [value]="null">Select a faction</option>
+          @for (faction of level.options; track faction.id) {
+            <option [value]="faction.id">{{ faction.name }}</option>
+          }
+        </select>
+        <button type="button" class="add-btn" (click)="openCreateModal(i)">+</button>
+      </div>
     </div>
   }
 </fieldset>
+
+@if (showModal) {
+  <app-faction-create-modal
+    [parentId]="activeParentId"
+    (close)="onModalClose()"
+    (created)="onFactionCreated($event)">
+  </app-faction-create-modal>
+}

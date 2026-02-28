@@ -1,0 +1,26 @@
+<div class="modal-overlay">
+  <div class="modal-content">
+    <h2>Create New Faction</h2>
+    <form (submit)="onSubmit()">
+      <div class="form-group">
+        <label for="faction-name">Name</label>
+        <input type="text" id="faction-name" name="name" [(ngModel)]="name" required />
+      </div>
+
+      <div class="form-group">
+        <label for="faction-desc">Description</label>
+        <textarea id="faction-desc" name="description" [(ngModel)]="description"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="faction-icon">Icon URL</label>
+        <input type="text" id="faction-icon" name="icon" [(ngModel)]="icon" />
+      </div>
+
+      <div class="buttons">
+        <button type="submit" class="button">Create</button>
+        <button type="button" class="button" (click)="onCancel()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
