@@ -1,79 +1,68 @@
-.rpg-header .post-body {
-  margin-left: 0 !important; /* Forces the content to take full width */
-}
-
-.rpg-header-grid {
+.episode-header {
   display: flex;
   gap: 20px;
-  padding: 10px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 20px;
 }
 
-.rpg-header-image img {
-  width: 250px;
-  height: auto;
-  border: 1px solid #3e5c3e;
-  padding: 3px;
-  background: #000;
-  box-shadow: 0 0 10px rgba(74, 222, 128, 0.2);
-}
-
-.rpg-header-info {
+.episode-info {
   flex: 1;
 }
 
-.rpg-title {
-  color: #4ade80;
-  font-family: 'Trebuchet MS', sans-serif;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #3e5c3e;
+.episode-info h2 {
+  margin-top: 0;
+  font-size: 2em;
+  color: #333;
 }
 
-.rpg-details {
+.episode-characters h3,
+.episode-custom-fields h3 {
+  font-size: 1.2em;
+  color: #444;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+.character-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.character-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #fff;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.character-link {
+  text-decoration: none;
+  color: #007bff;
+  font-weight: bold;
+}
+
+.character-link:hover {
+  text-decoration: underline;
+}
+
+.episode-custom-fields ul {
   list-style: none;
   padding: 0;
-  margin-bottom: 15px;
-  font-size: 0.95em;
+  margin: 0;
 }
 
-.rpg-details li {
-  margin-bottom: 5px;
+.episode-custom-fields li {
+  margin-bottom: 10px;
 }
 
-.rpg-details i {
-  color: #4ade80;
-  margin-right: 8px;
-}
-
-.char-links a {
-  color: #fff;
-  text-decoration: none;
-  border-bottom: 1px dashed #4ade80;
-}
-
-.char-links a:hover {
-  color: #4ade80;
-}
-
-.rpg-divider {
-  border: 0;
-  border-top: 1px solid rgba(62, 92, 62, 0.5);
-  margin: 15px 0;
-}
-
-.rpg-summary {
-  font-style: italic;
-  color: #ccc;
-  line-height: 1.6;
-}
-
-/* Mobile Responsiveness */
-@media (max-width: 768px) {
-  .rpg-header-grid {
-    flex-direction: column;
-  }
-  .rpg-header-image img {
-    width: 100%;
-  }
+.ep-fld {
+  margin-bottom: 10px;
 }
