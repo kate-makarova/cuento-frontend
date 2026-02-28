@@ -77,4 +77,29 @@ export class CharacterSheetHeaderComponent implements OnInit, OnChanges {
       });
     }
   }
+
+  getStatusLabel(status: number): string {
+    switch (status) {
+      case 0: return 'Active';
+      case 1: return 'Inactive'; // Assuming 1 is inactive based on previous context, but wait...
+      // In Character.ts: character_status: number;
+      // In CharacterListComponent: getStatusLabel(char.character_status)
+      // Let's check CharacterListComponent to be consistent.
+      case 2: return 'Pending';
+      default: return 'Unknown';
+    }
+  }
+
+  // Wait, in acceptCharacter: this.character.character_status = 1;
+  // Usually 1 is Active?
+  // Let's check CharacterListComponent.ts to see what it uses.
+
+  getStatusClass(status: number): string {
+    switch (status) {
+      case 0: return 'status-active'; // Or whatever 0 means
+      case 1: return 'status-approved'; // Or whatever 1 means
+      case 2: return 'status-pending';
+      default: return '';
+    }
+  }
 }

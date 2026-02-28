@@ -6,7 +6,14 @@
     }
   </div>
   <div class="character-sheet-info">
-    <h2>{{ character.name }}</h2>
+    <div class="character-name-row">
+      <h2>{{ character.name }}</h2>
+      @if (character.character_status === 2) {
+        <span class="status-badge status-pending">Pending</span>
+      } @else if (character.character_status === 0) {
+        <span class="status-badge status-active">Active</span>
+      }
+    </div>
 
     @if (character.factions && character.factions.length > 0) {
       <div class="character-sheet-factions">
