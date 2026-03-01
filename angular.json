@@ -44,12 +44,11 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ],
-              "optimization": false,
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2MB",
-                  "maximumError": "4MB"
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
                 },
                 {
                   "type": "anyComponentStyle",
