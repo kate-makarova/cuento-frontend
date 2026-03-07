@@ -7,6 +7,7 @@ export interface User {
   avatar: string;
   interface_language: string;
   interface_timezone: string;
+  interface_font_size: number;
   roles: Role[];
 }
 export interface Role {
@@ -41,6 +42,7 @@ export interface UpdateSettingsRequest {
   avatar?: string;
   interface_timezone?: string;
   interface_language?: string;
+  interface_font_size?: number;
   password?: string;
 }
 

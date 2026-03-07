@@ -9,7 +9,7 @@ export class PermissionService {
   readonly permissionMatrix = this.permissionMatrixSignal.asReadonly();
 
   loadPermissionMatrix(): void {
-    this.apiService.get<{[key: number]: PermissionMatrixObject}>('/permission-matrix/get').subscribe({
+    this.apiService.get<{[key: number]: PermissionMatrixObject}>('permission-matrix/get').subscribe({
       next: (data) => {
         this.permissionMatrixSignal.set(data);
       },
@@ -20,6 +20,6 @@ export class PermissionService {
   }
 
   savePermissionMatrix(permissions: string[]) {
-    return this.apiService.post('/permission-matrix/update', { permissions });
+    return this.apiService.post('permission-matrix/update', { permissions });
   }
 }

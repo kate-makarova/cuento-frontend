@@ -18,7 +18,7 @@ export class MessengerComponent {
     username: "",
     interface_timezone: '',
     interface_language: '',
-
+    interface_font_size: 1,
     avatar: '',
     roles: []
   };

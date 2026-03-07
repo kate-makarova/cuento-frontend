@@ -47,6 +47,17 @@ export class AppComponent implements OnInit {
         this.notificationService.disconnect();
       }
     });
+
+    // Effect to apply font size
+    effect(() => {
+      const user = this.currentUser();
+      if (user && user.interface_font_size) {
+        const fontSize = user.interface_font_size;
+        document.documentElement.style.fontSize = `${fontSize * 100}%`;
+      } else {
+        document.documentElement.style.fontSize = '100%';
+      }
+    });
   }
 
   ngOnInit() {

@@ -126,6 +126,7 @@ export class AuthService {
       avatar: "",
       interface_timezone: "UTC",
       interface_language: "en-US",
+      interface_font_size: 1,
       roles: [{
         id: 1,
         name: 'guest'

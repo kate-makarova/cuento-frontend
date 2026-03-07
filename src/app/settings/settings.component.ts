@@ -18,6 +18,7 @@ export class SettingsComponent implements OnInit {
 
   language: string = 'en-US';
   timezone: string = 'UTC+00:00';
+  fontSize: number = 1.0;
   avatarUrl = '';
   oldPassword = '';
   newPassword = '';
@@ -31,12 +32,22 @@ export class SettingsComponent implements OnInit {
     'UTC+08:00', 'UTC+09:00', 'UTC+10:00', 'UTC+11:00', 'UTC+12:00'
   ];
 
+  fontSizes = [
+    { label: 'x0.5', value: 0.5 },
+    { label: 'x0.8', value: 0.8 },
+    { label: 'Standard', value: 1.0 },
+    { label: 'x1.2', value: 1.2 },
+    { label: 'x1.5', value: 1.5 },
+    { label: 'x2.0', value: 2.0 }
+  ];
+
   ngOnInit() {
     const currentUser = this.authService.currentUser();
     if (currentUser) {
       this.avatarUrl = currentUser.avatar || '';
       this.language = currentUser.interface_language || 'en-US';
       this.timezone = currentUser.interface_timezone || 'UTC';
+      this.fontSize = currentUser.interface_font_size || 1.0;
     }
   }
 
@@ -46,7 +57,8 @@ export class SettingsComponent implements OnInit {
     const payload: UpdateSettingsRequest = {
       avatar: this.avatarUrl,
       interface_timezone: this.timezone,
-      interface_language: this.language
+      interface_language: this.language,
+      interface_font_size: this.fontSize
     };
 
     if (this.newPassword && this.newPassword === this.confirmPassword) {

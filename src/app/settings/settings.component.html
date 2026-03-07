@@ -39,6 +39,16 @@
               </select>
             </span>
           </p>
+          <p class="inputfield">
+            <label for="font_size">Font Size</label><br />
+            <span class="input">
+              <select id="font_size" name="font_size" [(ngModel)]="fontSize">
+                @for (size of fontSizes; track size.value) {
+                  <option [ngValue]="size.value">{{ size.label }}</option>
+                }
+              </select>
+            </span>
+          </p>
         </div>
       </fieldset>
 
