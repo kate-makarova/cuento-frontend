@@ -153,18 +153,20 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
     // Sync page number with URL when it changes in service (e.g. from post_id redirect)
     effect(() => {
-      const servicePage = this.currentPage();
+      const pageState = this.currentPage();
+      const topicId = this.id();
+
+      // Only sync if the page state is for the current topic
+      if (pageState.topicId !== topicId) return;
+
       // Use untracked to access pageNumber so this effect doesn't run when pageNumber changes via router
       const currentInputPage = untracked(() => this.pageNumber());
       const currentPostId = untracked(() => this.postId());
 
-      // If we have a post_id, we always want to sync the page and remove the post_id from URL
-      // Or if the page changed.
-
-      if ((servicePage && servicePage !== currentInputPage) || currentPostId) {
+      if ((pageState.page && pageState.page !== currentInputPage) || currentPostId) {
         this.router.navigate([], {
           relativeTo: this.route,
-          queryParams: { page: servicePage, post_id: null }, // Remove post_id once resolved
+          queryParams: { page: pageState.page, post_id: null }, // Remove post_id once resolved
           queryParamsHandling: 'merge',
           replaceUrl: true
         });

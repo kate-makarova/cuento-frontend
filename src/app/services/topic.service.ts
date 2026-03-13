@@ -12,6 +12,11 @@ interface PostsResponse {
   posts: Post[];
 }
 
+interface PageState {
+  page: number;
+  topicId: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class TopicService {
   private apiService = inject(ApiService);
@@ -41,8 +46,10 @@ export class TopicService {
   private postsSignal = signal<Post[]>([]);
   readonly posts = this.postsSignal.asReadonly();
 
-  private currentPageSignal = signal<number>(1);
+  private currentPageSignal = signal<PageState>({ page: 1, topicId: 0 });
   readonly currentPage = this.currentPageSignal.asReadonly();
+
+  private readonly postsPerPage = 15;
 
   constructor() {
     this.notificationService.postCreated$.subscribe(event => {
@@ -78,7 +85,7 @@ export class TopicService {
         if (data && data.posts) {
           const enrichedPosts = data.posts.map(post => this.enrichPostWithPermissions(post));
           this.postsSignal.set(enrichedPosts);
-          this.currentPageSignal.set(data.page);
+          this.currentPageSignal.set({ page: data.page, topicId: topicId });
 
           if (data.posts.length > 0) {
             const maxPostId = Math.max(...data.posts.map(p => p.id));
@@ -152,7 +159,7 @@ export class TopicService {
       const lastPage = Math.ceil(totalPosts / postsPerPage);
 
       // Only navigate if we are not already on the last page
-      if (this.currentPageSignal() !== lastPage) {
+      if (this.currentPageSignal().page !== lastPage || this.currentPageSignal().topicId !== this.topic().id) {
         this.router.navigate(['/viewtopic', this.topic().id], { queryParams: { page: lastPage } });
       }
     }
