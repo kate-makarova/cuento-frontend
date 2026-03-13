@@ -1,4 +1,4 @@
-import {Component, effect, inject, Input, OnInit, OnDestroy, ViewChild, signal, computed, numberAttribute, ViewChildren, QueryList} from '@angular/core';
+import {Component, effect, inject, Input, OnInit, OnDestroy, ViewChild, signal, computed, numberAttribute, ViewChildren, QueryList, input, untracked} from '@angular/core';
 import {PostFormComponent} from '../components/post-form/post-form.component';
 import {TopicService} from '../services/topic.service';
 import {Router, RouterLink, ActivatedRoute} from '@angular/router';
@@ -15,7 +15,7 @@ import { SafeHtmlPipe } from '../pipes/safe-html.pipe'
 import { CharacterService } from '../services/character.service';
 import { AuthService } from '../services/auth.service';
 import { BoardService } from '../services/board.service';
-import { Subject, takeUntil, combineLatest } from 'rxjs';
+import { Subject } from 'rxjs';
 import { EpisodeCreateComponent } from '../episode-create/episode-create.component';
 import { CharacterCreateComponent } from '../character-create/character-create.component';
 
@@ -52,8 +52,10 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   router = inject(Router);
   route = inject(ActivatedRoute);
 
-  @Input({ transform: numberAttribute }) id?: number;
-  @Input({ transform: coerceToPage, alias: 'page' }) pageNumber: number = 1;
+  // Signal inputs for reactivity
+  id = input<number | undefined, unknown>(undefined, { transform: numberAttribute });
+  pageNumber = input<number, unknown>(1, { transform: coerceToPage, alias: 'page' });
+  postId = input<number | undefined, unknown>(undefined, { transform: numberAttribute, alias: 'post_id' });
 
   topic = this.topicService.topic;
   posts = this.topicService.posts;
@@ -133,21 +135,38 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       }
     });
 
+    // Effect to reload posts when page or topic ID changes
+    effect(() => {
+      const topicId = this.id();
+      const page = this.pageNumber();
+      const postId = this.postId();
+
+      if (topicId) {
+        // Only reload the main topic data if the ID has actually changed
+        if (this.topic().id !== topicId) {
+          this.topicService.loadTopic(topicId);
+        }
+        // Always reload posts for the current page or post_id
+        this.topicService.loadPosts(topicId, page, postId);
+      }
+    });
+
     // Sync page number with URL when it changes in service (e.g. from post_id redirect)
     effect(() => {
       const servicePage = this.currentPage();
-      // We only update if the service page differs from our current input page
-      // But pageNumber is an Input, so we check if we should navigate
-      if (servicePage && servicePage !== this.pageNumber) {
-        // We use router navigate to update the URL without reloading everything if possible,
-        // or just to reflect state.
-        // Important: avoid infinite loops.
-        // We update query params.
+      // Use untracked to access pageNumber so this effect doesn't run when pageNumber changes via router
+      const currentInputPage = untracked(() => this.pageNumber());
+      const currentPostId = untracked(() => this.postId());
+
+      // If we have a post_id, we always want to sync the page and remove the post_id from URL
+      // Or if the page changed.
+
+      if ((servicePage && servicePage !== currentInputPage) || currentPostId) {
         this.router.navigate([], {
           relativeTo: this.route,
-          queryParams: { page: servicePage },
+          queryParams: { page: servicePage, post_id: null }, // Remove post_id once resolved
           queryParamsHandling: 'merge',
-          replaceUrl: true // Replace history to avoid back button loops
+          replaceUrl: true
         });
       }
     });
@@ -158,22 +177,6 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   isCharacter() { return this.topic().type === TopicType.character; }
 
   ngOnInit() {
-    combineLatest([this.route.paramMap, this.route.queryParamMap])
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(([paramMap, queryParamMap]) => {
-        const topicId = Number(paramMap.get('id'));
-        const page = coerceToPage(queryParamMap.get('page'));
-        const postId = Number(queryParamMap.get('post_id'));
-
-        if (topicId) {
-          // Only reload the main topic data if the ID has actually changed
-          if (this.topic().id !== topicId) {
-            this.topicService.loadTopic(topicId);
-          }
-          // Always reload posts for the current page or post_id
-          this.topicService.loadPosts(topicId, page, postId || undefined);
-        }
-      });
   }
 
   ngOnDestroy() {
@@ -241,7 +244,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
         if (updatedPost && updatedPost.id) {
              this.topicService.updateLocalPost(updatedPost);
         } else {
-             if (this.id) this.topicService.loadPosts(this.id, this.pageNumber);
+             if (this.id()) this.topicService.loadPosts(this.id()!, this.pageNumber());
         }
         this.cancelEdit();
       },
@@ -253,7 +256,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     event.preventDefault();
     const message = this.postForm.messageField.nativeElement.value;
 
-    if (!message || !this.id) return;
+    if (!message || !this.id()) return;
 
     let characterProfileId: number | null = null;
     if (this.selectedCharacterId !== null) {
@@ -264,7 +267,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     }
 
     const payload = {
-      topic_id: +this.id,
+      topic_id: +this.id()!,
       content: message,
       use_character_profile: this.selectedCharacterId !== null,
       character_profile_id: characterProfileId
@@ -293,18 +296,18 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     const titleInput = form.querySelector('input[name="title"]') as HTMLInputElement;
     const title = titleInput?.value;
 
-    if (!title || !this.id) return;
+    if (!title || !this.id()) return;
 
     const payload = {
       title: title
     };
 
-    this.topicService.updateTopic(this.id, payload).subscribe({
+    this.topicService.updateTopic(this.id()!, payload).subscribe({
       next: (updatedTopic: any) => {
         if (updatedTopic && updatedTopic.id) {
           this.topicService.updateLocalTopic(updatedTopic);
         } else {
-          if (this.id) this.topicService.loadTopic(this.id);
+          if (this.id()) this.topicService.loadTopic(this.id()!);
         }
         this.cancelEditTopic();
       },
@@ -313,14 +316,14 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   }
 
   onUpdateComplexTopic(payload: any) {
-    if (!this.id) return;
+    if (!this.id()) return;
 
-    this.topicService.updateTopic(this.id, payload).subscribe({
+    this.topicService.updateTopic(this.id()!, payload).subscribe({
       next: (updatedTopic: any) => {
         if (updatedTopic && updatedTopic.id) {
           this.topicService.updateLocalTopic(updatedTopic);
         } else {
-          if (this.id) this.topicService.loadTopic(this.id);
+          if (this.id()) this.topicService.loadTopic(this.id()!);
         }
         this.cancelEditTopic();
       },
