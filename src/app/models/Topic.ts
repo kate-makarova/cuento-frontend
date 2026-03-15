@@ -1,5 +1,6 @@
 import {Episode} from './Episode';
 import {Character} from './Character';
+import {SubforumPermissions} from './Subforum';
 
 export interface Topic {
   id: number;
@@ -21,6 +22,7 @@ export interface Topic {
   character: Character|null;
   can_edit?: boolean;
   not_viewed?: boolean;
+  permissions?: SubforumPermissions | null;
 }
 
 export enum TopicType {

@@ -19,13 +19,14 @@ import { NumberFieldDisplayComponent } from '../number-field-display/number-fiel
 })
 export class CharacterProfileComponent implements OnInit {
   private characterService = inject(CharacterService);
-  private authService = inject(AuthService);
+  public authService = inject(AuthService);
 
   @Input() post?: Post;
   @Input() accountName: string = '';
   @Input() loadProfiles: boolean = true;
   @Input() showAccount: boolean = true;
   @Output() characterSelected = new EventEmitter<number | null>();
+  @Output() guestNameChanged = new EventEmitter<string>();
 
   characters = this.characterService.userCharacterProfiles;
   selectedCharacterId: number | 'account' = 'account';
@@ -35,6 +36,8 @@ export class CharacterProfileComponent implements OnInit {
   profileLink: string = '';
   isCharacter: boolean = false;
   customFields: any[] = [];
+
+  guestName: string = 'Guest';
 
   constructor() {
     effect(() => {
@@ -51,7 +54,7 @@ export class CharacterProfileComponent implements OnInit {
     if (this.post) {
       this.initFromPost();
     } else {
-      if (this.loadProfiles) {
+      if (this.loadProfiles && this.authService.isAuthenticated()) {
         this.characterService.loadUserCharacterProfiles();
       }
       this.initForForm();
@@ -74,9 +77,9 @@ export class CharacterProfileComponent implements OnInit {
   }
 
   private initForForm() {
-    if (this.showAccount) {
+    if (this.showAccount || !this.authService.isAuthenticated()) {
       this.isCharacter = false;
-      this.displayName = this.accountName;
+      this.displayName = this.authService.isAuthenticated() ? this.accountName : this.guestName;
       this.displayAvatar = this.authService.currentUser()?.avatar ?? '';
       this.selectedCharacterId = 'account';
     } else {
@@ -93,7 +96,7 @@ export class CharacterProfileComponent implements OnInit {
   onSelect() {
     if (this.selectedCharacterId === 'account') {
       this.isCharacter = false;
-      this.displayName = this.accountName;
+      this.displayName = this.authService.isAuthenticated() ? this.accountName : this.guestName;
       this.displayAvatar = this.authService.currentUser()?.avatar ?? '';
       this.customFields = [];
       this.characterSelected.emit(null);
@@ -107,6 +110,11 @@ export class CharacterProfileComponent implements OnInit {
         this.characterSelected.emit(char.character_id);
       }
     }
+  }
+
+  onGuestNameChange() {
+    this.displayName = this.guestName;
+    this.guestNameChanged.emit(this.guestName);
   }
 
   private processCustomFields(data: CustomFieldsData): any[] {

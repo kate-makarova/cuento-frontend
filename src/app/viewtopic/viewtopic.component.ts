@@ -64,9 +64,10 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
   accountName = this.authService.currentUser()?.username || 'Guest';
   selectedCharacterId: number | null = null;
+  guestName: string = 'Guest';
 
   breadcrumbs: BreadcrumbItem[] = [];
-  showPostForm = signal<boolean>(true);
+  showPostForm = signal<boolean>(false);
   loadProfiles = true;
   showAccount = true;
 
@@ -104,20 +105,24 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
           { label: t.name }
         ];
 
-        if (this.lastLoadedProfilesForTopicId !== t.id) {
+        // Ensure we only load profiles once per topic, ignoring post updates
+        const currentTopicId = untracked(() => this.id());
+
+        if (currentTopicId && this.lastLoadedProfilesForTopicId !== currentTopicId) {
           if (t.type === TopicType.character) {
             this.loadProfiles = false;
             this.showAccount = true;
+            this.lastLoadedProfilesForTopicId = currentTopicId;
           } else if (t.type === TopicType.episode) {
             this.loadProfiles = false;
             this.showAccount = false;
-            this.characterService.loadUserCharacterProfilesForTopic(t.id);
-            this.lastLoadedProfilesForTopicId = t.id;
+            this.characterService.loadUserCharacterProfilesForTopic(currentTopicId);
+            this.lastLoadedProfilesForTopicId = currentTopicId;
           } else if (t.type === TopicType.general) {
             this.loadProfiles = false;
             this.showAccount = true;
-            this.characterService.loadUserCharacterProfilesForTopic(t.id);
-            this.lastLoadedProfilesForTopicId = t.id;
+            this.characterService.loadUserCharacterProfilesForTopic(currentTopicId);
+            this.lastLoadedProfilesForTopicId = currentTopicId;
           }
         }
       }
@@ -127,6 +132,12 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     effect(() => {
       const t = this.topic();
       const profiles = this.userCharacterProfiles();
+
+      // Check topic permissions first
+      if (!t.permissions || !t.permissions.subforum_post) {
+        this.showPostForm.set(false);
+        return;
+      }
 
       if (t.type === TopicType.episode) {
         this.showPostForm.set(profiles.length > 0);
@@ -186,6 +197,10 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
   onCharacterSelected(characterId: number | null) {
     this.selectedCharacterId = characterId;
+  }
+
+  onGuestNameChanged(name: string) {
+    this.guestName = name;
   }
 
   editPost(post: Post, event: Event) {
@@ -259,23 +274,31 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     if (!message || !this.id()) return;
 
     let characterProfileId: number | null = null;
-    if (this.selectedCharacterId !== null) {
+    if (this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any) {
       const profile = this.userCharacterProfiles().find(p => p.character_id === this.selectedCharacterId);
       if (profile) {
         characterProfileId = profile.id;
       }
     }
 
-    const payload = {
+    const payload: any = {
       topic_id: +this.id()!,
       content: message,
-      use_character_profile: this.selectedCharacterId !== null,
+      use_character_profile: this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any,
       character_profile_id: characterProfileId
     };
+
+    if (!this.authService.isAuthenticated()) {
+      payload.guest_name = this.guestName;
+    }
 
     this.topicService.createPost(payload).subscribe({
       next: () => {
         this.postForm.messageField.nativeElement.value = '';
+        if (!this.authService.isAuthenticated()) {
+          // Force reload to get updated view for guests
+          window.location.reload();
+        }
       },
       error: (err) => console.error('Failed to create post', err)
     });

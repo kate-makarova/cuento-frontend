@@ -1,20 +1,27 @@
 @if (!post) {
   <div class="character-selector">
-    <select [(ngModel)]="selectedCharacterId" (change)="onSelect()" style="width: 100%; margin-bottom: 10px;">
-      @if (showAccount) {
-        <option value="account"><ng-container i18n="@@postform.account">Account</ng-container>: {{ accountName }}</option>
-      }
-      @for (char of characters(); track char.character_id) {
-        <option [value]="char.character_id">{{ char.character_name }}</option>
-      }
-    </select>
+    @if (authService.isAuthenticated()) {
+      <select [(ngModel)]="selectedCharacterId" (change)="onSelect()" style="width: 100%; margin-bottom: 10px;">
+        @if (showAccount) {
+          <option value="account"><ng-container i18n="@@postform.account">Account</ng-container>: {{ accountName }}</option>
+        }
+        @for (char of characters(); track char.character_id) {
+          <option [value]="char.character_id">{{ char.character_name }}</option>
+        }
+      </select>
+    } @else {
+      <div style="margin-bottom: 10px;">
+        <label for="guestName">Name:</label>
+        <input id="guestName" type="text" [(ngModel)]="guestName" (ngModelChange)="onGuestNameChange()" style="width: 100%;" />
+      </div>
+    }
   </div>
 }
 
 <div class="post-author" [class.post-character]="isCharacter">
   <ul>
     <li class="pa-author">
-      @if (profileLink) {
+      @if (profileLink && authService.isAuthenticated()) {
         <a [routerLink]="profileLink">{{ displayName }}</a>
       } @else {
         {{ displayName }}
