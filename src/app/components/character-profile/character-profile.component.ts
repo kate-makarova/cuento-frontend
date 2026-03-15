@@ -29,7 +29,7 @@ export class CharacterProfileComponent implements OnInit {
   @Output() guestNameChanged = new EventEmitter<string>();
 
   characters = this.characterService.userCharacterProfiles;
-  selectedCharacterId: number | 'account' = 'account';
+  selectedCharacterId: number | 'account' | null = 'account';
 
   displayName: string = '';
   displayAvatar: string = '';
@@ -101,7 +101,8 @@ export class CharacterProfileComponent implements OnInit {
       this.customFields = [];
       this.characterSelected.emit(null);
     } else {
-      const char = this.characters().find(c => c.character_id === +this.selectedCharacterId);
+      const searchId = this.selectedCharacterId === null ? null : Number(this.selectedCharacterId);
+      const char = this.characters().find(c => c.character_id === searchId);
       if (char) {
         this.isCharacter = true;
         this.displayName = char.character_name;

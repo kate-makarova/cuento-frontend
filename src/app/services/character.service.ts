@@ -161,6 +161,10 @@ export class CharacterService {
     });
   }
 
+  createCharacterProfile(data: any) {
+    return this.apiService.post(`character-profile/create`, data);
+  }
+
   updateCharacterProfile(id: number, data: any) {
     return this.apiService.post(`character-profile/update/${id}`, data);
   }

@@ -1,13 +1,21 @@
-<h1>Edit Character Profile</h1>
+<h1>{{ isNewMask ? 'Create New Mask' : 'Edit Character Profile' }}</h1>
 <div id="post-form" class="formal">
   <form id="post" class="container" (submit)="onSubmit($event)">
     <fieldset>
       <legend>Character Details</legend>
       <div class="fs-box hashelp">
-        <p class="inputfield required">
-          <label for="char_name">Name <em>(Required)</em></label><br />
-          <span class="input"><input id="char_name" type="text" name="character_name" [(ngModel)]="characterName" size="80" maxlength="70" required readonly class="readonly-input" /></span>
-        </p>
+        @if (is_mask || isNewMask) {
+          <p class="inputfield required">
+            <label for="char_name">Name <em>(Required)</em></label><br />
+            <span class="input"><input id="char_name" type="text" name="character_name" [(ngModel)]="characterName" size="80" maxlength="70" required /></span>
+          </p>
+        } @else {
+          <!-- Hidden or readonly if it's a character profile being edited -->
+           <p class="inputfield required">
+            <label for="char_name">Name</label><br />
+            <span class="input"><input id="char_name" type="text" name="character_name" [(ngModel)]="characterName" size="80" maxlength="70" readonly class="readonly-input" /></span>
+          </p>
+        }
 
         <p class="inputfield required">
           <label for="char_avatar">Avatar URL</label><br />
@@ -54,6 +62,6 @@
         </div>
       }
     </fieldset>
-    <p class="formsubmit"><input type="submit" class="button submit" name="submit" value="Update" accesskey="s" /></p>
+    <p class="formsubmit"><input type="submit" class="button submit" [value]="isNewMask ? 'Create' : 'Update'" accesskey="s" /></p>
   </form>
 </div>

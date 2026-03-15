@@ -1,11 +1,14 @@
-import { Component, inject, OnInit, effect } from '@angular/core';
+import { Component, inject, OnInit, effect, Input, booleanAttribute, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CharacterService } from '../services/character.service';
+import { MaskService } from '../services/mask.service';
+import { AuthService } from '../services/auth.service';
 import { ShortTextFieldComponent } from '../components/short-text-field/short-text-field.component';
 import { LongTextFieldComponent } from '../components/long-text-field/long-text-field.component';
 import { ImageFieldComponent } from '../components/image-field/image-field.component';
 import { NumberFieldComponent } from '../components/number-field/number-field.component';
 import { FormsModule } from '@angular/forms';
+import { CharacterProfile } from '../models/Character';
 
 @Component({
   selector: 'app-character-profile-edit',
@@ -16,22 +19,40 @@ import { FormsModule } from '@angular/forms';
 })
 export class CharacterProfileEditComponent implements OnInit {
   private characterService = inject(CharacterService);
+  private maskService = inject(MaskService);
+  private authService = inject(AuthService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
+  @Input({ transform: booleanAttribute }) is_mask: boolean = false;
+
   template = this.characterService.characterProfileTemplate;
-  profile = this.characterService.characterProfile;
+
+  // Local signal to hold the data, whether it comes from character profile or mask
+  currentProfileData = signal<CharacterProfile | null>(null);
 
   characterId: number = 0;
   characterName: string = '';
   characterAvatar: string = '';
+  isNewMask: boolean = false;
 
   constructor() {
+    // Sync from character service if we are dealing with a character profile
     effect(() => {
-      const p = this.profile();
-      if (p) {
-        this.characterName = p.character_name;
-        this.characterAvatar = p.avatar;
+      if (!this.is_mask && !this.isNewMask) {
+        this.currentProfileData.set(this.characterService.characterProfile());
+      }
+    }, { allowSignalWrites: true });
+
+    // Update form fields when profile data changes
+    effect(() => {
+      if (!this.isNewMask) {
+        const p = this.currentProfileData();
+        if (p) {
+          // If it's a mask, it might have mask_name. If it's a character, character_name.
+          this.characterName = p.character_name || (p as any).mask_name || '';
+          this.characterAvatar = p.avatar;
+        }
       }
     });
   }
@@ -40,8 +61,25 @@ export class CharacterProfileEditComponent implements OnInit {
     this.characterService.loadCharacterProfileTemplate();
     this.route.params.subscribe(params => {
       if (params['id']) {
-        this.characterId = +params['id'];
-        this.characterService.loadCharacterProfile(this.characterId);
+        if (params['id'] === 'new' || params['id'] === '0') {
+          this.isNewMask = true;
+          this.characterId = 0;
+          this.characterName = '';
+          this.characterAvatar = '';
+          this.currentProfileData.set(null);
+        } else {
+          this.isNewMask = false;
+          this.characterId = +params['id'];
+
+          if (this.is_mask) {
+            this.maskService.getMask(this.characterId).subscribe({
+              next: (data) => this.currentProfileData.set(data),
+              error: (err) => console.error('Failed to load mask', err)
+            });
+          } else {
+            this.characterService.loadCharacterProfile(this.characterId);
+          }
+        }
       }
     });
   }
@@ -64,21 +102,75 @@ export class CharacterProfileEditComponent implements OnInit {
       }
     });
 
-    const payload = {
-      avatar: this.characterAvatar,
-      custom_fields: customFields
-    };
+    if (this.is_mask) {
+      // Logic for Masks
+      const payload: any = {
+        mask_name: this.characterName,
+        avatar: this.characterAvatar,
+        custom_fields: customFields
+      };
 
-    this.characterService.updateCharacterProfile(this.characterId, payload).subscribe({
-      next: () => {
-        console.log('Character profile updated successfully');
-      },
-      error: (err) => console.error('Failed to update character profile', err)
-    });
+      if (this.isNewMask) {
+        this.maskService.createMask(payload).subscribe({
+          next: () => {
+            console.log('Mask created successfully');
+            const currentUser = this.authService.currentUser();
+            if (currentUser) {
+              this.router.navigate(['/profile', currentUser.id]);
+            } else {
+               this.router.navigate(['/']);
+            }
+          },
+          error: (err) => console.error('Failed to create mask', err)
+        });
+      } else {
+        this.maskService.updateMask(this.characterId, payload).subscribe({
+          next: () => {
+            console.log('Mask updated successfully');
+          },
+          error: (err) => console.error('Failed to update mask', err)
+        });
+      }
+    } else {
+      // Logic for Character Profiles
+      const payload: any = {
+        character_name: this.characterName,
+        avatar: this.characterAvatar,
+        custom_fields: customFields
+      };
+
+      if (this.isNewMask) {
+        this.characterService.createCharacterProfile(payload).subscribe({
+          next: () => {
+            console.log('Character profile created successfully');
+            const currentUser = this.authService.currentUser();
+            if (currentUser) {
+              this.router.navigate(['/profile', currentUser.id]);
+            } else {
+               this.router.navigate(['/']);
+            }
+          },
+          error: (err) => console.error('Failed to create character profile', err)
+        });
+      } else {
+        // Exclude character_name for character profile updates to match previous logic
+        const updatePayload = {
+          avatar: this.characterAvatar,
+          custom_fields: customFields
+        };
+        this.characterService.updateCharacterProfile(this.characterId, updatePayload).subscribe({
+          next: () => {
+            console.log('Character profile updated successfully');
+          },
+          error: (err) => console.error('Failed to update character profile', err)
+        });
+      }
+    }
   }
 
   getFieldValue(machineName: string): any {
-    const p = this.profile();
+    if (this.isNewMask) return null;
+    const p = this.currentProfileData();
     if (!p || !p.custom_fields || !p.custom_fields.custom_fields) return null;
     const field = p.custom_fields.custom_fields[machineName];
     return field ? field.content : null;

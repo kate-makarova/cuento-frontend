@@ -43,10 +43,12 @@ export interface CustomFieldsData {
 
 export interface CharacterProfile {
   id: number;
-  character_id: number;
+  character_id: number | null;
   character_name: string;
   avatar: string;
   custom_fields: CustomFieldsData;
+  is_mask: boolean | null;
+  mask_name: string | null;
 }
 
 export interface CreateCharacterRequest {

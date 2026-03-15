@@ -22,6 +22,7 @@ import {CharacterProfileEditComponent} from './character-profile-edit/character-
 import { UserListComponent } from './user-list/user-list.component';
 import { SettingsComponent } from './settings/settings.component';
 import { ActiveTopicsComponent } from './active-topics/active-topics.component';
+import { MaskListComponent } from './mask-list/mask-list.component';
 
 
 export const routes: Routes = [
@@ -123,6 +124,12 @@ export const routes: Routes = [
     component: CharacterProfileEditComponent,
     title: 'Update Character Profile',
     data: { pageId: 'pun-character-profile-update' }
+  },
+  {
+    path: 'user-masks/:userId',
+    component: MaskListComponent,
+    title: 'User Masks',
+    data: { pageId: 'pun-user-masks' }
   },
   {
     path: 'admin',
