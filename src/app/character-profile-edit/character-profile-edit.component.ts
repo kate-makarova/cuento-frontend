@@ -74,7 +74,7 @@ export class CharacterProfileEditComponent implements OnInit {
           if (this.is_mask) {
             this.maskService.getMask(this.characterId).subscribe({
               next: (data) => this.currentProfileData.set(data),
-              error: (err) => console.error('Failed to load mask', err)
+              error: (err: any) => console.error('Failed to load mask', err)
             });
           } else {
             this.characterService.loadCharacterProfile(this.characterId);
@@ -121,50 +121,29 @@ export class CharacterProfileEditComponent implements OnInit {
                this.router.navigate(['/']);
             }
           },
-          error: (err) => console.error('Failed to create mask', err)
+          error: (err: any) => console.error('Failed to create mask', err)
         });
       } else {
         this.maskService.updateMask(this.characterId, payload).subscribe({
           next: () => {
             console.log('Mask updated successfully');
           },
-          error: (err) => console.error('Failed to update mask', err)
+          error: (err: any) => console.error('Failed to update mask', err)
         });
       }
     } else {
-      // Logic for Character Profiles
-      const payload: any = {
-        character_name: this.characterName,
+      // Logic for Character Profiles (only update)
+      const updatePayload = {
         avatar: this.characterAvatar,
         custom_fields: customFields
       };
 
-      if (this.isNewMask) {
-        this.characterService.createCharacterProfile(payload).subscribe({
-          next: () => {
-            console.log('Character profile created successfully');
-            const currentUser = this.authService.currentUser();
-            if (currentUser) {
-              this.router.navigate(['/profile', currentUser.id]);
-            } else {
-               this.router.navigate(['/']);
-            }
-          },
-          error: (err) => console.error('Failed to create character profile', err)
-        });
-      } else {
-        // Exclude character_name for character profile updates to match previous logic
-        const updatePayload = {
-          avatar: this.characterAvatar,
-          custom_fields: customFields
-        };
-        this.characterService.updateCharacterProfile(this.characterId, updatePayload).subscribe({
-          next: () => {
-            console.log('Character profile updated successfully');
-          },
-          error: (err) => console.error('Failed to update character profile', err)
-        });
-      }
+      this.characterService.updateCharacterProfile(this.characterId, updatePayload).subscribe({
+        next: () => {
+          console.log('Character profile updated successfully');
+        },
+        error: (err: any) => console.error('Failed to update character profile', err)
+      });
     }
   }
 

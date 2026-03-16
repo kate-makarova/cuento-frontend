@@ -52,7 +52,7 @@
     @if (editingTopic()) {
       <app-character-create
         [initialData]="topic().character"
-        (formSubmit)="onUpdateComplexTopic($event)"
+        (formSubmit)="onUpdateCharacter($event)"
         (cancel)="cancelEditTopic()">
       </app-character-create>
     } @else {

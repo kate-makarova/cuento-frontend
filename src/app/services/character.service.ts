@@ -149,6 +149,10 @@ export class CharacterService {
     });
   }
 
+  updateCharacter(id: number, data: any) {
+    return this.apiService.post(`character/update/${id}`, data);
+  }
+
   loadCharacterProfile(id: number): void {
     this.apiService.get<CharacterProfile>(`character-profile/get/${id}`).subscribe({
       next: (data) => {
@@ -159,10 +163,6 @@ export class CharacterService {
         this.characterProfileSignal.set(null);
       }
     });
-  }
-
-  createCharacterProfile(data: any) {
-    return this.apiService.post(`character-profile/create`, data);
   }
 
   updateCharacterProfile(id: number, data: any) {

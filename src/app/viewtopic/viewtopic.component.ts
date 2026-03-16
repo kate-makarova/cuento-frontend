@@ -263,7 +263,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
         }
         this.cancelEdit();
       },
-      error: (err) => console.error('Failed to update post', err)
+      error: (err: any) => console.error('Failed to update post', err)
     });
   }
 
@@ -300,7 +300,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
           window.location.reload();
         }
       },
-      error: (err) => console.error('Failed to create post', err)
+      error: (err: any) => console.error('Failed to create post', err)
     });
   }
 
@@ -334,7 +334,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
         }
         this.cancelEditTopic();
       },
-      error: (err) => console.error('Failed to update topic', err)
+      error: (err: any) => console.error('Failed to update topic', err)
     });
   }
 
@@ -350,7 +350,21 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
         }
         this.cancelEditTopic();
       },
-      error: (err) => console.error('Failed to update topic', err)
+      error: (err: any) => console.error('Failed to update topic', err)
+    });
+  }
+
+  onUpdateCharacter(payload: any) {
+    const charId = this.topic().character?.id;
+    if (!charId) return;
+
+    this.characterService.updateCharacter(charId, payload).subscribe({
+      next: (updatedChar: any) => {
+        // Reload topic to get updated character sheet data
+        if (this.id()) this.topicService.loadTopic(this.id()!);
+        this.cancelEditTopic();
+      },
+      error: (err: any) => console.error('Failed to update character', err)
     });
   }
 }
