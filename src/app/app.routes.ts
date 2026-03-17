@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import {HomeComponent} from './home/home.component';
 import {ViewforumComponent} from './viewforum/viewforum.component';
 import {ViewtopicComponent} from './viewtopic/viewtopic.component';
-import {MessengerComponent} from './messenger/messenger.component';
+import {DirectChatComponent} from './direct-chat/direct-chat.component';
 import {UserProfileComponent} from './user-profile/user-profile.component';
 import {CharacterviewComponent} from './characterview/characterview.component';
 import {CharacterListComponent} from './character-list/character-list.component';
@@ -50,9 +50,9 @@ export const routes: Routes = [
     data: { pageId: 'pun-recovery-codes' }
   },
   {
-    path: 'messenger',
-    component: MessengerComponent,
-    data: { pageId: 'pun-messenger' }
+    path: 'direct-chat',
+    component: DirectChatComponent,
+    data: { pageId: 'pun-direct-chat' }
   },
   {
     path: 'settings',

@@ -16,14 +16,35 @@
 
     <div class="main-content pm-container">
       <div class="pm-sidebar">
+        <div class="new-chat-block">
+          <div class="new-chat-autocomplete">
+            <input
+              type="text"
+              [(ngModel)]="newChatTerm"
+              (input)="onNewChatInput()"
+              placeholder="Find user..."
+              class="new-chat-input"
+              autocomplete="off" />
+            @if (autocompleteResults.length > 0) {
+              <ul class="autocomplete-dropdown">
+                @for (user of autocompleteResults; track user.id) {
+                  <li (click)="selectNewChatUser(user)">{{ user.username }}</li>
+                }
+              </ul>
+            }
+          </div>
+          <button class="button" [disabled]="!selectedNewChatUser" (click)="addChat()">Add Chat</button>
+        </div>
+
         <div class="main-item">
-          @for (chat of chatList; track chat.id) {
-            <div class="pm-contact" [class.active]="chat.id === activeUser?.id" (click)="selectUser(chat)">
-              <div class="icon"><div class="nosize">1</div></div>
+          @for (chat of chatList(); track chat.chat_id) {
+            <div class="pm-contact" [class.active]="chat.user_id === activeUser?.id" (click)="selectUser(chat)">
               <div class="tclcon">
-                <strong>{{ chat.userName }}</strong>
-                <div class="byuser">{{ chat.lastMessage }}</div>
+                <strong>{{ chat.username }}</strong>
               </div>
+              @if (chat.unread_count > 0) {
+                <span class="unread-badge">{{ chat.unread_count }}</span>
+              }
             </div>
           }
         </div>

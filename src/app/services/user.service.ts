@@ -9,6 +9,9 @@ import { map, switchMap } from 'rxjs/operators';
 export class UserService {
   private apiService = inject(ApiService);
 
+  private privateKeySignal = signal<CryptoKey | null>(null);
+  readonly privateKey = this.privateKeySignal.asReadonly();
+
   private usersOnPageSignal = signal<UserShort[]>([]);
   readonly usersOnPage = this.usersOnPageSignal.asReadonly();
 
@@ -54,10 +57,56 @@ export class UserService {
     });
   }
 
+  searchUsers(term: string): Observable<UserShort[]> {
+    return this.apiService.get<UserShort[]>(`user/autocomplete/${encodeURIComponent(term)}`);
+  }
+
   updateUserSettings(settings: UpdateSettingsRequest): Observable<User> {
     return this.apiService.post<UpdateSettingsResponse>('user/settings/update', settings).pipe(
       map(response => response.user)
     );
+  }
+
+  loadAndDecryptPrivateKey(hashedPassword: string): Observable<void> {
+    return this.apiService.get<{ encrypted_key: string; salt: string; iv: string }>('user/private-key').pipe(
+      switchMap(data => from(this.decryptPrivateKey(data, hashedPassword))),
+      map(key => {
+        this.privateKeySignal.set(key);
+      })
+    );
+  }
+
+  private async decryptPrivateKey(
+    data: { encrypted_key: string; salt: string; iv: string },
+    passphrase: string
+  ): Promise<CryptoKey> {
+    const encryptedBytes = this.base64ToBuffer(data.encrypted_key);
+    const salt = this.base64ToBuffer(data.salt);
+    const iv = this.base64ToBuffer(data.iv);
+
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw',
+      new TextEncoder().encode(passphrase),
+      'PBKDF2',
+      false,
+      ['deriveKey']
+    );
+
+    const aesKey = await crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+      keyMaterial,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['decrypt']
+    );
+
+    const decryptedBuffer = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, aesKey, encryptedBytes);
+
+    return crypto.subtle.importKey('pkcs8', decryptedBuffer, { name: 'RSA-OAEP', hash: 'SHA-256' }, false, ['decrypt']);
+  }
+
+  private base64ToBuffer(base64: string): Uint8Array {
+    return Uint8Array.from(atob(base64), c => c.charCodeAt(0));
   }
 
   generateAndSaveKeys(hashedPassword: string, recoveryCodes: string[]): Observable<any> {

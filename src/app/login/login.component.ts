@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
+import { UserService } from '../services/user.service';
 import {Router} from '@angular/router';
 
 @Component({
@@ -13,6 +14,7 @@ import {Router} from '@angular/router';
 export class LoginComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private userService = inject(UserService);
   private router = inject(Router);
 
 
@@ -32,11 +34,23 @@ export class LoginComponent {
     if (this.loginForm.valid) {
       this.isLoading.set(true);
       const credentials = this.loginForm.value;
+      const password = credentials.password || '';
 
       this.authService.login(credentials as any).subscribe({
-        next: (response) => {
-          this.isLoading.set(false);
-          this.router.navigate(['/']);
+        next: () => {
+          this.authService.hashPassword(password).then(hashedPassword => {
+            this.userService.loadAndDecryptPrivateKey(hashedPassword).subscribe({
+              next: () => {
+                this.isLoading.set(false);
+                this.router.navigate(['/']);
+              },
+              error: (err) => {
+                console.error('Failed to load private key', err);
+                this.isLoading.set(false);
+                this.router.navigate(['/']);
+              }
+            });
+          });
         },
         error: () => this.isLoading.set(false)
       });
