@@ -70,19 +70,18 @@ export class UserService {
   }
 
   loadAndDecryptPrivateKey(hashedPassword: string): Observable<void> {
-    return this.apiService.get<{ private_key: string; salt: string }>('user/private-key').pipe(
-      switchMap(data => from(this.decryptPrivateKey(data.private_key, data.salt, hashedPassword))),
+    return this.apiService.get<{ private_key: string; iv: string; salt: string }>('user/private-key').pipe(
+      switchMap(data => from(this.decryptPrivateKey(data.private_key, data.iv, data.salt, hashedPassword))),
       map(key => {
         this.privateKeySignal.set(key);
       })
     );
   }
 
-  private async decryptPrivateKey(privateKeyJson: string, saltBase64: string, passphrase: string): Promise<CryptoKey> {
-    const data: { encrypted_key: string; iv: string } = JSON.parse(privateKeyJson);
-    const encryptedBytes = this.base64ToBuffer(data.encrypted_key);
+  private async decryptPrivateKey(privateKeyBase64: string, ivBase64: string, saltBase64: string, passphrase: string): Promise<CryptoKey> {
+    const encryptedBytes = this.base64ToBuffer(privateKeyBase64);
     const salt = this.base64ToBuffer(saltBase64);
-    const iv = this.base64ToBuffer(data.iv);
+    const iv = this.base64ToBuffer(ivBase64);
 
     const keyMaterial = await crypto.subtle.importKey(
       'raw',
@@ -130,8 +129,8 @@ export class UserService {
     const recoveryKeys = await Promise.all(recoveryCodes.map(rc => this.encryptPrivateKey(keyPair.privateKey, rc.code)));
 
     const privateKeys = [
-      { user_id: userId, private_key: passwordKey.private_key, salt: passwordKey.salt, recover_key_id: null },
-      ...recoveryKeys.map((k, i) => ({ user_id: userId, private_key: k.private_key, salt: k.salt, recover_key_id: recoveryCodes[i].id }))
+      { user_id: userId, private_key: passwordKey.private_key, iv: passwordKey.iv, salt: passwordKey.salt, recover_key_id: null },
+      ...recoveryKeys.map((k, i) => ({ user_id: userId, private_key: k.private_key, iv: k.iv, salt: k.salt, recover_key_id: recoveryCodes[i].id }))
     ];
 
     return {
@@ -140,7 +139,7 @@ export class UserService {
     };
   }
 
-  private async encryptPrivateKey(privateKey: CryptoKey, passphrase: string): Promise<{ private_key: string; salt: string }> {
+  private async encryptPrivateKey(privateKey: CryptoKey, passphrase: string): Promise<{ private_key: string; iv: string; salt: string }> {
     const privateKeyBuffer = await crypto.subtle.exportKey('pkcs8', privateKey);
 
     const salt = crypto.getRandomValues(new Uint8Array(16));
@@ -165,10 +164,8 @@ export class UserService {
     const encryptedBuffer = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, aesKey, privateKeyBuffer);
 
     return {
-      private_key: JSON.stringify({
-        encrypted_key: this.bufferToBase64(encryptedBuffer),
-        iv: this.bufferToBase64(iv)
-      }),
+      private_key: this.bufferToBase64(encryptedBuffer),
+      iv: this.bufferToBase64(iv),
       salt: this.bufferToBase64(salt)
     };
   }
