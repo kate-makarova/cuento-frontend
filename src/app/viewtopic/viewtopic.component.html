@@ -41,7 +41,7 @@
     @if (editingTopic()) {
       <app-episode-create
         [initialData]="topic().episode"
-        (formSubmit)="onUpdateComplexTopic($event)"
+        (formSubmit)="onUpdateEpisode($event)"
         (cancel)="cancelEditTopic()">
       </app-episode-create>
     } @else {

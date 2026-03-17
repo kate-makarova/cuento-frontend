@@ -1,9 +1,10 @@
-import {CharacterShort, CustomFieldsData} from './Character';
+import {CharacterShort, CustomFieldsData, ShortMask} from './Character';
 
 export interface Episode {
   id: number;
   name: string;
   characters: CharacterShort[];
+  masks: ShortMask[];
   custom_fields: CustomFieldsData;
 }
 
