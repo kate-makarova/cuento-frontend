@@ -1,31 +1,35 @@
-<h1>{{ isNewMask ? 'Create New Mask' : 'Edit Character Profile' }}</h1>
+@if (isNewMask) {
+  <h1><span i18n="@@characterprofileedit.titleNewMask">Create New Mask</span></h1>
+} @else {
+  <h1><span i18n="@@characterprofileedit.titleEdit">Edit Character Profile</span></h1>
+}
 <div id="post-form" class="formal">
   <form id="post" class="container" (submit)="onSubmit($event)">
     <fieldset>
-      <legend>Character Details</legend>
+      <legend><ng-container i18n="@@characterprofileedit.characterDetails">Character Details</ng-container></legend>
       <div class="fs-box hashelp">
         @if (is_mask || isNewMask) {
           <p class="inputfield required">
-            <label for="char_name">Name <em>(Required)</em></label><br />
+            <label for="char_name"><ng-container i18n="@@characterprofileedit.name">Name</ng-container> <em>(<ng-container i18n="@@topiccreate.required">Required</ng-container>)</em></label><br />
             <span class="input"><input id="char_name" type="text" name="character_name" [(ngModel)]="characterName" size="80" maxlength="70" required /></span>
           </p>
         } @else {
           <!-- Hidden or readonly if it's a character profile being edited -->
-           <p class="inputfield required">
-            <label for="char_name">Name</label><br />
+          <p class="inputfield required">
+            <label for="char_name"><ng-container i18n="@@characterprofileedit.name">Name</ng-container></label><br />
             <span class="input"><input id="char_name" type="text" name="character_name" [(ngModel)]="characterName" size="80" maxlength="70" readonly class="readonly-input" /></span>
           </p>
         }
 
         <p class="inputfield required">
-          <label for="char_avatar">Avatar URL</label><br />
+          <label for="char_avatar"><ng-container i18n="@@characterprofileedit.avatarUrl">Avatar URL</ng-container></label><br />
           <span class="input"><input id="char_avatar" type="text" name="avatar" [(ngModel)]="characterAvatar" size="80" maxlength="255" /></span>
         </p>
       </div>
     </fieldset>
 
     <fieldset>
-      <legend>Custom Fields</legend>
+      <legend><ng-container i18n="@@characterprofileedit.customFields">Custom Fields</ng-container></legend>
       @for (field of template(); track field.order) {
         <div class="fs-box hashelp">
           <p class="inputfield required">
@@ -62,6 +66,12 @@
         </div>
       }
     </fieldset>
-    <p class="formsubmit"><input type="submit" class="button submit" [value]="isNewMask ? 'Create' : 'Update'" accesskey="s" /></p>
+    <p class="formsubmit">
+      @if (isNewMask) {
+        <input type="submit" class="button submit" i18n-value="@@characterprofileedit.create" value="Create" accesskey="s" />
+      } @else {
+        <input type="submit" class="button submit" i18n-value="@@characterprofileedit.update" value="Update" accesskey="s" />
+      }
+    </p>
   </form>
 </div>

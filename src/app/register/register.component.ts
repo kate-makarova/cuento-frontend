@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-register',
@@ -13,6 +14,7 @@ import { AuthService } from '../services/auth.service';
 export class RegisterComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private userService = inject(UserService);
   private router = inject(Router);
 
   isLoading = signal(false);
@@ -54,12 +56,24 @@ export class RegisterComponent {
       const password = registerData.password || '';
 
       this.authService.register(registerData).subscribe({
-        next: () => {
+        next: (response: any) => {
+          const recoveryCodes: string[] = response?.recovery_codes ?? [];
           // Automatically login after successful registration
           this.authService.login({ username, password }).subscribe({
             next: () => {
-              this.isLoading.set(false);
-              this.router.navigate(['/']);
+              this.authService.hashPassword(password).then(hashedPassword => {
+                this.userService.generateAndSaveKeys(hashedPassword, recoveryCodes).subscribe({
+                  next: () => {
+                    this.isLoading.set(false);
+                    this.router.navigate(['/recovery-codes'], { state: { codes: recoveryCodes } });
+                  },
+                  error: (err) => {
+                    this.isLoading.set(false);
+                    console.error('Failed to save keys', err);
+                    this.router.navigate(['/recovery-codes'], { state: { codes: recoveryCodes } });
+                  }
+                });
+              });
             },
             error: (err) => {
               this.isLoading.set(false);

@@ -23,6 +23,7 @@ import { UserListComponent } from './user-list/user-list.component';
 import { SettingsComponent } from './settings/settings.component';
 import { ActiveTopicsComponent } from './active-topics/active-topics.component';
 import { MaskListComponent } from './mask-list/mask-list.component';
+import { RecoveryCodesComponent } from './recovery-codes/recovery-codes.component';
 
 
 export const routes: Routes = [
@@ -41,6 +42,12 @@ export const routes: Routes = [
     path: 'register',
     component: RegisterComponent,
     data: { pageId: 'pun-register' }
+  },
+  {
+    path: 'recovery-codes',
+    component: RecoveryCodesComponent,
+    title: 'Recovery Codes',
+    data: { pageId: 'pun-recovery-codes' }
   },
   {
     path: 'messenger',

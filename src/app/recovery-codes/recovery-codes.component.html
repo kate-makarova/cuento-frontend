@@ -1,0 +1,31 @@
+<div id="pun-main" class="main">
+  <div class="main-header">
+    <h1><span i18n="@@recoverycodes.title">Save Your Recovery Codes</span></h1>
+  </div>
+
+  <div class="formal">
+    <div class="container">
+      <fieldset>
+        <legend><ng-container i18n="@@recoverycodes.important">Important</ng-container></legend>
+        <div class="fs-box">
+          <p class="warn-message" i18n="@@recoverycodes.warning">
+            <strong>This page will only be shown once.</strong> Please save these recovery codes in a safe place.
+            They are the only way to recover access to your direct messages if you forget your password.
+            Once you leave this page, these codes cannot be retrieved again.
+          </p>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend><ng-container i18n="@@recoverycodes.yourCodes">Your Recovery Codes</ng-container></legend>
+        <div class="fs-box">
+          <ul class="recovery-code-list">
+            @for (code of codes; track $index) {
+              <li class="recovery-code">{{ code }}</li>
+            }
+          </ul>
+        </div>
+      </fieldset>
+    </div>
+  </div>
+</div>
