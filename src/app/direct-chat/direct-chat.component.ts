@@ -1,6 +1,5 @@
 import {Component, ElementRef, inject, OnInit, ViewChild} from '@angular/core';
 import {User} from '../models/User';
-import {Message} from '../models/Message';
 import {DirectChat, DirectChatListItem} from '../models/DirectChat';
 import {DirectChatService} from '../services/direct-chat.service';
 import {UserService} from '../services/user.service';
@@ -24,6 +23,8 @@ export class DirectChatComponent implements OnInit {
   @ViewChild('chatInput') messageField!: ElementRef<HTMLTextAreaElement>;
 
   chatList = this.directChatService.chatList;
+  currentChat = this.directChatService.currentChat;
+  messages = this.directChatService.messages;
 
   activeUser: User = {
     id: 0,
@@ -34,9 +35,6 @@ export class DirectChatComponent implements OnInit {
     avatar: '',
     roles: []
   };
-  messages: Message[] = [
-    new Message(1, 'Hi!', 'today', false)
-  ];
   showSearch = true;
 
   newChatTerm = '';
@@ -107,7 +105,10 @@ export class DirectChatComponent implements OnInit {
   }
 
   handleSend() {}
-  selectUser(chat: DirectChatListItem) {}
+  selectUser(chat: DirectChatListItem) {
+    this.directChatService.loadDirectChat(chat.chat_id);
+    this.directChatService.loadMessages(chat.chat_id);
+  }
   toggleSearch() {}
   onSearch(event: Event) {}
   highlightMatch(text: string) { return text; }
