@@ -42,10 +42,8 @@ export class AppComponent implements OnInit {
       const user = this.currentUser();
       const token = this.authService.authToken();
       if (user && user.id !== 0 && token) {
-        console.log('Auth state is now AUTHENTICATED. Connecting to notification service...');
         this.notificationService.connect(token);
       } else {
-        console.log('Auth state is now UNAUTHENTICATED. Disconnecting from notification service...');
         this.notificationService.disconnect();
       }
     });

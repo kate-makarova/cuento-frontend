@@ -28,7 +28,7 @@
 
         <div class="main-item">
           @for (chat of chatList(); track chat.chat_id) {
-            <div class="pm-contact" [class.active]="chat.user_id === activeUser?.id" (click)="selectUser(chat)">
+            <div class="pm-contact" [class.active]="chat.chat_id === currentChat()?.chat_id" (click)="selectUser(chat)">
               <div class="tclcon">
                 <strong>{{ chat.username }}</strong>
               </div>
@@ -41,65 +41,69 @@
       </div>
 
       <div class="pm-history">
-        <div class="main-item">
-          <div class="history-scroll" #scrollContainer (scroll)="onScroll()">
-            @if (isLoadingOlder()) {
-              <div class="load-older-loader">
-                <span class="loader-spinner"></span>
-              </div>
-            }
-            @for (msg of messages(); track msg.id) {
-              <div class="message" [class.altstyle]="msg.isMe">
-                <div class="container">
-                  <div class="message-author">
-                    @if (msg.avatar) {
-                      <img [src]="msg.avatar" [alt]="msg.username" class="message-avatar" />
-                    } @else {
-                      <div class="message-avatar message-avatar-placeholder">{{ msg.username[0] }}</div>
-                    }
-                    <span class="message-username">{{ msg.username }}</span>
-                  </div>
-                  <div class="message-main">
-                    <div class="message-body">
-                      <div class="message-box">
-                        <div class="message-content">
-                          <p [innerHTML]="highlightMatch(msg.text)"></p>
+        @if (currentChat()) {
+          <div class="main-item">
+            <div class="history-scroll" #scrollContainer (scroll)="onScroll()">
+              @if (isLoadingOlder()) {
+                <div class="load-older-loader">
+                  <span class="loader-spinner"></span>
+                </div>
+              }
+              @for (msg of messages(); track msg.id) {
+                <div class="message" [class.altstyle]="msg.isMe">
+                  <div class="container">
+                    <div class="message-author">
+                      @if (msg.avatar) {
+                        <img [src]="msg.avatar" [alt]="msg.username" class="message-avatar" />
+                      } @else {
+                        <div class="message-avatar message-avatar-placeholder">{{ msg.username[0] }}</div>
+                      }
+                      <span class="message-username">{{ msg.username }}</span>
+                    </div>
+                    <div class="message-main">
+                      <div class="message-body">
+                        <div class="message-box">
+                          <div class="message-content">
+                            <p [innerHTML]="highlightMatch(msg.text)"></p>
+                          </div>
                         </div>
+                        <p class="message-metadata"><span>{{ msg.time }}</span></p>
                       </div>
-                      <p class="message-metadata"><span>{{ msg.time }}</span></p>
                     </div>
                   </div>
                 </div>
-              </div>
-            }
-            @if (isLoadingNewer()) {
-              <div class="load-older-loader">
-                <span class="loader-spinner"></span>
-              </div>
-            }
-          </div>
+              }
+              @if (isLoadingNewer()) {
+                <div class="load-older-loader">
+                  <span class="loader-spinner"></span>
+                </div>
+              }
+            </div>
 
-          <div class="pm-input">
-            <div id="pm-form-buttons">
-              <table cellspacing="0" cellpadding="0">
-                <tbody>
-                <tr>
-                  <td title="Bold" (click)="insertTag('b')"><i class="bi bi-type-bold"></i></td>
-                  <td title="Italic" (click)="insertTag('i')"><i class="bi bi-type-italic"></i></td>
-                  <td title="Strikethrough" (click)="insertTag('s')"><i class="bi bi-type-strikethrough"></i></td>
-                </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="textarea-wrapper">
-              <textarea #chatInput (keydown.enter)="handleSend()" placeholder="Ваше сообщение..."></textarea>
-            </div>
-            <div class="buttons">
-              <input type="button" class="button" value="Отправить" (click)="handleSend()">
-              <div class="clearer"></div>
+            <div class="pm-input">
+              <div id="pm-form-buttons">
+                <table cellspacing="0" cellpadding="0">
+                  <tbody>
+                  <tr>
+                    <td title="Bold" (click)="insertTag('b')"><i class="bi bi-type-bold"></i></td>
+                    <td title="Italic" (click)="insertTag('i')"><i class="bi bi-type-italic"></i></td>
+                    <td title="Strikethrough" (click)="insertTag('s')"><i class="bi bi-type-strikethrough"></i></td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="textarea-wrapper">
+                <textarea #chatInput (keydown.enter)="handleSend()" placeholder="Ваше сообщение..."></textarea>
+              </div>
+              <div class="buttons">
+                <input type="button" class="button" value="Отправить" (click)="handleSend()">
+                <div class="clearer"></div>
+              </div>
             </div>
           </div>
-        </div>
+        } @else {
+          <div class="pm-no-chat" i18n="@@directchat.selectChat">Select a chat from the list to start messaging</div>
+        }
       </div>
       <div class="clearer"></div>
     </div>

@@ -39,10 +39,7 @@ export class LoginComponent {
           this.isLoading.set(false);
           // handleAuth already navigated to '/'. Start key decryption in background.
           this.authService.hashPassword(password).then(hashedPassword => {
-            this.userService.loadAndDecryptPrivateKey(hashedPassword).subscribe({
-              next: () => console.log('[Login] private key loaded and cached successfully'),
-              error: (err) => console.error('[Login] failed to load private key', err)
-            });
+            this.userService.loadAndDecryptPrivateKey(hashedPassword).subscribe();
           });
         },
         error: () => this.isLoading.set(false)
