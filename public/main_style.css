@@ -759,10 +759,6 @@ C - MAIN CONTENT - SPECIFIC
   font-weight: normal;
 }
 
-.punbb .post h3 strong:before {
-  content: "#";
-}
-
 /* C3.5 */
 .punbb .post .post-author {
   float: left;

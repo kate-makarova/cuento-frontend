@@ -19,6 +19,7 @@ export interface DirectMessageRaw {
   avatar: string | null;
   date_send: string;
   date_received: string | null;
+  date_received_localized: string | null;
   ciphertext: string;
   iv: string;
   key: string;

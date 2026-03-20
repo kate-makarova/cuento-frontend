@@ -9,6 +9,7 @@ export interface Topic {
   subforum_name?: string;
   date_created: string;
   date_last_post: string;
+  date_last_post_localized: string | null;
   author_user_id: number;
   author_username: string;
   post_number: number;

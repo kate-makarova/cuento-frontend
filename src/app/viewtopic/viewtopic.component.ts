@@ -186,6 +186,12 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
           replaceUrl: true
         });
       }
+
+      if (currentPostId) {
+        setTimeout(() => {
+          document.getElementById(String(currentPostId))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 0);
+      }
     });
   }
 
@@ -203,6 +209,13 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
   onGuestNameChanged(name: string) {
     this.guestName = name;
+  }
+
+  copyPostLink(postId: number) {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('page');
+    url.searchParams.set('post_id', String(postId));
+    navigator.clipboard.writeText(url.toString());
   }
 
   editPost(post: Post, event: Event) {

@@ -10,6 +10,7 @@ export interface Subforum {
   last_post_topic_name: string | null;
   last_post_id: number | null;
   date_last_post: string | null;
+  date_last_post_localized: string | null;
   last_post_author_name: string | null;
   permissions: SubforumPermissions|null;
 

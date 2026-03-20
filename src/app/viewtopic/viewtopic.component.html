@@ -63,11 +63,11 @@
   @for(post of posts(); track (post.id || $index); let i = $index; let isEven = $even) {
   <div id="{{post.id}}" class="post" [class.altstyle]="isEven">
     <h3>
-      <span class="post-meta">
-        <a class="sharelink" rel="nofollow" href="#p{{ post.id }}" onclick="return false;" title="" i18n="@@viewtopic.share">Share</a>
-        <a class="permalink" rel="nofollow">{{ post.date_created }}</a>
-      </span>
-      <strong class="post-number">{{ (pageNumber() - 1) * postsPerPage() + i + 1 }}</strong>
+      <span class="post-meta">{{ post.date_created_localized }}</span>
+      <strong class="post-number">
+        <span class="post-link-btn" (click)="copyPostLink(post.id)" title="Copy link" i18n-title="@@viewtopic.copyLink"><i class="bi bi-link-45deg"></i></span>
+        #{{ (pageNumber() - 1) * postsPerPage() + i + 1 }}
+      </strong>
     </h3>
     <div class="container">
       <div class="post-main">

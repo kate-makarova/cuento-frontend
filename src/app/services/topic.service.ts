@@ -32,6 +32,7 @@ export class TopicService {
     post_number: 0,
     last_post_author_user_id: null,
     last_post_author_username: null,
+    date_last_post_localized: null,
     type: TopicType.general,
     status: TopicStatus.active,
     episode: null,

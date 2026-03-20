@@ -26,6 +26,7 @@ export class ForumService {
     last_post_topic_name: '',
     last_post_id: 0,
     date_last_post: '',
+    date_last_post_localized: null,
     last_post_author_name: '',
     permissions: {
       subforum_create_general_topic: false,
