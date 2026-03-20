@@ -4,7 +4,7 @@ import { AuthService } from './auth.service';
 import { UserShort } from '../models/UserShort';
 import { UserProfileResponse, UpdateSettingsRequest, User, UpdateSettingsResponse, UserListItem } from '../models/User';
 import { Observable, from } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, tap } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -84,11 +84,14 @@ export class UserService {
   }
 
   loadAndDecryptPrivateKey(hashedPassword: string): Observable<void> {
+    console.log('[UserService] loadAndDecryptPrivateKey: fetching encrypted key from server...');
     return this.apiService.get<{ private_key: string; iv: string; salt: string }>('user/private-key').pipe(
+      tap(data => console.log('[UserService] loadAndDecryptPrivateKey: received key data from server', data)),
       switchMap(data => from(this.decryptPrivateKey(data.private_key, data.iv, data.salt, hashedPassword))),
       map(key => {
+        console.log('[UserService] loadAndDecryptPrivateKey: decryption successful, saving to signal and IndexedDB');
         this.privateKeySignal.set(key);
-        this.savePrivateKeyToDb(key).catch(err => console.error('Failed to cache private key', err));
+        this.savePrivateKeyToDb(key).catch(err => console.error('[UserService] failed to save private key to IndexedDB', err));
       })
     );
   }
