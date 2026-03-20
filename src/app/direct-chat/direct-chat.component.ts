@@ -76,7 +76,9 @@ export class DirectChatComponent implements OnInit, OnDestroy {
   private searchSubject = new Subject<string>();
 
   ngOnInit() {
-    this.directChatService.loadChatList();
+    this.directChatService.resolvePrivateKey().subscribe(() => {
+      this.directChatService.loadChatList();
+    });
 
     this.searchSubject.pipe(
       debounceTime(300),
