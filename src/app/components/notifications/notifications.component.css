@@ -96,3 +96,27 @@
 .data-table th {
   background-color: #f2f2f2;
 }
+
+.dm-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  padding: 4px 0;
+}
+
+.dm-entry:hover {
+  text-decoration: none;
+}
+
+.dm-chat-label {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.dm-unread-count {
+  font-weight: bold;
+  color: #9c6a1a;
+}
