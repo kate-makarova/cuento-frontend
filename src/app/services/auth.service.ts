@@ -133,6 +133,7 @@ export class AuthService {
   }
 
   private handleAuth(response: AuthResponse, navigate: boolean = true) {
+    console.log('[AuthService] handleAuth called, navigate=', navigate, 'current wasGuest=', this.currentUser()?.id === 0);
     localStorage.setItem('access_token', response.access_token);
     localStorage.setItem('refresh_token', response.refresh_token);
     this.updateUser(response.user);
