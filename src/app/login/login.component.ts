@@ -2,7 +2,6 @@ import { Component, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
-import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -15,7 +14,6 @@ export class LoginComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private userService = inject(UserService);
-  private router = inject(Router);
 
 
   isLoading = signal(false);
@@ -38,20 +36,12 @@ export class LoginComponent {
 
       this.authService.login(credentials as any).subscribe({
         next: () => {
-          console.log('[Login] login succeeded, hashing password...');
+          this.isLoading.set(false);
+          // handleAuth already navigated to '/'. Start key decryption in background.
           this.authService.hashPassword(password).then(hashedPassword => {
-            console.log('[Login] password hashed, calling loadAndDecryptPrivateKey...');
             this.userService.loadAndDecryptPrivateKey(hashedPassword).subscribe({
-              next: () => {
-                console.log('[Login] private key loaded and cached successfully');
-                this.isLoading.set(false);
-                this.router.navigate(['/']);
-              },
-              error: (err) => {
-                console.error('[Login] failed to load private key', err);
-                this.isLoading.set(false);
-                this.router.navigate(['/']);
-              }
+              next: () => console.log('[Login] private key loaded and cached successfully'),
+              error: (err) => console.error('[Login] failed to load private key', err)
             });
           });
         },

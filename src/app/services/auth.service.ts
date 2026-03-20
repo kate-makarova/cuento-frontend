@@ -72,7 +72,7 @@ export class AuthService {
       switchMap(hashedPassword => {
         const loginData = { ...credentials, password: hashedPassword };
         return this.http.post<AuthResponse>(`${this.apiUrl}/login`, loginData).pipe(
-          tap(res => this.handleAuth(res, false))
+          tap(res => this.handleAuth(res))
         );
       })
     );
@@ -97,6 +97,7 @@ export class AuthService {
   }
 
   logout() {
+    console.trace('[AuthService] logout() called!');
     this.http.post(`${this.apiUrl}/logout`, {}).subscribe({
       next: () => this.clearLocalAuth(true),
       error: () => this.clearLocalAuth(true)
@@ -104,6 +105,7 @@ export class AuthService {
   }
 
   public clearLocalAuth(notify: boolean = true) {
+    console.trace('[AuthService] clearLocalAuth called!');
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('user');
