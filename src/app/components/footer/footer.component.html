@@ -3,6 +3,11 @@
     <p><span i18n="@@footer.poweredBy">Powered by Cuento</span></p>
   </div>
   <div class="conr">
-    <p id="poweredby"><span>&copy; Vipers Test</span></p>
+    <p id="poweredby"><span>&copy; {{ siteName() }}</span></p>
   </div>
+</div>
+<div class="container" id="pun-footer-links">
+  <ul>
+    <li><a [href]="privacyPolicyUrl" target="_blank" rel="noopener noreferrer" i18n="@@footer.privacyPolicy">Privacy Policy</a></li>
+  </ul>
 </div>
