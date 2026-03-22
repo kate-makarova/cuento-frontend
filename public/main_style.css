@@ -287,7 +287,8 @@ B - MAIN CONTENT - GENERAL
 
 /* B1.4 */
 .punbb .post-content img {
-  vertical-align: text-bottom
+  vertical-align: text-bottom;
+  max-width: 100%;
 }
 
 /* B1.5 */
