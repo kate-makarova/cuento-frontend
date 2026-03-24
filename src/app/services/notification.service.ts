@@ -41,6 +41,8 @@ export class NotificationService {
   public gameNotifications = this.gameNotificationsSignal.asReadonly();
   private mentionNotificationsSignal = signal<NotificationData[]>([]);
   public mentionNotifications = this.mentionNotificationsSignal.asReadonly();
+  private directMessageNotificationsSignal = signal<NotificationData[]>([]);
+  public directMessageNotifications = this.directMessageNotificationsSignal.asReadonly();
 
   // Subject for real-time toast notifications
   private notificationSubject = new Subject<NotificationData>();
@@ -60,6 +62,7 @@ export class NotificationService {
         this.systemNotificationsSignal.set(response.system || []);
         this.gameNotificationsSignal.set(response.game || []);
         this.mentionNotificationsSignal.set(response.mention || []);
+        this.directMessageNotificationsSignal.set(response.direct_message || []);
       },
       error: (err) => console.error('Failed to load unread notifications', err)
     });
@@ -75,6 +78,8 @@ export class NotificationService {
           this.gameNotificationsSignal.update(current => current.filter(n => n.id !== notification.id));
         } else if (notification.type === 'mention') {
           this.mentionNotificationsSignal.update(current => current.filter(n => n.id !== notification.id));
+        } else if (notification.type === 'direct_message') {
+          this.directMessageNotificationsSignal.update(current => current.filter(n => n.id !== notification.id));
         }
       },
       error: (err) => console.error('Failed to dismiss notification', err)
@@ -208,6 +213,8 @@ export class NotificationService {
           this.gameNotificationsSignal.update(current => [notificationData, ...current]);
         } else if (notificationData.type === 'mention') {
           this.mentionNotificationsSignal.update(current => [notificationData, ...current]);
+        } else if (notificationData.type === 'direct_message') {
+          this.directMessageNotificationsSignal.update(current => [notificationData, ...current]);
         }
         break;
       case 'topic_viewers_update':

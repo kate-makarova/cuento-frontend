@@ -22,6 +22,11 @@ export interface PostUpdatedEvent {
   data: Post;
 }
 
+export interface NotificationDirectMessage {
+  chat_id: number;
+  sender_username: string;
+}
+
 export interface NotificationMention {
   user_id: number;
   user_name: string;
@@ -44,13 +49,14 @@ export interface NotificationGame {
 export interface NotificationData {
   id: number;
   user_id: number;
-  type: 'system' | 'game' | 'mention';
+  type: 'system' | 'game' | 'mention' | 'direct_message';
   title: string;
   message: string;
   date_created: string;
   is_read: boolean;
   mention: NotificationMention | null;
   game: NotificationGame | null;
+  direct_message: NotificationDirectMessage | null;
 }
 
 export interface NotificationEvent {
@@ -62,6 +68,7 @@ export interface UnreadNotificationsResponse {
   system: NotificationData[];
   game: NotificationData[];
   mention: NotificationData[];
+  direct_message: NotificationData[];
 }
 
 export interface TopicViewersUpdateEvent {

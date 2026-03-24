@@ -20,6 +20,13 @@
     </div>
   }
 
+  @if (directMessageNotifications().length > 0) {
+    <div class="notification-block direct-messages" (click)="openModal('direct_message')">
+      <span class="count">{{ directMessageNotifications().length }}</span>
+      <span class="label" i18n="@@notifications.directMessages">Direct messages</span>
+    </div>
+  }
+
   @if (dmNotifications().length > 0) {
     <div class="notification-block direct-messages" (click)="openModal('dm')">
       <span class="count">{{ dmNotifications().length }}</span>
@@ -93,6 +100,21 @@
                     {{ item.title || 'Topic' }}
                   }
                 </span>
+              </div>
+              <button class="dismiss-button" (click)="dismissNotification(item, $event)">&times;</button>
+            </div>
+          }
+        </div>
+      }
+
+      @if (activeModal === 'direct_message') {
+        <h2 i18n="@@notifications.directMessages">Direct messages</h2>
+        <div class="feed-list">
+          @for (item of directMessageNotifications(); track item.id) {
+            <div class="feed-item">
+              <div class="feed-item-content">
+                <span class="date">{{ item.date_created | date:'short' }}</span>
+                <p>{{ item.message }}</p>
               </div>
               <button class="dismiss-button" (click)="dismissNotification(item, $event)">&times;</button>
             </div>
