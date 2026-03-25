@@ -157,7 +157,16 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       if (topicId) {
         // Only reload the main topic data if the ID has actually changed
         if (this.topic().id !== topicId) {
-          this.topicService.loadTopic(topicId);
+          this.topicService.loadTopic(topicId).subscribe({
+            next: (data) => this.topicService.setTopic(data),
+            error: (err) => {
+              if (err.status === 404) {
+                this.router.navigate(['/404']);
+              } else {
+                console.error('Failed to load topic', err);
+              }
+            }
+          });
         }
         // Always reload posts for the current page or post_id
         this.topicService.loadPosts(topicId, page, postId);
@@ -345,7 +354,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
         if (updatedTopic && updatedTopic.id) {
           this.topicService.updateLocalTopic(updatedTopic);
         } else {
-          if (this.id()) this.topicService.loadTopic(this.id()!);
+          if (this.id()) this.topicService.loadTopic(this.id()!).subscribe({ next: (data) => this.topicService.setTopic(data) });
         }
         this.cancelEditTopic();
       },
@@ -361,7 +370,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
         if (updatedTopic && updatedTopic.id) {
           this.topicService.updateLocalTopic(updatedTopic);
         } else {
-          if (this.id()) this.topicService.loadTopic(this.id()!);
+          if (this.id()) this.topicService.loadTopic(this.id()!).subscribe({ next: (data) => this.topicService.setTopic(data) });
         }
         this.cancelEditTopic();
       },
@@ -376,7 +385,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     this.characterService.updateCharacter(charId, payload).subscribe({
       next: (updatedChar: any) => {
         // Reload topic to get updated character sheet data
-        if (this.id()) this.topicService.loadTopic(this.id()!);
+        if (this.id()) this.topicService.loadTopic(this.id()!).subscribe({ next: (data) => this.topicService.setTopic(data) });
         this.cancelEditTopic();
       },
       error: (err: any) => console.error('Failed to update character', err)
@@ -389,7 +398,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
     this.episodeService.updateEpisode(episodeId, payload).subscribe({
       next: () => {
-        if (this.id()) this.topicService.loadTopic(this.id()!);
+        if (this.id()) this.topicService.loadTopic(this.id()!).subscribe({ next: (data) => this.topicService.setTopic(data) });
         this.cancelEditTopic();
       },
       error: (err: any) => console.error('Failed to update episode', err)

@@ -20,7 +20,7 @@ export class CharacterService {
   private characterProfileTemplateSignal = signal<FieldTemplate[]>([]);
   readonly characterProfileTemplate = this.characterProfileTemplateSignal.asReadonly();
 
-  private characterSignal = signal<Character | null>(null);
+  readonly characterSignal = signal<Character | null>(null);
   readonly character = this.characterSignal.asReadonly();
 
   private characterProfileSignal = signal<CharacterProfile | null>(null);
@@ -137,16 +137,8 @@ export class CharacterService {
     return this.apiService.post('/character/create', data);
   }
 
-  loadCharacter(id: number): void {
-    this.apiService.get<Character>(`character/get/${id}`).subscribe({
-      next: (data) => {
-        this.characterSignal.set(data);
-      },
-      error: (err) => {
-        console.error('Failed to load character', err);
-        this.characterSignal.set(null);
-      }
-    });
+  loadCharacter(id: number) {
+    return this.apiService.get<Character>(`character/get/${id}`);
   }
 
   updateCharacter(id: number, data: any) {

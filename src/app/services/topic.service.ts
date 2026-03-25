@@ -46,6 +46,9 @@ export class TopicService {
   private pageLoadedSubject = new Subject<{page: number, topicId: number}>();
   public pageLoaded$ = this.pageLoadedSubject.asObservable();
 
+  readonly singlePostSignal = signal<Post | null>(null);
+  readonly singlePost = this.singlePostSignal.asReadonly();
+
   constructor() {
     this.notificationService.postCreated$.subscribe(event => {
       const currentTopicId = this.topic().id;
@@ -62,11 +65,17 @@ export class TopicService {
     });
   }
 
+  loadPost(id: number) {
+    return this.apiService.get<Post>(`post/${id}`);
+  }
+
   loadTopic(id: number) {
-    this.apiService.get<Topic>('topic/get/' + id.toString()).subscribe(data => {
-      const enrichedTopic = this.enrichTopicWithPermissions(data);
-      this.topicSignal.set(enrichedTopic);
-    });
+    return this.apiService.get<Topic>('topic/get/' + id.toString());
+  }
+
+  setTopic(data: Topic): void {
+    const enrichedTopic = this.enrichTopicWithPermissions(data);
+    this.topicSignal.set(enrichedTopic);
   }
 
   loadPosts(topicId: number, page: number, postId?: number) {
