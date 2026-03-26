@@ -2,10 +2,12 @@ import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { TopicService } from '../services/topic.service';
+import { SafeHtmlPipe } from '../pipes/safe-html.pipe';
 
 @Component({
   selector: 'app-post-page',
   standalone: true,
+  imports: [SafeHtmlPipe],
   templateUrl: './post-page.component.html',
   styleUrl: './post-page.component.css'
 })
