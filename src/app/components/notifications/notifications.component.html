@@ -97,7 +97,7 @@
                   @if (item.mention?.topic_id) {
                     <a [routerLink]="['/viewtopic', item.mention!.topic_id]"
                        [queryParams]="{post_id: item.mention!.post_id}"
-                       (click)="onNotificationClick(item)">{{ item.mention!.topicName || 'Topic' }}</a>
+                       (click)="onNotificationClick(item)">{{ item.mention!.topic_name || 'Topic' }}</a>
                   } @else {
                     {{ item.title || 'Topic' }}
                   }

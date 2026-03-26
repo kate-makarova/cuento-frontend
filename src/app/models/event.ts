@@ -34,6 +34,7 @@ export interface NotificationMention {
   character_name: string | null;
   post_id: number;
   topic_id: number;
+  topic_name: string;
 }
 
 export interface NotificationGame {
