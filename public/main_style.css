@@ -1721,10 +1721,10 @@ spoiler-box .spoiler-header:hover {
 
 blockquote {
   margin: 8px 0;
-  padding: 0;
   border-left: 3px solid #9c7d58;
   background-color: #fcfaf2;
   border-radius: 0 4px 4px 0;
+  padding-left: 5px;
 }
 
 blockquote cite {
