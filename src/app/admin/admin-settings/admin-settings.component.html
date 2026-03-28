@@ -1,0 +1,18 @@
+<div class="settings-container">
+  <h2 i18n="@@admin.settings">Settings</h2>
+
+  <form (submit)="save(); $event.preventDefault()">
+    <fieldset>
+      @for (setting of settings(); track setting.setting_name) {
+        <div class="field-row">
+          <label [for]="setting.setting_name">{{ setting.setting_name }}</label>
+          <input [id]="setting.setting_name" type="text" [(ngModel)]="setting.setting_value" [name]="setting.setting_name" />
+        </div>
+      }
+    </fieldset>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-primary" i18n="@@common.save">Save</button>
+    </div>
+  </form>
+</div>
