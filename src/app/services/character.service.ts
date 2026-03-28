@@ -134,7 +134,7 @@ export class CharacterService {
   }
 
   createCharacter(data: CreateCharacterRequest) {
-    return this.apiService.post('/character/create', data);
+    return this.apiService.post('character/create', data);
   }
 
   previewCharacter(data: any) {

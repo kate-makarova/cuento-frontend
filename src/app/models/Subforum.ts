@@ -14,6 +14,8 @@ export interface Subforum {
   last_post_author_name: string | null;
   permissions: SubforumPermissions|null;
 
+  show_last_topic?: boolean;
+
   // Optional fields that might be present or used internally
   can_read_roles?: string[];
   can_wrote_roles?: string[];

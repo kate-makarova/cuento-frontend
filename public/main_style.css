@@ -1463,7 +1463,7 @@ div.punbb-admin #pun-about .container {
 }
 
 .punbb .main .tcr a:after {
-  content: "»";
+  content: "";
   /*position: absolute;*/
   margin-left: .2em;
   /*margin-top: .2em;*/

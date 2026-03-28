@@ -34,14 +34,16 @@
               <td class="tcr">
                 @if (subforum.last_post_topic_id == null) {
                   <span i18n="@@home.noPosts">No posts</span>
+                } @else if (subforum.show_last_topic === true) {
+                  <a class="lastpost-link" [routerLink]="['/viewtopic', subforum.last_post_topic_id]">{{subforum.last_post_topic_name}}</a>
                 } @else {
-                <a class="lastpost-link" [routerLink]="['/viewtopic', subforum.last_post_topic_id]" [queryParams]="{ post_id: subforum.last_post_id }">{{subforum.last_post_topic_name}}</a>
-                <br>
-                <span class="lastpost">
-                  <span class="datetime">{{subforum.date_last_post_localized}}</span>
-                  -
-                  <span class="byuser">{{subforum.last_post_author_name}}</span>
-                </span>
+                  <a class="lastpost-link" [routerLink]="['/viewtopic', subforum.last_post_topic_id]" [queryParams]="{ post_id: subforum.last_post_id }">{{subforum.last_post_topic_name}}</a>
+                  <br>
+                  <span class="lastpost">
+                    <span class="datetime">{{subforum.date_last_post_localized}}</span>
+                    -
+                    <span class="byuser">{{subforum.last_post_author_name}}</span>
+                  </span>
                 }
               </td>
             </tr>
