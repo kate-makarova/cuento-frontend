@@ -142,7 +142,7 @@ export class TopicService {
   private handleNewPost(post: Post) {
     const enrichedPost = this.enrichPostWithPermissions(post);
 
-    // Add the new post to the list
+    if (this.postsSignal().some(p => p.id === enrichedPost.id)) return;
     this.postsSignal.update(posts => [...posts, enrichedPost]);
 
     // Increment the post count in the topic

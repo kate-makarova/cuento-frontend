@@ -127,7 +127,10 @@ export class DirectChatService {
       switchMap(data => from(Promise.all(data.map(msg => this.decryptMessage(msg, privateKey, currentUserId)))))
     ).subscribe({
       next: (decrypted) => {
-        this.messagesSignal.update(msgs => [...decrypted, ...msgs]);
+        this.messagesSignal.update(msgs => {
+          const existingIds = new Set(msgs.map(m => m.id));
+          return [...decrypted.filter(m => !existingIds.has(m.id)), ...msgs];
+        });
         this.isLoadingOlderSignal.set(false);
       },
       error: (err) => {
@@ -150,7 +153,10 @@ export class DirectChatService {
         if (decrypted.length === 0) {
           this.noMoreNewer = true;
         } else {
-          this.messagesSignal.update(msgs => [...msgs, ...decrypted]);
+          this.messagesSignal.update(msgs => {
+            const existingIds = new Set(msgs.map(m => m.id));
+            return [...msgs, ...decrypted.filter(m => !existingIds.has(m.id))];
+          });
           const chat = this.currentChatSignal();
           if (chat) {
             const lastId = decrypted[decrypted.length - 1].id;
@@ -192,6 +198,7 @@ export class DirectChatService {
     const currentUserId = this.authService.currentUser()!.id;
     from(this.decryptMessage(raw, this.cachedPrivateKey!, currentUserId)).subscribe({
       next: (message) => {
+        if (this.messagesSignal().some(m => m.id === message.id)) return;
         this.messagesSignal.update(msgs => [...msgs, message]);
         const chat = this.currentChatSignal();
         if (chat && (chat.last_read_message_id === null || message.id > chat.last_read_message_id)) {
