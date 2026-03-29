@@ -11,6 +11,7 @@
         @if (faction.description) {
           <span class="faction-description">{{ faction.description }}</span>
         }
+        <button type="button" class="btn-add-claim" (click)="openModal(faction.id)">Add claim</button>
       </div>
 
       @if (faction.claims.length > 0) {
@@ -42,3 +43,29 @@
     </div>
   }
 </div>
+
+@if (modalFactionId !== null) {
+  <div class="modal-backdrop" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h3>Add claim</h3>
+      <form (submit)="submitClaim(); $event.preventDefault()">
+        <div class="field-row">
+          <label for="claim-name">Name</label>
+          <input id="claim-name" type="text" [(ngModel)]="form.name" name="name" required />
+        </div>
+        <div class="field-row">
+          <label for="claim-description">Description</label>
+          <textarea id="claim-description" [(ngModel)]="form.description" name="description"></textarea>
+        </div>
+        <div class="field-row field-row--checkbox">
+          <input id="claim-can-change-name" type="checkbox" [(ngModel)]="form.can_change_name" name="can_change_name" />
+          <label for="claim-can-change-name">Can change name</label>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary">Add</button>
+          <button type="button" (click)="closeModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

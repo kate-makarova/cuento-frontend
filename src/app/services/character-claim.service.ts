@@ -1,12 +1,17 @@
 import { Injectable, inject, signal } from '@angular/core';
+import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { ClaimFactionResponse } from '../models/CharacterClaim';
+import { CharacterClaim, ClaimFactionResponse } from '../models/CharacterClaim';
 
 @Injectable({ providedIn: 'root' })
 export class CharacterClaimService {
   private apiService = inject(ApiService);
 
   factions = signal<ClaimFactionResponse[]>([]);
+
+  createClaim(claim: { name: string; description: string | null; can_change_name: boolean }, factionIds: number[]): Observable<CharacterClaim> {
+    return this.apiService.post<CharacterClaim>('character-claim/create', { claim, faction_ids: factionIds });
+  }
 
   load(): void {
     this.apiService.get<ClaimFactionResponse[]>('character-claims').subscribe({

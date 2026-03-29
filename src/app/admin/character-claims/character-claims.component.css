@@ -14,6 +14,7 @@
   align-items: baseline;
   gap: 8px;
   margin-bottom: 6px;
+  width: 100%;
 }
 
 .faction-icon {
@@ -55,4 +56,94 @@
   color: #999;
   font-size: 0.85em;
   margin: 0;
+}
+
+.btn-add-claim {
+  margin-left: auto;
+  border: 1px solid #d1bc9b;
+  border-radius: 4px;
+  padding: 2px 10px;
+  cursor: pointer;
+  font-size: 0.85em;
+  background: #e9e3d5;
+  color: #333;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fffdf7;
+  border: 1px solid #d1bc9b;
+  border-radius: 4px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 320px;
+}
+
+.modal h3 {
+  margin: 0;
+}
+
+.modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.field-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field-row input[type="text"],
+.field-row textarea {
+  border: 1px solid #d1bc9b;
+  border-radius: 4px;
+  padding: 5px 8px;
+  font-size: 0.9em;
+  background: #fff;
+}
+
+.field-row textarea {
+  rows: 3;
+  resize: vertical;
+}
+
+.field-row--checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.modal-actions button {
+  border: 1px solid #d1bc9b;
+  border-radius: 4px;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: 0.9em;
+  background: #e9e3d5;
+  color: #333;
+}
+
+.btn-primary {
+  background: #1b3a6d !important;
+  color: #fff !important;
+  border-color: #1b3a6d !important;
 }

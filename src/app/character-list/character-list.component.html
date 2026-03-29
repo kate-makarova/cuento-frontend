@@ -16,7 +16,7 @@
               @for (char of group[0].characters; track char.id) {
                 <li class="character-list-item">
                   @if (char.is_claim) {
-                    <span class="character-link">{{ char.name }}</span>
+                    <span>{{ char.name }}</span>
                   } @else {
                     <a [routerLink]="['/character', char.id]" class="character-link">{{ char.name }}</a>
                   }
@@ -41,7 +41,7 @@
                   @for (char of faction.characters; track char.id) {
                     <li class="character-list-item">
                       @if (char.is_claim) {
-                        <span class="character-link">{{ char.name }}</span>
+                        <span>{{ char.name }}</span>
                       } @else {
                         <a [routerLink]="['/character', char.id]" class="character-link">{{ char.name }}</a>
                       }
