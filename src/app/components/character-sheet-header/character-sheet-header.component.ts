@@ -4,12 +4,13 @@ import { Character, CustomFieldsData, CustomFieldValue } from '../../models/Char
 import { ShortTextFieldDisplayComponent } from '../short-text-field-display/short-text-field-display.component';
 import { LongTextFieldDisplayComponent } from '../long-text-field-display/long-text-field-display.component';
 import { NumberFieldDisplayComponent } from '../number-field-display/number-field-display.component';
+import { ImageFieldDisplayComponent } from '../image-field-display/image-field-display.component';
 import { AuthService } from '../../services/auth.service';
 import { CharacterService } from '../../services/character.service';
 
 @Component({
   selector: 'app-character-sheet-header',
-  imports: [CommonModule, ShortTextFieldDisplayComponent, LongTextFieldDisplayComponent, NumberFieldDisplayComponent],
+  imports: [CommonModule, ShortTextFieldDisplayComponent, LongTextFieldDisplayComponent, NumberFieldDisplayComponent, ImageFieldDisplayComponent],
   templateUrl: './character-sheet-header.component.html',
   standalone: true,
   styleUrl: './character-sheet-header.component.css'

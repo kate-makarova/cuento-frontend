@@ -1,1 +1,6 @@
-<p>image-field-display works!</p>
+@if (fieldValue) {
+<!--  @if (showFieldName && fieldName) {-->
+<!--    <label>{{ fieldName }}</label>-->
+<!--  }-->
+  <img [src]="fieldValue" [alt]="fieldName ?? ''" loading="lazy" />
+}

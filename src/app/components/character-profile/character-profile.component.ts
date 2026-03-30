@@ -9,10 +9,11 @@ import { FormsModule } from '@angular/forms';
 import { CharacterService } from '../../services/character.service';
 import { AuthService } from '../../services/auth.service';
 import { NumberFieldDisplayComponent } from '../number-field-display/number-field-display.component';
+import { ImageFieldDisplayComponent } from '../image-field-display/image-field-display.component';
 
 @Component({
   selector: 'app-character-profile',
-  imports: [CommonModule, RouterLink, ShortTextFieldDisplayComponent, LongTextFieldDisplayComponent, NumberFieldDisplayComponent, FormsModule],
+  imports: [CommonModule, RouterLink, ShortTextFieldDisplayComponent, LongTextFieldDisplayComponent, NumberFieldDisplayComponent, ImageFieldDisplayComponent, FormsModule],
   templateUrl: './character-profile.component.html',
   standalone: true,
   styleUrl: './character-profile.component.css'

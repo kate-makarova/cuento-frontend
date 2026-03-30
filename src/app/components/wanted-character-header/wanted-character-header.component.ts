@@ -6,11 +6,12 @@ import { FieldTemplate } from '../../models/FieldTemplate';
 import { ShortTextFieldDisplayComponent } from '../short-text-field-display/short-text-field-display.component';
 import { LongTextFieldDisplayComponent } from '../long-text-field-display/long-text-field-display.component';
 import { NumberFieldDisplayComponent } from '../number-field-display/number-field-display.component';
+import { ImageFieldDisplayComponent } from '../image-field-display/image-field-display.component';
 
 @Component({
   selector: 'app-wanted-character-header',
   standalone: true,
-  imports: [CommonModule, ShortTextFieldDisplayComponent, LongTextFieldDisplayComponent, NumberFieldDisplayComponent],
+  imports: [CommonModule, ShortTextFieldDisplayComponent, LongTextFieldDisplayComponent, NumberFieldDisplayComponent, ImageFieldDisplayComponent],
   templateUrl: './wanted-character-header.component.html',
   styleUrl: './wanted-character-header.component.css'
 })

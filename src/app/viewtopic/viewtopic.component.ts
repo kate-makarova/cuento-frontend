@@ -452,7 +452,8 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     const wantedCharId = this.topic().wanted_character?.id;
     if (!wantedCharId) return;
 
-    this.wantedCharacterService.update(wantedCharId, payload).subscribe({
+    const { subforum_id, ...body } = payload;
+    this.wantedCharacterService.update(wantedCharId, body).subscribe({
       next: () => {
         if (this.id()) this.topicService.loadTopic(this.id()!).subscribe({ next: (data) => this.topicService.setTopic(data) });
         this.cancelEditTopic();

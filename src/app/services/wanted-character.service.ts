@@ -48,6 +48,6 @@ export class WantedCharacterService {
   }
 
   update(id: number, data: any): Observable<any> {
-    return this.apiService.put(`wanted-character/update/${id}`, data);
+    return this.apiService.post(`wanted-character/update/${id}`, data);
   }
 }

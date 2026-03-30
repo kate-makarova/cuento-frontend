@@ -45,6 +45,9 @@
             @case('number') {
               <app-number-field-display [fieldName]="field.fieldName" [fieldValue]="field.fieldValue"></app-number-field-display>
             }
+            @case('image') {
+              <app-image-field-display [fieldName]="field.fieldName" [fieldValue]="field.fieldValue"></app-image-field-display>
+            }
           }
         </li>
       }

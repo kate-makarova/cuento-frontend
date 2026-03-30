@@ -260,6 +260,7 @@ export const TRANSLATIONS_RU = {
   "subforum.subforumLegend": "Подфорум: {$INTERPOLATION}",
   "subforum.newCategory": "Новая категория",
   "subforum.newSubforum": "Новый подфорум",
+  "subforum.categoryId": "ID категории",
   "subforum.name": "Название",
   "subforum.description": "Описание",
   "subforum.position": "Позиция",

@@ -58,6 +58,10 @@
               <span i18n="@@subforum.position">Position</span>
               <input type="number" [(ngModel)]="subforum.position" [name]="'sub-pos-' + subforum.id" />
             </label>
+            <label>
+              <span i18n="@@subforum.categoryId">Category ID</span>
+              <input type="number" [(ngModel)]="subforum.category_id" [name]="'sub-cat-' + subforum.id" />
+            </label>
           </div>
 
           <div class="description-field">
