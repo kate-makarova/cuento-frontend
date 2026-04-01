@@ -34,6 +34,7 @@ import { ActiveTopicsComponent } from './active-topics/active-topics.component';
 import { MaskListComponent } from './mask-list/mask-list.component';
 import { RecoveryCodesComponent } from './recovery-codes/recovery-codes.component';
 import { SettingsRestorationCodesComponent } from './settings-restoration-codes/settings-restoration-codes.component';
+import { RestorePasswordComponent } from './restore-password/restore-password.component';
 import { PostPageComponent } from './post-page/post-page.component';
 import { NotFoundComponent } from './error-pages/not-found/not-found.component';
 import { ForbiddenComponent } from './error-pages/forbidden/forbidden.component';
@@ -51,6 +52,12 @@ export const routes: Routes = [
     path: 'login',
     component: LoginComponent,
     data: { pageId: 'pun-login' }
+  },
+  {
+    path: 'restore-password',
+    component: RestorePasswordComponent,
+    title: 'Restore Password',
+    data: { pageId: 'pun-restore-password' }
   },
   {
     path: 'register',

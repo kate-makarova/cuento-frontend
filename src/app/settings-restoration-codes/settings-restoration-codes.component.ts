@@ -25,7 +25,7 @@ export class SettingsRestorationCodesComponent {
   newCodes = signal<string[]>([]);
   errorMessage = signal<string | null>(null);
 
-  private pendingCodes: { id: number; code: string }[] = [];
+  private pendingCodes: string[] = [];
 
   async startGeneration() {
     this.step.set('checking');
@@ -58,22 +58,18 @@ export class SettingsRestorationCodesComponent {
 
     this.step.set('loading');
 
+    const codes = this.userService.generateRecoveryCodes();
+    this.pendingCodes = codes;
+
     from(this.authService.hashPassword(this.password)).pipe(
       switchMap(hashedPassword =>
-        this.userService.requestNewRecoveryCodes().pipe(
-          switchMap(codes => {
-            this.pendingCodes = codes;
-            if (this.mode() === 'initial_setup') {
-              return this.userService.initialSetupAndSaveKeys(hashedPassword, codes);
-            } else {
-              return this.userService.saveRegeneratedRecoveryCodes(hashedPassword, codes);
-            }
-          })
-        )
+        this.mode() === 'initial_setup'
+          ? this.userService.initialSetupAndSaveKeys(hashedPassword, codes)
+          : this.userService.saveRegeneratedRecoveryCodes(hashedPassword, codes)
       )
     ).subscribe({
       next: () => {
-        this.newCodes.set(this.pendingCodes.map(c => c.code));
+        this.newCodes.set(this.pendingCodes);
         this.step.set('done');
       },
       error: (err) => {
