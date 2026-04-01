@@ -116,10 +116,10 @@ export class TopicCommanderComponent implements OnInit {
     });
   }
 
-  archiveTopics(panel: PanelState) {
+  closeTopics(panel: PanelState) {
     const topicIds = Array.from(panel.selectedTopicIds);
-    console.log(`[MOCK] Archiving topics ${topicIds.join(', ')}`);
-    // TODO: this.apiService.post('topic/archive', { topic_ids: topicIds }).subscribe(...)
+    console.log(`[MOCK] Closing topics ${topicIds.join(', ')}`);
+    // TODO: this.apiService.post('topic/close', { topic_ids: topicIds }).subscribe(...)
   }
 
   openTopics(panel: PanelState) {

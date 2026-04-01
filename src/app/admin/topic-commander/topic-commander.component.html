@@ -1,18 +1,18 @@
 <div class="nc-shell">
-  <div class="nc-titlebar">Topic Commander</div>
+  <div class="nc-titlebar" i18n="@@topicCommander.title">Topic Commander</div>
 
   <div class="nc-toolbar">
     <div class="nc-toolbar-half">
-      <button class="nc-btn" [class.nc-btn--active]="hasSelection(left)" [disabled]="!hasSelection(left)" (click)="archiveTopics(left)">Archive</button>
-      <button class="nc-btn" [class.nc-btn--active]="hasSelection(left)" [disabled]="!hasSelection(left)" (click)="openTopics(left)">Open</button>
-      <button class="nc-btn" [class.nc-btn--active]="hasSelection(left)" [disabled]="!hasSelection(left)" (click)="deleteTopics(left)">Delete</button>
-      <button class="nc-btn" [class.nc-btn--active]="canMoveLeftToRight()" [disabled]="!canMoveLeftToRight()" (click)="moveTopics(left, right)">Move &rarr;</button>
+      <button class="nc-btn" [class.nc-btn--active]="hasSelection(left)" [disabled]="!hasSelection(left)" (click)="closeTopics(left)" i18n="@@topicCommander.close">Close</button>
+      <button class="nc-btn" [class.nc-btn--active]="hasSelection(left)" [disabled]="!hasSelection(left)" (click)="openTopics(left)" i18n="@@topicCommander.open">Open</button>
+      <button class="nc-btn" [class.nc-btn--active]="hasSelection(left)" [disabled]="!hasSelection(left)" (click)="deleteTopics(left)" i18n="@@topicCommander.delete">Delete</button>
+      <button class="nc-btn" [class.nc-btn--active]="canMoveLeftToRight()" [disabled]="!canMoveLeftToRight()" (click)="moveTopics(left, right)" i18n="@@topicCommander.moveRight">Move &rarr;</button>
     </div>
     <div class="nc-toolbar-half">
-      <button class="nc-btn" [class.nc-btn--active]="canMoveRightToLeft()" [disabled]="!canMoveRightToLeft()" (click)="moveTopics(right, left)">&larr; Move</button>
-      <button class="nc-btn" [class.nc-btn--active]="hasSelection(right)" [disabled]="!hasSelection(right)" (click)="archiveTopics(right)">Archive</button>
-      <button class="nc-btn" [class.nc-btn--active]="hasSelection(right)" [disabled]="!hasSelection(right)" (click)="openTopics(right)">Open</button>
-      <button class="nc-btn" [class.nc-btn--active]="hasSelection(right)" [disabled]="!hasSelection(right)" (click)="deleteTopics(right)">Delete</button>
+      <button class="nc-btn" [class.nc-btn--active]="canMoveRightToLeft()" [disabled]="!canMoveRightToLeft()" (click)="moveTopics(right, left)" i18n="@@topicCommander.moveLeft">&larr; Move</button>
+      <button class="nc-btn" [class.nc-btn--active]="hasSelection(right)" [disabled]="!hasSelection(right)" (click)="closeTopics(right)" i18n="@@topicCommander.close">Close</button>
+      <button class="nc-btn" [class.nc-btn--active]="hasSelection(right)" [disabled]="!hasSelection(right)" (click)="openTopics(right)" i18n="@@topicCommander.open">Open</button>
+      <button class="nc-btn" [class.nc-btn--active]="hasSelection(right)" [disabled]="!hasSelection(right)" (click)="deleteTopics(right)" i18n="@@topicCommander.delete">Delete</button>
     </div>
   </div>
 
@@ -23,13 +23,13 @@
         @if (left.view === 'topics' && left.openSubforum) {
           {{ left.openSubforum.name }}
         } @else {
-          Subforums
+          <ng-container i18n="@@topicCommander.subforums">Subforums</ng-container>
         }
       </div>
 
       <div class="nc-panel-body">
         @if (left.loading) {
-          <div class="nc-loading">Loading...</div>
+          <div class="nc-loading" i18n="@@topicCommander.loading">Loading...</div>
         } @else if (left.view === 'topics') {
           <div class="nc-row nc-row--back" (click)="backToSubforums(left)">
             <span class="nc-back">[..]</span>
@@ -46,7 +46,7 @@
             </div>
           }
           @if (left.topics.length === 0) {
-            <div class="nc-empty">No topics</div>
+            <div class="nc-empty" i18n="@@topicCommander.noTopics">No topics</div>
           }
         } @else {
           @for (category of categories; track category.id) {
@@ -69,13 +69,13 @@
         @if (right.view === 'topics' && right.openSubforum) {
           {{ right.openSubforum.name }}
         } @else {
-          Subforums
+          <ng-container i18n="@@topicCommander.subforums">Subforums</ng-container>
         }
       </div>
 
       <div class="nc-panel-body">
         @if (right.loading) {
-          <div class="nc-loading">Loading...</div>
+          <div class="nc-loading" i18n="@@topicCommander.loading">Loading...</div>
         } @else if (right.view === 'topics') {
           <div class="nc-row nc-row--back" (click)="backToSubforums(right)">
             <span class="nc-back">[..]</span>
@@ -92,7 +92,7 @@
             </div>
           }
           @if (right.topics.length === 0) {
-            <div class="nc-empty">No topics</div>
+            <div class="nc-empty" i18n="@@topicCommander.noTopics">No topics</div>
           }
         } @else {
           @for (category of categories; track category.id) {

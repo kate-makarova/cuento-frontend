@@ -270,5 +270,14 @@ export const TRANSLATIONS_RU = {
   "common.delete": "Удалить",
   "common.deleted": "Удалено",
   "common.create": "Создать",
-  "common.created": "Создано"
+  "common.created": "Создано",
+  "topicCommander.title": "Topic Commander",
+  "topicCommander.close": "Закрыть",
+  "topicCommander.open": "Открыть",
+  "topicCommander.delete": "Удалить",
+  "topicCommander.moveRight": "Переместить →",
+  "topicCommander.moveLeft": "← Переместить",
+  "topicCommander.subforums": "Подфорумы",
+  "topicCommander.loading": "Загрузка...",
+  "topicCommander.noTopics": "Нет тем"
 };
