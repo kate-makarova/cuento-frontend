@@ -53,6 +53,13 @@
           <button type="button" class="button" (click)="addMaskField()" i18n="@@episodecreate.addMask">Add mask</button>
         </div>
 
+        <div class="inputfield">
+          <label>
+            <input type="checkbox" name="open_to_everyone" [(ngModel)]="openToEveryone" />
+            <ng-container i18n="@@episode.openToEveryone">Open to everyone</ng-container>
+          </label>
+        </div>
+
       </div>
     </fieldset>
 

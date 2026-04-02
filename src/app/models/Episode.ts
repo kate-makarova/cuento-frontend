@@ -6,6 +6,7 @@ export interface Episode {
   characters: CharacterShort[];
   masks: ShortMask[];
   custom_fields: CustomFieldsData;
+  open_to_everyone: boolean;
 }
 
 export interface EpisodeFilterRequest {
@@ -30,4 +31,5 @@ subforum_id: number;
 name: string;
 character_ids: number[];
 custom_fields: any;
+open_to_everyone: boolean;
 }

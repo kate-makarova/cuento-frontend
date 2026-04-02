@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, Input, Output, EventEmitter, signal } from '@angular/core';
-import { FormArray, FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormArray, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { EpisodeService } from '../services/episode.service';
 import { CharacterService } from '../services/character.service';
@@ -16,7 +16,7 @@ import { PreviewService } from '../services/preview.service';
 
 @Component({
   selector: 'app-episode-create',
-  imports: [CommonModule, ReactiveFormsModule, ShortTextFieldComponent, LongTextFieldComponent, ImageFieldComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, ShortTextFieldComponent, LongTextFieldComponent, ImageFieldComponent],
   templateUrl: './episode-create.component.html',
   styleUrl: './episode-create.component.css'
 })
@@ -43,6 +43,7 @@ export class EpisodeCreateComponent implements OnInit {
 
   subforumId: number = 0;
   subject: string = '';
+  openToEveryone: boolean = false;
 
   // Mask inputs
   maskControls = new FormArray([new FormControl('')]);
@@ -90,6 +91,8 @@ export class EpisodeCreateComponent implements OnInit {
         this.selectedMaskIds.push(null);
         this.setupMaskAutocomplete(0);
       }
+
+      this.openToEveryone = p.open_to_everyone ?? false;
 
       if (p.custom_fields) {
         const restored: any = {};
@@ -262,7 +265,8 @@ export class EpisodeCreateComponent implements OnInit {
       name: formData.get('req_subject') as string,
       character_ids: this.selectedCharacterIds.filter((id): id is number => id !== null),
       mask_ids: this.selectedMaskIds.filter((id): id is number => id !== null),
-      custom_fields: customFields
+      custom_fields: customFields,
+      open_to_everyone: this.openToEveryone
     };
 
     const isPreview = ((event as SubmitEvent).submitter as HTMLInputElement | null)?.name === 'preview';

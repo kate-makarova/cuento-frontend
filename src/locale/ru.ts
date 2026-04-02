@@ -65,6 +65,7 @@ export const TRANSLATIONS_RU = {
   "episodecreate.masks": "Маски",
   "episodecreate.searchMasks": "Поиск масок...",
   "episodecreate.addMask": "Добавить маску",
+  "episode.openToEveryone": "Открыто для всех",
   "app.hello": "Привет",
   "app.date": "Дата",
   "nav.forum": "Форум",
