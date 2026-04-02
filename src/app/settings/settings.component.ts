@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
 import { UpdateSettingsRequest } from '../models/User';
+import { ImageFieldComponent } from '../components/image-field/image-field.component';
 
 const IANA_TIMEZONES = [
   { label: "(UTC-11:00) Midway", value: "Pacific/Midway" },
@@ -59,7 +60,7 @@ const IANA_TIMEZONES = [
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ImageFieldComponent],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.css'
 })
@@ -98,9 +99,11 @@ export class SettingsComponent implements OnInit {
 
   async onSubmit(event: Event) {
     event.preventDefault();
+    const form = event.target as HTMLFormElement;
+    const formData = new FormData(form);
 
     const payload: UpdateSettingsRequest = {
-      avatar: this.avatarUrl,
+      avatar: formData.get('avatar_url') as string,
       interface_timezone: this.timezone,
       interface_language: this.language,
       interface_font_size: this.fontSize

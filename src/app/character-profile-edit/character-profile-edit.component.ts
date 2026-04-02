@@ -102,11 +102,13 @@ export class CharacterProfileEditComponent implements OnInit {
       }
     });
 
+    const avatar = formData.get('avatar') as string;
+
     if (this.is_mask) {
       // Logic for Masks
       const payload: any = {
         mask_name: this.characterName,
-        avatar: this.characterAvatar,
+        avatar,
         custom_fields: customFields
       };
 
@@ -134,7 +136,7 @@ export class CharacterProfileEditComponent implements OnInit {
     } else {
       // Logic for Character Profiles (only update)
       const updatePayload = {
-        avatar: this.characterAvatar,
+        avatar,
         custom_fields: customFields
       };
 
