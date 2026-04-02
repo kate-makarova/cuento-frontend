@@ -26,6 +26,7 @@ import {WantedCharacterListComponent} from './wanted-character-list/wanted-chara
 import {AdminSettingsComponent} from './admin/admin-settings/admin-settings.component';
 import {AdminSubforumsComponent} from './admin/admin-subforums/admin-subforums.component';
 import {TopicCommanderComponent} from './admin/topic-commander/topic-commander.component';
+import {AdminUsersComponent} from './admin/admin-users/admin-users.component';
 import {PreviewComponent} from './preview/preview.component';
 import {CharacterProfileEditComponent} from './character-profile-edit/character-profile-edit.component';
 import { UserListComponent } from './user-list/user-list.component';
@@ -251,6 +252,11 @@ export const routes: Routes = [
         path: 'topic-commander',
         component: TopicCommanderComponent,
         title: 'Admin - Topic Commander'
+      },
+      {
+        path: 'users',
+        component: AdminUsersComponent,
+        title: 'Admin - Users'
       }
     ]
   },
