@@ -35,6 +35,7 @@ export class CharacterProfileEditComponent implements OnInit {
   characterName: string = '';
   characterAvatar: string = '';
   isNewMask: boolean = false;
+  saveState = signal<'idle' | 'loading' | 'success' | 'error'>('idle');
 
   constructor() {
     // Sync from character service if we are dealing with a character profile
@@ -112,10 +113,10 @@ export class CharacterProfileEditComponent implements OnInit {
         custom_fields: customFields
       };
 
+      this.saveState.set('loading');
       if (this.isNewMask) {
         this.maskService.createMask(payload).subscribe({
           next: () => {
-            console.log('Mask created successfully');
             const currentUser = this.authService.currentUser();
             if (currentUser) {
               this.router.navigate(['/profile', currentUser.id]);
@@ -123,14 +124,12 @@ export class CharacterProfileEditComponent implements OnInit {
                this.router.navigate(['/']);
             }
           },
-          error: (err: any) => console.error('Failed to create mask', err)
+          error: (err: any) => { console.error('Failed to create mask', err); this.saveState.set('error'); setTimeout(() => this.saveState.set('idle'), 3000); }
         });
       } else {
         this.maskService.updateMask(this.characterId, payload).subscribe({
-          next: () => {
-            console.log('Mask updated successfully');
-          },
-          error: (err: any) => console.error('Failed to update mask', err)
+          next: () => { this.saveState.set('success'); setTimeout(() => this.saveState.set('idle'), 3000); },
+          error: (err: any) => { console.error('Failed to update mask', err); this.saveState.set('error'); setTimeout(() => this.saveState.set('idle'), 3000); }
         });
       }
     } else {
@@ -140,11 +139,10 @@ export class CharacterProfileEditComponent implements OnInit {
         custom_fields: customFields
       };
 
+      this.saveState.set('loading');
       this.characterService.updateCharacterProfile(this.characterId, updatePayload).subscribe({
-        next: () => {
-          console.log('Character profile updated successfully');
-        },
-        error: (err: any) => console.error('Failed to update character profile', err)
+        next: () => { this.saveState.set('success'); setTimeout(() => this.saveState.set('idle'), 3000); },
+        error: (err: any) => { console.error('Failed to update character profile', err); this.saveState.set('error'); setTimeout(() => this.saveState.set('idle'), 3000); }
       });
     }
   }
