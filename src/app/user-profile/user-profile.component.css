@@ -63,6 +63,12 @@ tr.altstyle td {
   text-align: center;
 }
 
+.tclcon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .tclcon a {
   font-weight: bold;
   color: #7a5d3b;
@@ -71,4 +77,15 @@ tr.altstyle td {
 
 .tclcon a:hover {
   text-decoration: underline;
+}
+
+.edit-link {
+  font-weight: normal;
+  font-size: 0.9em;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
 }

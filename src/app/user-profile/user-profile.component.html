@@ -45,7 +45,7 @@
                   <div class="tclcon">
                     <a [routerLink]="['/character', char.id]">{{ char.name }}</a>
                     @if (isOwnProfile()) {
-                      <a [routerLink]="['/character-profile-update', char.id]" i18n="@@userprofile.editProfile">Edit profile</a>
+                      <a [routerLink]="['/character-profile-update', char.id]" class="edit-link" title="Edit profile" i18n-title="@@userprofile.editProfile"><i class="bi bi-pencil-square"></i></a>
                     }
                   </div>
                 </div>
