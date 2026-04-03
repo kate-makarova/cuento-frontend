@@ -10,3 +10,7 @@
 .post-link-btn:hover {
   opacity: 1;
 }
+
+.page-ellipsis {
+  margin: 0 2px;
+}

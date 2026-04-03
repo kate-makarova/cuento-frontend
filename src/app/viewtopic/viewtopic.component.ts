@@ -88,6 +88,29 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     return Math.ceil(totalPosts / this.postsPerPage());
   });
 
+  visiblePages = computed(() => {
+    const total = this.totalPages();
+    const current = this.pageNumber();
+    if (total <= 1) return [];
+
+    const pageSet = new Set<number>();
+    pageSet.add(1);
+    pageSet.add(total);
+    for (let p = current - 1; p <= current + 1; p++) {
+      if (p >= 1 && p <= total) pageSet.add(p);
+    }
+
+    const sorted = Array.from(pageSet).sort((a, b) => a - b);
+    const result: Array<{ type: 'page' | 'ellipsis'; number?: number }> = [];
+    for (let i = 0; i < sorted.length; i++) {
+      if (i > 0 && sorted[i] - sorted[i - 1] > 1) {
+        result.push({ type: 'ellipsis' });
+      }
+      result.push({ type: 'page', number: sorted[i] });
+    }
+    return result;
+  });
+
   editingPostId = signal<number | null>(null);
   editingTopic = signal(false);
 

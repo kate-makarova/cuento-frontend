@@ -21,13 +21,15 @@
   <div class="linkst">
     <div class="inbox">
       <p class="pagelink conl">
-        @if (totalPages() > 1) {
+        @if (visiblePages().length > 0) {
           <span><ng-container i18n="@@viewtopic.pages">Pages</ng-container>:
-            @for (p of [].constructor(totalPages()); track $index; let i = $index) {
-              @if (i + 1 === pageNumber()) {
-                <strong>{{ i + 1 }}</strong>
+            @for (item of visiblePages(); track $index) {
+              @if (item.type === 'ellipsis') {
+                <span class="page-ellipsis">…</span>
+              } @else if (item.number === pageNumber()) {
+                <strong>{{ item.number }}</strong>
               } @else {
-                <a [routerLink]="['/viewtopic', id()]" [queryParams]="{ page: i + 1 }">{{ i + 1 }}</a>
+                <a [routerLink]="['/viewtopic', id()]" [queryParams]="{ page: item.number }">{{ item.number }}</a>
               }
             }
           </span>
@@ -124,13 +126,15 @@
   <div class="linksb">
     <div class="inbox">
       <p class="pagelink conl">
-        @if (totalPages() > 1) {
+        @if (visiblePages().length > 0) {
           <span><ng-container i18n="@@viewtopic.pages">Pages</ng-container>:
-            @for (p of [].constructor(totalPages()); track $index; let i = $index) {
-              @if (i + 1 === pageNumber()) {
-                <strong>{{ i + 1 }}</strong>
+            @for (item of visiblePages(); track $index) {
+              @if (item.type === 'ellipsis') {
+                <span class="page-ellipsis">…</span>
+              } @else if (item.number === pageNumber()) {
+                <strong>{{ item.number }}</strong>
               } @else {
-                <a [routerLink]="['/viewtopic', id()]" [queryParams]="{ page: i + 1 }">{{ i + 1 }}</a>
+                <a [routerLink]="['/viewtopic', id()]" [queryParams]="{ page: item.number }">{{ item.number }}</a>
               }
             }
           </span>
