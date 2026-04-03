@@ -119,6 +119,7 @@ export class EpisodeCreateComponent implements OnInit {
 
   populateForm(data: Episode) {
     this.subject = data.name;
+    this.openToEveryone = data.open_to_everyone ?? false;
 
     // Clear initial controls
     this.characterControls.clear();
