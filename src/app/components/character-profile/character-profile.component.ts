@@ -1,6 +1,5 @@
 import { Component, EventEmitter, inject, Input, OnInit, Output, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { Post } from '../../models/Post';
 import { ShortTextFieldDisplayComponent } from '../short-text-field-display/short-text-field-display.component';
 import { LongTextFieldDisplayComponent } from '../long-text-field-display/long-text-field-display.component';
@@ -13,7 +12,7 @@ import { ImageFieldDisplayComponent } from '../image-field-display/image-field-d
 
 @Component({
   selector: 'app-character-profile',
-  imports: [CommonModule, RouterLink, ShortTextFieldDisplayComponent, LongTextFieldDisplayComponent, NumberFieldDisplayComponent, ImageFieldDisplayComponent, FormsModule],
+  imports: [CommonModule, ShortTextFieldDisplayComponent, LongTextFieldDisplayComponent, NumberFieldDisplayComponent, ImageFieldDisplayComponent, FormsModule],
   templateUrl: './character-profile.component.html',
   standalone: true,
   styleUrl: './character-profile.component.css'
@@ -35,7 +34,6 @@ export class CharacterProfileComponent implements OnInit {
 
   displayName: string = '';
   displayAvatar: string = '';
-  profileLink: string = '';
   isCharacter: boolean = false;
   customFields: any[] = [];
 
@@ -70,13 +68,11 @@ export class CharacterProfileComponent implements OnInit {
         ? '🎭 ' + this.post!.character_profile.mask_name
         : this.post!.character_profile.character_name;
       this.displayAvatar = this.post!.character_profile.avatar;
-      this.profileLink = `/character/${this.post!.character_profile.character_id}`;
       this.customFields = this.processCustomFields(this.post!.character_profile.custom_fields);
     } else {
       this.isCharacter = false;
       this.displayName = this.post!.user_profile?.user_name ?? '';
       this.displayAvatar = this.post!.user_profile?.avatar ?? '';
-      this.profileLink = `/profile/${this.post!.user_profile?.user_id}`;
     }
   }
 

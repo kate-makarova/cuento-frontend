@@ -21,8 +21,8 @@
 <div class="post-author" [class.post-character]="isCharacter">
   <ul>
     <li class="pa-author">
-      @if (profileLink && authService.isAuthenticated()) {
-        <a [routerLink]="profileLink" (click)="post && authorClicked.emit(post.author_user_name)">{{ displayName }}</a>
+      @if (post && authService.isAuthenticated()) {
+        <span class="author-mention" (click)="authorClicked.emit(post.author_user_name)">{{ displayName }}</span>
       } @else {
         {{ displayName }}
       }
