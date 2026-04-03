@@ -105,7 +105,7 @@
       </div>
       <div class="post-footer">
         <div class="conl">
-          <p class="post-contacts"><span><a href="/profile/{{ post.user_profile?.user_id }}" i18n="@@viewtopic.profile">Profile</a></span></p>
+          <p class="post-contacts"><span><a href="/profile/{{ post.user_profile?.user_id ?? post.character_profile?.user_id }}" i18n="@@viewtopic.profile">Profile</a></span></p>
         </div>
         <div class="conr">
           <p class="post-links">
