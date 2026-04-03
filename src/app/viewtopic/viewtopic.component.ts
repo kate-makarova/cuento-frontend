@@ -258,6 +258,17 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     this.selectedCharacterId = characterId;
   }
 
+  onAuthorMention(username: string) {
+    if (!username || !this.postForm?.messageField) return;
+    const textarea = this.postForm.messageField.nativeElement;
+    const mention = `@${username} `;
+    const start = textarea.selectionStart ?? textarea.value.length;
+    textarea.value = textarea.value.slice(0, start) + mention + textarea.value.slice(start);
+    textarea.selectionStart = textarea.selectionEnd = start + mention.length;
+    textarea.focus();
+    document.getElementById('post-form')?.scrollIntoView({ behavior: 'smooth' });
+  }
+
   onGuestNameChanged(name: string) {
     this.guestName = name;
   }

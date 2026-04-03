@@ -28,6 +28,7 @@ export class CharacterProfileComponent implements OnInit {
   @Input() showAccount: boolean = true;
   @Output() characterSelected = new EventEmitter<number | null>();
   @Output() guestNameChanged = new EventEmitter<string>();
+  @Output() authorClicked = new EventEmitter<string>();
 
   characters = this.characterService.userCharacterProfiles;
   selectedCharacterId: number | 'account' | null = 'account';

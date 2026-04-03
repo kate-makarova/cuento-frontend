@@ -22,7 +22,7 @@
   <ul>
     <li class="pa-author">
       @if (profileLink && authService.isAuthenticated()) {
-        <a [routerLink]="profileLink">{{ displayName }}</a>
+        <a [routerLink]="profileLink" (click)="post && authorClicked.emit(post.author_user_name)">{{ displayName }}</a>
       } @else {
         {{ displayName }}
       }
