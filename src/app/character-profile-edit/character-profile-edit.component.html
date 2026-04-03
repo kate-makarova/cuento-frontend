@@ -67,11 +67,20 @@
       }
     </fieldset>
     <p class="formsubmit">
-      @if (isNewMask) {
-        <input type="submit" class="button submit" i18n-value="@@characterprofileedit.create" value="Create" accesskey="s" />
-      } @else {
-        <input type="submit" class="button submit" i18n-value="@@characterprofileedit.update" value="Update" accesskey="s" />
-      }
+      <button type="submit" [class]="'btn-save btn-save--' + saveState()" [disabled]="saveState() === 'loading'" accesskey="s">
+        @switch (saveState()) {
+          @case ('loading') { <span class="spinner"></span> }
+          @case ('success') { <span i18n="@@common.saved">Saved</span> }
+          @case ('error') { <span i18n="@@common.saveFailed">Failed</span> }
+          @default {
+            @if (isNewMask) {
+              <span i18n="@@characterprofileedit.create">Create</span>
+            } @else {
+              <span i18n="@@characterprofileedit.update">Update</span>
+            }
+          }
+        }
+      </button>
     </p>
   </form>
 </div>
