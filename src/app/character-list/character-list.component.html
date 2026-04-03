@@ -36,7 +36,7 @@
                     <a [routerLink]="['/character', char.id]" class="character-link">{{ char.name }}</a>
                   }
                   @if (char.wanted_character_id != null) {
-                    (<a [routerLink]="['/character', char.wanted_character_id]" class="character-wanted-link" i18n="@@characterList.wanted">wanted</a>)
+                    (<a [routerLink]="['/viewtopic', char.wanted_character_id]" class="character-wanted-link" i18n="@@characterList.wanted">wanted</a>)
                   }
                 </li>
               }
@@ -61,7 +61,7 @@
                         <a [routerLink]="['/character', char.id]" class="character-link">{{ char.name }}</a>
                       }
                       @if (char.wanted_character_id != null) {
-                        (<a [routerLink]="['/character', char.wanted_character_id]" class="character-wanted-link" i18n="@@characterList.wanted">wanted</a>)
+                        (<a [routerLink]="['/viewtopic', char.wanted_character_id]" class="character-wanted-link" i18n="@@characterList.wanted">wanted</a>)
                       }
                     </li>
                   }
