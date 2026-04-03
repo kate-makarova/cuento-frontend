@@ -68,7 +68,7 @@
         </div>
       } @else {
         <div class="character-tree">
-          @for (group of groupedTreeList(); track group[0]?.id || $index) {
+          @for (group of groupedTreeList(); track $index) {
             <div class="category">
               <div class="maintitle">
                 <h2 class="faction-title"><span>{{ group[0].name }}</span></h2>
