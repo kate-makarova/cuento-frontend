@@ -82,4 +82,9 @@ export interface DirectMessageCreatedEvent {
   data: DirectMessageRaw;
 }
 
-export type WebSocketEvent = TopicCreatedEvent | PostCreatedEvent | PostUpdatedEvent | NotificationEvent | TopicViewersUpdateEvent | DirectMessageCreatedEvent;
+export interface ActiveUsersUpdateEvent {
+  type: 'active_users_update';
+  data: UserShort[];
+}
+
+export type WebSocketEvent = TopicCreatedEvent | PostCreatedEvent | PostUpdatedEvent | NotificationEvent | TopicViewersUpdateEvent | DirectMessageCreatedEvent | ActiveUsersUpdateEvent;

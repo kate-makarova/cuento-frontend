@@ -2,6 +2,7 @@ import {Component, inject, OnInit} from '@angular/core';
 import {RouterLink} from '@angular/router';
 import {BoardService} from '../services/board.service';
 import {CategoryService} from '../services/category.service';
+import {CurrentlyActiveComponent} from '../components/currently-active/currently-active.component';
 
 @Component({
   selector: 'app-home',
@@ -9,7 +10,8 @@ import {CategoryService} from '../services/category.service';
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
   imports: [
-    RouterLink
+    RouterLink,
+    CurrentlyActiveComponent
   ]
 })
 export class HomeComponent implements OnInit {

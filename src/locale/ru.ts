@@ -172,6 +172,7 @@ export const TRANSLATIONS_RU = {
   "userprofile.editProfile": "Редактировать профиль",
   "breadcrumbs.youAreHere": "Вы здесь",
   "topicreadby.title": "Тему просматривают",
+  "currentlyActive.title": "Сейчас на сайте",
   "topicreadby.guests": "Гостей",
   "topicreadby.users": "Пользователей",
   "userlist.title": "Список пользователей",
