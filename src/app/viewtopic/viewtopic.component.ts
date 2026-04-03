@@ -1,4 +1,5 @@
 import {Component, effect, inject, Input, OnInit, OnDestroy, ViewChild, signal, computed, numberAttribute, ViewChildren, QueryList, input, untracked} from '@angular/core';
+import {Title} from '@angular/platform-browser';
 import {PostFormComponent} from '../components/post-form/post-form.component';
 import {TopicService} from '../services/topic.service';
 import {Router, RouterLink, ActivatedRoute} from '@angular/router';
@@ -51,6 +52,7 @@ function coerceToPage(value: unknown): number {
   styleUrl: './viewtopic.component.css'
 })
 export class ViewtopicComponent implements OnInit, OnDestroy {
+  private titleService = inject(Title);
   topicService = inject(TopicService);
   forumService = inject(ForumService);
   characterService = inject(CharacterService);
@@ -137,6 +139,8 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
           ...(s ? [{ label: s.name, link: `/viewforum/${s.id}` }] : []),
           { label: t.name }
         ];
+
+        this.titleService.setTitle(t.name);
 
         // Ensure we only load profiles once per topic, ignoring post updates
         const currentTopicId = untracked(() => this.id());
