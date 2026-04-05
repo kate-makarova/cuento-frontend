@@ -72,7 +72,7 @@ export class AppComponent implements OnInit {
     this.apiService.getText('panel/header/content').subscribe({
       next: html => {
         this.headerPanelHtml.set(this.sanitizer.bypassSecurityTrustHtml(html));
-        afterNextRender(() => this.processHeaderPanelLinks(), { injector: this.injector });
+        afterNextRender(() => this.processHeaderPanel(), { injector: this.injector });
       },
       error: () => {}
     });
@@ -142,22 +142,49 @@ export class AppComponent implements OnInit {
     };
   }
 
-  private processHeaderPanelLinks() {
+  private widgetRefreshIntervals: ReturnType<typeof setInterval>[] = [];
+
+  private processHeaderPanel() {
+    this.widgetRefreshIntervals.forEach(id => clearInterval(id));
+    this.widgetRefreshIntervals = [];
+
     const panel = document.getElementById('header-widget-panel');
     if (!panel) return;
 
     panel.querySelectorAll<HTMLElement>('[data-is-link="true"]').forEach(widget => {
-      widget.querySelectorAll<HTMLElement>('[data-entity-type][data-entity-id]').forEach(child => {
-        const entityType = child.getAttribute('data-entity-type');
-        const entityId = child.getAttribute('data-entity-id');
-        if (!entityType || !entityId) return;
+      this.attachWidgetLinks(widget);
+    });
 
-        const route = this.entityRoute(entityType, +entityId);
-        if (!route) return;
+    panel.querySelectorAll<HTMLElement>('[data-refresh-interval][data-widget-id]').forEach(widget => {
+      const intervalSeconds = +(widget.getAttribute('data-refresh-interval') ?? 0);
+      const widgetId = widget.getAttribute('data-widget-id');
+      if (!intervalSeconds || !widgetId) return;
 
-        child.style.cursor = 'pointer';
-        child.addEventListener('click', () => this.router.navigate(route));
-      });
+      const isLink = widget.getAttribute('data-is-link') === 'true';
+      const id = setInterval(() => {
+        this.apiService.getText(`widget/${widgetId}/render?innerOnly=true`).subscribe({
+          next: html => {
+            widget.innerHTML = html;
+            if (isLink) this.attachWidgetLinks(widget);
+          },
+          error: () => {}
+        });
+      }, intervalSeconds * 1000);
+      this.widgetRefreshIntervals.push(id);
+    });
+  }
+
+  private attachWidgetLinks(widget: HTMLElement) {
+    widget.querySelectorAll<HTMLElement>('[data-entity-type][data-entity-id]').forEach(child => {
+      const entityType = child.getAttribute('data-entity-type');
+      const entityId = child.getAttribute('data-entity-id');
+      if (!entityType || !entityId) return;
+
+      const route = this.entityRoute(entityType, +entityId);
+      if (!route) return;
+
+      child.style.cursor = 'pointer';
+      child.addEventListener('click', () => this.router.navigate(route));
     });
   }
 
