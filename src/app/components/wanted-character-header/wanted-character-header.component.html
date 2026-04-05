@@ -18,20 +18,7 @@
         <ul>
           @for (field of customFields; track field.fieldMachineName) {
             <li>
-              @switch (field.type) {
-                @case ('short_text') {
-                  <app-short-text-field-display [fieldName]="field.fieldName" [fieldValue]="field.fieldValue"></app-short-text-field-display>
-                }
-                @case ('long_text') {
-                  <app-long-text-field-display [fieldName]="field.fieldName" [fieldValue]="field.fieldValue"></app-long-text-field-display>
-                }
-                @case ('number') {
-                  <app-number-field-display [fieldName]="field.fieldName" [fieldValue]="field.fieldValue"></app-number-field-display>
-                }
-                @case ('image') {
-                  <app-image-field-display [fieldName]="field.fieldName" [fieldValue]="field.fieldValue"></app-image-field-display>
-                }
-              }
+              <app-field-display [type]="field.type" [fieldName]="field.fieldName" [fieldValue]="field.fieldValue"></app-field-display>
             </li>
           }
         </ul>

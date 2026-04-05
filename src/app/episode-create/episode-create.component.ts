@@ -3,9 +3,7 @@ import { FormArray, FormControl, ReactiveFormsModule, FormsModule } from '@angul
 import { CommonModule } from '@angular/common';
 import { EpisodeService } from '../services/episode.service';
 import { CharacterService } from '../services/character.service';
-import { ShortTextFieldComponent } from '../components/short-text-field/short-text-field.component';
-import { LongTextFieldComponent } from '../components/long-text-field/long-text-field.component';
-import { ImageFieldComponent } from '../components/image-field/image-field.component';
+import { FieldInputComponent } from '../components/field-input/field-input.component';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CreateEpisodeRequest, Episode } from '../models/Episode';
@@ -16,7 +14,7 @@ import { PreviewService } from '../services/preview.service';
 
 @Component({
   selector: 'app-episode-create',
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, ShortTextFieldComponent, LongTextFieldComponent, ImageFieldComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, FieldInputComponent],
   templateUrl: './episode-create.component.html',
   styleUrl: './episode-create.component.css'
 })

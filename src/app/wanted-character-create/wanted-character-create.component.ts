@@ -2,9 +2,7 @@ import { Component, inject, OnInit, Input, Output, EventEmitter } from '@angular
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { WantedCharacterService } from '../services/wanted-character.service';
-import { ShortTextFieldComponent } from '../components/short-text-field/short-text-field.component';
-import { LongTextFieldComponent } from '../components/long-text-field/long-text-field.component';
-import { ImageFieldComponent } from '../components/image-field/image-field.component';
+import { FieldInputComponent } from '../components/field-input/field-input.component';
 import { FactionPathsComponent } from '../components/faction-paths/faction-paths.component';
 import { Faction } from '../models/Faction';
 import { WantedCharacter } from '../models/WantedCharacter';
@@ -12,7 +10,7 @@ import { WantedCharacter } from '../models/WantedCharacter';
 @Component({
   selector: 'app-wanted-character-create',
   standalone: true,
-  imports: [CommonModule, ShortTextFieldComponent, LongTextFieldComponent, ImageFieldComponent, FactionPathsComponent],
+  imports: [CommonModule, FieldInputComponent, FactionPathsComponent],
   templateUrl: './wanted-character-create.component.html',
   styleUrl: './wanted-character-create.component.css'
 })

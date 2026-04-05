@@ -1,0 +1,40 @@
+@switch (field.content_field_type) {
+  @case ('short_text') {
+    <app-short-text-field
+      [fieldName]="field.human_field_name"
+      [name]="field.machine_field_name"
+      [fieldValue]="fieldValue">
+    </app-short-text-field>
+  }
+  @case ('long_text') {
+    <app-long-text-field
+      [fieldName]="field.human_field_name"
+      [name]="field.machine_field_name"
+      [fieldValue]="fieldValue"
+      [rows]="10">
+    </app-long-text-field>
+  }
+  @case ('number') {
+    <app-number-field
+      [fieldName]="field.human_field_name"
+      [name]="field.machine_field_name"
+      [fieldValue]="fieldValue">
+    </app-number-field>
+  }
+  @case ('image') {
+    <app-image-field
+      [fieldName]="field.human_field_name"
+      [name]="field.machine_field_name"
+      [fieldValue]="fieldValue">
+    </app-image-field>
+  }
+  @case ('cropped_image') {
+    <app-cropped-image-field
+      [fieldName]="field.human_field_name"
+      [name]="field.machine_field_name"
+      [fieldValue]="fieldValue"
+      [width]="field.width"
+      [height]="field.height">
+    </app-cropped-image-field>
+  }
+}

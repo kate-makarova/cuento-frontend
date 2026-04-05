@@ -3,16 +3,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CharacterService } from '../services/character.service';
 import { MaskService } from '../services/mask.service';
 import { AuthService } from '../services/auth.service';
-import { ShortTextFieldComponent } from '../components/short-text-field/short-text-field.component';
-import { LongTextFieldComponent } from '../components/long-text-field/long-text-field.component';
+import { FieldInputComponent } from '../components/field-input/field-input.component';
 import { ImageFieldComponent } from '../components/image-field/image-field.component';
-import { NumberFieldComponent } from '../components/number-field/number-field.component';
 import { FormsModule } from '@angular/forms';
 import { CharacterProfile } from '../models/Character';
 
 @Component({
   selector: 'app-character-profile-edit',
-  imports: [ShortTextFieldComponent, LongTextFieldComponent, ImageFieldComponent, NumberFieldComponent, FormsModule],
+  imports: [FieldInputComponent, ImageFieldComponent, FormsModule],
   templateUrl: './character-profile-edit.component.html',
   styleUrl: './character-profile-edit.component.css',
   standalone: true

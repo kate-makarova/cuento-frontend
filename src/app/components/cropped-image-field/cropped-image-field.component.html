@@ -1,0 +1,89 @@
+@if (showFieldName) {
+  <label [attr.for]="fieldName">{{ fieldName }}</label>
+}
+
+@if (width && height) {
+  <div class="dimensions">{{ width }} × {{ height }} px</div>
+}
+
+<div class="mode-toggle">
+  <button type="button" [class.active]="mode === 'upload'" (click)="mode = 'upload'" i18n="@@imageField.uploadImage">Upload image</button>
+  <button type="button" [class.active]="mode === 'url'" (click)="mode = 'url'" i18n="@@imageField.useUrl">Use URL</button>
+</div>
+
+@if (mode === 'upload') {
+  <div class="upload-section">
+
+    @if (!imageDataUrl && uploadState() !== 'done') {
+      <input type="file" accept="image/*" (change)="onFileChange($event)" />
+    }
+
+    @if (imageDataUrl && uploadState() === 'idle') {
+      <div
+        class="crop-container"
+        [style.width.px]="displayW"
+        [style.height.px]="displayH"
+        (mousemove)="onContainerMouseMove($event)"
+        (mouseup)="onContainerMouseUp()"
+        (mouseleave)="onContainerMouseUp()"
+      >
+        <img [src]="imageDataUrl" [style.width.px]="displayW" [style.height.px]="displayH" alt="" draggable="false" />
+
+        <!-- Dark overlay: top -->
+        <div class="overlay" [style.top.px]="0" [style.left.px]="0" [style.width.px]="displayW" [style.height.px]="cropY"></div>
+        <!-- Dark overlay: bottom -->
+        <div class="overlay" [style.top.px]="cropY + cropBoxH" [style.left.px]="0" [style.width.px]="displayW" [style.height.px]="displayH - cropY - cropBoxH"></div>
+        <!-- Dark overlay: left -->
+        <div class="overlay" [style.top.px]="cropY" [style.left.px]="0" [style.width.px]="cropX" [style.height.px]="cropBoxH"></div>
+        <!-- Dark overlay: right -->
+        <div class="overlay" [style.top.px]="cropY" [style.left.px]="cropX + cropBoxW" [style.width.px]="displayW - cropX - cropBoxW" [style.height.px]="cropBoxH"></div>
+
+        <!-- Crop box -->
+        <div
+          class="crop-box"
+          [style.left.px]="cropX"
+          [style.top.px]="cropY"
+          [style.width.px]="cropBoxW"
+          [style.height.px]="cropBoxH"
+          (mousedown)="onCropMouseDown($event)"
+        >
+          <div class="resize-handle" (mousedown)="onResizeMouseDown($event)"></div>
+        </div>
+      </div>
+
+      <div class="crop-hint" i18n="@@croppedImageField.hint">Drag to reposition · Drag corner to resize</div>
+
+      <div class="crop-actions">
+        <button type="button" class="btn-crop" (click)="cropAndUpload()" i18n="@@croppedImageField.cropUpload">Crop & Upload</button>
+        <button type="button" class="btn-cancel" (click)="cancelCrop()" i18n="@@common.cancel">Cancel</button>
+      </div>
+    }
+
+    @if (uploadState() === 'uploading') {
+      <div class="upload-status">
+        <span class="spinner"></span>
+        <span i18n="@@imageField.uploading">Uploading…</span>
+      </div>
+    }
+
+    @if (uploadState() === 'done') {
+      <div class="upload-status">
+        <img class="preview" [src]="value" alt="" />
+      </div>
+    }
+
+    @if (uploadState() === 'error') {
+      <div class="upload-status error-row">
+        <span class="error-text">{{ errorMessage }}</span>
+        <button type="button" (click)="cropAndUpload()" i18n="@@imageField.retry">Retry</button>
+      </div>
+    }
+
+  </div>
+}
+
+@if (mode === 'url') {
+  <input type="text" [attr.id]="fieldName" [(ngModel)]="value" />
+}
+
+<input type="hidden" [attr.name]="name" [value]="value" />

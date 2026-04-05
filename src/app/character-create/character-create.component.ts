@@ -1,9 +1,7 @@
 import { Component, inject, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CharacterService } from '../services/character.service';
-import { ShortTextFieldComponent } from '../components/short-text-field/short-text-field.component';
-import { LongTextFieldComponent } from '../components/long-text-field/long-text-field.component';
-import { ImageFieldComponent } from '../components/image-field/image-field.component';
+import { FieldInputComponent } from '../components/field-input/field-input.component';
 import { FactionPathsComponent } from '../components/faction-paths/faction-paths.component';
 import { CreateCharacterRequest, Character } from '../models/Character';
 import { Topic, TopicType, TopicStatus } from '../models/Topic';
@@ -13,7 +11,7 @@ import { PreviewService } from '../services/preview.service';
 
 @Component({
   selector: 'app-character-create',
-  imports: [ShortTextFieldComponent, LongTextFieldComponent, ImageFieldComponent, FactionPathsComponent, CommonModule],
+  imports: [FieldInputComponent, FactionPathsComponent, CommonModule],
   templateUrl: './character-create.component.html',
   standalone: true,
   styleUrl: './character-create.component.css'

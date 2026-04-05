@@ -1,16 +1,13 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Episode } from '../../models/Episode';
-import { ShortTextFieldDisplayComponent } from '../short-text-field-display/short-text-field-display.component';
-import { LongTextFieldDisplayComponent } from '../long-text-field-display/long-text-field-display.component';
-import { NumberFieldDisplayComponent } from '../number-field-display/number-field-display.component';
-import { ImageFieldDisplayComponent } from '../image-field-display/image-field-display.component';
+import { FieldDisplayComponent } from '../field-display/field-display.component';
 import { CustomFieldsData, CustomFieldValue } from '../../models/Character';
 import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-episode-header',
-  imports: [CommonModule, RouterLink, ShortTextFieldDisplayComponent, LongTextFieldDisplayComponent, NumberFieldDisplayComponent, ImageFieldDisplayComponent],
+  imports: [CommonModule, RouterLink, FieldDisplayComponent],
   templateUrl: './episode-header.component.html',
   standalone: true,
   styleUrl: './episode-header.component.css'

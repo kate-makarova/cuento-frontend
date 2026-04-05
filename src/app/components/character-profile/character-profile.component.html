@@ -52,6 +52,9 @@
             @case('image') {
               <app-image-field-display [fieldName]="field.fieldName" [fieldValue]="field.fieldValue"></app-image-field-display>
             }
+            @case('cropped_image') {
+              <app-cropped-image-field-display [fieldName]="field.fieldName" [fieldValue]="field.fieldValue"></app-cropped-image-field-display>
+            }
           }
         </li>
       }

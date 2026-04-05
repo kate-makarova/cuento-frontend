@@ -67,28 +67,7 @@
       @for (field of episodeTemplate(); track field.order) {
         <div class="fs-box hashelp">
           <p class="inputfield required">
-            @if (field.content_field_type === 'short_text' || field.content_field_type === 'number') {
-              <app-short-text-field
-                [fieldName]="field.human_field_name"
-                [name]="field.machine_field_name"
-                [fieldValue]="getFieldValue(field.machine_field_name)">
-              </app-short-text-field>
-            }
-            @if (field.content_field_type === 'long_text') {
-              <app-long-text-field
-                [fieldName]="field.human_field_name"
-                [name]="field.machine_field_name"
-                [rows]="10"
-                [fieldValue]="getFieldValue(field.machine_field_name)">
-              </app-long-text-field>
-            }
-            @if (field.content_field_type === 'image') {
-              <app-image-field
-                [fieldName]="field.human_field_name"
-                [name]="field.machine_field_name"
-                [fieldValue]="getFieldValue(field.machine_field_name)">
-              </app-image-field>
-            }
+            <app-field-input [field]="field" [fieldValue]="getFieldValue(field.machine_field_name)"></app-field-input>
           </p>
         </div>
       }

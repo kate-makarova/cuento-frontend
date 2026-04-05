@@ -1,0 +1,17 @@
+@switch (type) {
+  @case ('short_text') {
+    <app-short-text-field-display [fieldName]="fieldName" [fieldValue]="fieldValue"></app-short-text-field-display>
+  }
+  @case ('long_text') {
+    <app-long-text-field-display [fieldName]="fieldName" [fieldValue]="fieldValue"></app-long-text-field-display>
+  }
+  @case ('number') {
+    <app-number-field-display [fieldName]="fieldName" [fieldValue]="fieldValue"></app-number-field-display>
+  }
+  @case ('image') {
+    <app-image-field-display [fieldName]="fieldName" [fieldValue]="fieldValue"></app-image-field-display>
+  }
+  @case ('cropped_image') {
+    <app-cropped-image-field-display [fieldName]="fieldName" [fieldValue]="fieldValue"></app-cropped-image-field-display>
+  }
+}
