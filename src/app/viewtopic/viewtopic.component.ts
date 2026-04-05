@@ -145,7 +145,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
         // Ensure we only load profiles once per topic, ignoring post updates
         const currentTopicId = untracked(() => this.id());
 
-        if (currentTopicId && this.lastLoadedProfilesForTopicId !== currentTopicId) {
+        if (currentTopicId && t.id === currentTopicId && this.lastLoadedProfilesForTopicId !== currentTopicId) {
           if (t.type === TopicType.character) {
             this.loadProfiles = false;
             this.showAccount = true;
