@@ -18,3 +18,24 @@
 .panels-table tbody tr:hover {
   background: #f9f9f9;
 }
+
+.col-actions {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.btn-reload {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.85rem;
+  color: #007bff;
+  background: none;
+  border: 1px solid #007bff;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.btn-reload:hover {
+  background-color: #007bff;
+  color: white;
+}

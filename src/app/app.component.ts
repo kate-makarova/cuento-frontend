@@ -74,6 +74,16 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.boardService.loadBoard();
+    this.loadHeaderPanel();
+
+    this.notificationService.panelReload$.subscribe(event => {
+      if (event.panel_name === 'header') {
+        this.loadHeaderPanel();
+      }
+    });
+  }
+
+  private loadHeaderPanel() {
     this.apiService.getText('panel/header/content').subscribe({
       next: html => {
         this.headerPanelHtml.set(this.sanitizer.bypassSecurityTrustHtml(html));

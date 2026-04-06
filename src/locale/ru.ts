@@ -271,6 +271,7 @@ export const TRANSLATIONS_RU = {
   "admin.widgetPanels.hidden": "Скрыта",
   "admin.widgetPanels.visible": "Видима",
   "admin.widgetPanels.isHidden": "Скрыть",
+  "admin.widgetPanels.reload": "Перезагрузить",
   "admin.widgetPanels.colKey": "Ключ",
   "admin.widgetPanels.colStatus": "Статус",
   "characterClaims.title": "Заявки на персонажей",

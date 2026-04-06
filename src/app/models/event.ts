@@ -87,4 +87,9 @@ export interface ActiveUsersUpdateEvent {
   data: UserShort[];
 }
 
-export type WebSocketEvent = TopicCreatedEvent | PostCreatedEvent | PostUpdatedEvent | NotificationEvent | TopicViewersUpdateEvent | DirectMessageCreatedEvent | ActiveUsersUpdateEvent;
+export interface PanelReloadEvent {
+  type: 'panel_reload';
+  panel_name: string;
+}
+
+export type WebSocketEvent = TopicCreatedEvent | PostCreatedEvent | PostUpdatedEvent | NotificationEvent | TopicViewersUpdateEvent | DirectMessageCreatedEvent | ActiveUsersUpdateEvent | PanelReloadEvent;
