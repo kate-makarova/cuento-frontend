@@ -5,6 +5,7 @@
     <tr>
       <th i18n="@@admin.widgetPanels.colKey">Key</th>
       <th i18n="@@admin.widgetPanels.colStatus">Status</th>
+      <th></th>
     </tr>
   </thead>
   <tbody>
@@ -17,6 +18,9 @@
           } @else {
             <span i18n="@@admin.widgetPanels.visible">Visible</span>
           }
+        </td>
+        <td class="col-actions">
+          <button type="button" class="btn-reload" (click)="reloadPanel(panel.key)" i18n="@@admin.widgetPanels.reload">Reload</button>
         </td>
       </tr>
     }

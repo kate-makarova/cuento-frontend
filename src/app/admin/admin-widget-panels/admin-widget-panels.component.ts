@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
+import { NotificationService } from '../../services/notification.service';
 
 interface PanelListItem {
   key: string;
@@ -16,6 +17,7 @@ interface PanelListItem {
 })
 export class AdminWidgetPanelsComponent implements OnInit {
   private apiService = inject(ApiService);
+  private notificationService = inject(NotificationService);
 
   panels = signal<PanelListItem[]>([]);
 
@@ -24,5 +26,9 @@ export class AdminWidgetPanelsComponent implements OnInit {
       next: panels => this.panels.set(panels),
       error: () => {}
     });
+  }
+
+  reloadPanel(panelName: string) {
+    this.notificationService.sendMessage({ type: 'panel_reload', panel_name: panelName });
   }
 }
