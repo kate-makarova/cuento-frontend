@@ -37,7 +37,8 @@ export enum TopicType {
 
 export enum TopicStatus {
   active = 0,
-  inactive = 1
+  inactive = 1,
+  full = 2
 }
 
 export interface CreateTopicRequest {

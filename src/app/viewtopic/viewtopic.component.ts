@@ -5,7 +5,7 @@ import {TopicService} from '../services/topic.service';
 import {Router, RouterLink, ActivatedRoute} from '@angular/router';
 import {CommonModule} from '@angular/common';
 import {CharacterProfileComponent} from '../components/character-profile/character-profile.component';
-import {TopicType} from '../models/Topic';
+import {TopicType, TopicStatus} from '../models/Topic';
 import {EpisodeHeaderComponent} from '../components/episode-header/episode-header.component';
 import {Post} from '../models/Post';
 import {BreadcrumbItem, BreadcrumbsComponent} from '../components/breadcrumbs/breadcrumbs.component';
@@ -172,6 +172,11 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
       // Check topic permissions first
       if (!t.permissions || !t.permissions.subforum_post) {
+        this.showPostForm.set(false);
+        return;
+      }
+
+      if (t.status === TopicStatus.full) {
         this.showPostForm.set(false);
         return;
       }

@@ -28,6 +28,7 @@ export const TRANSLATIONS_RU = {
   "viewtopic.character": "Персонаж",
   "viewtopic.quote": "Цитировать",
   "viewtopic.edit": "Редактировать",
+  "viewtopic.topicFull": "Эта тема заполнена и больше не принимает новые сообщения.",
   "postform.quickReply": "Быстрый ответ",
   "postform.writeMessage": "Напишите ваше сообщение и нажмите «Отправить»",
   "postform.font": "Шрифт",
