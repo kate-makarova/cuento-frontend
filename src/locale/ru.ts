@@ -29,6 +29,8 @@ export const TRANSLATIONS_RU = {
   "viewtopic.quote": "Цитировать",
   "viewtopic.edit": "Редактировать",
   "viewtopic.topicClosed": "Эта тема закрыта и больше не принимает новые сообщения.",
+  "viewtopic.deactivateConfirmTitle": "Закрыть тему?",
+  "viewtopic.deactivateConfirmText": "Тема будет закрыта и форма ответа скроется. Продолжить?",
   "viewtopic.topicFull": "Эта тема заполнена и больше не принимает новые сообщения.",
   "postform.quickReply": "Быстрый ответ",
   "postform.writeMessage": "Напишите ваше сообщение и нажмите «Отправить»",

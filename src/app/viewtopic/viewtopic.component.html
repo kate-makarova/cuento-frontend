@@ -3,17 +3,9 @@
 <div id="pun-main" class="main">
   <div class="main-header">
     <div style="display: flex; justify-content: space-between; align-items: center;">
-      @if (editingTopic() && isGeneral()) {
-        <form (submit)="onUpdateTopic($event)" style="flex: 1; display: flex; gap: 10px; align-items: center;">
-          <input type="text" name="title" [value]="topic().name" style="flex: 1; font-size: 1.2em; padding: 5px;">
-          <button type="submit" class="button">Save</button>
-          <button type="button" class="button" (click)="cancelEditTopic()">Cancel</button>
-        </form>
-      } @else {
-        <h1><span>{{ topic().name }}</span></h1>
-        @if (topic().can_edit && !editingTopic()) {
-          <span style="font-size: 0.8em; margin-right: 10px;"><a href="#" (click)="editTopic($event)">[Edit]</a></span>
-        }
+      <h1><span>{{ topic().name }}</span></h1>
+      @if (topic().can_edit && !editingTopic()) {
+        <span style="font-size: 0.8em; margin-right: 10px;"><a href="#" (click)="editTopic($event)">[Edit]</a></span>
       }
     </div>
   </div>
@@ -38,6 +30,21 @@
       <div class="clearer"></div>
     </div>
   </div>
+
+  @if (editingTopic() && isGeneral()) {
+    <div style="clear: both; display: flex; gap: 10px; align-items: center; margin: 1em 0;">
+      <form (submit)="onUpdateTopic($event)" style="flex: 1; display: flex; gap: 10px; align-items: center;">
+        <input type="text" name="title" [value]="topic().name" style="flex: 1; font-size: 1.2em; padding: 5px;">
+        <button type="submit" class="button" i18n="@@common.save">Save</button>
+        @if (topic().status === 1) {
+          <button type="button" class="button btn-activate" (click)="activateTopic()" i18n="@@common.activate">Activate</button>
+        } @else {
+          <button type="button" class="button btn-deactivate" (click)="requestDeactivateTopic()" i18n="@@common.deactivate">Deactivate</button>
+        }
+        <button type="button" class="button" (click)="cancelEditTopic()" i18n="@@common.cancel">Cancel</button>
+      </form>
+    </div>
+  }
 
   @if(isEpisode() && topic().episode != null) {
     @if (editingTopic()) {
@@ -149,6 +156,11 @@
     </div>
   </div>
 
+  @if (topic().status === 1) {
+  <div class="topic-full-banner">
+    <span i18n="@@viewtopic.topicClosed">This topic is closed and is no longer accepting new posts.</span>
+  </div>
+  }
   @if (topic().status === 2) {
   <div class="topic-full-banner">
     <span i18n="@@viewtopic.topicFull">This topic is full and is no longer accepting new posts.</span>
@@ -191,3 +203,16 @@
 
   <div class="main-footer"></div>
 </div>
+
+@if (showDeactivateModal()) {
+  <div class="modal-overlay">
+    <div class="modal-content">
+      <h2 i18n="@@viewtopic.deactivateConfirmTitle">Close topic?</h2>
+      <p i18n="@@viewtopic.deactivateConfirmText">This will close the topic and hide the post form. Are you sure?</p>
+      <div class="buttons">
+        <button type="button" class="button btn-deactivate" (click)="confirmDeactivateTopic()" i18n="@@common.deactivate">Deactivate</button>
+        <button type="button" class="button" (click)="showDeactivateModal.set(false)" i18n="@@common.cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+}

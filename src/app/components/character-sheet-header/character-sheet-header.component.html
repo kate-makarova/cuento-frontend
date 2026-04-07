@@ -9,9 +9,11 @@
     <div class="character-name-row">
       <h2>{{ character.name }}</h2>
       @if (character.character_status === 2) {
-        <span class="status-badge status-pending">Pending</span>
+        <span class="status-badge status-pending" i18n="@@common.statusPending">Pending</span>
       } @else if (character.character_status === 0) {
-        <span class="status-badge status-active">Active</span>
+        <span class="status-badge status-active" i18n="@@common.statusActive">Active</span>
+      } @else if (character.character_status === 1) {
+        <span class="status-badge status-inactive" i18n="@@common.statusInactive">Inactive</span>
       }
     </div>
 

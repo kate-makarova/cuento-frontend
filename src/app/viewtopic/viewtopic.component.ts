@@ -115,6 +115,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
   editingPostId = signal<number | null>(null);
   editingTopic = signal(false);
+  showDeactivateModal = signal(false);
 
   private destroy$ = new Subject<void>();
   private lastLoadedProfilesForTopicId: number | null = null;
@@ -176,7 +177,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
         return;
       }
 
-      if (t.status === TopicStatus.full) {
+      if (t.status === TopicStatus.inactive || t.status === TopicStatus.full) {
         this.showPostForm.set(false);
         return;
       }
@@ -458,6 +459,33 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
         this.cancelEditTopic();
       },
       error: (err: any) => console.error('Failed to update topic', err)
+    });
+  }
+
+  activateTopic() {
+    if (!this.id()) return;
+    this.topicService.updateTopic(this.id()!, { status: 0 }).subscribe({
+      next: (updatedTopic: any) => {
+        if (updatedTopic?.id) this.topicService.updateLocalTopic(updatedTopic);
+        else this.topicService.updateTopicStatus(0);
+      },
+      error: (err: any) => console.error('Failed to activate topic', err)
+    });
+  }
+
+  requestDeactivateTopic() {
+    this.showDeactivateModal.set(true);
+  }
+
+  confirmDeactivateTopic() {
+    if (!this.id()) return;
+    this.topicService.updateTopic(this.id()!, { status: 1 }).subscribe({
+      next: (updatedTopic: any) => {
+        if (updatedTopic?.id) this.topicService.updateLocalTopic(updatedTopic);
+        else this.topicService.updateTopicStatus(1);
+        this.showDeactivateModal.set(false);
+      },
+      error: (err: any) => console.error('Failed to deactivate topic', err)
     });
   }
 
