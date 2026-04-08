@@ -58,6 +58,7 @@ export class NotificationService {
   private messageQueue: string[] = [];
   private explicitlyClosed = false;
   private lastMsgId: number | null = null;
+  private seenPostMsgIds = new Set<number>();
 
   constructor() {
     const baseUrl = environment.wsUrl;
@@ -215,7 +216,12 @@ export class NotificationService {
     }
     switch (notification.type) {
       case 'post_created':
-        this.postCreatedSubject.next(notification as PostCreatedEvent);
+        const postEvent = notification as PostCreatedEvent;
+        if (postEvent.msg_id !== undefined) {
+          if (this.seenPostMsgIds.has(postEvent.msg_id)) break;
+          this.seenPostMsgIds.add(postEvent.msg_id);
+        }
+        this.postCreatedSubject.next(postEvent);
         break;
       case 'post_updated':
         this.postUpdatedSubject.next(notification as PostUpdatedEvent);
