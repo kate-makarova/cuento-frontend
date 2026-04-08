@@ -23,12 +23,14 @@
           }
         </div>
       </div>
+
+      <button class="button" (click)="applyFilters()" i18n="@@wantedCharacterList.applyFilters">Apply Filters</button>
     </aside>
 
     <section class="content-area">
       @if (cardView()) {
         <div class="card-list">
-          @for (wc of filteredList(); track wc.id) {
+          @for (wc of list(); track wc.id) {
             <div class="wanted-card" [class.wanted-card--expanded]="isExpanded(wc.id)">
               <div class="card-name">
                 <a [routerLink]="['/viewtopic', wc.topic_id]">{{ wc.name }}</a>
@@ -102,6 +104,14 @@
           }
         </div>
       }
+
+      <div class="pagination">
+        <button class="button" [disabled]="currentPage === 1" (click)="prevPage()" i18n="@@wantedCharacterList.previous">Previous</button>
+        <span>
+          <ng-container i18n="@@wantedCharacterList.page">Page</ng-container> {{ currentPage }} <ng-container i18n="@@wantedCharacterList.of">of</ng-container> {{ totalPages() }}
+        </span>
+        <button class="button" [disabled]="currentPage === totalPages()" (click)="nextPage()" i18n="@@wantedCharacterList.next">Next</button>
+      </div>
     </section>
   </div>
 </div>

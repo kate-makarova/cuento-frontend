@@ -1,6 +1,16 @@
 import { CustomFieldsData } from './Character';
 import { Faction } from './Faction';
 
+export interface GetWantedCharacterListRequest {
+  faction_ids: number[];
+  page: number;
+}
+
+export interface WantedCharacterListResponse {
+  items: WantedCharacter[];
+  total_pages: number;
+}
+
 export interface WantedCharacter {
   id: number;
   name: string;

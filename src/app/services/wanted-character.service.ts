@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 import { FieldTemplate } from '../models/FieldTemplate';
-import { WantedCharacter } from '../models/WantedCharacter';
+import { GetWantedCharacterListRequest, WantedCharacter, WantedCharacterListResponse } from '../models/WantedCharacter';
 import { Faction } from '../models/Faction';
 
 @Injectable({ providedIn: 'root' })
@@ -15,9 +15,15 @@ export class WantedCharacterService {
   private listSignal = signal<WantedCharacter[]>([]);
   readonly wantedCharacterList = this.listSignal.asReadonly();
 
-  loadList(): void {
-    this.apiService.get<WantedCharacter[]>('wanted-character/list').subscribe({
-      next: (data) => this.listSignal.set(data),
+  private totalPagesSignal = signal<number>(1);
+  readonly totalPages = this.totalPagesSignal.asReadonly();
+
+  loadListPage(request: GetWantedCharacterListRequest): void {
+    this.apiService.post<WantedCharacterListResponse>('wanted-character/list', request).subscribe({
+      next: (data) => {
+        this.listSignal.set(data.items);
+        this.totalPagesSignal.set(data.total_pages);
+      },
       error: (err) => console.error('Failed to load wanted character list', err)
     });
   }

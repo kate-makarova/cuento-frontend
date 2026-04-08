@@ -28,9 +28,12 @@ export class WantedCharacterListComponent implements OnInit {
   private factionService = inject(FactionService);
 
   cardView = signal(true);
-  selectedFactions = signal<number[]>([]);
+  selectedFactions: number[] = [];
 
-  rawList = this.wantedCharacterService.wantedCharacterList;
+  currentPage = 1;
+  totalPages = this.wantedCharacterService.totalPages;
+
+  list = this.wantedCharacterService.wantedCharacterList;
   treeList = this.wantedCharacterService.wantedCharacterTreeList;
   factions = this.factionService.factions;
 
@@ -52,35 +55,49 @@ export class WantedCharacterListComponent implements OnInit {
     return groups;
   });
 
-  filteredList = computed(() => {
-    const factionIds = this.selectedFactions();
-
-    return this.rawList().filter(wc => {
-      if (wc.is_claimed) return false;
-
-      if (factionIds.length > 0) {
-        const wcFactionIds = (wc.factions ?? []).map(f => f.id);
-        if (!factionIds.some(id => wcFactionIds.includes(id))) return false;
-      }
-
-      return true;
-    });
-  });
-
   ngOnInit() {
-    this.wantedCharacterService.loadList();
     this.wantedCharacterService.loadTreeList();
     this.factionService.loadFactions();
+    this.applyFilters();
   }
 
   toggleFaction(id: number) {
-    this.selectedFactions.update(ids =>
-      ids.includes(id) ? ids.filter(i => i !== id) : [...ids, id]
-    );
+    const index = this.selectedFactions.indexOf(id);
+    if (index > -1) {
+      this.selectedFactions.splice(index, 1);
+    } else {
+      this.selectedFactions.push(id);
+    }
   }
 
   isFactionSelected(id: number): boolean {
-    return this.selectedFactions().includes(id);
+    return this.selectedFactions.includes(id);
+  }
+
+  applyFilters() {
+    this.currentPage = 1;
+    this.loadPage();
+  }
+
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.loadPage();
+    }
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages()) {
+      this.currentPage++;
+      this.loadPage();
+    }
+  }
+
+  private loadPage() {
+    this.wantedCharacterService.loadListPage({
+      faction_ids: this.selectedFactions,
+      page: this.currentPage
+    });
   }
 
   expandedCards = signal<Set<number>>(new Set());
