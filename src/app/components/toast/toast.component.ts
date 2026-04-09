@@ -26,10 +26,10 @@ export class ToastComponent implements OnInit {
         this.audio.play().catch(err => console.warn('Audio play failed:', err));
       }
 
-      // Auto-dismiss after 5 minutes (300000 ms)
+      // Auto-dismiss after 10 seconds (10000 ms)
       setTimeout(() => {
         this.remove(event.id);
-      }, 300000);
+      }, 10000);
     });
   }
 
