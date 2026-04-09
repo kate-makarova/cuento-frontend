@@ -1286,6 +1286,16 @@ app-root.dark .pm-contact.active {
 .status-badge.open { background: #27ae60; }
 .status-badge.closed { background: #7f8c8d; }
 
+@keyframes slideInLeft {
+  from { transform: translateX(-120%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+@keyframes slideOutLeft {
+  from { transform: translateX(0);    opacity: 1; }
+  to   { transform: translateX(-120%); opacity: 0; }
+}
+
 /* === toast.component === */
 .toast-item {
   background-color: #f1f1f1;
@@ -1295,6 +1305,10 @@ app-root.dark .pm-contact.active {
   animation: slideInLeft 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
   font-family: Verdana, Helvetica, Arial, sans-serif;
   font-size: 11px;
+}
+
+.toast-item.removing {
+  animation: slideOutLeft 0.3s cubic-bezier(0.55, 0.055, 0.675, 0.19) both;
 }
 
 .toast-side-accent {

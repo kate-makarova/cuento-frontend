@@ -1,6 +1,6 @@
 <div class="toast-overlay">
   @for (notification of notifications; track notification.id) {
-    <div class="toast-item">
+    <div class="toast-item" [class.removing]="removingIds.has(notification.id)">
       <div class="toast-side-accent"></div>
       <div class="toast-main">
         <div class="toast-header">
