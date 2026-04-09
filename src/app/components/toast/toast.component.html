@@ -10,8 +10,23 @@
         <div class="toast-content">
           <span class="toast-sender">{{ notification.type }}:</span>
           @if (notification.type === 'mention' && notification.mention) {
-            <span class="toast-text">{{ notification.message }}
-              <a [routerLink]="['/viewtopic', notification.mention.topic_id]" (click)="remove(notification.id)">{{ notification.mention.topic_name }}</a>
+            <span class="toast-text">
+              <strong>{{ notification.mention.user_name }}</strong>
+              @if (notification.mention.character_name) {
+                <ng-container i18n="@@toast.mention.as"> as </ng-container><strong>{{ notification.mention.character_name }}</strong>
+              }
+              <ng-container i18n="@@toast.mention.mentionedYouIn"> mentioned you in </ng-container><a [routerLink]="['/viewtopic', notification.mention.topic_id]" [queryParams]="{post_id: notification.mention.post_id}" (click)="remove(notification.id)">{{ notification.mention.topic_name }}</a>
+            </span>
+          } @else if (notification.type === 'game' && notification.game) {
+            <span class="toast-text">
+              <strong>{{ notification.game.character_name }}</strong>
+              <ng-container i18n="@@toast.game.postedIn"> posted in </ng-container><a [routerLink]="['/viewtopic', notification.game.topic_id]" (click)="remove(notification.id)">{{ notification.game.topic_name }}</a>
+              <ng-container i18n="@@toast.game.whereYouPlay"> where you play </ng-container><strong>{{ notification.game.user_character_name }}</strong>
+            </span>
+          } @else if (notification.type === 'direct_message' && notification.direct_message) {
+            <span class="toast-text">
+              <strong>{{ notification.direct_message.sender_username }}</strong>
+              <ng-container i18n="@@toast.directMessage.sentYouA"> sent you a </ng-container><a [routerLink]="['/direct-chat']" (click)="remove(notification.id)" i18n="@@toast.directMessage.message">message</a>
             </span>
           } @else {
             <span class="toast-text">{{ notification.message }}</span>
