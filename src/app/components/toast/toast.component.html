@@ -15,7 +15,6 @@
           }
         </div>
         <div class="toast-content">
-          <span class="toast-sender">{{ notification.type }}:</span>
           @if (notification.type === 'mention' && notification.mention) {
             <span class="toast-text">
               <strong>{{ notification.mention.user_name }}</strong>
