@@ -38,7 +38,7 @@ export class ToastComponent implements OnInit {
         this.audio.play().catch(err => console.warn('Audio play failed:', err));
       }
 
-      this.notifications = [...this.notifications, event];
+      setTimeout(() => { this.notifications = [...this.notifications, event]; });
 
       setTimeout(() => this.remove(event.id), 10000);
     });
