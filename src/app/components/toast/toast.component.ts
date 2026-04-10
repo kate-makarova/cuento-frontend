@@ -4,31 +4,40 @@ import { AuthService } from '../../services/auth.service';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NotificationData } from '../../models/event';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-toast',
   imports: [CommonModule, RouterLink],
   templateUrl: './toast.component.html',
   standalone: true,
+  animations: [
+    trigger('toastAnim', [
+      transition(':enter', [
+        style({ transform: 'translateX(-120%)', opacity: 0 }),
+        animate('300ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          style({ transform: 'translateX(0)', opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('300ms cubic-bezier(0.55, 0.055, 0.675, 0.19)',
+          style({ transform: 'translateX(-120%)', opacity: 0 }))
+      ])
+    ])
+  ]
 })
 export class ToastComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private authService = inject(AuthService);
   private audio = new Audio('/notification.mp3');
   notifications: NotificationData[] = [];
-  removingIds: number[] = [];
-
-  private readonly ANIMATION_MS = 300;
 
   ngOnInit() {
     this.notificationService.notification$.subscribe((event: NotificationData) => {
       this.notifications = [...this.notifications, event];
 
       if (!this.authService.currentUser()?.disable_sound) {
-        setTimeout(() => {
-          this.audio.currentTime = 0;
-          this.audio.play().catch(err => console.warn('Audio play failed:', err));
-        });
+        this.audio.currentTime = 0;
+        this.audio.play().catch(err => console.warn('Audio play failed:', err));
       }
 
       setTimeout(() => this.remove(event.id), 10000);
@@ -36,16 +45,10 @@ export class ToastComponent implements OnInit {
   }
 
   remove(toastId: number) {
-    if (this.removingIds.includes(toastId)) return;
-    this.removingIds = [...this.removingIds, toastId];
-
-    setTimeout(() => {
-      const notification = this.notifications.find(n => n.id === toastId);
-      if (notification) {
-        this.notificationService.dismissNotification(notification);
-      }
-      this.notifications = this.notifications.filter(n => n.id !== toastId);
-      this.removingIds = this.removingIds.filter(id => id !== toastId);
-    }, this.ANIMATION_MS);
+    const notification = this.notifications.find(n => n.id === toastId);
+    if (notification) {
+      this.notificationService.dismissNotification(notification);
+    }
+    this.notifications = this.notifications.filter(n => n.id !== toastId);
   }
 }
