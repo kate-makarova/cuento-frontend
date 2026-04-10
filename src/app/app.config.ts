@@ -2,6 +2,7 @@ import { ApplicationConfig, provideZoneChangeDetection, LOCALE_ID } from '@angul
 import { provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
 import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { registerLocaleData } from '@angular/common';
 import localeRu from '@angular/common/locales/ru';
 import { authInterceptor } from './auth.interceptor';
@@ -13,6 +14,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withComponentInputBinding(), withInMemoryScrolling({ anchorScrolling: 'enabled' })),
     provideHttpClient(withInterceptors([authInterceptor])),
+    provideAnimations(),
     {
       provide: LOCALE_ID,
       useFactory: () => {
