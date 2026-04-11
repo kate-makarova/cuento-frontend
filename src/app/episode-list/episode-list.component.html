@@ -81,7 +81,7 @@
           @for (topic of topics(); track topic.id) {
             <tr>
               <td class="tcl">
-                <a [routerLink]="['/topic', topic.id]" class="topic-link">{{ topic.name }}</a>
+                <a [routerLink]="['/topic', topic.topic_id]" class="topic-link">{{ topic.name }}</a>
               </td>
               <td class="tc2"><a [routerLink]="['/subforum', topic.subforum_id]">{{ topic.subforum_name }}</a></td>
               <td class="tc3">
