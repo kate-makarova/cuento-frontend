@@ -19,6 +19,7 @@ import {EpisodeTemplateEditComponent} from './admin/episode-template-edit/episod
 import {CharacterProfileTemplateEditComponent} from './admin/character-profile-template-edit/character-profile-template-edit.component';
 import {PermissionMatrixComponent} from './admin/permission-matrix/permission-matrix.component';
 import {AdminFactionsComponent} from './admin/admin-factions/admin-factions.component';
+import {AdminFeaturesComponent} from './admin/admin-features/admin-features.component';
 import {CharacterClaimsComponent} from './admin/character-claims/character-claims.component';
 import {WantedCharacterTemplateEditComponent} from './admin/wanted-character-template-edit/wanted-character-template-edit.component';
 import {WantedCharacterCreateComponent} from './wanted-character-create/wanted-character-create.component';
@@ -304,6 +305,11 @@ export const routes: Routes = [
         path: 'additional-navlinks',
         component: AdminAdditionalNavlinksComponent,
         title: 'Admin - Additional Navlinks'
+      },
+      {
+        path: 'features',
+        component: AdminFeaturesComponent,
+        title: 'Admin - Features'
       }
     ]
   },
