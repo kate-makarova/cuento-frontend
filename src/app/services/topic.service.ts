@@ -88,8 +88,7 @@ export class TopicService {
     this.apiService.get<PostsResponse>(url).subscribe({
       next: (data) => {
         if (data && data.posts) {
-          const enrichedPosts = data.posts.map(post => this.enrichPostWithPermissions(post));
-          this.postsSignal.set(enrichedPosts);
+          this.postsSignal.set(data.posts);
 
           this.pageLoadedSubject.next({ page: data.page, topicId: topicId });
 
@@ -134,8 +133,7 @@ export class TopicService {
   }
 
   updateLocalPost(updatedPost: Post) {
-    const enrichedPost = this.enrichPostWithPermissions(updatedPost);
-    this.postsSignal.update(posts => posts.map(p => p.id === enrichedPost.id ? enrichedPost : p));
+    this.postsSignal.update(posts => posts.map(p => p.id === updatedPost.id ? updatedPost : p));
   }
 
   updateLocalTopic(updatedTopic: Topic) {
@@ -169,10 +167,8 @@ export class TopicService {
   }
 
   private handleNewPost(post: Post) {
-    const enrichedPost = this.enrichPostWithPermissions(post);
-
-    if (this.postsSignal().some(p => p.id === enrichedPost.id)) return;
-    this.postsSignal.update(posts => [...posts, enrichedPost]);
+    if (this.postsSignal().some(p => p.id === post.id)) return;
+    this.postsSignal.update(posts => [...posts, post]);
 
     // Increment the post count in the topic
     this.topicSignal.update(topic => {
@@ -201,19 +197,7 @@ export class TopicService {
     }
   }
 
-  private enrichPostWithPermissions(post: Post): Post {
-    const currentUser = this.authService.currentUser();
-    if (currentUser && post.user_profile && currentUser.id === post.user_profile.user_id) {
-      return { ...post, can_edit: true };
-    }
-    // Also check for admin role if needed, but for now just author
-    if (this.authService.isAdmin()) {
-        return { ...post, can_edit: true };
-    }
-    return post;
-  }
-
-  private enrichTopicWithPermissions(topic: Topic): Topic {
+private enrichTopicWithPermissions(topic: Topic): Topic {
     const currentUser = this.authService.currentUser();
     let canEdit = false;
 

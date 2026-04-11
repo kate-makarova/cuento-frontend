@@ -3175,3 +3175,8 @@ app-number-field-display:host {
   width: 18px;
   height: 18px;
 }
+
+.post-content pre {
+  max-width: 100%;
+  overflow: scroll;
+}
