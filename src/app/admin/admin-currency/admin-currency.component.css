@@ -20,23 +20,35 @@
   color: #333;
 }
 
-.name-row {
-  display: flex;
-  gap: 0.75rem;
+.field-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
   align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
 }
 
-.name-row input {
-  flex: 1;
+.field-row label {
+  font-weight: 500;
+  color: #444;
+}
+
+.field-row input {
   padding: 0.4rem 0.6rem;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 0.9rem;
 }
 
-.name-row input:focus {
+.field-row input:focus {
   outline: none;
   border-color: #007bff;
+}
+
+.settings-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
 }
 
 table {

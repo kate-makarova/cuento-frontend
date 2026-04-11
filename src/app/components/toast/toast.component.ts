@@ -1,6 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { NotificationService } from '../../services/notification.service';
 import { AuthService } from '../../services/auth.service';
+import { CurrencyService } from '../../services/currency.service';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NotificationData } from '../../models/event';
@@ -28,6 +29,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 export class ToastComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private authService = inject(AuthService);
+  protected currencyService = inject(CurrencyService);
   private audio = new Audio('/notification.mp3');
   notifications: NotificationData[] = [];
 

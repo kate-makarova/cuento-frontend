@@ -1,21 +1,21 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { ApiService } from './api.service';
-import { CurrencyName, CurrencyIncomeType } from '../models/Currency';
+import { CurrencySettings, CurrencySettingsUpdateRequest, CurrencyIncomeType } from '../models/Currency';
 
 @Injectable({ providedIn: 'root' })
 export class CurrencyService {
   private apiService = inject(ApiService);
 
-  private currencyNameSignal = signal<string>('');
-  readonly currencyName = this.currencyNameSignal.asReadonly();
+  private settingsSignal = signal<CurrencySettings>({ currency_name: '', icon_url: '' });
+  readonly settings = this.settingsSignal.asReadonly();
 
   private incomeTypesSignal = signal<CurrencyIncomeType[]>([]);
   readonly incomeTypes = this.incomeTypesSignal.asReadonly();
 
-  loadCurrencyName(): void {
-    this.apiService.get<CurrencyName>('currency/name').subscribe({
-      next: (data) => this.currencyNameSignal.set(data.currency_name),
-      error: (err) => console.error('Failed to load currency name', err)
+  loadSettings(): void {
+    this.apiService.get<CurrencySettings>('currency/settings').subscribe({
+      next: (data) => this.settingsSignal.set(data),
+      error: (err) => console.error('Failed to load currency settings', err)
     });
   }
 
@@ -26,8 +26,8 @@ export class CurrencyService {
     });
   }
 
-  updateCurrencyName(name: string) {
-    return this.apiService.post<CurrencyName>('currency/name/update', { currency_name: name });
+  updateSettings(req: CurrencySettingsUpdateRequest) {
+    return this.apiService.post<CurrencySettings>('currency/settings/update', req);
   }
 
   patchIncomeType(key: string, patch: Partial<CurrencyIncomeType>): void {

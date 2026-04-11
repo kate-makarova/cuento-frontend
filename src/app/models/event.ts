@@ -69,7 +69,7 @@ export interface NotificationData {
   mention: NotificationMention | null;
   game: NotificationGame | null;
   direct_message: NotificationDirectMessage | null;
-  account_update: NotificationAccountUpdate | null;
+  data: NotificationAccountUpdate | null;
 }
 
 export interface NotificationEvent {

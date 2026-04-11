@@ -16,28 +16,31 @@ export class AdminCurrencyComponent implements OnInit {
   private currencyService = inject(CurrencyService);
 
   currencyName = '';
+  iconUrl = '';
   incomeTypes = this.currencyService.incomeTypes;
-  nameState = signal<SaveState>('idle');
+  settingsState = signal<SaveState>('idle');
   incomeTypesState = signal<SaveState>('idle');
 
   constructor() {
     effect(() => {
-      this.currencyName = this.currencyService.currencyName();
+      const s = this.currencyService.settings();
+      this.currencyName = s.currency_name;
+      this.iconUrl = s.icon_url;
     });
   }
 
   ngOnInit(): void {
-    this.currencyService.loadCurrencyName();
+    this.currencyService.loadSettings();
     this.currencyService.loadIncomeTypes();
   }
 
-  saveName(): void {
-    this.nameState.set('loading');
-    this.currencyService.updateCurrencyName(this.currencyName).subscribe({
-      next: () => this.flash(this.nameState, 'success'),
+  saveSettings(): void {
+    this.settingsState.set('loading');
+    this.currencyService.updateSettings({ currency_name: this.currencyName, icon_url: this.iconUrl }).subscribe({
+      next: () => this.flash(this.settingsState, 'success'),
       error: (err) => {
-        console.error('Failed to save currency name', err);
-        this.flash(this.nameState, 'error');
+        console.error('Failed to save currency settings', err);
+        this.flash(this.settingsState, 'error');
       }
     });
   }

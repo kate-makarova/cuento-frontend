@@ -1,4 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
+import { tap } from 'rxjs';
 import { ApiService } from './api.service';
 import { Feature, FeatureToggleResponse } from '../models/Feature';
 
@@ -13,11 +14,10 @@ export class FeatureService {
     return this.featuresSignal().some(f => f.key === key && f.is_active);
   }
 
-  loadFeatures(): void {
-    this.apiService.get<Feature[]>('features').subscribe({
-      next: (data) => this.featuresSignal.set(data),
-      error: (err) => console.error('Failed to load features', err)
-    });
+  loadFeatures() {
+    return this.apiService.get<Feature[]>('features').pipe(
+      tap(data => this.featuresSignal.set(data))
+    );
   }
 
   toggle(key: string): void {

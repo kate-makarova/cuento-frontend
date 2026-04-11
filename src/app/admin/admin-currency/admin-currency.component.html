@@ -2,14 +2,21 @@
   <h2 i18n="@@adminCurrency.title">Currency</h2>
 
   <section class="currency-section">
-    <h3 i18n="@@adminCurrency.nameTitle">Currency Name</h3>
-    <div class="name-row">
+    <h3 i18n="@@adminCurrency.settingsTitle">Currency Settings</h3>
+    <div class="field-row">
+      <label i18n="@@adminCurrency.nameLabel">Name</label>
       <input type="text" [(ngModel)]="currencyName" />
+    </div>
+    <div class="field-row">
+      <label i18n="@@adminCurrency.iconUrlLabel">Icon URL</label>
+      <input type="url" [(ngModel)]="iconUrl" />
+    </div>
+    <div class="settings-actions">
       <button
         type="button"
-        class="btn-save btn-save--{{ nameState() }}"
-        [disabled]="nameState() === 'loading'"
-        (click)="saveName()"
+        class="btn-save btn-save--{{ settingsState() }}"
+        [disabled]="settingsState() === 'loading'"
+        (click)="saveSettings()"
         i18n="@@adminCurrency.save">
         Save
       </button>

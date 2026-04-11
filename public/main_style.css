@@ -2285,6 +2285,13 @@ span.mention {
   align-self: flex-start;
 }
 
+.currency-icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  object-fit: contain;
+}
+
 /* === short-text-field-display.component === */
 app-short-text-field-display:host {
   display: flex;
