@@ -1,6 +1,8 @@
 import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NotificationService } from '../../services/notification.service';
+import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 import { UserShort } from '../../models/UserShort';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -13,11 +15,19 @@ import { takeUntil } from 'rxjs/operators';
 })
 export class CurrentlyActiveComponent implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
+  private apiService = inject(ApiService);
+  private authService = inject(AuthService);
   private destroy$ = new Subject<void>();
 
   users = signal<UserShort[]>([]);
 
   ngOnInit() {
+    if (!this.authService.isAuthenticated()) {
+      this.apiService.get<UserShort[]>('active-users').subscribe(users => {
+        this.users.set(users);
+      });
+    }
+
     this.notificationService.activeUsersUpdate$
       .pipe(takeUntil(this.destroy$))
       .subscribe(event => {
