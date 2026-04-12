@@ -4,6 +4,7 @@ import {ViewforumComponent} from './viewforum/viewforum.component';
 import {ViewtopicComponent} from './viewtopic/viewtopic.component';
 import {DirectChatComponent} from './direct-chat/direct-chat.component';
 import {UserProfileComponent} from './user-profile/user-profile.component';
+import {TransactionsComponent} from './transactions/transactions.component';
 import {CharacterviewComponent} from './characterview/characterview.component';
 import {CharacterListComponent} from './character-list/character-list.component';
 import {EpisodeListComponent} from './episode-list/episode-list.component';
@@ -146,6 +147,12 @@ export const routes: Routes = [
     component: UserProfileComponent,
     title: 'User Profile',
     data: { pageId: 'pun-profile' }
+  },
+  {
+    path: 'profile/:user_id/transactions',
+    component: TransactionsComponent,
+    title: 'Transactions',
+    data: { pageId: 'pun-transactions' }
   },
   {
     path: 'character/:id',

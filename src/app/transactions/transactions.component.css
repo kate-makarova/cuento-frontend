@@ -1,0 +1,121 @@
+.transactions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.tx-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+  transition: background 0.15s;
+}
+
+.tx-row:last-child {
+  border-bottom: none;
+}
+
+.tx-row:hover {
+  background: var(--hover-bg, rgba(0, 0, 0, 0.02));
+}
+
+.tx-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tx-type {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-primary, #111827);
+}
+
+.tx-date {
+  font-size: 0.78rem;
+  color: var(--text-muted, #6b7280);
+}
+
+.tx-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.tx-amount {
+  font-size: 1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.tx-income {
+  color: #16a34a;
+}
+
+.tx-spend {
+  color: #dc2626;
+}
+
+.tx-status {
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  background: var(--badge-bg, #f3f4f6);
+  color: var(--text-muted, #6b7280);
+}
+
+.tx-status--approved {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.tx-status--pending {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.tx-status--rejected {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.tx-empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--text-muted, #6b7280);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px;
+  border-top: 1px solid var(--border-color, #e5e7eb);
+  font-size: 0.9rem;
+}
+
+.pagination button {
+  padding: 6px 14px;
+  border: 1px solid var(--border-color, #d1d5db);
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.pagination button:hover:not(:disabled) {
+  background: var(--hover-bg, rgba(0, 0, 0, 0.05));
+}
+
+.pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

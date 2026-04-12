@@ -3,6 +3,8 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { UserService } from '../services/user.service';
 import { AuthService } from '../services/auth.service';
+import { FeatureService } from '../services/feature.service';
+import { CurrencyService } from '../services/currency.service';
 
 @Component({
   selector: 'app-user-profile',
@@ -16,6 +18,8 @@ export class UserProfileComponent implements OnInit {
   private userService = inject(UserService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  protected featureService = inject(FeatureService);
+  protected currencyService = inject(CurrencyService);
 
   userProfile = this.userService.userProfile;
   currentUser = this.authService.currentUser;

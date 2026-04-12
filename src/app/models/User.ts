@@ -35,6 +35,7 @@ export interface UserProfileResponse {
   characters: CharacterProfileListItem[];
   total_posts: number;
   total_general_posts: number;
+  currency_amount?: number;
 }
 
 export interface CharacterProfileListItem {

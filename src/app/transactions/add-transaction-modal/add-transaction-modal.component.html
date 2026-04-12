@@ -1,0 +1,57 @@
+<div class="modal-overlay">
+  <div class="modal-content">
+    <h2 i18n="@@addTransaction.title">Add Transaction</h2>
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="tx-type" i18n="@@addTransaction.type">Type</label>
+        <select id="tx-type" name="type" [(ngModel)]="type">
+          <option value="income" i18n="@@addTransaction.income">Income</option>
+          <option value="spend" i18n="@@addTransaction.spend">Spend</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="tx-amount" i18n="@@addTransaction.amount">Amount</label>
+        <input type="number" id="tx-amount" name="amount" [(ngModel)]="amount" min="1" required />
+      </div>
+
+      <div class="form-group">
+        <label for="tx-income-type" i18n="@@addTransaction.incomeType">Income Type</label>
+        <select id="tx-income-type" name="incomeTypeKey" [(ngModel)]="incomeTypeKey">
+          <option value="" i18n="@@addTransaction.none">— None —</option>
+          @for (it of incomeTypes; track it.key) {
+            <option [value]="it.key">{{ it.name }}</option>
+          }
+          <option [value]="customKey" i18n="@@addTransaction.custom">Custom</option>
+        </select>
+      </div>
+
+      @if (isCustom) {
+        <div class="form-group">
+          <label for="tx-note" i18n="@@addTransaction.note">Note</label>
+          <input type="text" id="tx-note" name="note" [(ngModel)]="note" />
+        </div>
+      }
+
+      @if (hasPostLink) {
+        <div class="form-group">
+          <label for="tx-topic-id" i18n="@@addTransaction.topicId">Topic ID</label>
+          <input type="number" id="tx-topic-id" name="topicId" [(ngModel)]="topicId" />
+        </div>
+        <div class="form-group">
+          <label for="tx-post-id" i18n="@@addTransaction.postId">Post ID</label>
+          <input type="number" id="tx-post-id" name="postId" [(ngModel)]="postId" />
+        </div>
+      }
+
+      @if (error) {
+        <p class="form-error">{{ error }}</p>
+      }
+
+      <div class="buttons">
+        <button type="submit" class="button" [disabled]="saving" i18n="@@addTransaction.submit">Add</button>
+        <button type="button" class="button" (click)="onCancel()" i18n="@@addTransaction.cancel">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>

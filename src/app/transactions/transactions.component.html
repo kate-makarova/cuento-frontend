@@ -1,0 +1,61 @@
+<div id="pun-main" class="main">
+  <div class="main-header">
+    <h1 i18n="@@transactions.title">Transactions</h1>
+    @if (canAdd) {
+      <button class="button" (click)="openAddModal()" i18n="@@transactions.addButton">Add Transaction</button>
+    }
+  </div>
+
+  @if (!featureService.isFeatureActive('currency')) {
+    <div class="main-content">
+      <p class="tx-empty" i18n="@@transactions.featureDisabled">This feature is not enabled.</p>
+    </div>
+  } @else {
+  <div class="main-content transactions-list">
+    @for (tx of transactions; track tx.id) {
+      <div class="tx-row">
+        <div class="tx-left">
+          <span class="tx-type">
+            {{ tx.income_type_key ? (incomeTypeNames[tx.income_type_key] ?? tx.income_type_key) : manualLabel }}
+            @if (tx.metadata; as meta) {
+              @if (meta.topic_id && meta.post_id) {
+                (<a [routerLink]="['/viewtopic', meta.topic_id]" [fragment]="''+ + meta.post_id" i18n="@@transactions.postLink">post</a>)
+              }
+            }
+          </span>
+          <span class="tx-date">{{ tx.datetime_localized }}</span>
+        </div>
+        <div class="tx-right">
+          <span class="tx-amount" [class.tx-income]="tx.type === 1" [class.tx-spend]="tx.type === -1">
+            {{ tx.type === 1 ? '+' : '−' }}{{ tx.amount }}
+          </span>
+          <span class="tx-status" [class.tx-status--approved]="tx.status === 1" [class.tx-status--pending]="tx.status === 0" [class.tx-status--rejected]="tx.status === 2">
+            {{ statusLabels[tx.status] ?? tx.status }}
+          </span>
+        </div>
+      </div>
+    }
+    @if (transactions.length === 0) {
+      <p class="tx-empty" i18n="@@transactions.empty">No transactions found.</p>
+    }
+
+    <div class="pagination">
+      <button [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)" i18n="@@transactions.previous">Previous</button>
+      <span>
+        <ng-container i18n="@@transactions.page">Page</ng-container> {{ currentPage }}
+        <ng-container i18n="@@transactions.of">of</ng-container> {{ totalPages }}
+      </span>
+      <button [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)" i18n="@@transactions.next">Next</button>
+    </div>
+  </div>
+  } <!-- end @else currency feature -->
+</div>
+
+@if (showAddModal) {
+  <app-add-transaction-modal
+    [userId]="userId"
+    [incomeTypes]="currencyService.incomeTypes()"
+    (close)="showAddModal = false"
+    (created)="onTransactionCreated()"
+  />
+}
