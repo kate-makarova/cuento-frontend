@@ -2088,6 +2088,22 @@ tr.altstyle td {
   opacity: 0.4;
 }
 
+/* === settings notification table === */
+.notif-col-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.notif-check-cell {
+  text-align: center;
+}
+
+.notif-save-row {
+  margin-top: 10px;
+}
+
 /* === scroll-nav.component === */
 .scroll-nav-btn {
   background: var(--link-color, #888);

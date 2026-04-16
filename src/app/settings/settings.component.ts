@@ -92,6 +92,15 @@ export class SettingsComponent implements OnInit {
 
   notificationSettings = signal<UserNotificationSetting[]>([]);
   notifSaveState = signal<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+  notificationTypeNames: Record<string, string> = {
+    system: $localize`:@@settings.notif.typeName.system:System messages`,
+    game: $localize`:@@settings.notif.typeName.game:Posts in my games`,
+    mention: $localize`:@@settings.notif.typeName.mention:Mentions`,
+    account_update: $localize`:@@settings.notif.typeName.account_update:Account updates`,
+    direct_message: $localize`:@@settings.notif.typeName.direct_message:Direct messages`,
+    reaction: $localize`:@@settings.notif.typeName.reaction:Reactions`,
+  };
   oldPassword = '';
   newPassword = '';
   confirmPassword = '';
@@ -133,6 +142,12 @@ export class SettingsComponent implements OnInit {
   toggleColumn(col: keyof UserNotificationSetting, value: boolean) {
     this.notificationSettings.update(list =>
       list.map(s => ({ ...s, [col]: value }))
+    );
+  }
+
+  toggleSetting(type: string, col: keyof UserNotificationSetting, value: boolean) {
+    this.notificationSettings.update(list =>
+      list.map(s => s.notification_type === type ? { ...s, [col]: value } : s)
     );
   }
 

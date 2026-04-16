@@ -64,6 +64,37 @@
       </fieldset>
 
       <fieldset>
+        <legend i18n="@@settings.changePassword">Change Password</legend>
+        <div class="fs-box">
+          <p class="inputfield">
+            <label for="old_password" i18n="@@settings.oldPassword">Old Password</label><br />
+            <span class="input"><input id="old_password" type="password" name="old_password" [(ngModel)]="oldPassword" /></span>
+          </p>
+          <p class="inputfield">
+            <label for="new_password" i18n="@@settings.newPassword">New Password</label><br />
+            <span class="input"><input id="new_password" type="password" name="new_password" [(ngModel)]="newPassword" /></span>
+          </p>
+          <p class="inputfield">
+            <label for="confirm_password" i18n="@@settings.confirmPassword">Confirm New Password</label><br />
+            <span class="input"><input id="confirm_password" type="password" name="confirm_password" [(ngModel)]="confirmPassword" /></span>
+          </p>
+        </div>
+      </fieldset>
+
+      <p class="formsubmit">
+        <button type="submit" [class]="'btn-save btn-save--' + saveState()" [disabled]="saveState() === 'loading'">
+          @switch (saveState()) {
+            @case ('loading') { <span class="spinner"></span> }
+            @case ('success') { <span i18n="@@common.saved">Saved</span> }
+            @case ('error') { <span i18n="@@common.saveFailed">Failed</span> }
+            @default { <span i18n="@@settings.save">Save Settings</span> }
+          }
+        </button>
+      </p>
+    </form>
+
+    <div class="container">
+      <fieldset>
         <legend i18n="@@settings.notifications">Notifications</legend>
         <div class="fs-box">
           @if (notificationSettings().length > 0) {
@@ -100,15 +131,21 @@
               <tbody>
                 @for (setting of notificationSettings(); track setting.notification_type) {
                   <tr>
-                    <td>{{ setting.notification_type }}</td>
+                    <td>{{ notificationTypeNames[setting.notification_type] || setting.notification_type }}</td>
                     <td class="notif-check-cell">
-                      <input type="checkbox" [(ngModel)]="setting.disable_toast" [name]="'toast_' + setting.notification_type" />
+                      <input type="checkbox"
+                             [checked]="setting.disable_toast"
+                             (change)="toggleSetting(setting.notification_type, 'disable_toast', $any($event.target).checked)" />
                     </td>
                     <td class="notif-check-cell">
-                      <input type="checkbox" [(ngModel)]="setting.disable_sound" [name]="'sound_' + setting.notification_type" />
+                      <input type="checkbox"
+                             [checked]="setting.disable_sound"
+                             (change)="toggleSetting(setting.notification_type, 'disable_sound', $any($event.target).checked)" />
                     </td>
                     <td class="notif-check-cell">
-                      <input type="checkbox" [(ngModel)]="setting.disable_all" [name]="'all_' + setting.notification_type" />
+                      <input type="checkbox"
+                             [checked]="setting.disable_all"
+                             (change)="toggleSetting(setting.notification_type, 'disable_all', $any($event.target).checked)" />
                     </td>
                   </tr>
                 }
@@ -130,35 +167,6 @@
           }
         </div>
       </fieldset>
-
-      <fieldset>
-        <legend i18n="@@settings.changePassword">Change Password</legend>
-        <div class="fs-box">
-          <p class="inputfield">
-            <label for="old_password" i18n="@@settings.oldPassword">Old Password</label><br />
-            <span class="input"><input id="old_password" type="password" name="old_password" [(ngModel)]="oldPassword" /></span>
-          </p>
-          <p class="inputfield">
-            <label for="new_password" i18n="@@settings.newPassword">New Password</label><br />
-            <span class="input"><input id="new_password" type="password" name="new_password" [(ngModel)]="newPassword" /></span>
-          </p>
-          <p class="inputfield">
-            <label for="confirm_password" i18n="@@settings.confirmPassword">Confirm New Password</label><br />
-            <span class="input"><input id="confirm_password" type="password" name="confirm_password" [(ngModel)]="confirmPassword" /></span>
-          </p>
-        </div>
-      </fieldset>
-
-      <p class="formsubmit">
-        <button type="submit" [class]="'btn-save btn-save--' + saveState()" [disabled]="saveState() === 'loading'">
-          @switch (saveState()) {
-            @case ('loading') { <span class="spinner"></span> }
-            @case ('success') { <span i18n="@@common.saved">Saved</span> }
-            @case ('error') { <span i18n="@@common.saveFailed">Failed</span> }
-            @default { <span i18n="@@settings.save">Save Settings</span> }
-          }
-        </button>
-      </p>
-    </form>
+    </div>
   </div>
 </div>
