@@ -53,7 +53,7 @@ export class AdminReactionsComponent implements OnInit {
 
     this.apiService.post<Reaction>('reaction/create', formData).subscribe({
       next: (reaction) => {
-        this.reactions.update(list => [...list, reaction]);
+        this.reactions.update(list => [...list, { ...reaction, is_active: true }]);
         this.uploadState.set('success');
         setTimeout(() => this.uploadState.set('idle'), 3000);
         input.value = '';
