@@ -262,6 +262,7 @@ export const TRANSLATIONS_RU = {
   "imageUpload.upload": "Загрузить",
   "directchat.selectChat": "Выберите чат из списка, чтобы начать переписку",
   "viewtopic.copyLink": "Скопировать ссылку",
+  "viewtopic.addReaction": "Добавить реакцию",
   "postform.spoilerTitle": "Заголовок спойлера",
   "postform.spoilerInsert": "Вставить",
   "postform.spoilerCancel": "Отмена",

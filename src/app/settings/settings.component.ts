@@ -116,10 +116,13 @@ export class SettingsComponent implements OnInit {
       this.fontSize = currentUser.interface_font_size || 1.0;
       this.interfaceDesign = currentUser.interface_design ?? null;
     }
-    this.notificationSettings.set(currentUser?.notification_settings ?? []);
     this.apiService.get<DesignVariation[]>('design-variation/list').subscribe({
       next: (list) => this.designVariations.set(list),
       error: (err) => console.error('Failed to load design variations', err)
+    });
+    this.apiService.get<UserNotificationSetting[]>('notifications/settings').subscribe({
+      next: (list) => this.notificationSettings.set(list),
+      error: (err) => console.error('Failed to load notification settings', err)
     });
   }
 
