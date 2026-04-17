@@ -16,7 +16,7 @@ import { takeUntil } from 'rxjs/operators';
 export class CurrentlyActiveComponent implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
   private apiService = inject(ApiService);
-  private authService = inject(AuthService);
+  authService = inject(AuthService);
   private destroy$ = new Subject<void>();
 
   users = signal<UserShort[]>([]);
