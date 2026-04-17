@@ -5,7 +5,7 @@
         @if (showAccount) {
           <option value="account"><ng-container i18n="@@postform.account">Account</ng-container>: {{ accountName }}</option>
         }
-        @for (char of characters(); track char.character_id) {
+        @for (char of characters(); track char.id) {
           <option [value]="char.id">{{ char.is_mask && char.mask_name ? '🎭 ' + char.mask_name : char.character_name }}</option>
         }
       </select>
