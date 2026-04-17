@@ -1,7 +1,10 @@
 import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ApiService } from '../services/api.service';
+import { NotificationService } from '../services/notification.service';
 import { ActiveUserInfo } from '../models/event';
 
 const PAGE_TYPE_NAMES: Record<string, string> = {
@@ -30,6 +33,8 @@ const PAGE_TYPE_NAMES: Record<string, string> = {
 })
 export class ActiveUsersComponent implements OnInit, OnDestroy {
   private apiService = inject(ApiService);
+  private notificationService = inject(NotificationService);
+  private destroy$ = new Subject<void>();
 
   users = signal<ActiveUserInfo[]>([]);
 
@@ -42,10 +47,16 @@ export class ActiveUsersComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.fetchActiveUsers();
     document.addEventListener('visibilitychange', this.visibilityHandler);
+
+    this.notificationService.activeUsersActivityUpdate$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(event => this.users.set(event.data));
   }
 
   ngOnDestroy() {
     document.removeEventListener('visibilitychange', this.visibilityHandler);
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private fetchActiveUsers() {

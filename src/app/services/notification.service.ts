@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Subject } from 'rxjs';
-import { PostCreatedEvent, TopicCreatedEvent, NotificationEvent, WebSocketEvent, TopicViewersUpdateEvent, UnreadNotificationsResponse, NotificationData, PostUpdatedEvent, DirectMessageCreatedEvent, ActiveUsersUpdateEvent, PanelReloadEvent, ReactionCreatedEvent } from '../models/event';
+import { PostCreatedEvent, TopicCreatedEvent, NotificationEvent, WebSocketEvent, TopicViewersUpdateEvent, UnreadNotificationsResponse, NotificationData, PostUpdatedEvent, DirectMessageCreatedEvent, ActiveUsersUpdateEvent, ActiveUsersActivityUpdateEvent, PanelReloadEvent, ReactionCreatedEvent } from '../models/event';
 import { AuthService } from './auth.service';
 import { ApiService } from './api.service';
 import { environment } from '../../environments/environment';
@@ -38,6 +38,9 @@ export class NotificationService {
 
   private activeUsersUpdateSubject = new Subject<ActiveUsersUpdateEvent>();
   public activeUsersUpdate$ = this.activeUsersUpdateSubject.asObservable();
+
+  private activeUsersActivityUpdateSubject = new Subject<ActiveUsersActivityUpdateEvent>();
+  public activeUsersActivityUpdate$ = this.activeUsersActivityUpdateSubject.asObservable();
 
   private panelReloadSubject = new Subject<PanelReloadEvent>();
   public panelReload$ = this.panelReloadSubject.asObservable();
@@ -333,6 +336,9 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
         break;
       case 'active_users_update':
         this.activeUsersUpdateSubject.next(notification as ActiveUsersUpdateEvent);
+        break;
+      case 'active_users_activity_update':
+        this.activeUsersActivityUpdateSubject.next(notification as ActiveUsersActivityUpdateEvent);
         break;
       case 'panel_reload':
         this.panelReloadSubject.next(notification as PanelReloadEvent);

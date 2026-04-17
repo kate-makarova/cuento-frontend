@@ -123,6 +123,12 @@ export interface ActiveUsersUpdateEvent {
   data: UserShort[];
 }
 
+export interface ActiveUsersActivityUpdateEvent {
+  type: 'active_users_activity_update';
+  msg_id?: number;
+  data: ActiveUserInfo[];
+}
+
 export interface PanelReloadEvent {
   type: 'panel_reload';
   msg_id?: number;
@@ -142,4 +148,4 @@ export interface ReactionCreatedEvent {
   };
 }
 
-export type WebSocketEvent = TopicCreatedEvent | PostCreatedEvent | PostUpdatedEvent | NotificationEvent | TopicViewersUpdateEvent | DirectMessageCreatedEvent | ActiveUsersUpdateEvent | PanelReloadEvent | ReactionCreatedEvent;
+export type WebSocketEvent = TopicCreatedEvent | PostCreatedEvent | PostUpdatedEvent | NotificationEvent | TopicViewersUpdateEvent | DirectMessageCreatedEvent | ActiveUsersUpdateEvent | ActiveUsersActivityUpdateEvent | PanelReloadEvent | ReactionCreatedEvent;
