@@ -15,7 +15,8 @@ import {ForumService} from '../services/forum.service';
 import {TopicReadByComponent} from '../components/topic-read-by/topic-read-by.component';
 import { CharacterSheetHeaderComponent } from '../components/character-sheet-header/character-sheet-header.component';
 import { WantedCharacterHeaderComponent } from '../components/wanted-character-header/wanted-character-header.component';
-import { SafeHtmlPipe } from '../pipes/safe-html.pipe'
+import { SafeHtmlPipe } from '../pipes/safe-html.pipe';
+import { RouterLinksDirective } from '../directives/router-links.directive';
 import { CharacterService } from '../services/character.service';
 import { AuthService } from '../services/auth.service';
 import { BoardService } from '../services/board.service';
@@ -47,7 +48,8 @@ function coerceToPage(value: unknown): number {
     SafeHtmlPipe,
     EpisodeCreateComponent,
     CharacterCreateComponent,
-    WantedCharacterCreateComponent
+    WantedCharacterCreateComponent,
+    RouterLinksDirective,
   ],
   templateUrl: './viewtopic.component.html',
   standalone: true,
