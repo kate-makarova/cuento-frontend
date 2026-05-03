@@ -6,6 +6,7 @@
       @if(hasPrivateKey()) {
       <li id="navchat"><a routerLink="direct-chat"><span i18n="@@nav.messages">Messages</span></a></li>
       }
+      <li id="navaichat"><a routerLink="ai-chat"><span i18n="@@nav.aiChat">AI Chat</span></a></li>
       }
       @if(authService.isAdmin()) {
         <li id="navadmin"><a routerLink="admin/notifications"><span i18n="@@nav.admin">Admin</span></a></li>

@@ -3,6 +3,7 @@ import {HomeComponent} from './home/home.component';
 import {ViewforumComponent} from './viewforum/viewforum.component';
 import {ViewtopicComponent} from './viewtopic/viewtopic.component';
 import {DirectChatComponent} from './direct-chat/direct-chat.component';
+import {AiChatComponent} from './ai-chat/ai-chat.component';
 import {UserProfileComponent} from './user-profile/user-profile.component';
 import {TransactionsComponent} from './transactions/transactions.component';
 import {CharacterviewComponent} from './characterview/characterview.component';
@@ -109,6 +110,12 @@ export const routes: Routes = [
     component: DirectChatComponent,
     canActivate: [privateKeyGuard],
     data: { pageId: 'pun-direct-chat' }
+  },
+  {
+    path: 'ai-chat',
+    component: AiChatComponent,
+    title: 'AI Chat',
+    data: { pageId: 'pun-ai-chat' }
   },
   {
     path: 'settings',

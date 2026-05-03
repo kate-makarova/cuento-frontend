@@ -1,0 +1,70 @@
+<div id="pun-main" class="main">
+  <div class="main-header">
+    <h1><span i18n="@@aiChat.title">AI Chat</span></h1>
+  </div>
+
+  <div id="pm" class="category">
+    <div class="main-content">
+      <div class="pm-history" style="width: 100%;">
+        <div class="main-item">
+          <div class="history-scroll" #scrollContainer>
+            @if (messages().length === 0 && !isLoading()) {
+              <div class="pm-no-chat" i18n="@@aiChat.emptyState">Send a message to start chatting with AI</div>
+            }
+            @for (msg of messages(); track msg.id) {
+              <div class="message" [class.altstyle]="msg.isMe">
+                <div class="container">
+                  <div class="message-author">
+                    @if (msg.avatar) {
+                      <img [src]="msg.avatar" [alt]="msg.username" class="message-avatar" />
+                    } @else {
+                      <div class="message-avatar message-avatar-placeholder">{{ msg.username[0] }}</div>
+                    }
+                    <span class="message-username">{{ msg.username }}</span>
+                  </div>
+                  <div class="message-main">
+                    <div class="message-body">
+                      <div class="message-box">
+                        <div class="message-content">
+                          <p [innerHTML]="highlightMatch(msg.text)"></p>
+                        </div>
+                      </div>
+                      <p class="message-metadata"><span>{{ msg.time }}</span></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+            @if (isLoading()) {
+              <div class="load-older-loader">
+                <span class="loader-spinner"></span>
+              </div>
+            }
+          </div>
+
+          <div class="pm-input">
+            <div id="pm-form-buttons">
+              <table cellspacing="0" cellpadding="0">
+                <tbody>
+                <tr>
+                  <td title="Bold" (click)="insertTag('b')"><i class="bi bi-type-bold"></i></td>
+                  <td title="Italic" (click)="insertTag('i')"><i class="bi bi-type-italic"></i></td>
+                  <td title="Strikethrough" (click)="insertTag('s')"><i class="bi bi-type-strikethrough"></i></td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="textarea-wrapper">
+              <textarea #chatInput (keydown.enter)="handleSend()" [disabled]="isLoading()" i18n-placeholder="@@aiChat.placeholder" placeholder="Your message..."></textarea>
+            </div>
+            <div class="buttons">
+              <input type="button" class="button" i18n-value="@@aiChat.send" value="Send" (click)="handleSend()" [disabled]="isLoading()">
+              <div class="clearer"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  </div>
+</div>
