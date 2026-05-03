@@ -26,4 +26,4 @@ Then open `http://localhost:4200/`.
 
 ## License
 
-Apache 2.0 — see `LICENSE.txt`.
+Apache 2.0 — see `LICENSE`.
