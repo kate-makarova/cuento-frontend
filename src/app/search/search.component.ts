@@ -1,10 +1,14 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { ApiService } from '../services/api.service';
-import { Category } from '../models/Category';
+import { UserService } from '../services/user.service';
+import { CategoryService } from '../services/category.service';
+import { UserShort } from '../models/UserShort';
 import { Subforum } from '../models/Subforum';
-import { UserListItem } from '../models/User';
 
 const RESULTS_PER_PAGE = 20;
 
@@ -19,22 +23,27 @@ type SearchResults = Record<string, SearchResult[]>;
 @Component({
   selector: 'app-search',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './search.component.html',
 })
 export class SearchComponent implements OnInit {
   private apiService = inject(ApiService);
+  private userService = inject(UserService);
+  private categoryService = inject(CategoryService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
   buckets = signal<string[]>([]);
-  categories = signal<Category[]>([]);
-  users = signal<UserListItem[]>([]);
+  categories = this.categoryService.homeCategories;
 
   searchTerm = signal('');
   selectedBuckets = signal<Set<string>>(new Set());
   selectedSubforumId = signal<number | null>(null);
   selectedUserId = signal<number | null>(null);
+
+  authorTerm = '';
+  authorResults: UserShort[] = [];
+  private authorSearch$ = new Subject<string>();
   currentPage = signal(1);
 
   results = signal<SearchResults>({});
@@ -79,14 +88,14 @@ export class SearchComponent implements OnInit {
       error: (err) => console.error('Failed to load search buckets', err)
     });
 
-    this.apiService.get<Category[]>('home').subscribe({
-      next: (data) => this.categories.set(data),
-      error: (err) => console.error('Failed to load categories', err)
-    });
+    this.categoryService.loadHomeCategories();
 
-    this.apiService.get<UserListItem[]>('user/list').subscribe({
-      next: (data) => this.users.set(data),
-      error: (err) => console.error('Failed to load users', err)
+    this.authorSearch$.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(term => term.length >= 2 ? this.userService.searchUsers(term) : [])
+    ).subscribe(results => {
+      this.authorResults = results;
     });
 
     const params = this.route.snapshot.queryParamMap;
@@ -100,7 +109,11 @@ export class SearchComponent implements OnInit {
     if (subforumId) this.selectedSubforumId.set(+subforumId);
 
     const userId = params.get('user_id');
-    if (userId) this.selectedUserId.set(+userId);
+    const userName = params.get('user_name');
+    if (userId) {
+      this.selectedUserId.set(+userId);
+      if (userName) this.authorTerm = userName;
+    }
 
     const page = params.get('page');
     if (page) this.currentPage.set(+page || 1);
@@ -117,9 +130,21 @@ export class SearchComponent implements OnInit {
     this.selectedSubforumId.set(val ? +val : null);
   }
 
-  onUserChange(event: Event) {
-    const val = (event.target as HTMLSelectElement).value;
-    this.selectedUserId.set(val ? +val : null);
+  onAuthorInput() {
+    this.selectedUserId.set(null);
+    this.authorSearch$.next(this.authorTerm);
+  }
+
+  selectAuthor(user: UserShort) {
+    this.selectedUserId.set(user.id);
+    this.authorTerm = user.username;
+    this.authorResults = [];
+  }
+
+  clearAuthor() {
+    this.selectedUserId.set(null);
+    this.authorTerm = '';
+    this.authorResults = [];
   }
 
   toggleBucket(bucket: string) {
@@ -183,8 +208,8 @@ export class SearchComponent implements OnInit {
     const qs = this.buildQueryString();
     const countQs = this.buildQueryString(false);
 
-    this.apiService.get<number>(`search/count?${countQs}`).subscribe({
-      next: (count) => this.totalCount.set(count),
+    this.apiService.get<Record<string, number>>(`search/count?${countQs}`).subscribe({
+      next: (count) => this.totalCount.set(Object.values(count).reduce((a, b) => a + b, 0)),
       error: () => this.totalCount.set(0)
     });
 
@@ -207,7 +232,10 @@ export class SearchComponent implements OnInit {
     const subforumId = this.selectedSubforumId();
     if (subforumId) queryParams['subforum_id'] = subforumId.toString();
     const userId = this.selectedUserId();
-    if (userId) queryParams['user_id'] = userId.toString();
+    if (userId) {
+      queryParams['user_id'] = userId.toString();
+      if (this.authorTerm) queryParams['user_name'] = this.authorTerm;
+    }
     if (this.currentPage() > 1) queryParams['page'] = this.currentPage().toString();
 
     this.router.navigate([], { relativeTo: this.route, queryParams, replaceUrl: true });

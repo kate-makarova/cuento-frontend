@@ -50,15 +50,29 @@
       </div>
 
       <div class="search-filter-section">
-        <label>
-          <span class="search-filter-label" i18n="@@search.filterAuthor">Author</span>
-          <select [value]="selectedUserId() ?? ''" (change)="onUserChange($event)">
-            <option value="" i18n="@@search.filterAuthorAll">— All —</option>
-            @for (user of users(); track user.id) {
-              <option [value]="user.id">{{ user.username }}</option>
-            }
-          </select>
-        </label>
+        <span class="search-filter-label" i18n="@@search.filterAuthor">Author</span>
+        <div class="new-chat-autocomplete">
+          <input
+            type="text"
+            [(ngModel)]="authorTerm"
+            [ngModelOptions]="{standalone: true}"
+            (input)="onAuthorInput()"
+            (blur)="authorResults = []"
+            i18n-placeholder="@@search.filterAuthorPlaceholder"
+            placeholder="Search user…"
+            autocomplete="off"
+          />
+          @if (authorTerm && selectedUserId()) {
+            <span class="author-clear" (click)="clearAuthor()">&times;</span>
+          }
+          @if (authorResults.length > 0) {
+            <ul class="autocomplete-dropdown">
+              @for (user of authorResults; track user.id) {
+                <li (mousedown)="selectAuthor(user)">{{ user.username }}</li>
+              }
+            </ul>
+          }
+        </div>
       </div>
     </div>
   </form>
