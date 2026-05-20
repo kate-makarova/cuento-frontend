@@ -1,0 +1,7 @@
+[
+  {
+    "component": "src/app/components/header",
+    "default_template": "src/app/components/header/header.component.html",
+    "template": "src/app/components/header/header.custom.component.html"
+  }
+]
