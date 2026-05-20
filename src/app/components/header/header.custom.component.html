@@ -10,8 +10,8 @@
 @if (!navlinksAfterHeader()) {
 <div class="navlink-container">
   <div id="pun-navlinks" class="section" app-navlinks>
+    <span><ng-container i18n="@@app.hello">Hello</ng-container>, {{currentUser()?.username}}!</span>
   </div>
-      <span><ng-container i18n="@@app.hello">Hello</ng-container>, {{currentUser()?.username}}!</span>
 </div>
 }
 
