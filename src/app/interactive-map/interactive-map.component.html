@@ -46,40 +46,37 @@
         </g>
       }
       <!-- Path drawing -->
-      @for (seg of pathSegments(); track $index) {
-        <line
-          [attr.x1]="seg.a.x" [attr.y1]="seg.a.y"
-          [attr.x2]="seg.b.x" [attr.y2]="seg.b.y"
-          class="path-line"
-          vector-effect="non-scaling-stroke"
-        />
-        <text [attr.x]="seg.mx" [attr.y]="seg.my - 10" class="path-label" text-anchor="middle">{{ seg.distLabel }} {{ mapConfig.measureUnit }}</text>
-      }
-      @for (pt of currentPath(); track $index) {
-        <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="4" class="path-dot" vector-effect="non-scaling-stroke"/>
-      }
-      @if (currentPath().length > 0) {
-        <text [attr.x]="currentPath()[0].x" [attr.y]="currentPath()[0].y - 10" class="path-label" text-anchor="middle">0</text>
-      }
-      @if (currentPath().length > 1) {
-        <text [attr.x]="currentPath()[currentPath().length - 1].x" [attr.y]="currentPath()[currentPath().length - 1].y - 10" class="path-label" text-anchor="middle">{{ pathTotalDistance() }} {{ mapConfig.measureUnit }}</text>
+      @for (pathData of allPathData(); track $index) {
+        @for (seg of pathData.segments; track $index) {
+          <line [attr.x1]="seg.a.x" [attr.y1]="seg.a.y" [attr.x2]="seg.b.x" [attr.y2]="seg.b.y" class="path-line" vector-effect="non-scaling-stroke"/>
+          <text [attr.x]="seg.mx" [attr.y]="seg.my - 10" class="path-label" text-anchor="middle">{{ seg.distLabel }} {{ mapConfig.measureUnit }}</text>
+        }
+        @for (pt of pathData.pts; track $index) {
+          <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="4" class="path-dot" vector-effect="non-scaling-stroke"/>
+        }
+        @if (pathData.pts.length > 0) {
+          <text [attr.x]="pathData.pts[0].x" [attr.y]="pathData.pts[0].y - 10" class="path-label" text-anchor="middle">0</text>
+        }
+        @if (pathData.pts.length > 1) {
+          <text [attr.x]="pathData.pts[pathData.pts.length - 1].x" [attr.y]="pathData.pts[pathData.pts.length - 1].y - 10" class="path-label" text-anchor="middle">{{ pathData.totalLabel }} {{ mapConfig.measureUnit }}</text>
+        }
       }
 
       @for (mark of mapConfig.marks; track mark.title) {
-        <circle
-          [attr.cx]="mark.x"
-          [attr.cy]="mark.y"
-          r="6"
-          [attr.fill]="getMarkColor(mark.type)"
-          class="map-mark"
-          vector-effect="non-scaling-stroke"
-        />
-        <text
-          [attr.x]="mark.x"
-          [attr.y]="mark.y - 10"
-          class="map-mark-label"
-          text-anchor="middle"
-        >{{ mark.title }}</text>
+        @if (!hiddenMarkTypes().has(mark.type)) {
+        @switch (getMarkType(mark.type).shape) {
+          @case ('circle') {
+            <circle [attr.cx]="mark.x" [attr.cy]="mark.y" r="6" [attr.fill]="getMarkType(mark.type).color" class="map-mark" vector-effect="non-scaling-stroke"/>
+          }
+          @case ('square') {
+            <rect [attr.x]="mark.x - 5" [attr.y]="mark.y - 5" width="10" height="10" [attr.fill]="getMarkType(mark.type).color" class="map-mark" vector-effect="non-scaling-stroke"/>
+          }
+          @case ('triangle') {
+            <polygon [attr.points]="trianglePoints(mark.x, mark.y)" [attr.fill]="getMarkType(mark.type).color" class="map-mark" vector-effect="non-scaling-stroke"/>
+          }
+        }
+        <text [attr.x]="mark.x" [attr.y]="mark.y - 10" class="map-mark-label" text-anchor="middle">{{ mark.title }}</text>
+        }
       }
     </svg>
   </div>
@@ -130,6 +127,28 @@
   <div class="map-ruler map-ruler-left">
     @for (label of gridLabels().yLabels; track label.screenY) {
       <span class="ruler-label ruler-label-y" [style.top.px]="label.screenY">{{ label.value }}</span>
+    }
+  </div>
+
+  <!-- Legend -->
+  <div class="map-legend" (mousedown)="$event.stopPropagation()">
+    @for (type of markTypesList; track type.key) {
+      <div class="legend-row" [class.hidden]="hiddenMarkTypes().has(type.key)" (click)="toggleMarkType(type.key)">
+        <svg class="legend-icon" viewBox="0 0 14 14" width="14" height="14">
+          @switch (type.shape) {
+            @case ('circle') {
+              <circle cx="7" cy="7" r="5" [attr.fill]="type.color" class="map-mark"/>
+            }
+            @case ('square') {
+              <rect x="2" y="2" width="10" height="10" [attr.fill]="type.color" class="map-mark"/>
+            }
+            @case ('triangle') {
+              <polygon points="7,1 13,12 1,12" [attr.fill]="type.color" class="map-mark"/>
+            }
+          }
+        </svg>
+        <span class="legend-label">{{ type.legend }}</span>
+      </div>
     }
   </div>
 

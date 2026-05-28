@@ -26,10 +26,24 @@ export class InteractiveMapComponent implements OnInit, AfterViewInit {
     mapUrl: 'https://upforme.ru/uploads/001c/9f/bb/7/12637.jpg',
     markTypes: {
       maasKharet: {
-        color: 'red'
+        color: 'red',
+        shape: 'circle',
+        legend: 'Mass Kharet settlement'
       },
       harkonnenSettlement: {
-        color: 'blue'
+        color: 'blue',
+        shape: 'square',
+        legend: 'Harkonnen settlement'
+      },
+      atreidesSettlement: {
+        color: 'green',
+        shape: 'triangle',
+        legend: 'Atreides settlement'
+      },
+      banditSettlement: {
+        color: 'grey',
+        shape: 'circle',
+        legend: 'Bandit settlement'
       }
     },
     marks: [
@@ -63,24 +77,19 @@ export class InteractiveMapComponent implements OnInit, AfterViewInit {
   mode = signal<'cursor' | 'flag' | 'path'>('cursor');
   selectedFlagColor = signal('red');
   flags = signal<{ x: number; y: number; color: string }[]>([]);
-  currentPath = signal<{ x: number; y: number }[]>([]);
+  paths = signal<{ x: number; y: number }[][]>([]);
 
-  readonly pathSegments = computed(() => {
-    const pts = this.currentPath();
-    return pts.slice(0, -1).map((a, i) => {
-      const b = pts[i + 1];
-      const distKm = Math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2) / this.pixelsPerKm;
-      return { a, b, distLabel: this.formatUnit(distKm), mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2 };
-    });
-  });
-
-  readonly pathTotalDistance = computed(() => {
-    const total = this.pathSegments().reduce((sum, s) => {
-      const d = Math.sqrt((s.b.x - s.a.x) ** 2 + (s.b.y - s.a.y) ** 2) / this.pixelsPerKm;
-      return sum + d;
-    }, 0);
-    return this.formatUnit(total);
-  });
+  readonly allPathData = computed(() =>
+    this.paths().map(pts => {
+      const segments = pts.slice(0, -1).map((a, i) => {
+        const b = pts[i + 1];
+        const distKm = Math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2) / this.pixelsPerKm;
+        return { a, b, distLabel: this.formatUnit(distKm), mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2 };
+      });
+      const totalKm = segments.reduce((sum, s) => sum + Math.sqrt((s.b.x - s.a.x) ** 2 + (s.b.y - s.a.y) ** 2) / this.pixelsPerKm, 0);
+      return { pts, segments, totalLabel: this.formatUnit(totalKm) };
+    })
+  );
 
   private isDragging = false;
   private hasDragged = false;
@@ -95,8 +104,20 @@ export class InteractiveMapComponent implements OnInit, AfterViewInit {
 
   tooltip = signal<{ screenX: number; screenY: number; mapX: number; mapY: number; unitX: number; unitY: number } | null>(null);
 
-  getMarkColor(type: string): string {
-    return (this.mapConfig.markTypes as Record<string, { color: string }>)[type]?.color ?? 'white';
+  private markTypesMap = this.mapConfig.markTypes as Record<string, { color: string; shape: string; legend: string }>;
+
+  getMarkType(type: string) {
+    return this.markTypesMap[type] ?? { color: 'white', shape: 'circle', legend: '' };
+  }
+
+  get markTypesList() {
+    return Object.entries(this.markTypesMap).map(([key, v]) => ({ key, ...v }));
+  }
+
+  hiddenMarkTypes = signal<Set<string>>(new Set());
+
+  trianglePoints(x: number, y: number): string {
+    return `${x},${y - 7} ${x + 6},${y + 4} ${x - 6},${y + 4}`;
   }
 
   private get pixelsPerKm(): number {
@@ -168,11 +189,22 @@ export class InteractiveMapComponent implements OnInit, AfterViewInit {
     this.translateX.set((window.innerWidth - this.mapConfig.mapWidth * initialScale) / 2);
     this.translateY.set((window.innerHeight - this.mapConfig.mapHeight * initialScale) / 2);
 
-    const raw = this.activatedRoute.snapshot.queryParamMap.getAll('flag');
+    const qp = this.activatedRoute.snapshot.queryParamMap;
+
     this.flags.set(
-      raw.map(s => { const [px, py, color] = s.split(','); return { x: Number(px), y: Number(py), color: color ?? 'red' }; })
-         .filter(f => !isNaN(f.x) && !isNaN(f.y))
+      qp.getAll('flag')
+        .map(s => { const [px, py, color] = s.split(','); return { x: Number(px), y: Number(py), color: color ?? 'red' }; })
+        .filter(f => !isNaN(f.x) && !isNaN(f.y))
     );
+
+    this.paths.set(
+      qp.getAll('path')
+        .map(s => s.split(';').map(pt => { const [px, py] = pt.split(','); return { x: Number(px), y: Number(py) }; }).filter(p => !isNaN(p.x) && !isNaN(p.y)))
+        .filter(pts => pts.length > 0)
+    );
+
+    const rawHidden = qp.getAll('hidden');
+    if (rawHidden.length) this.hiddenMarkTypes.set(new Set(rawHidden));
   }
 
   ngAfterViewInit(): void {
@@ -249,8 +281,32 @@ export class InteractiveMapComponent implements OnInit, AfterViewInit {
   }
 
   enterPathMode(): void {
-    this.currentPath.set([]);
+    this.paths.update(ps => [...ps, []]);
     this.mode.set('path');
+  }
+
+  toggleMarkType(key: string): void {
+    this.hiddenMarkTypes.update(s => {
+      const next = new Set(s);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
+    this.updateUrl();
+  }
+
+  private updateUrl(): void {
+    const flagParams = this.flags().map(f => `${f.x},${f.y},${f.color}`);
+    const pathParams = this.paths().filter(pts => pts.length > 0).map(pts => pts.map(p => `${p.x},${p.y}`).join(';'));
+    const hiddenParams = [...this.hiddenMarkTypes()];
+    this.router.navigate([], {
+      relativeTo: this.activatedRoute,
+      queryParams: {
+        flag: flagParams.length ? flagParams : null,
+        path: pathParams.length ? pathParams : null,
+        hidden: hiddenParams.length ? hiddenParams : null,
+      },
+      queryParamsHandling: 'replace',
+    });
   }
 
   private onMapClick(event: MouseEvent): void {
@@ -259,15 +315,14 @@ export class InteractiveMapComponent implements OnInit, AfterViewInit {
     const mapY = Math.round((event.clientY - rect.top - this.translateY()) / this.scale());
 
     if (this.mode() === 'flag') {
-      const updated = [...this.flags(), { x: mapX, y: mapY, color: this.selectedFlagColor() }];
-      this.flags.set(updated);
-      this.router.navigate([], {
-        relativeTo: this.activatedRoute,
-        queryParams: { flag: updated.map(f => `${f.x},${f.y},${f.color}`) },
-        queryParamsHandling: 'replace',
-      });
+      this.flags.update(fs => [...fs, { x: mapX, y: mapY, color: this.selectedFlagColor() }]);
+      this.updateUrl();
     } else if (this.mode() === 'path') {
-      this.currentPath.update(pts => [...pts, { x: mapX, y: mapY }]);
+      this.paths.update(ps => {
+        const updated = ps.map((pts, i) => i === ps.length - 1 ? [...pts, { x: mapX, y: mapY }] : pts);
+        return updated;
+      });
+      this.updateUrl();
     }
   }
 
