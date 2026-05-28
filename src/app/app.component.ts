@@ -42,6 +42,7 @@ export class AppComponent implements OnInit {
   }
 
   pageId = 'pun-main';
+  noWrapper = signal(false);
   private currentPageType = 'unknown';
   private currentPageNumId = 0;
   currentUser = this.authService.currentUser;
@@ -137,6 +138,7 @@ export class AppComponent implements OnInit {
       })
     ).subscribe(({ data, params }) => {
       this.pageId = data['pageId'] || 'pun-index';
+      this.noWrapper.set(!!data['noWrapper']);
 
       // Send page change notification
       let pageType = 'unknown';

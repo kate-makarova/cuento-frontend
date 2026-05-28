@@ -1,0 +1,105 @@
+.map-container {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  cursor: grab;
+  background: #111;
+  user-select: none;
+}
+
+.map-container:active {
+  cursor: grabbing;
+}
+
+.map-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+}
+
+.map-wrapper img {
+  display: block;
+}
+
+.map-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.grid-line {
+  stroke: rgba(255, 255, 255, 0.2);
+  stroke-width: 1;
+}
+
+.map-mark {
+  stroke: #fff;
+  stroke-width: 1.5;
+  cursor: pointer;
+}
+
+.map-mark-label {
+  fill: #fff;
+  font-size: 12px;
+  font-family: sans-serif;
+  paint-order: stroke;
+  stroke: #000;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.map-ruler {
+  position: absolute;
+  pointer-events: none;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.map-ruler-top {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--ruler-top);
+}
+
+.map-ruler-left {
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--ruler-left);
+}
+
+.ruler-label {
+  position: absolute;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 11px;
+  font-family: monospace;
+  white-space: nowrap;
+}
+
+.ruler-label-x {
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.ruler-label-y {
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.map-tooltip {
+  position: fixed;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 1.6;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 100;
+}

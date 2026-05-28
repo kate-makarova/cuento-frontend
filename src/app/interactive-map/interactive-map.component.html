@@ -1,0 +1,78 @@
+<div
+  class="map-container"
+  #container
+  (mousedown)="onMouseDown($event)"
+  (mousemove)="onMouseMove($event)"
+  (mouseup)="onMouseUp()"
+  (mouseleave)="onMouseUp()"
+  [style.--ruler-top.px]="rulerTopHeight"
+  [style.--ruler-left.px]="rulerLeftWidth"
+>
+  <div class="map-wrapper" [style.transform]="transform()">
+    <img
+      [src]="mapConfig.mapUrl"
+      [attr.width]="mapConfig.mapWidth"
+      [attr.height]="mapConfig.mapHeight"
+      draggable="false"
+      alt="Map"
+    />
+    <svg
+      class="map-grid"
+      [attr.width]="mapConfig.mapWidth"
+      [attr.height]="mapConfig.mapHeight"
+    >
+      @for (x of gridLines().verticals; track x) {
+        <line
+          [attr.x1]="x" y1="0"
+          [attr.x2]="x" [attr.y2]="mapConfig.mapHeight"
+          class="grid-line"
+          vector-effect="non-scaling-stroke"
+        />
+      }
+      @for (y of gridLines().horizontals; track y) {
+        <line
+          x1="0" [attr.y1]="y"
+          [attr.x2]="mapConfig.mapWidth" [attr.y2]="y"
+          class="grid-line"
+          vector-effect="non-scaling-stroke"
+        />
+      }
+      @for (mark of mapConfig.marks; track mark.title) {
+        <circle
+          [attr.cx]="mark.x"
+          [attr.cy]="mark.y"
+          r="6"
+          [attr.fill]="getMarkColor(mark.type)"
+          class="map-mark"
+          vector-effect="non-scaling-stroke"
+        />
+        <text
+          [attr.x]="mark.x"
+          [attr.y]="mark.y - 10"
+          class="map-mark-label"
+          text-anchor="middle"
+        >{{ mark.title }}</text>
+      }
+    </svg>
+  </div>
+  <!-- Top ruler -->
+  <div class="map-ruler map-ruler-top">
+    @for (label of gridLabels().xLabels; track label.screenX) {
+      <span class="ruler-label ruler-label-x" [style.left.px]="label.screenX">{{ label.value }}</span>
+    }
+  </div>
+
+  <!-- Left ruler -->
+  <div class="map-ruler map-ruler-left">
+    @for (label of gridLabels().yLabels; track label.screenY) {
+      <span class="ruler-label ruler-label-y" [style.top.px]="label.screenY">{{ label.value }}</span>
+    }
+  </div>
+
+  @if (tooltip(); as t) {
+    <div class="map-tooltip" [style.left.px]="t.screenX + 14" [style.top.px]="t.screenY + 14">
+      <div>{{ t.unitX }} × {{ t.unitY }} {{ mapConfig.measureUnit }}</div>
+      <div>{{ t.mapX }} × {{ t.mapY }} px</div>
+    </div>
+  }
+</div>
