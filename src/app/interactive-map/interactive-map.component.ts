@@ -1,4 +1,5 @@
-import { Component, ElementRef, HostListener, AfterViewInit, OnInit, computed, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, AfterViewInit, OnInit, computed, signal, viewChild, inject } from '@angular/core';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 const RULER_TOP_HEIGHT = 24;
 const RULER_LEFT_WIDTH = 52;
@@ -6,17 +7,20 @@ const RULER_LEFT_WIDTH = 52;
 @Component({
   selector: 'app-interactive-map',
   standalone: true,
-  imports: [],
+  imports: [RouterModule],
   templateUrl: './interactive-map.component.html',
   styleUrl: './interactive-map.component.css'
 })
 export class InteractiveMapComponent implements OnInit, AfterViewInit {
+  private router = inject(Router);
+  private activatedRoute = inject(ActivatedRoute);
+
   public mapConfig = {
     mapWidth: 1514,
     mapHeight: 757,
     horizontalDirection: 'right',
     verticalDirection: 'bottom',
-    zeroPoint: [0, 0],
+    zeroPoint: [760, 470],
     measureUnit: 'km',
     measureRatio: [20, 1],
     mapUrl: 'https://upforme.ru/uploads/001c/9f/bb/7/12637.jpg',
@@ -54,7 +58,34 @@ export class InteractiveMapComponent implements OnInit, AfterViewInit {
   private translateY = signal(0);
   private containerWidth = signal(window.innerWidth);
 
+  readonly flagColors = ['black', 'white', 'blue', 'purple', 'green', 'yellow', 'red', 'orange', 'grey'];
+
+  mode = signal<'cursor' | 'flag' | 'path'>('cursor');
+  selectedFlagColor = signal('red');
+  flags = signal<{ x: number; y: number; color: string }[]>([]);
+  currentPath = signal<{ x: number; y: number }[]>([]);
+
+  readonly pathSegments = computed(() => {
+    const pts = this.currentPath();
+    return pts.slice(0, -1).map((a, i) => {
+      const b = pts[i + 1];
+      const distKm = Math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2) / this.pixelsPerKm;
+      return { a, b, distLabel: this.formatUnit(distKm), mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2 };
+    });
+  });
+
+  readonly pathTotalDistance = computed(() => {
+    const total = this.pathSegments().reduce((sum, s) => {
+      const d = Math.sqrt((s.b.x - s.a.x) ** 2 + (s.b.y - s.a.y) ** 2) / this.pixelsPerKm;
+      return sum + d;
+    }, 0);
+    return this.formatUnit(total);
+  });
+
   private isDragging = false;
+  private hasDragged = false;
+  private clickStartX = 0;
+  private clickStartY = 0;
   private lastMouseX = 0;
   private lastMouseY = 0;
 
@@ -116,15 +147,15 @@ export class InteractiveMapComponent implements OnInit, AfterViewInit {
     const gridStepKm = Math.pow(10, power);
     const stepPx = gridStepKm * this.pixelsPerKm;
 
+    const [zx, zy] = this.mapConfig.zeroPoint;
     const verticals: number[] = [];
     const horizontals: number[] = [];
 
-    for (let x = 0; x <= this.mapConfig.mapWidth; x += stepPx) {
-      verticals.push(Math.round(x));
-    }
-    for (let y = 0; y <= this.mapConfig.mapHeight; y += stepPx) {
-      horizontals.push(Math.round(y));
-    }
+    for (let x = zx; x >= 0; x -= stepPx) verticals.push(Math.round(x));
+    for (let x = zx + stepPx; x <= this.mapConfig.mapWidth; x += stepPx) verticals.push(Math.round(x));
+
+    for (let y = zy; y >= 0; y -= stepPx) horizontals.push(Math.round(y));
+    for (let y = zy + stepPx; y <= this.mapConfig.mapHeight; y += stepPx) horizontals.push(Math.round(y));
 
     return { verticals, horizontals, stepPx, gridStepKm };
   });
@@ -136,6 +167,12 @@ export class InteractiveMapComponent implements OnInit, AfterViewInit {
     this.scale.set(initialScale);
     this.translateX.set((window.innerWidth - this.mapConfig.mapWidth * initialScale) / 2);
     this.translateY.set((window.innerHeight - this.mapConfig.mapHeight * initialScale) / 2);
+
+    const raw = this.activatedRoute.snapshot.queryParamMap.getAll('flag');
+    this.flags.set(
+      raw.map(s => { const [px, py, color] = s.split(','); return { x: Number(px), y: Number(py), color: color ?? 'red' }; })
+         .filter(f => !isNaN(f.x) && !isNaN(f.y))
+    );
   }
 
   ngAfterViewInit(): void {
@@ -165,6 +202,9 @@ export class InteractiveMapComponent implements OnInit, AfterViewInit {
   onMouseDown(event: MouseEvent): void {
     this.clearHoverTimer();
     this.isDragging = true;
+    this.hasDragged = false;
+    this.clickStartX = event.clientX;
+    this.clickStartY = event.clientY;
     this.lastMouseX = event.clientX;
     this.lastMouseY = event.clientY;
     event.preventDefault();
@@ -172,10 +212,15 @@ export class InteractiveMapComponent implements OnInit, AfterViewInit {
 
   onMouseMove(event: MouseEvent): void {
     if (this.isDragging) {
-      this.translateX.update((x: number) => x + event.clientX - this.lastMouseX);
-      this.translateY.update((y: number) => y + event.clientY - this.lastMouseY);
-      this.lastMouseX = event.clientX;
-      this.lastMouseY = event.clientY;
+      const dx = event.clientX - this.clickStartX;
+      const dy = event.clientY - this.clickStartY;
+      if (!this.hasDragged && dx * dx + dy * dy > 25) this.hasDragged = true;
+      if (this.hasDragged) {
+        this.translateX.update((x: number) => x + event.clientX - this.lastMouseX);
+        this.translateY.update((y: number) => y + event.clientY - this.lastMouseY);
+        this.lastMouseX = event.clientX;
+        this.lastMouseY = event.clientY;
+      }
       return;
     }
     this.clearHoverTimer();
@@ -184,9 +229,46 @@ export class InteractiveMapComponent implements OnInit, AfterViewInit {
     this.hoverTimer = setTimeout(() => this.showTooltip(), 2000);
   }
 
-  onMouseUp(): void {
+  onMouseUp(event: MouseEvent): void {
+    if (this.isDragging && !this.hasDragged) this.onMapClick(event);
     this.isDragging = false;
     this.clearHoverTimer();
+  }
+
+  onClick(event: MouseEvent): void {
+    event.stopPropagation();
+  }
+
+  toggleFlagPanel(): void {
+    this.mode.set(this.mode() === 'flag' ? 'cursor' : 'flag');
+  }
+
+  selectFlagColor(color: string): void {
+    this.selectedFlagColor.set(color);
+    this.mode.set('flag');
+  }
+
+  enterPathMode(): void {
+    this.currentPath.set([]);
+    this.mode.set('path');
+  }
+
+  private onMapClick(event: MouseEvent): void {
+    const rect = this.containerRef().nativeElement.getBoundingClientRect();
+    const mapX = Math.round((event.clientX - rect.left - this.translateX()) / this.scale());
+    const mapY = Math.round((event.clientY - rect.top - this.translateY()) / this.scale());
+
+    if (this.mode() === 'flag') {
+      const updated = [...this.flags(), { x: mapX, y: mapY, color: this.selectedFlagColor() }];
+      this.flags.set(updated);
+      this.router.navigate([], {
+        relativeTo: this.activatedRoute,
+        queryParams: { flag: updated.map(f => `${f.x},${f.y},${f.color}`) },
+        queryParamsHandling: 'replace',
+      });
+    } else if (this.mode() === 'path') {
+      this.currentPath.update(pts => [...pts, { x: mapX, y: mapY }]);
+    }
   }
 
   private clearHoverTimer(): void {
@@ -201,10 +283,13 @@ export class InteractiveMapComponent implements OnInit, AfterViewInit {
     const rect = this.containerRef().nativeElement.getBoundingClientRect();
     const containerX = this.hoverClientX - rect.left;
     const containerY = this.hoverClientY - rect.top;
+    const [zx, zy] = this.mapConfig.zeroPoint;
     const mapX = Math.round((containerX - this.translateX()) / this.scale());
     const mapY = Math.round((containerY - this.translateY()) / this.scale());
-    const unitX = Math.round((mapX / this.pixelsPerKm) * 10) / 10;
-    const unitY = Math.round((mapY / this.pixelsPerKm) * 10) / 10;
+    const rawUnitX = (mapX - zx) / this.pixelsPerKm;
+    const rawUnitY = (mapY - zy) / this.pixelsPerKm;
+    const unitX = Math.round((this.mapConfig.horizontalDirection === 'right' ? rawUnitX : -rawUnitX) * 10) / 10;
+    const unitY = Math.round((this.mapConfig.verticalDirection === 'bottom' ? rawUnitY : -rawUnitY) * 10) / 10;
     this.tooltip.set({ screenX: this.hoverClientX, screenY: this.hoverClientY, mapX, mapY, unitX, unitY });
   }
 }

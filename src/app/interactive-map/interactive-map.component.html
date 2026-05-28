@@ -3,8 +3,10 @@
   #container
   (mousedown)="onMouseDown($event)"
   (mousemove)="onMouseMove($event)"
-  (mouseup)="onMouseUp()"
-  (mouseleave)="onMouseUp()"
+  (mouseup)="onMouseUp($event)"
+  (mouseleave)="onMouseUp($event)"
+  [class.mode-flag]="mode() === 'flag'"
+  [class.mode-path]="mode() === 'path'"
   [style.--ruler-top.px]="rulerTopHeight"
   [style.--ruler-left.px]="rulerLeftWidth"
 >
@@ -37,6 +39,32 @@
           vector-effect="non-scaling-stroke"
         />
       }
+      @for (flag of flags(); track $index) {
+        <g [attr.transform]="'translate(' + flag.x + ',' + flag.y + ')'">
+          <line x1="0" y1="0" x2="0" y2="-20" class="flag-pole" vector-effect="non-scaling-stroke"/>
+          <polygon points="0,-20 10,-16 0,-12" [attr.fill]="flag.color" class="flag-pennant" vector-effect="non-scaling-stroke"/>
+        </g>
+      }
+      <!-- Path drawing -->
+      @for (seg of pathSegments(); track $index) {
+        <line
+          [attr.x1]="seg.a.x" [attr.y1]="seg.a.y"
+          [attr.x2]="seg.b.x" [attr.y2]="seg.b.y"
+          class="path-line"
+          vector-effect="non-scaling-stroke"
+        />
+        <text [attr.x]="seg.mx" [attr.y]="seg.my - 10" class="path-label" text-anchor="middle">{{ seg.distLabel }} {{ mapConfig.measureUnit }}</text>
+      }
+      @for (pt of currentPath(); track $index) {
+        <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="4" class="path-dot" vector-effect="non-scaling-stroke"/>
+      }
+      @if (currentPath().length > 0) {
+        <text [attr.x]="currentPath()[0].x" [attr.y]="currentPath()[0].y - 10" class="path-label" text-anchor="middle">0</text>
+      }
+      @if (currentPath().length > 1) {
+        <text [attr.x]="currentPath()[currentPath().length - 1].x" [attr.y]="currentPath()[currentPath().length - 1].y - 10" class="path-label" text-anchor="middle">{{ pathTotalDistance() }} {{ mapConfig.measureUnit }}</text>
+      }
+
       @for (mark of mapConfig.marks; track mark.title) {
         <circle
           [attr.cx]="mark.x"
@@ -55,6 +83,42 @@
       }
     </svg>
   </div>
+  <!-- Tool panel -->
+  <div class="map-tool-panel" (click)="onClick($event)" (mousedown)="$event.stopPropagation()">
+    <button class="tool-btn" [class.active]="mode() === 'cursor'" (click)="mode.set('cursor')" title="Cursor">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M2 1 L2 13 L5.5 9.5 L8.5 15.5 L10.5 14.5 L7.5 8.5 L12 8.5 Z"/>
+      </svg>
+    </button>
+    <button class="tool-btn" [class.active]="mode() === 'flag'" (click)="toggleFlagPanel()" title="Place flag">
+      <svg width="16" height="16" viewBox="0 0 16 16">
+        <line x1="4" y1="2" x2="4" y2="14" stroke="currentColor" stroke-width="1.5"/>
+        <polygon points="4,2 13,5.5 4,9" [attr.fill]="selectedFlagColor()"/>
+      </svg>
+    </button>
+    <button class="tool-btn" [class.active]="mode() === 'path'" (click)="enterPathMode()" title="Draw path">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+        <circle cx="3" cy="13" r="2"/>
+        <circle cx="13" cy="3" r="2"/>
+        <line x1="3" y1="13" x2="13" y2="3" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2,2"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Flag color panel -->
+  <div class="flag-color-panel" [class.open]="mode() === 'flag'" (click)="onClick($event)" (mousedown)="$event.stopPropagation()">
+    @for (color of flagColors; track color) {
+      <button
+        class="flag-color-btn"
+        [class.active]="selectedFlagColor() === color"
+        [title]="color"
+        (click)="selectFlagColor(color)"
+      >
+        <span class="flag-swatch" [style.background]="color"></span>
+      </button>
+    }
+  </div>
+
   <!-- Top ruler -->
   <div class="map-ruler map-ruler-top">
     @for (label of gridLabels().xLabels; track label.screenX) {

@@ -13,4 +13,6 @@
 </div>
 }
 <app-toast></app-toast>
-<app-scroll-nav></app-scroll-nav>
+@if (!noWrapper()) {
+  <app-scroll-nav></app-scroll-nav>
+}
