@@ -1,0 +1,330 @@
+<div
+  class="editor-container"
+  #container
+  (mousedown)="onMouseDown($event)"
+  (mousemove)="onMouseMove($event)"
+  (mouseup)="onMouseUp($event)"
+  (mouseleave)="onMouseUp($event)"
+  [class.draggable]="!!mapConfig().mapUrl && !settingZeroPoint() && !settingDistanceRef()"
+  [class.mode-set-zero]="settingZeroPoint()"
+  [class.mode-set-distance]="settingDistanceRef()"
+>
+
+  <!-- Map image + overlay -->
+  @if (mapConfig().mapUrl) {
+    <div class="map-wrapper" [style.transform]="transform()">
+      <img
+        [src]="mapConfig().mapUrl"
+        [attr.width]="mapConfig().mapWidth"
+        [attr.height]="mapConfig().mapHeight"
+        draggable="false"
+        alt="Map"
+      />
+      <svg
+        class="map-overlay"
+        [attr.width]="mapConfig().mapWidth"
+        [attr.height]="mapConfig().mapHeight"
+      >
+        <!-- Grid lines -->
+        @if (showGrid()) {
+          @for (x of gridLines().verticals; track x) {
+            <line [attr.x1]="x" y1="0" [attr.x2]="x" [attr.y2]="mapConfig().mapHeight"
+                  class="grid-line" vector-effect="non-scaling-stroke"/>
+          }
+          @for (y of gridLines().horizontals; track y) {
+            <line x1="0" [attr.y1]="y" [attr.x2]="mapConfig().mapWidth" [attr.y2]="y"
+                  class="grid-line" vector-effect="non-scaling-stroke"/>
+          }
+        }
+
+        <!-- Distance reference -->
+        @if (distanceRefPoints().length === 2) {
+          <line
+            [attr.x1]="distanceRefPoints()[0].x" [attr.y1]="distanceRefPoints()[0].y"
+            [attr.x2]="distanceRefPoints()[1].x" [attr.y2]="distanceRefPoints()[1].y"
+            class="dist-ref-line" vector-effect="non-scaling-stroke"
+          />
+        }
+        @for (pt of distanceRefPoints(); track $index) {
+          <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="4" class="dist-ref-dot" vector-effect="non-scaling-stroke"/>
+        }
+
+        <!-- Zero point marker -->
+        @if (mapConfig().zeroPoint) {
+          <g [attr.transform]="'translate(' + mapConfig().zeroPoint![0] + ',' + mapConfig().zeroPoint![1] + ')'">
+            <line x1="0" y1="-14" x2="0" y2="14" class="zero-point-arm" vector-effect="non-scaling-stroke"/>
+            <line x1="-14" y1="0" x2="14" y2="0" class="zero-point-arm" vector-effect="non-scaling-stroke"/>
+            <line x1="-10" y1="-10" x2="10" y2="10" class="zero-point-arm" vector-effect="non-scaling-stroke"/>
+            <line x1="10" y1="-10" x2="-10" y2="10" class="zero-point-arm" vector-effect="non-scaling-stroke"/>
+            <circle cx="0" cy="0" r="3" class="zero-point-dot" vector-effect="non-scaling-stroke"/>
+          </g>
+        }
+      </svg>
+    </div>
+  }
+
+  <!-- Instrument panel -->
+  <div class="editor-instrument-panel" (mousedown)="stopPropagation($event)">
+    <button class="instrument-btn" [class.active]="setupOpen()" (click)="toggleSetup()">
+      Setup
+      <svg class="chevron" [class.flipped]="setupOpen()" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+        <path d="M1 3 L5 7 L9 3"/>
+      </svg>
+    </button>
+    <button class="instrument-btn" [class.active]="marksOpen()" (click)="toggleMarks()">
+      Marks
+      <svg class="chevron" [class.flipped]="marksOpen()" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+        <path d="M1 3 L5 7 L9 3"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Setup panel -->
+  <div class="setup-panel" [class.open]="setupOpen()" (mousedown)="stopPropagation($event)">
+
+    <!-- Load map image -->
+    <div class="setup-section">
+      <button class="setup-section-header" [class.active]="activeSetupSection() === 'image'" (click)="toggleSection('image')">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="2" width="12" height="10" rx="1"/>
+          <circle cx="4.5" cy="5.5" r="1.2" fill="currentColor" stroke="none"/>
+          <path d="M1 10 L4 7 L6.5 9.5 L9 7.5 L13 10"/>
+        </svg>
+        Load map image
+      </button>
+      @if (activeSetupSection() === 'image') {
+        <div class="setup-section-body">
+          <div class="form-row">
+            <input
+              class="editor-input url-input"
+              type="text"
+              placeholder="Image URL"
+              [(ngModel)]="imageUrlInput"
+              name="imageUrl"
+              (keydown.enter)="loadImage()"
+            />
+            <button class="editor-btn" (click)="loadImage()">Load</button>
+          </div>
+          @if (imageLoadError) {
+            <div class="form-error">Failed to load image. Check the URL and try again.</div>
+          }
+          @if (mapConfig().mapUrl) {
+            <div class="form-hint">Loaded: {{ mapConfig().mapWidth }} × {{ mapConfig().mapHeight }} px</div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Map metadata -->
+    <div class="setup-section">
+      <button class="setup-section-header" [class.active]="activeSetupSection() === 'metadata'" (click)="toggleSection('metadata')">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round">
+          <circle cx="7" cy="7" r="5.5"/>
+          <line x1="7" y1="6" x2="7" y2="10"/>
+          <circle cx="7" cy="4.5" r="0.6" fill="currentColor" stroke="none"/>
+        </svg>
+        Map metadata
+      </button>
+      @if (activeSetupSection() === 'metadata') {
+        <div class="setup-section-body">
+          <div class="form-row">
+            <label class="editor-label">Horizontal direction</label>
+            <select class="editor-select" [(ngModel)]="metaHorizontalDirection" name="hDir">
+              <option value="">— not set —</option>
+              <option value="right">Right →</option>
+              <option value="left">← Left</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label class="editor-label">Vertical direction</label>
+            <select class="editor-select" [(ngModel)]="metaVerticalDirection" name="vDir">
+              <option value="">— not set —</option>
+              <option value="bottom">↓ Bottom</option>
+              <option value="top">Top ↑</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label class="editor-label">Measure unit</label>
+            <input class="editor-input" type="text" placeholder="e.g. km" [(ngModel)]="metaMeasureUnit" name="measureUnit"/>
+          </div>
+          <div class="form-row">
+            <label class="editor-label">Origin</label>
+            <div class="input-pair">
+              <input class="editor-input" type="number" placeholder="X px" [(ngModel)]="metaZeroPointX" name="zeroX"/>
+              <input class="editor-input" type="number" placeholder="Y px" [(ngModel)]="metaZeroPointY" name="zeroY"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <label class="editor-label">Measure ratio</label>
+            <div class="input-pair">
+              <input class="editor-input" type="number" placeholder="px" [(ngModel)]="metaMeasureRatioPixels" name="ratioP"/>
+              <span class="ratio-sep">per</span>
+              <input class="editor-input" type="number" placeholder="unit" [(ngModel)]="metaMeasureRatioUnits" name="ratioU"/>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="editor-btn" (click)="applyMetadata()">Apply</button>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Set origin -->
+    <div class="setup-section">
+      <button
+        class="setup-section-header"
+        [class.active]="settingZeroPoint()"
+        [disabled]="!mapConfig().mapUrl"
+        (click)="toggleSetZeroPoint()"
+      >
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
+          <line x1="7" y1="1" x2="7" y2="13"/>
+          <line x1="1" y1="7" x2="13" y2="7"/>
+          <line x1="2.5" y1="2.5" x2="11.5" y2="11.5"/>
+          <line x1="11.5" y1="2.5" x2="2.5" y2="11.5"/>
+          <circle cx="7" cy="7" r="1.8" fill="currentColor" stroke="none"/>
+        </svg>
+        Set origin
+        @if (settingZeroPoint()) {
+          <span class="section-active-hint">— click on the map</span>
+        } @else if (mapConfig().zeroPoint) {
+          <span class="section-value-hint">{{ mapConfig().zeroPoint![0] }}, {{ mapConfig().zeroPoint![1] }}</span>
+        }
+      </button>
+    </div>
+
+    <!-- Set distance reference -->
+    <div class="setup-section">
+      <button
+        class="setup-section-header"
+        [class.active]="settingDistanceRef()"
+        [disabled]="!mapConfig().mapUrl"
+        (click)="toggleDistanceRef()"
+      >
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round">
+          <circle cx="2.5" cy="11.5" r="1.8" fill="currentColor" stroke="none"/>
+          <circle cx="11.5" cy="2.5" r="1.8" fill="currentColor" stroke="none"/>
+          <line x1="2.5" y1="11.5" x2="11.5" y2="2.5" stroke-dasharray="2 2"/>
+        </svg>
+        Set distance reference
+        @if (settingDistanceRef()) {
+          <span class="section-active-hint">
+            @if (distanceRefPoints().length === 0) { — click first point }
+            @else { — click second point }
+          </span>
+        } @else if (mapConfig().measureRatio) {
+          <span class="section-value-hint">{{ mapConfig().measureRatio![0] | number:'1.0-1' }} px / {{ mapConfig().measureRatio![1] }} {{ mapConfig().measureUnit || 'unit' }}</span>
+        }
+      </button>
+      @if (activeSetupSection() === 'distance') {
+        <div class="setup-section-body">
+          <div class="form-hint">Enter the real-world distance between the two marked points.</div>
+          <div class="form-row">
+            <input
+              class="editor-input"
+              type="number"
+              placeholder="Distance"
+              [(ngModel)]="distanceInput"
+              name="distRef"
+              (keydown.enter)="applyDistanceRef()"
+            />
+            <span class="ratio-sep">{{ mapConfig().measureUnit || 'units' }}</span>
+            <button class="editor-btn" (click)="applyDistanceRef()">Apply</button>
+          </div>
+        </div>
+      }
+    </div>
+
+  </div>
+
+  <!-- Marks panel -->
+  <div class="setup-panel" [class.open]="marksOpen()" (mousedown)="stopPropagation($event)">
+
+    <div class="setup-section">
+      <button class="setup-section-header" [class.active]="activeMarksSection() === 'legend'" (click)="toggleMarksSection('legend')">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="1" width="5" height="5" rx="1"/>
+          <circle cx="10.5" cy="3.5" r="2.5"/>
+          <polygon points="3.5,8.5 6,13 1,13"/>
+          <line x1="8" y1="9" x2="13" y2="9"/>
+          <line x1="8" y1="11.5" x2="13" y2="11.5"/>
+        </svg>
+        Edit legend
+      </button>
+      @if (activeMarksSection() === 'legend') {
+        <div class="setup-section-body">
+
+          <!-- Existing mark types -->
+          @if (markTypesList().length > 0) {
+            <div class="mark-type-list">
+              @for (mt of markTypesList(); track mt.key) {
+                <div class="mark-type-row">
+                  <svg class="mark-type-icon" width="16" height="16" viewBox="0 0 16 16">
+                    @switch (mt.shape) {
+                      @case ('circle')   { <circle cx="8" cy="8" r="5" [attr.fill]="mt.color" stroke="rgba(255,255,255,0.4)" stroke-width="1"/> }
+                      @case ('square')   { <rect x="3" y="3" width="10" height="10" [attr.fill]="mt.color" stroke="rgba(255,255,255,0.4)" stroke-width="1"/> }
+                      @case ('triangle') { <polygon points="8,2 14,14 2,14" [attr.fill]="mt.color" stroke="rgba(255,255,255,0.4)" stroke-width="1"/> }
+                      @case ('diamond')  { <polygon points="8,2 14,8 8,14 2,8" [attr.fill]="mt.color" stroke="rgba(255,255,255,0.4)" stroke-width="1"/> }
+                      @case ('star')     { <polygon points="8,2.5 9.3,6.2 13.2,6.3 10.1,8.7 11.2,12.5 8,10.2 4.8,12.5 5.9,8.7 2.8,6.3 6.7,6.2" [attr.fill]="mt.color" stroke="rgba(255,255,255,0.4)" stroke-width="1"/> }
+                      @case ('pentagon') { <polygon points="8,2.5 13.2,6.3 11.2,12.5 4.8,12.5 2.8,6.3" [attr.fill]="mt.color" stroke="rgba(255,255,255,0.4)" stroke-width="1"/> }
+                      @case ('hexagon')  { <polygon points="13.5,8 10.75,12.76 5.25,12.76 2.5,8 5.25,3.24 10.75,3.24" [attr.fill]="mt.color" stroke="rgba(255,255,255,0.4)" stroke-width="1"/> }
+                      @case ('cross')    { <path d="M6,2 H10 V6 H14 V10 H10 V14 H6 V10 H2 V6 H6 Z" [attr.fill]="mt.color" stroke="rgba(255,255,255,0.4)" stroke-width="1"/> }
+                    }
+                  </svg>
+                  <span class="mark-type-legend">{{ mt.legend }}</span>
+                  <button class="mark-type-delete" (click)="removeMarkType(mt.key)" title="Remove">
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                      <line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/>
+                    </svg>
+                  </button>
+                </div>
+              }
+            </div>
+            <div class="section-divider"></div>
+          }
+
+          <!-- Add new mark type -->
+          <div class="form-row">
+            <label class="editor-label">Shape</label>
+            <select class="editor-select" [(ngModel)]="newMarkShape" name="newShape">
+              <option value="circle">Circle</option>
+              <option value="square">Square</option>
+              <option value="diamond">Diamond</option>
+              <option value="triangle">Triangle</option>
+              <option value="pentagon">Pentagon</option>
+              <option value="hexagon">Hexagon</option>
+              <option value="star">Star</option>
+              <option value="cross">Cross</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label class="editor-label">Color</label>
+            <input class="color-input" type="color" [(ngModel)]="newMarkColor" name="newColor"/>
+          </div>
+          <div class="form-row">
+            <label class="editor-label">Name</label>
+            <input class="editor-input" type="text" placeholder="e.g. Friendly outpost" [(ngModel)]="newMarkLegend" name="newLegend" (keydown.enter)="addMarkType()"/>
+          </div>
+          <div class="form-actions">
+            <button class="editor-btn" (click)="addMarkType()" [disabled]="!newMarkLegend.trim()">Add</button>
+          </div>
+
+        </div>
+      }
+    </div>
+
+  </div>
+
+  <!-- Coordinate rulers -->
+  <div class="editor-ruler-top">
+    @for (label of gridLabels().xLabels; track label.screenX) {
+      <span class="ruler-label ruler-label-x" [style.left.px]="label.screenX">{{ label.value }}</span>
+    }
+  </div>
+  <div class="editor-ruler-left">
+    @for (label of gridLabels().yLabels; track label.screenY) {
+      <span class="ruler-label ruler-label-y" [style.top.px]="label.screenY">{{ label.value }}</span>
+    }
+  </div>
+
+</div>

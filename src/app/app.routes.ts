@@ -75,6 +75,7 @@ import { NotFoundComponent } from './error-pages/not-found/not-found.component';
 import { ForbiddenComponent } from './error-pages/forbidden/forbidden.component';
 import { ServerErrorComponent } from './error-pages/server-error/server-error.component';
 import { InteractiveMapComponent } from './interactive-map/interactive-map.component';
+import { InteractiveMapEditorComponent } from './interactive-map-editor/interactive-map-editor.component';
 
 
 
@@ -468,7 +469,7 @@ export const routes: Routes = [
         path: 'design-drafts/:id',
         loadComponent: () => import('./admin/admin-design-draft-edit/admin-design-draft-edit.component').then(m => m.AdminDesignDraftEditComponent),
         title: 'Admin - Edit Design Draft'
-      }
+      },
     ]
   },
   {
@@ -495,6 +496,11 @@ export const routes: Routes = [
     path: 'interactive-map',
     component: InteractiveMapComponent,
     data: { pageId: 'pun-interactive-map', noWrapper: true }
+  },
+  {
+    path: 'interactive-map-editor',
+    component: InteractiveMapEditorComponent,
+    data: { pageId: 'pun-interactive-map-editor', noWrapper: true }
   },
   {
     path: '403',

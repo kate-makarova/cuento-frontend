@@ -1,0 +1,366 @@
+import { Component, signal, computed, viewChild, ElementRef, AfterViewInit, HostListener } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { DecimalPipe } from '@angular/common';
+
+const INSTRUMENT_PANEL_HEIGHT = 44;
+const RULER_TOP_HEIGHT = 24;
+const RULER_LEFT_WIDTH = 52;
+
+export interface MapMarkType {
+  color: string;
+  shape: 'circle' | 'square' | 'triangle' | 'diamond' | 'star' | 'pentagon' | 'hexagon' | 'cross';
+  legend: string;
+}
+
+export interface MapMark {
+  type: string;
+  title: string;
+  x: number;
+  y: number;
+}
+
+export interface MapConfig {
+  mapUrl?: string;
+  mapWidth?: number;
+  mapHeight?: number;
+  horizontalDirection?: 'left' | 'right';
+  verticalDirection?: 'top' | 'bottom';
+  zeroPoint?: [number, number];
+  measureUnit?: string;
+  measureRatio?: [number, number];
+  markTypes?: Record<string, MapMarkType>;
+  marks?: MapMark[];
+}
+
+@Component({
+  selector: 'app-interactive-map-editor',
+  standalone: true,
+  imports: [FormsModule, DecimalPipe],
+  templateUrl: './interactive-map-editor.component.html',
+  styleUrl: './interactive-map-editor.component.css'
+})
+export class InteractiveMapEditorComponent implements AfterViewInit {
+  readonly rulerTopHeight = RULER_TOP_HEIGHT;
+  readonly rulerLeftWidth = RULER_LEFT_WIDTH;
+  readonly instrumentPanelHeight = INSTRUMENT_PANEL_HEIGHT;
+
+  containerRef = viewChild.required<ElementRef<HTMLDivElement>>('container');
+
+  mapConfig = signal<MapConfig>({});
+
+  // ── Setup panel ──
+  setupOpen = signal(false);
+  activeSetupSection = signal<'image' | 'metadata' | 'distance' | null>(null);
+
+  // image section
+  imageUrlInput = '';
+  imageLoadError = false;
+
+  // metadata section
+  metaHorizontalDirection: '' | 'left' | 'right' = '';
+  metaVerticalDirection: '' | 'top' | 'bottom' = '';
+  metaMeasureUnit = '';
+  metaZeroPointX = '';
+  metaZeroPointY = '';
+  metaMeasureRatioPixels = '';
+  metaMeasureRatioUnits = '';
+
+  // ── Modes ──
+  settingZeroPoint = signal(false);
+  settingDistanceRef = signal(false);
+  distanceRefPoints = signal<{ x: number; y: number }[]>([]);
+  distanceInput = '';
+
+  // ── Pan / zoom ──
+  private scale = signal(1);
+  private translateX = signal(0);
+  private translateY = signal(0);
+  containerWidth = signal(window.innerWidth);
+
+  readonly transform = computed(() =>
+    `translate(${this.translateX()}px, ${this.translateY()}px) scale(${this.scale()})`
+  );
+
+  private isDragging = false;
+  private hasDragged = false;
+  private clickStartX = 0;
+  private clickStartY = 0;
+  private lastMouseX = 0;
+  private lastMouseY = 0;
+
+  // ── Grid ──
+  readonly showGrid = computed(() =>
+    !!this.mapConfig().zeroPoint && !!this.mapConfig().measureRatio
+  );
+
+  private readonly pixelsPerUnit = computed(() => {
+    const ratio = this.mapConfig().measureRatio;
+    return ratio ? ratio[0] / ratio[1] : 1;
+  });
+
+  readonly gridLines = computed(() => {
+    const cfg = this.mapConfig();
+    if (!cfg.zeroPoint || !cfg.measureRatio || !cfg.mapWidth || !cfg.mapHeight) {
+      return { verticals: [] as number[], horizontals: [] as number[], gridStepUnits: 1 };
+    }
+    const ppu = this.pixelsPerUnit();
+    const visibleWidthUnits = this.containerWidth() / (this.scale() * ppu);
+    const rawStep = visibleWidthUnits / 10;
+    const power = Math.round(Math.log10(rawStep));
+    const gridStepUnits = Math.pow(10, power);
+    const stepPx = gridStepUnits * ppu;
+    const [zx, zy] = cfg.zeroPoint;
+    const verticals: number[] = [];
+    const horizontals: number[] = [];
+
+    for (let x = zx; x >= 0; x -= stepPx) verticals.push(Math.round(x));
+    for (let x = zx + stepPx; x <= cfg.mapWidth; x += stepPx) verticals.push(Math.round(x));
+    for (let y = zy; y >= 0; y -= stepPx) horizontals.push(Math.round(y));
+    for (let y = zy + stepPx; y <= cfg.mapHeight; y += stepPx) horizontals.push(Math.round(y));
+
+    return { verticals, horizontals, gridStepUnits };
+  });
+
+  readonly gridLabels = computed(() => {
+    const cfg = this.mapConfig();
+    if (!cfg.zeroPoint || !cfg.measureRatio) return { xLabels: [] as { screenX: number; value: string }[], yLabels: [] as { screenY: number; value: string }[] };
+    const { verticals, horizontals, gridStepUnits } = this.gridLines();
+    const tx = this.translateX();
+    const ty = this.translateY();
+    const s = this.scale();
+    const [zx, zy] = cfg.zeroPoint;
+    const ppu = this.pixelsPerUnit();
+
+    const snap = (raw: number) => Math.round(raw / gridStepUnits) * gridStepUnits;
+
+    const xLabels = verticals
+      .map(x => {
+        const screenX = x * s + tx;
+        const raw = snap((x - zx) / ppu);
+        return { screenX, value: this.formatUnit(cfg.horizontalDirection === 'left' ? -raw : raw) };
+      })
+      .filter(l => l.screenX >= RULER_LEFT_WIDTH && l.screenX <= this.containerWidth());
+
+    const yLabels = horizontals
+      .map(y => {
+        const screenY = y * s + ty;
+        const raw = snap((y - zy) / ppu);
+        return { screenY, value: this.formatUnit(cfg.verticalDirection === 'top' ? -raw : raw) };
+      })
+      .filter(l => l.screenY >= INSTRUMENT_PANEL_HEIGHT + RULER_TOP_HEIGHT && l.screenY <= window.innerHeight);
+
+    return { xLabels, yLabels };
+  });
+
+  private formatUnit(value: number): string {
+    const rounded = Math.round(value * 10) / 10;
+    return rounded % 1 === 0 ? String(rounded) : rounded.toFixed(1);
+  }
+
+  // ── Lifecycle ──
+
+  ngAfterViewInit(): void {
+    this.containerRef().nativeElement.addEventListener(
+      'wheel',
+      (e: WheelEvent) => this.onWheel(e),
+      { passive: false }
+    );
+  }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    this.containerWidth.set(window.innerWidth);
+  }
+
+  // ── Mouse events ──
+
+  onMouseDown(event: MouseEvent): void {
+    if (!this.mapConfig().mapUrl) return;
+    this.isDragging = true;
+    this.hasDragged = false;
+    this.clickStartX = event.clientX;
+    this.clickStartY = event.clientY;
+    this.lastMouseX = event.clientX;
+    this.lastMouseY = event.clientY;
+    event.preventDefault();
+  }
+
+  onMouseMove(event: MouseEvent): void {
+    if (!this.isDragging) return;
+    const dx = event.clientX - this.clickStartX;
+    const dy = event.clientY - this.clickStartY;
+    if (!this.hasDragged && dx * dx + dy * dy > 25) this.hasDragged = true;
+    if (this.hasDragged) {
+      this.translateX.update(x => x + event.clientX - this.lastMouseX);
+      this.translateY.update(y => y + event.clientY - this.lastMouseY);
+      this.lastMouseX = event.clientX;
+      this.lastMouseY = event.clientY;
+    }
+  }
+
+  onMouseUp(event: MouseEvent): void {
+    if (this.isDragging && !this.hasDragged) this.onMapClick(event);
+    this.isDragging = false;
+  }
+
+  onWheel(event: WheelEvent): void {
+    if (!this.mapConfig().mapUrl) return;
+    event.preventDefault();
+    const factor = event.deltaY < 0 ? 1.1 : 0.9;
+    const rect = this.containerRef().nativeElement.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+    this.translateX.set(mouseX - (mouseX - this.translateX()) * factor);
+    this.translateY.set(mouseY - (mouseY - this.translateY()) * factor);
+    this.scale.set(this.scale() * factor);
+  }
+
+  stopPropagation(event: MouseEvent): void {
+    event.stopPropagation();
+  }
+
+  private onMapClick(event: MouseEvent): void {
+    const rect = this.containerRef().nativeElement.getBoundingClientRect();
+    const mapX = Math.round((event.clientX - rect.left - this.translateX()) / this.scale());
+    const mapY = Math.round((event.clientY - rect.top - this.translateY()) / this.scale());
+
+    if (this.settingZeroPoint()) {
+      this.mapConfig.update(cfg => ({ ...cfg, zeroPoint: [mapX, mapY] }));
+      this.settingZeroPoint.set(false);
+      return;
+    }
+
+    if (this.settingDistanceRef()) {
+      this.distanceRefPoints.update(pts => {
+        if (pts.length < 2) return [...pts, { x: mapX, y: mapY }];
+        return [{ x: mapX, y: mapY }];
+      });
+      if (this.distanceRefPoints().length === 2) {
+        this.settingDistanceRef.set(false);
+        this.distanceInput = '';
+        this.setupOpen.set(true);
+        this.activeSetupSection.set('distance');
+      }
+    }
+  }
+
+  // ── Marks panel ──
+  marksOpen = signal(false);
+  activeMarksSection = signal<'legend' | null>(null);
+
+  newMarkLegend = '';
+  newMarkShape: MapMarkType['shape'] = 'circle';
+  newMarkColor = '#e03c3c';
+
+  readonly markTypesList = computed(() =>
+    Object.entries(this.mapConfig().markTypes ?? {}).map(([key, v]) => ({ key, ...v }))
+  );
+
+  toggleMarks(): void {
+    this.marksOpen.update(v => !v);
+    if (this.marksOpen()) this.setupOpen.set(false);
+    if (!this.marksOpen()) this.activeMarksSection.set(null);
+  }
+
+  toggleMarksSection(section: 'legend'): void {
+    this.activeMarksSection.update(s => s === section ? null : section);
+  }
+
+  addMarkType(): void {
+    if (!this.newMarkLegend.trim()) return;
+    const key = Math.random().toString(36).slice(2, 8);
+    this.mapConfig.update(cfg => ({
+      ...cfg,
+      markTypes: { ...(cfg.markTypes ?? {}), [key]: { color: this.newMarkColor, shape: this.newMarkShape, legend: this.newMarkLegend.trim() } }
+    }));
+    this.newMarkLegend = '';
+    this.newMarkColor = '#e03c3c';
+    this.newMarkShape = 'circle';
+  }
+
+  removeMarkType(key: string): void {
+    this.mapConfig.update(cfg => {
+      const { [key]: _removed, ...rest } = cfg.markTypes ?? {};
+      return { ...cfg, markTypes: rest };
+    });
+  }
+
+  // ── Setup panel actions ──
+
+  toggleSetup(): void {
+    this.setupOpen.update(v => !v);
+    if (this.setupOpen()) this.marksOpen.set(false);
+    if (!this.setupOpen()) this.activeSetupSection.set(null);
+  }
+
+  toggleSection(section: 'image' | 'metadata' | 'distance'): void {
+    this.activeSetupSection.update(s => s === section ? null : section);
+  }
+
+  loadImage(): void {
+    this.imageLoadError = false;
+    const url = this.imageUrlInput.trim();
+    if (!url) return;
+    const img = new Image();
+    img.onload = () => {
+      this.mapConfig.update(cfg => ({ ...cfg, mapUrl: url, mapWidth: img.naturalWidth, mapHeight: img.naturalHeight }));
+      this.fitImageToScreen(img.naturalWidth, img.naturalHeight);
+      this.activeSetupSection.set(null);
+    };
+    img.onerror = () => { this.imageLoadError = true; };
+    img.src = url;
+  }
+
+  private fitImageToScreen(imgWidth: number, imgHeight: number): void {
+    const availableWidth = window.innerWidth - RULER_LEFT_WIDTH;
+    const availableHeight = window.innerHeight - INSTRUMENT_PANEL_HEIGHT - RULER_TOP_HEIGHT;
+    const s = Math.min(availableWidth / imgWidth, availableHeight / imgHeight);
+    this.scale.set(s);
+    this.translateX.set(RULER_LEFT_WIDTH + (availableWidth - imgWidth * s) / 2);
+    this.translateY.set(INSTRUMENT_PANEL_HEIGHT + RULER_TOP_HEIGHT + (availableHeight - imgHeight * s) / 2);
+  }
+
+  applyMetadata(): void {
+    this.mapConfig.update(cfg => {
+      const next: MapConfig = { ...cfg };
+      if (this.metaHorizontalDirection) next.horizontalDirection = this.metaHorizontalDirection;
+      if (this.metaVerticalDirection) next.verticalDirection = this.metaVerticalDirection;
+      if (this.metaMeasureUnit.trim()) next.measureUnit = this.metaMeasureUnit.trim();
+      const zx = parseFloat(this.metaZeroPointX);
+      const zy = parseFloat(this.metaZeroPointY);
+      if (!isNaN(zx) && !isNaN(zy)) next.zeroPoint = [zx, zy];
+      const rp = parseFloat(this.metaMeasureRatioPixels);
+      const ru = parseFloat(this.metaMeasureRatioUnits);
+      if (!isNaN(rp) && !isNaN(ru)) next.measureRatio = [rp, ru];
+      return next;
+    });
+    this.activeSetupSection.set(null);
+  }
+
+  toggleSetZeroPoint(): void {
+    const activating = !this.settingZeroPoint();
+    this.settingZeroPoint.set(activating);
+    if (activating) { this.setupOpen.set(false); this.marksOpen.set(false); }
+  }
+
+  toggleDistanceRef(): void {
+    const activating = !this.settingDistanceRef();
+    this.settingDistanceRef.set(activating);
+    if (activating) {
+      this.distanceRefPoints.set([]);
+      this.distanceInput = '';
+      this.setupOpen.set(false);
+      this.marksOpen.set(false);
+    }
+  }
+
+  applyDistanceRef(): void {
+    const pts = this.distanceRefPoints();
+    const dist = parseFloat(this.distanceInput);
+    if (pts.length !== 2 || isNaN(dist) || dist <= 0) return;
+    const pixelDist = Math.sqrt((pts[1].x - pts[0].x) ** 2 + (pts[1].y - pts[0].y) ** 2);
+    this.mapConfig.update(cfg => ({ ...cfg, measureRatio: [pixelDist, dist] }));
+    this.distanceRefPoints.set([]);
+    this.activeSetupSection.set(null);
+  }
+}
