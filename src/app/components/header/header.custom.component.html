@@ -1,32 +1,25 @@
 <div id="pun-title" class="section">
   <div class="container">
     <div class="title-site">
-      <h1><a href="/">{{ title() }}</a></h1>
-      <p><span></span></p>
+      <h1>{{ title() }}</h1>
+      <span></span>
     </div>
   </div>
 </div>
 
-@if (!navlinksAfterHeader()) {
+
 <div class="navlink-container">
-      <span><ng-container i18n="@@app.hello">Hello</ng-container>, {{currentUser()?.username}}!</span>
-  <div id="pun-navlinks" class="section" app-navlinks>
+      <span>Hello, {{currentUser()?.username}}!</span>
+  <div id="pun-navlinks" class="section">
   </div>
 </div>
-  <div id="pun-ulinks" class="section" app-ulinks></div>
-}
-
-<div id="header-widget-panel" appRouterLinks [innerHTML]="headerPanelHtml()"></div>
-
-@if (navlinksAfterHeader()) {
-  <div id="pun-navlinks" class="section" app-navlinks></div>
-  <div id="pun-ulinks" class="section" app-ulinks></div>
-}
+<div id="header-widget-panel"></div>
+  <div id="pun-ulinks" class="section"></div>
 
 <div id="pun-status" class="section">
   <div class="container">
     @if (authService.isAuthenticated()) {
-      <app-notifications></app-notifications>
+      
     }
   </div>
 </div>
