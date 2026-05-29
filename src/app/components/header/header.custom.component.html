@@ -9,7 +9,11 @@
 
 
 <div class="navlink-container">
+    <div class="container">
+    @if (authService.isAuthenticated()) {
       <span>Hello, {{currentUser()?.username}}!</span>
+          }
+  </div>
   <div id="pun-navlinks" class="section">
   </div>
 </div>
@@ -17,9 +21,5 @@
   <div id="pun-ulinks" class="section"></div>
 
 <div id="pun-status" class="section">
-  <div class="container">
-    @if (authService.isAuthenticated()) {
-      
-    }
-  </div>
+
 </div>
