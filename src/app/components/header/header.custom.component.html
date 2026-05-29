@@ -7,17 +7,17 @@
   </div>
 </div>
 
+  <span>Hello, {{currentUser()?.username}}!</span>
+  <div id="pun-navlinks" class="section" app-navlinks=""></div>
+<div id="header-widget-panel" approuterlinks="" [innerhtml]="headerPanelHtml()"></div>
 
-<div class="navlink-container">
-      <span>Hello, {{currentUser()?.username}}!</span>
-  <div id="pun-navlinks" class="section">
-  </div>
-</div>
-<div id="header-widget-panel" class="section"></div>
+  <div id="pun-ulinks" class="section" app-ulinks=""></div>
+
+
+
 
 <div id="pun-status" class="section">
   <div class="container">
-    <span>Hello, {{currentUser()?.username}}!</span>
     @if (authService.isAuthenticated()) {
       
     }
