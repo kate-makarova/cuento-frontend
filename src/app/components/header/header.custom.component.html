@@ -8,10 +8,10 @@
 </div>
 
   <span>Hello, {{currentUser()?.username}}!</span>
-  <div id="pun-navlinks" class="section" app-navlinks=""></div>
+  <div id="pun-navlinks" class="section" app-navlinks></div>
 <div id="header-widget-panel" approuterlinks="" [innerhtml]="headerPanelHtml()"></div>
 
-  <div id="pun-ulinks" class="section" app-ulinks=""></div>
+  <div id="pun-ulinks" class="section" app-ulinks></div>
 
 
 
@@ -19,7 +19,7 @@
 <div id="pun-status" class="section">
   <div class="container">
     @if (authService.isAuthenticated()) {
-      
+        
     }
   </div>
 </div>
