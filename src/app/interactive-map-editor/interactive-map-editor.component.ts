@@ -1,4 +1,4 @@
-import { Component, signal, computed, viewChild, ElementRef, AfterViewInit, HostListener } from '@angular/core';
+import { Component, signal, computed, viewChild, ElementRef, AfterViewInit, HostListener, NgZone, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 
@@ -13,8 +13,10 @@ export interface MapMarkType {
 }
 
 export interface MapMark {
+  id: number;
   type: string;
   title: string;
+  description?: string;
   x: number;
   y: number;
 }
@@ -40,6 +42,8 @@ export interface MapConfig {
   styleUrl: './interactive-map-editor.component.css'
 })
 export class InteractiveMapEditorComponent implements AfterViewInit {
+  private ngZone = inject(NgZone);
+
   readonly rulerTopHeight = RULER_TOP_HEIGHT;
   readonly rulerLeftWidth = RULER_LEFT_WIDTH;
   readonly instrumentPanelHeight = INSTRUMENT_PANEL_HEIGHT;
@@ -52,11 +56,9 @@ export class InteractiveMapEditorComponent implements AfterViewInit {
   setupOpen = signal(false);
   activeSetupSection = signal<'image' | 'metadata' | 'distance' | null>(null);
 
-  // image section
   imageUrlInput = '';
   imageLoadError = false;
 
-  // metadata section
   metaHorizontalDirection: '' | 'left' | 'right' = '';
   metaVerticalDirection: '' | 'top' | 'bottom' = '';
   metaMeasureUnit = '';
@@ -65,9 +67,34 @@ export class InteractiveMapEditorComponent implements AfterViewInit {
   metaMeasureRatioPixels = '';
   metaMeasureRatioUnits = '';
 
+  // ── Marks panel ──
+  marksOpen = signal(false);
+  activeMarksSection = signal<'legend' | null>(null);
+
+  newMarkLegend = '';
+  newMarkShape: MapMarkType['shape'] = 'circle';
+  newMarkColor = '#e03c3c';
+
+  readonly markTypesList = computed(() =>
+    Object.entries(this.mapConfig().markTypes ?? {}).map(([key, v]) => ({ key, ...v }))
+  );
+
+  // ── Marks modal ──
+  marksModalOpen = signal(false);
+  editingMark = signal<MapMark | null>(null);
+
+  editMarkType = '';
+  editMarkTitle = '';
+  editMarkDescription = '';
+
+  // ── Mark tooltip ──
+  markTooltip = signal<{ screenX: number; screenY: number; mark: MapMark } | null>(null);
+
   // ── Modes ──
   settingZeroPoint = signal(false);
   settingDistanceRef = signal(false);
+  addingMark = signal(false);
+
   distanceRefPoints = signal<{ x: number; y: number }[]>([]);
   distanceInput = '';
 
@@ -130,7 +157,6 @@ export class InteractiveMapEditorComponent implements AfterViewInit {
     const s = this.scale();
     const [zx, zy] = cfg.zeroPoint;
     const ppu = this.pixelsPerUnit();
-
     const snap = (raw: number) => Math.round(raw / gridStepUnits) * gridStepUnits;
 
     const xLabels = verticals
@@ -160,11 +186,9 @@ export class InteractiveMapEditorComponent implements AfterViewInit {
   // ── Lifecycle ──
 
   ngAfterViewInit(): void {
-    this.containerRef().nativeElement.addEventListener(
-      'wheel',
-      (e: WheelEvent) => this.onWheel(e),
-      { passive: false }
-    );
+    this.ngZone.runOutsideAngular(() => {
+      this.containerRef().nativeElement.addEventListener('wheel', (e: WheelEvent) => this.onWheel(e), { passive: false });
+    });
   }
 
   @HostListener('window:resize')
@@ -204,7 +228,6 @@ export class InteractiveMapEditorComponent implements AfterViewInit {
   }
 
   onWheel(event: WheelEvent): void {
-    if (!this.mapConfig().mapUrl) return;
     event.preventDefault();
     const factor = event.deltaY < 0 ? 1.1 : 0.9;
     const rect = this.containerRef().nativeElement.getBoundingClientRect();
@@ -220,6 +243,8 @@ export class InteractiveMapEditorComponent implements AfterViewInit {
   }
 
   private onMapClick(event: MouseEvent): void {
+    this.markTooltip.set(null);
+
     const rect = this.containerRef().nativeElement.getBoundingClientRect();
     const mapX = Math.round((event.clientX - rect.left - this.translateX()) / this.scale());
     const mapY = Math.round((event.clientY - rect.top - this.translateY()) / this.scale());
@@ -231,65 +256,47 @@ export class InteractiveMapEditorComponent implements AfterViewInit {
     }
 
     if (this.settingDistanceRef()) {
-      this.distanceRefPoints.update(pts => {
-        if (pts.length < 2) return [...pts, { x: mapX, y: mapY }];
-        return [{ x: mapX, y: mapY }];
-      });
+      this.distanceRefPoints.update(pts => pts.length < 2 ? [...pts, { x: mapX, y: mapY }] : [{ x: mapX, y: mapY }]);
       if (this.distanceRefPoints().length === 2) {
         this.settingDistanceRef.set(false);
         this.distanceInput = '';
         this.setupOpen.set(true);
         this.activeSetupSection.set('distance');
       }
+      return;
+    }
+
+    if (this.addingMark()) {
+      const id = this.nextMarkId();
+      this.mapConfig.update(cfg => ({
+        ...cfg,
+        marks: [...(cfg.marks ?? []), { id, type: '', title: '', x: mapX, y: mapY }]
+      }));
+      return;
     }
   }
 
-  // ── Marks panel ──
-  marksOpen = signal(false);
-  activeMarksSection = signal<'legend' | null>(null);
-
-  newMarkLegend = '';
-  newMarkShape: MapMarkType['shape'] = 'circle';
-  newMarkColor = '#e03c3c';
-
-  readonly markTypesList = computed(() =>
-    Object.entries(this.mapConfig().markTypes ?? {}).map(([key, v]) => ({ key, ...v }))
-  );
-
-  toggleMarks(): void {
-    this.marksOpen.update(v => !v);
-    if (this.marksOpen()) this.setupOpen.set(false);
-    if (!this.marksOpen()) this.activeMarksSection.set(null);
+  onMarkClick(event: MouseEvent, mark: MapMark): void {
+    // onMapClick runs first (via mouseup) and clears any tooltip;
+    // this handler then sets the tooltip for the clicked mark.
+    if (this.addingMark()) return;
+    this.markTooltip.set({ screenX: event.clientX, screenY: event.clientY, mark });
   }
 
-  toggleMarksSection(section: 'legend'): void {
-    this.activeMarksSection.update(s => s === section ? null : section);
+  getMarkTypeForKey(key: string): MapMarkType | null {
+    return this.mapConfig().markTypes?.[key] ?? null;
   }
 
-  addMarkType(): void {
-    if (!this.newMarkLegend.trim()) return;
-    const key = Math.random().toString(36).slice(2, 8);
-    this.mapConfig.update(cfg => ({
-      ...cfg,
-      markTypes: { ...(cfg.markTypes ?? {}), [key]: { color: this.newMarkColor, shape: this.newMarkShape, legend: this.newMarkLegend.trim() } }
-    }));
-    this.newMarkLegend = '';
-    this.newMarkColor = '#e03c3c';
-    this.newMarkShape = 'circle';
+  private nextMarkId(): number {
+    const marks = this.mapConfig().marks ?? [];
+    return marks.length === 0 ? 1 : Math.max(...marks.map(m => m.id)) + 1;
   }
 
-  removeMarkType(key: string): void {
-    this.mapConfig.update(cfg => {
-      const { [key]: _removed, ...rest } = cfg.markTypes ?? {};
-      return { ...cfg, markTypes: rest };
-    });
-  }
-
-  // ── Setup panel actions ──
+  // ── Setup panel ──
 
   toggleSetup(): void {
     this.setupOpen.update(v => !v);
-    if (this.setupOpen()) this.marksOpen.set(false);
+    if (this.setupOpen()) { this.marksOpen.set(false); this.closeAllModes(); }
     if (!this.setupOpen()) this.activeSetupSection.set(null);
   }
 
@@ -339,12 +346,14 @@ export class InteractiveMapEditorComponent implements AfterViewInit {
 
   toggleSetZeroPoint(): void {
     const activating = !this.settingZeroPoint();
+    if (activating) this.closeAllModes();
     this.settingZeroPoint.set(activating);
     if (activating) { this.setupOpen.set(false); this.marksOpen.set(false); }
   }
 
   toggleDistanceRef(): void {
     const activating = !this.settingDistanceRef();
+    if (activating) this.closeAllModes();
     this.settingDistanceRef.set(activating);
     if (activating) {
       this.distanceRefPoints.set([]);
@@ -362,5 +371,89 @@ export class InteractiveMapEditorComponent implements AfterViewInit {
     this.mapConfig.update(cfg => ({ ...cfg, measureRatio: [pixelDist, dist] }));
     this.distanceRefPoints.set([]);
     this.activeSetupSection.set(null);
+  }
+
+  // ── Marks panel ──
+
+  toggleMarks(): void {
+    this.marksOpen.update(v => !v);
+    if (this.marksOpen()) { this.setupOpen.set(false); this.closeAllModes(); }
+    if (!this.marksOpen()) this.activeMarksSection.set(null);
+  }
+
+  toggleMarksSection(section: 'legend'): void {
+    this.activeMarksSection.update(s => s === section ? null : section);
+  }
+
+  toggleAddMark(): void {
+    const activating = !this.addingMark();
+    this.closeAllModes();
+    this.addingMark.set(activating);
+    if (activating) { this.setupOpen.set(false); this.marksOpen.set(false); }
+  }
+
+  openMarksModal(): void {
+    this.marksOpen.set(false);
+    this.marksModalOpen.set(true);
+    this.editingMark.set(null);
+  }
+
+  closeMarksModal(): void {
+    this.marksModalOpen.set(false);
+    this.editingMark.set(null);
+  }
+
+  openMarkDetail(mark: MapMark): void {
+    this.editingMark.set(mark);
+    this.editMarkType = mark.type;
+    this.editMarkTitle = mark.title;
+    this.editMarkDescription = mark.description ?? '';
+  }
+
+  backToMarksList(): void {
+    this.editingMark.set(null);
+  }
+
+  saveMarkDetail(): void {
+    const mark = this.editingMark();
+    if (!mark) return;
+    this.mapConfig.update(cfg => ({
+      ...cfg,
+      marks: (cfg.marks ?? []).map(m => m.id === mark.id
+        ? { ...m, type: this.editMarkType, title: this.editMarkTitle.trim(), description: this.editMarkDescription.trim() || undefined }
+        : m
+      )
+    }));
+    this.editingMark.set(null);
+  }
+
+  deleteMark(id: number): void {
+    this.mapConfig.update(cfg => ({ ...cfg, marks: (cfg.marks ?? []).filter(m => m.id !== id) }));
+    if (this.editingMark()?.id === id) this.editingMark.set(null);
+  }
+
+  addMarkType(): void {
+    if (!this.newMarkLegend.trim()) return;
+    const key = Math.random().toString(36).slice(2, 8);
+    this.mapConfig.update(cfg => ({
+      ...cfg,
+      markTypes: { ...(cfg.markTypes ?? {}), [key]: { color: this.newMarkColor, shape: this.newMarkShape, legend: this.newMarkLegend.trim() } }
+    }));
+    this.newMarkLegend = '';
+    this.newMarkColor = '#e03c3c';
+    this.newMarkShape = 'circle';
+  }
+
+  removeMarkType(key: string): void {
+    this.mapConfig.update(cfg => {
+      const { [key]: _removed, ...rest } = cfg.markTypes ?? {};
+      return { ...cfg, markTypes: rest };
+    });
+  }
+
+  private closeAllModes(): void {
+    this.settingZeroPoint.set(false);
+    this.settingDistanceRef.set(false);
+    this.addingMark.set(false);
   }
 }

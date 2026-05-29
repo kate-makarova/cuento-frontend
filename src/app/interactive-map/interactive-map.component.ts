@@ -67,7 +67,7 @@ export class InteractiveMapComponent implements OnInit, AfterViewInit {
   readonly rulerTopHeight = RULER_TOP_HEIGHT;
   readonly rulerLeftWidth = RULER_LEFT_WIDTH;
 
-  private scale = signal(1);
+  scale = signal(1);
   private translateX = signal(0);
   private translateY = signal(0);
   private containerWidth = signal(window.innerWidth);
@@ -103,6 +103,7 @@ export class InteractiveMapComponent implements OnInit, AfterViewInit {
   private hoverClientY = 0;
 
   tooltip = signal<{ screenX: number; screenY: number; mapX: number; mapY: number; unitX: number; unitY: number } | null>(null);
+  markTooltip = signal<{ screenX: number; screenY: number; title: string; legend: string } | null>(null);
 
   private markTypesMap = this.mapConfig.markTypes as Record<string, { color: string; shape: string; legend: string }>;
 
@@ -309,7 +310,17 @@ export class InteractiveMapComponent implements OnInit, AfterViewInit {
     });
   }
 
+  showMarkTooltip(event: MouseEvent, mark: { type: string; title: string }): void {
+    const type = this.getMarkType(mark.type);
+    this.markTooltip.set({ screenX: event.clientX, screenY: event.clientY, title: mark.title, legend: type.legend });
+  }
+
+  hideMarkTooltip(): void {
+    this.markTooltip.set(null);
+  }
+
   private onMapClick(event: MouseEvent): void {
+    this.markTooltip.set(null);
     const rect = this.containerRef().nativeElement.getBoundingClientRect();
     const mapX = Math.round((event.clientX - rect.left - this.translateX()) / this.scale());
     const mapY = Math.round((event.clientY - rect.top - this.translateY()) / this.scale());

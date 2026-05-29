@@ -5,9 +5,9 @@
   (mousemove)="onMouseMove($event)"
   (mouseup)="onMouseUp($event)"
   (mouseleave)="onMouseUp($event)"
-  [class.draggable]="!!mapConfig().mapUrl && !settingZeroPoint() && !settingDistanceRef()"
-  [class.mode-set-zero]="settingZeroPoint()"
+[class.mode-set-zero]="settingZeroPoint()"
   [class.mode-set-distance]="settingDistanceRef()"
+  [class.mode-add-mark]="addingMark()"
 >
 
   <!-- Map image + overlay -->
@@ -59,6 +59,35 @@
             <circle cx="0" cy="0" r="3" class="zero-point-dot" vector-effect="non-scaling-stroke"/>
           </g>
         }
+
+        <!-- Marks -->
+        @for (mark of (mapConfig().marks ?? []); track mark.id) {
+          <g
+            [attr.transform]="'translate(' + mark.x + ',' + mark.y + ')'"
+            class="mark-item"
+            style="pointer-events: all; cursor: pointer"
+            (click)="onMarkClick($event, mark)"
+          >
+            @if (getMarkTypeForKey(mark.type); as mt) {
+              @switch (mt.shape) {
+                @case ('circle')   { <circle cx="0" cy="0" r="9" [attr.fill]="mt.color" class="mark-shape" vector-effect="non-scaling-stroke"/> }
+                @case ('square')   { <rect x="-8" y="-8" width="16" height="16" [attr.fill]="mt.color" class="mark-shape" vector-effect="non-scaling-stroke"/> }
+                @case ('triangle') { <polygon points="0,-10 9,6 -9,6" [attr.fill]="mt.color" class="mark-shape" vector-effect="non-scaling-stroke"/> }
+                @case ('diamond')  { <polygon points="0,-10 10,0 0,10 -10,0" [attr.fill]="mt.color" class="mark-shape" vector-effect="non-scaling-stroke"/> }
+                @case ('star')     { <polygon points="0,-9 2.12,-2.91 8.56,-2.78 3.42,1.11 5.29,7.28 0,3.6 -5.29,7.28 -3.42,1.11 -8.56,-2.78 -2.12,-2.91" [attr.fill]="mt.color" class="mark-shape" vector-effect="non-scaling-stroke"/> }
+                @case ('pentagon') { <polygon points="0,-9 8.56,-2.78 5.29,7.28 -5.29,7.28 -8.56,-2.78" [attr.fill]="mt.color" class="mark-shape" vector-effect="non-scaling-stroke"/> }
+                @case ('hexagon')  { <polygon points="9,0 4.5,7.79 -4.5,7.79 -9,0 -4.5,-7.79 4.5,-7.79" [attr.fill]="mt.color" class="mark-shape" vector-effect="non-scaling-stroke"/> }
+                @case ('cross')    { <path d="M-3,-9 H3 V-3 H9 V3 H3 V9 H-3 V3 H-9 V-3 H-3 Z" [attr.fill]="mt.color" class="mark-shape" vector-effect="non-scaling-stroke"/> }
+              }
+            } @else {
+              <circle cx="0" cy="0" r="9" fill="#666" class="mark-shape" vector-effect="non-scaling-stroke"/>
+            }
+            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="mark-number">{{ mark.id }}</text>
+            @if (mark.title) {
+              <text x="0" y="18" text-anchor="middle" class="mark-title-label" vector-effect="non-scaling-stroke">{{ mark.title }}</text>
+            }
+          </g>
+        }
       </svg>
     </div>
   }
@@ -82,7 +111,6 @@
   <!-- Setup panel -->
   <div class="setup-panel" [class.open]="setupOpen()" (mousedown)="stopPropagation($event)">
 
-    <!-- Load map image -->
     <div class="setup-section">
       <button class="setup-section-header" [class.active]="activeSetupSection() === 'image'" (click)="toggleSection('image')">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
@@ -95,32 +123,19 @@
       @if (activeSetupSection() === 'image') {
         <div class="setup-section-body">
           <div class="form-row">
-            <input
-              class="editor-input url-input"
-              type="text"
-              placeholder="Image URL"
-              [(ngModel)]="imageUrlInput"
-              name="imageUrl"
-              (keydown.enter)="loadImage()"
-            />
+            <input class="editor-input url-input" type="text" placeholder="Image URL" [(ngModel)]="imageUrlInput" name="imageUrl" (keydown.enter)="loadImage()"/>
             <button class="editor-btn" (click)="loadImage()">Load</button>
           </div>
-          @if (imageLoadError) {
-            <div class="form-error">Failed to load image. Check the URL and try again.</div>
-          }
-          @if (mapConfig().mapUrl) {
-            <div class="form-hint">Loaded: {{ mapConfig().mapWidth }} × {{ mapConfig().mapHeight }} px</div>
-          }
+          @if (imageLoadError) { <div class="form-error">Failed to load image. Check the URL and try again.</div> }
+          @if (mapConfig().mapUrl) { <div class="form-hint">Loaded: {{ mapConfig().mapWidth }} × {{ mapConfig().mapHeight }} px</div> }
         </div>
       }
     </div>
 
-    <!-- Map metadata -->
     <div class="setup-section">
       <button class="setup-section-header" [class.active]="activeSetupSection() === 'metadata'" (click)="toggleSection('metadata')">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round">
-          <circle cx="7" cy="7" r="5.5"/>
-          <line x1="7" y1="6" x2="7" y2="10"/>
+          <circle cx="7" cy="7" r="5.5"/><line x1="7" y1="6" x2="7" y2="10"/>
           <circle cx="7" cy="4.5" r="0.6" fill="currentColor" stroke="none"/>
         </svg>
         Map metadata
@@ -130,17 +145,13 @@
           <div class="form-row">
             <label class="editor-label">Horizontal direction</label>
             <select class="editor-select" [(ngModel)]="metaHorizontalDirection" name="hDir">
-              <option value="">— not set —</option>
-              <option value="right">Right →</option>
-              <option value="left">← Left</option>
+              <option value="">— not set —</option><option value="right">Right →</option><option value="left">← Left</option>
             </select>
           </div>
           <div class="form-row">
             <label class="editor-label">Vertical direction</label>
             <select class="editor-select" [(ngModel)]="metaVerticalDirection" name="vDir">
-              <option value="">— not set —</option>
-              <option value="bottom">↓ Bottom</option>
-              <option value="top">Top ↑</option>
+              <option value="">— not set —</option><option value="bottom">↓ Bottom</option><option value="top">Top ↑</option>
             </select>
           </div>
           <div class="form-row">
@@ -162,45 +173,26 @@
               <input class="editor-input" type="number" placeholder="unit" [(ngModel)]="metaMeasureRatioUnits" name="ratioU"/>
             </div>
           </div>
-          <div class="form-actions">
-            <button class="editor-btn" (click)="applyMetadata()">Apply</button>
-          </div>
+          <div class="form-actions"><button class="editor-btn" (click)="applyMetadata()">Apply</button></div>
         </div>
       }
     </div>
 
-    <!-- Set origin -->
     <div class="setup-section">
-      <button
-        class="setup-section-header"
-        [class.active]="settingZeroPoint()"
-        [disabled]="!mapConfig().mapUrl"
-        (click)="toggleSetZeroPoint()"
-      >
+      <button class="setup-section-header" [class.active]="settingZeroPoint()" [disabled]="!mapConfig().mapUrl" (click)="toggleSetZeroPoint()">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
-          <line x1="7" y1="1" x2="7" y2="13"/>
-          <line x1="1" y1="7" x2="13" y2="7"/>
-          <line x1="2.5" y1="2.5" x2="11.5" y2="11.5"/>
-          <line x1="11.5" y1="2.5" x2="2.5" y2="11.5"/>
+          <line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/>
+          <line x1="2.5" y1="2.5" x2="11.5" y2="11.5"/><line x1="11.5" y1="2.5" x2="2.5" y2="11.5"/>
           <circle cx="7" cy="7" r="1.8" fill="currentColor" stroke="none"/>
         </svg>
         Set origin
-        @if (settingZeroPoint()) {
-          <span class="section-active-hint">— click on the map</span>
-        } @else if (mapConfig().zeroPoint) {
-          <span class="section-value-hint">{{ mapConfig().zeroPoint![0] }}, {{ mapConfig().zeroPoint![1] }}</span>
-        }
+        @if (settingZeroPoint()) { <span class="section-active-hint">— click on the map</span> }
+        @else if (mapConfig().zeroPoint) { <span class="section-value-hint">{{ mapConfig().zeroPoint![0] }}, {{ mapConfig().zeroPoint![1] }}</span> }
       </button>
     </div>
 
-    <!-- Set distance reference -->
     <div class="setup-section">
-      <button
-        class="setup-section-header"
-        [class.active]="settingDistanceRef()"
-        [disabled]="!mapConfig().mapUrl"
-        (click)="toggleDistanceRef()"
-      >
+      <button class="setup-section-header" [class.active]="settingDistanceRef()" [disabled]="!mapConfig().mapUrl" (click)="toggleDistanceRef()">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round">
           <circle cx="2.5" cy="11.5" r="1.8" fill="currentColor" stroke="none"/>
           <circle cx="11.5" cy="2.5" r="1.8" fill="currentColor" stroke="none"/>
@@ -209,8 +201,7 @@
         Set distance reference
         @if (settingDistanceRef()) {
           <span class="section-active-hint">
-            @if (distanceRefPoints().length === 0) { — click first point }
-            @else { — click second point }
+            @if (distanceRefPoints().length === 0) { — click first point } @else { — click second point }
           </span>
         } @else if (mapConfig().measureRatio) {
           <span class="section-value-hint">{{ mapConfig().measureRatio![0] | number:'1.0-1' }} px / {{ mapConfig().measureRatio![1] }} {{ mapConfig().measureUnit || 'unit' }}</span>
@@ -220,14 +211,7 @@
         <div class="setup-section-body">
           <div class="form-hint">Enter the real-world distance between the two marked points.</div>
           <div class="form-row">
-            <input
-              class="editor-input"
-              type="number"
-              placeholder="Distance"
-              [(ngModel)]="distanceInput"
-              name="distRef"
-              (keydown.enter)="applyDistanceRef()"
-            />
+            <input class="editor-input" type="number" placeholder="Distance" [(ngModel)]="distanceInput" name="distRef" (keydown.enter)="applyDistanceRef()"/>
             <span class="ratio-sep">{{ mapConfig().measureUnit || 'units' }}</span>
             <button class="editor-btn" (click)="applyDistanceRef()">Apply</button>
           </div>
@@ -240,21 +224,45 @@
   <!-- Marks panel -->
   <div class="setup-panel" [class.open]="marksOpen()" (mousedown)="stopPropagation($event)">
 
+    <!-- Add marks -->
+    <div class="setup-section">
+      <button class="setup-section-header" [class.active]="addingMark()" [disabled]="!mapConfig().mapUrl" (click)="toggleAddMark()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round">
+          <circle cx="7" cy="7" r="5.5"/>
+          <line x1="7" y1="4" x2="7" y2="10"/><line x1="4" y1="7" x2="10" y2="7"/>
+        </svg>
+        Add marks
+        @if (addingMark()) { <span class="section-active-hint">— click on the map</span> }
+        @else if ((mapConfig().marks ?? []).length > 0) {
+          <span class="section-value-hint">{{ (mapConfig().marks ?? []).length }} mark{{ (mapConfig().marks ?? []).length === 1 ? '' : 's' }}</span>
+        }
+      </button>
+    </div>
+
+    <!-- Edit marks -->
+    <div class="setup-section">
+      <button class="setup-section-header" [disabled]="!(mapConfig().marks ?? []).length" (click)="openMarksModal()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2,10 L2,12 L4,12 L11,5 L9,3 Z"/>
+          <line x1="9" y1="3" x2="11" y2="5"/>
+        </svg>
+        Edit marks
+      </button>
+    </div>
+
+    <!-- Edit legend -->
     <div class="setup-section">
       <button class="setup-section-header" [class.active]="activeMarksSection() === 'legend'" (click)="toggleMarksSection('legend')">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
           <rect x="1" y="1" width="5" height="5" rx="1"/>
           <circle cx="10.5" cy="3.5" r="2.5"/>
           <polygon points="3.5,8.5 6,13 1,13"/>
-          <line x1="8" y1="9" x2="13" y2="9"/>
-          <line x1="8" y1="11.5" x2="13" y2="11.5"/>
+          <line x1="8" y1="9" x2="13" y2="9"/><line x1="8" y1="11.5" x2="13" y2="11.5"/>
         </svg>
         Edit legend
       </button>
       @if (activeMarksSection() === 'legend') {
         <div class="setup-section-body">
-
-          <!-- Existing mark types -->
           @if (markTypesList().length > 0) {
             <div class="mark-type-list">
               @for (mt of markTypesList(); track mt.key) {
@@ -282,19 +290,13 @@
             </div>
             <div class="section-divider"></div>
           }
-
-          <!-- Add new mark type -->
           <div class="form-row">
             <label class="editor-label">Shape</label>
             <select class="editor-select" [(ngModel)]="newMarkShape" name="newShape">
-              <option value="circle">Circle</option>
-              <option value="square">Square</option>
-              <option value="diamond">Diamond</option>
-              <option value="triangle">Triangle</option>
-              <option value="pentagon">Pentagon</option>
-              <option value="hexagon">Hexagon</option>
-              <option value="star">Star</option>
-              <option value="cross">Cross</option>
+              <option value="circle">Circle</option><option value="square">Square</option>
+              <option value="diamond">Diamond</option><option value="triangle">Triangle</option>
+              <option value="pentagon">Pentagon</option><option value="hexagon">Hexagon</option>
+              <option value="star">Star</option><option value="cross">Cross</option>
             </select>
           </div>
           <div class="form-row">
@@ -308,12 +310,136 @@
           <div class="form-actions">
             <button class="editor-btn" (click)="addMarkType()" [disabled]="!newMarkLegend.trim()">Add</button>
           </div>
-
         </div>
       }
     </div>
 
   </div>
+
+  <!-- Legend -->
+  @if (markTypesList().length > 0) {
+    <div class="map-legend" (mousedown)="stopPropagation($event)">
+      @for (mt of markTypesList(); track mt.key) {
+        <div class="legend-row">
+          <svg class="legend-icon" viewBox="0 0 14 14" width="14" height="14">
+            @switch (mt.shape) {
+              @case ('circle')   { <circle cx="7" cy="7" r="5" [attr.fill]="mt.color" class="map-mark"/> }
+              @case ('square')   { <rect x="2" y="2" width="10" height="10" [attr.fill]="mt.color" class="map-mark"/> }
+              @case ('triangle') { <polygon points="7,1 13,12 1,12" [attr.fill]="mt.color" class="map-mark"/> }
+              @case ('diamond')  { <polygon points="7,1 13,7 7,13 1,7" [attr.fill]="mt.color" class="map-mark"/> }
+              @case ('star')     { <polygon points="7,1.5 8.2,5.1 12,5.1 9,7.4 10.1,11 7,8.8 3.9,11 5,7.4 2,5.1 5.8,5.1" [attr.fill]="mt.color" class="map-mark"/> }
+              @case ('pentagon') { <polygon points="7,1.5 12,5.1 10,11.5 4,11.5 2,5.1" [attr.fill]="mt.color" class="map-mark"/> }
+              @case ('hexagon')  { <polygon points="12,7 9.5,11.3 4.5,11.3 2,7 4.5,2.7 9.5,2.7" [attr.fill]="mt.color" class="map-mark"/> }
+              @case ('cross')    { <path d="M5,1 H9 V5 H13 V9 H9 V13 H5 V9 H1 V5 H5 Z" [attr.fill]="mt.color" class="map-mark"/> }
+            }
+          </svg>
+          <span class="legend-label">{{ mt.legend }}</span>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Marks modal -->
+  @if (marksModalOpen()) {
+    <div class="modal-overlay" (mousedown)="closeMarksModal()">
+      <div class="modal-window" (mousedown)="stopPropagation($event)">
+
+        <!-- Header -->
+        <div class="modal-header">
+          @if (editingMark()) {
+            <button class="modal-back" (click)="backToMarksList()">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                <path d="M10 3 L5 8 L10 13"/>
+              </svg>
+            </button>
+            <span class="modal-title">Mark #{{ editingMark()!.id }}</span>
+          } @else {
+            <span class="modal-title">Marks</span>
+          }
+          <button class="modal-close" (click)="closeMarksModal()">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <line x1="1" y1="1" x2="13" y2="13"/><line x1="13" y1="1" x2="1" y2="13"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- List view -->
+        @if (!editingMark()) {
+          <div class="modal-body">
+            @for (mark of (mapConfig().marks ?? []); track mark.id) {
+              <div class="mark-list-row" (click)="openMarkDetail(mark)">
+                <span class="mark-list-num">#{{ mark.id }}</span>
+                @if (getMarkTypeForKey(mark.type); as mt) {
+                  <svg width="14" height="14" viewBox="0 0 14 14" class="mark-list-icon">
+                    @switch (mt.shape) {
+                      @case ('circle')   { <circle cx="7" cy="7" r="5" [attr.fill]="mt.color"/> }
+                      @case ('square')   { <rect x="2" y="2" width="10" height="10" [attr.fill]="mt.color"/> }
+                      @case ('triangle') { <polygon points="7,1 13,12 1,12" [attr.fill]="mt.color"/> }
+                      @case ('diamond')  { <polygon points="7,1 13,7 7,13 1,7" [attr.fill]="mt.color"/> }
+                      @case ('star')     { <polygon points="7,1.5 8.2,5.1 12,5.1 9,7.4 10.1,11 7,8.8 3.9,11 5,7.4 2,5.1 5.8,5.1" [attr.fill]="mt.color"/> }
+                      @case ('pentagon') { <polygon points="7,1.5 12,5.1 10,11.5 4,11.5 2,5.1" [attr.fill]="mt.color"/> }
+                      @case ('hexagon')  { <polygon points="12,7 9.5,11.3 4.5,11.3 2,7 4.5,2.7 9.5,2.7" [attr.fill]="mt.color"/> }
+                      @case ('cross')    { <path d="M5,1 H9 V5 H13 V9 H9 V13 H5 V9 H1 V5 H5 Z" [attr.fill]="mt.color"/> }
+                    }
+                  </svg>
+                }
+                <span class="mark-list-title">{{ mark.title || 'Untitled' }}</span>
+                <svg class="mark-list-chevron" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                  <path d="M3 1 L7 5 L3 9"/>
+                </svg>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Detail view -->
+        @if (editingMark()) {
+          <div class="modal-body modal-detail">
+            <div class="modal-form-row">
+              <label class="modal-label">Type</label>
+              <select class="editor-select" [(ngModel)]="editMarkType" name="editType">
+                <option value="">— unassigned —</option>
+                @for (mt of markTypesList(); track mt.key) {
+                  <option [value]="mt.key">{{ mt.legend }}</option>
+                }
+              </select>
+            </div>
+            <div class="modal-form-row">
+              <label class="modal-label">Title</label>
+              <input class="editor-input modal-input" type="text" placeholder="Mark title" [(ngModel)]="editMarkTitle" name="editTitle"/>
+            </div>
+            <div class="modal-form-row modal-form-row--top">
+              <label class="modal-label">Description</label>
+              <textarea class="editor-textarea" placeholder="Description shown on click…" [(ngModel)]="editMarkDescription" name="editDesc" rows="4"></textarea>
+            </div>
+            <div class="modal-actions">
+              <button class="modal-delete-btn" (click)="deleteMark(editingMark()!.id)">Delete mark</button>
+              <button class="editor-btn" (click)="saveMarkDetail()">Save</button>
+            </div>
+          </div>
+        }
+
+      </div>
+    </div>
+  }
+
+  <!-- Mark description tooltip -->
+  @if (markTooltip(); as t) {
+    <div
+      class="mark-tooltip"
+      [style.left.px]="t.screenX + 14"
+      [style.top.px]="t.screenY + 14"
+      (mousedown)="stopPropagation($event)"
+    >
+      <div class="mark-tooltip-header">
+        <span class="mark-tooltip-title">{{ t.mark.title || '#' + t.mark.id }}</span>
+        <button class="mark-tooltip-close" (click)="markTooltip.set(null)">✕</button>
+      </div>
+      @if (t.mark.description) {
+        <div class="mark-tooltip-desc">{{ t.mark.description }}</div>
+      }
+    </div>
+  }
 
   <!-- Coordinate rulers -->
   <div class="editor-ruler-top">

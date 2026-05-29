@@ -3,13 +3,8 @@
   height: 100vh;
   overflow: hidden;
   position: relative;
-  cursor: grab;
   background: #111;
   user-select: none;
-}
-
-.map-container:active {
-  cursor: grabbing;
 }
 
 .map-container.mode-flag,
@@ -39,6 +34,7 @@
   stroke-width: 3px;
   stroke-linejoin: round;
   pointer-events: none;
+  vector-effect: non-scaling-stroke;
 }
 
 .map-wrapper {
@@ -183,6 +179,7 @@
   stroke-width: 3px;
   stroke-linejoin: round;
   pointer-events: none;
+  vector-effect: non-scaling-stroke;
 }
 
 .map-ruler {
@@ -282,4 +279,57 @@
   pointer-events: none;
   white-space: nowrap;
   z-index: 100;
+}
+
+.mark-tooltip {
+  position: fixed;
+  z-index: 100;
+  background: rgba(10, 10, 10, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 8px 10px;
+  white-space: nowrap;
+  pointer-events: all;
+}
+
+.mark-tooltip-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mark-tooltip-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  font-family: sans-serif;
+}
+
+.mark-tooltip-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 10px;
+  cursor: pointer;
+  border-radius: 3px;
+  padding: 0;
+  flex-shrink: 0;
+  transition: color 0.12s, background 0.12s;
+}
+
+.mark-tooltip-close:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.mark-tooltip-legend {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: sans-serif;
+  margin-top: 4px;
 }

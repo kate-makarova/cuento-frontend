@@ -49,33 +49,35 @@
       @for (pathData of allPathData(); track $index) {
         @for (seg of pathData.segments; track $index) {
           <line [attr.x1]="seg.a.x" [attr.y1]="seg.a.y" [attr.x2]="seg.b.x" [attr.y2]="seg.b.y" class="path-line" vector-effect="non-scaling-stroke"/>
-          <text [attr.x]="seg.mx" [attr.y]="seg.my - 10" class="path-label" text-anchor="middle">{{ seg.distLabel }} {{ mapConfig.measureUnit }}</text>
+          <text [attr.x]="seg.mx" [attr.y]="seg.my - 10 / scale()" class="path-label" text-anchor="middle" [style.font-size.px]="11 / scale()">{{ seg.distLabel }} {{ mapConfig.measureUnit }}</text>
         }
         @for (pt of pathData.pts; track $index) {
           <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="4" class="path-dot" vector-effect="non-scaling-stroke"/>
         }
         @if (pathData.pts.length > 0) {
-          <text [attr.x]="pathData.pts[0].x" [attr.y]="pathData.pts[0].y - 10" class="path-label" text-anchor="middle">0</text>
+          <text [attr.x]="pathData.pts[0].x" [attr.y]="pathData.pts[0].y - 10 / scale()" class="path-label" text-anchor="middle" [style.font-size.px]="11 / scale()">0</text>
         }
         @if (pathData.pts.length > 1) {
-          <text [attr.x]="pathData.pts[pathData.pts.length - 1].x" [attr.y]="pathData.pts[pathData.pts.length - 1].y - 10" class="path-label" text-anchor="middle">{{ pathData.totalLabel }} {{ mapConfig.measureUnit }}</text>
+          <text [attr.x]="pathData.pts[pathData.pts.length - 1].x" [attr.y]="pathData.pts[pathData.pts.length - 1].y - 10 / scale()" class="path-label" text-anchor="middle" [style.font-size.px]="11 / scale()">{{ pathData.totalLabel }} {{ mapConfig.measureUnit }}</text>
         }
       }
 
       @for (mark of mapConfig.marks; track mark.title) {
         @if (!hiddenMarkTypes().has(mark.type)) {
-        @switch (getMarkType(mark.type).shape) {
-          @case ('circle') {
-            <circle [attr.cx]="mark.x" [attr.cy]="mark.y" r="6" [attr.fill]="getMarkType(mark.type).color" class="map-mark" vector-effect="non-scaling-stroke"/>
-          }
-          @case ('square') {
-            <rect [attr.x]="mark.x - 5" [attr.y]="mark.y - 5" width="10" height="10" [attr.fill]="getMarkType(mark.type).color" class="map-mark" vector-effect="non-scaling-stroke"/>
-          }
-          @case ('triangle') {
-            <polygon [attr.points]="trianglePoints(mark.x, mark.y)" [attr.fill]="getMarkType(mark.type).color" class="map-mark" vector-effect="non-scaling-stroke"/>
-          }
-        }
-        <text [attr.x]="mark.x" [attr.y]="mark.y - 10" class="map-mark-label" text-anchor="middle">{{ mark.title }}</text>
+          <g style="pointer-events: all; cursor: pointer" (click)="showMarkTooltip($event, mark)">
+            @switch (getMarkType(mark.type).shape) {
+              @case ('circle') {
+                <circle [attr.cx]="mark.x" [attr.cy]="mark.y" r="6" [attr.fill]="getMarkType(mark.type).color" class="map-mark" vector-effect="non-scaling-stroke"/>
+              }
+              @case ('square') {
+                <rect [attr.x]="mark.x - 5" [attr.y]="mark.y - 5" width="10" height="10" [attr.fill]="getMarkType(mark.type).color" class="map-mark" vector-effect="non-scaling-stroke"/>
+              }
+              @case ('triangle') {
+                <polygon [attr.points]="trianglePoints(mark.x, mark.y)" [attr.fill]="getMarkType(mark.type).color" class="map-mark" vector-effect="non-scaling-stroke"/>
+              }
+            }
+            <text [attr.x]="mark.x" [attr.y]="mark.y - 10 / scale()" class="map-mark-label" text-anchor="middle" [style.font-size.px]="12 / scale()">{{ mark.title }}</text>
+          </g>
         }
       }
     </svg>
@@ -156,6 +158,18 @@
     <div class="map-tooltip" [style.left.px]="t.screenX + 14" [style.top.px]="t.screenY + 14">
       <div>{{ t.unitX }} × {{ t.unitY }} {{ mapConfig.measureUnit }}</div>
       <div>{{ t.mapX }} × {{ t.mapY }} px</div>
+    </div>
+  }
+
+  @if (markTooltip(); as t) {
+    <div class="mark-tooltip" [style.left.px]="t.screenX + 14" [style.top.px]="t.screenY + 14" (mousedown)="$event.stopPropagation()">
+      <div class="mark-tooltip-header">
+        <span class="mark-tooltip-title">{{ t.title }}</span>
+        <button class="mark-tooltip-close" (click)="hideMarkTooltip()">✕</button>
+      </div>
+      @if (t.legend) {
+        <div class="mark-tooltip-legend">{{ t.legend }}</div>
+      }
     </div>
   }
 </div>

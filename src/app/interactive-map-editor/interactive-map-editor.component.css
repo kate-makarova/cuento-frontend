@@ -15,13 +15,6 @@
   user-select: none;
 }
 
-.editor-container.draggable {
-  cursor: grab;
-}
-
-.editor-container.draggable:active {
-  cursor: grabbing;
-}
 
 .editor-container.mode-set-zero {
   cursor: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><line x1='12' y1='1' x2='12' y2='23' stroke='white' stroke-width='1.5'/><line x1='1' y1='12' x2='23' y2='12' stroke='white' stroke-width='1.5'/><line x1='3.5' y1='3.5' x2='20.5' y2='20.5' stroke='white' stroke-width='1.5'/><line x1='20.5' y1='3.5' x2='3.5' y2='20.5' stroke='white' stroke-width='1.5'/><circle cx='12' cy='12' r='3' fill='white'/></svg>") 12 12, crosshair;
@@ -145,6 +138,45 @@
 .grid-line {
   stroke: rgba(255, 255, 255, 0.2);
   stroke-width: 1;
+}
+
+/* ── Legend ── */
+
+.map-legend {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 10;
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+
+.legend-icon {
+  flex-shrink: 0;
+}
+
+.map-mark {
+  stroke: rgba(255, 255, 255, 0.4);
+  stroke-width: 1;
+}
+
+.legend-label {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 12px;
+  font-family: sans-serif;
+  white-space: nowrap;
 }
 
 /* ── Ruler labels ── */
@@ -423,4 +455,293 @@
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   pointer-events: none;
   z-index: 20;
+}
+
+/* ── Add mark mode ── */
+
+.editor-container.mode-add-mark {
+  cursor: crosshair;
+}
+
+/* ── Map marks (SVG rendered) ── */
+
+.mark-number {
+  fill: #fff;
+  font-size: 9px;
+  font-family: monospace;
+  font-weight: bold;
+  dominant-baseline: central;
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.mark-title-label {
+  fill: rgba(255, 255, 255, 0.85);
+  font-size: 11px;
+  font-family: sans-serif;
+  dominant-baseline: auto;
+  text-anchor: middle;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8));
+}
+
+.mark-hit-area {
+  fill: transparent;
+  cursor: pointer;
+}
+
+/* ── Modal ── */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-window {
+  background: #1e1e1e;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  width: 420px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.modal-title {
+  flex: 1;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
+}
+
+.modal-back,
+.modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 0;
+  transition: color 0.12s, background 0.12s;
+}
+
+.modal-back:hover,
+.modal-close:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.modal-body {
+  overflow-y: auto;
+  flex: 1;
+  padding: 8px 0;
+}
+
+/* Mark list */
+
+.mark-list-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.mark-list-row:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.mark-list-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.75);
+  font-family: monospace;
+  flex-shrink: 0;
+}
+
+.mark-list-icon {
+  flex-shrink: 0;
+}
+
+.mark-list-title {
+  flex: 1;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.mark-list-chevron {
+  color: rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+}
+
+.mark-list-empty {
+  padding: 20px 14px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.35);
+  text-align: center;
+}
+
+/* Mark detail form */
+
+.modal-detail {
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-form-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.modal-label {
+  width: 100px;
+  flex-shrink: 0;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  padding-top: 5px;
+}
+
+.modal-input {
+  flex: 1;
+  height: 26px;
+  padding: 0 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 3px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 12px;
+  outline: none;
+  transition: border-color 0.12s;
+}
+
+.modal-input:focus {
+  border-color: rgba(120, 160, 255, 0.5);
+}
+
+.editor-textarea {
+  flex: 1;
+  min-height: 72px;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 3px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 12px;
+  font-family: sans-serif;
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.12s;
+}
+
+.editor-textarea:focus {
+  border-color: rgba(120, 160, 255, 0.5);
+}
+
+.modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 4px;
+}
+
+.modal-delete-btn {
+  height: 26px;
+  padding: 0 12px;
+  background: rgba(200, 60, 60, 0.25);
+  border: 1px solid rgba(255, 80, 80, 0.3);
+  border-radius: 3px;
+  color: #f87171;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.modal-delete-btn:hover {
+  background: rgba(200, 60, 60, 0.45);
+}
+
+/* ── Mark tooltip ── */
+
+.mark-tooltip {
+  position: fixed;
+  z-index: 50;
+  background: rgba(10, 10, 10, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 8px 10px;
+  max-width: 260px;
+  pointer-events: all;
+}
+
+.mark-tooltip-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mark-tooltip-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  flex: 1;
+}
+
+.mark-tooltip-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 10px;
+  cursor: pointer;
+  border-radius: 3px;
+  padding: 0;
+  flex-shrink: 0;
+  transition: color 0.12s, background 0.12s;
+}
+
+.mark-tooltip-close:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.mark-tooltip-desc {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  margin-top: 6px;
 }
