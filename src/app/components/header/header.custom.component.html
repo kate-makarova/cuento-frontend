@@ -9,17 +9,17 @@
 
 
 <div class="navlink-container">
-    <div class="container">
-    @if (authService.isAuthenticated()) {
       <span>Hello, {{currentUser()?.username}}!</span>
-          }
-  </div>
   <div id="pun-navlinks" class="section">
   </div>
 </div>
-<div id="header-widget-panel"></div>
-  <div id="pun-ulinks" class="section"></div>
+<div id="header-widget-panel" class="section"></div>
 
 <div id="pun-status" class="section">
-
+  <div class="container">
+    <span>Hello, {{currentUser()?.username}}!</span>
+    @if (authService.isAuthenticated()) {
+      
+    }
+  </div>
 </div>
