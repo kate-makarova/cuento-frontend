@@ -25,40 +25,93 @@ export class InteractiveMapComponent implements OnInit, AfterViewInit {
     measureRatio: [20, 1],
     mapUrl: 'https://upforme.ru/uploads/001c/9f/bb/7/12637.jpg',
     markTypes: {
-      maasKharet: {
-        color: 'red',
-        shape: 'circle',
-        legend: 'Mass Kharet settlement'
-      },
       harkonnenSettlement: {
         color: 'blue',
-        shape: 'square',
-        legend: 'Harkonnen settlement'
-      },
-      atreidesSettlement: {
-        color: 'green',
         shape: 'triangle',
-        legend: 'Atreides settlement'
+        legend: 'Botanical testing station'
       },
-      banditSettlement: {
-        color: 'grey',
+      sietch: {
+        color: 'brown',
+        shape: 'diamond',
+        legend: 'Sietch'
+      },
+      pyon: {
+        color: 'yellow',
         shape: 'circle',
-        legend: 'Bandit settlement'
+        legend: 'Pyon village'
       }
     },
     marks: [
-      {
-        type: 'maasKharet',
-        title: 'Maas Kharet secret secret layer',
-        x: 380,
-        y: 310,
-      },
-      {
-        type: 'harkonnenSettlement',
-        title: 'Harkonnen outpost',
-        x: 1100,
-        y: 200,
-      }
+      // Botanical testing stations
+      { type: 'harkonnenSettlement', title: 'Cave of Ridges', x: 382, y: 117 },
+      { type: 'harkonnenSettlement', title: 'Cave of Birds', x: 220, y: 431 },
+      { type: 'harkonnenSettlement', title: '', x: 722, y: 248 },
+      // Sietches
+      { type: 'sietch', title: 'Sietch Tabr', x: 358, y: 120 },
+      { type: 'sietch', title: 'Bight of the Cliff', x: 311, y: 165 },
+      { type: 'sietch', title: '', x: 298, y: 177 },
+      { type: 'sietch', title: '', x: 299, y: 188 },
+      { type: 'sietch', title: '', x: 414, y: 286 },
+      { type: 'sietch', title: '', x: 420, y: 296 },
+      { type: 'sietch', title: '', x: 389, y: 313 },
+      { type: 'sietch', title: '', x: 355, y: 327 },
+      { type: 'sietch', title: '', x: 349, y: 338 },
+      { type: 'sietch', title: '', x: 352, y: 347 },
+      { type: 'sietch', title: '', x: 338, y: 391 },
+      { type: 'sietch', title: '', x: 367, y: 445 },
+      { type: 'sietch', title: '', x: 394, y: 444 },
+      { type: 'sietch', title: '', x: 667, y: 455 },
+      { type: 'sietch', title: '', x: 753, y: 463 },
+      { type: 'sietch', title: '', x: 763, y: 463 },
+      { type: 'sietch', title: 'Chin Rock', x: 700, y: 421 },
+      { type: 'sietch', title: "Tuek's Sietch", x: 742, y: 418 },
+      { type: 'sietch', title: '', x: 782, y: 358 },
+      { type: 'sietch', title: '', x: 783, y: 334 },
+      { type: 'sietch', title: '', x: 807, y: 332 },
+      { type: 'sietch', title: '', x: 826, y: 332 },
+      { type: 'sietch', title: '', x: 834, y: 341 },
+      { type: 'sietch', title: '', x: 841, y: 351 },
+      { type: 'sietch', title: '', x: 846, y: 329 },
+      { type: 'sietch', title: 'Red Chasm', x: 836, y: 295 },
+      { type: 'sietch', title: '', x: 845, y: 294 },
+      { type: 'sietch', title: '', x: 846, y: 304 },
+      { type: 'sietch', title: 'Gara Kulon', x: 818, y: 245 },
+      { type: 'sietch', title: '', x: 734, y: 198 },
+      { type: 'sietch', title: '', x: 734, y: 188 },
+      { type: 'sietch', title: '', x: 733, y: 179 },
+      { type: 'sietch', title: '', x: 733, y: 170 },
+      { type: 'sietch', title: '', x: 754, y: 121 },
+      { type: 'sietch', title: '', x: 758, y: 102 },
+      { type: 'sietch', title: 'Sihaya Ridge', x: 741, y: 68 },
+      { type: 'sietch', title: 'Sihaya Ridge', x: 737, y: 61 },
+      { type: 'sietch', title: '', x: 447, y: 34 },
+      { type: 'sietch', title: '', x: 378, y: 43 },
+      { type: 'sietch', title: '', x: 388, y: 37 },
+      // Pyon villages
+      { type: 'pyon', title: '', x: 481, y: 88 },
+      { type: 'pyon', title: '', x: 482, y: 97 },
+      { type: 'pyon', title: '', x: 480, y: 105 },
+      { type: 'pyon', title: '', x: 480, y: 115 },
+      { type: 'pyon', title: 'Tsimpo', x: 492, y: 122 },
+      { type: 'pyon', title: '', x: 501, y: 127 },
+      { type: 'pyon', title: '', x: 506, y: 135 },
+      { type: 'pyon', title: '', x: 498, y: 141 },
+      { type: 'pyon', title: '', x: 491, y: 136 },
+      { type: 'pyon', title: '', x: 516, y: 127 },
+      { type: 'pyon', title: '', x: 526, y: 125 },
+      { type: 'pyon', title: 'Arsunt', x: 535, y: 125 },
+      { type: 'pyon', title: '', x: 544, y: 124 },
+      { type: 'pyon', title: '', x: 552, y: 123 },
+      { type: 'pyon', title: 'Carthag', x: 561, y: 122 },
+      { type: 'pyon', title: '', x: 570, y: 127 },
+      { type: 'pyon', title: '', x: 562, y: 135 },
+      { type: 'pyon', title: '', x: 554, y: 142 },
+      { type: 'pyon', title: '', x: 545, y: 147 },
+      { type: 'pyon', title: '', x: 417, y: 173 },
+      { type: 'pyon', title: '', x: 426, y: 177 },
+      { type: 'pyon', title: '', x: 434, y: 182 },
+      { type: 'pyon', title: '', x: 415, y: 189 },
+      { type: 'pyon', title: '', x: 424, y: 196 },
     ]
   };
 
@@ -108,7 +161,7 @@ export class InteractiveMapComponent implements OnInit, AfterViewInit {
   private markTypesMap = this.mapConfig.markTypes as Record<string, { color: string; shape: string; legend: string }>;
 
   getMarkType(type: string) {
-    return this.markTypesMap[type] ?? { color: 'white', shape: 'circle', legend: '' };
+    return this.markTypesMap[type] ?? null;
   }
 
   get markTypesList() {
@@ -118,7 +171,36 @@ export class InteractiveMapComponent implements OnInit, AfterViewInit {
   hiddenMarkTypes = signal<Set<string>>(new Set());
 
   trianglePoints(x: number, y: number): string {
-    return `${x},${y - 7} ${x + 6},${y + 4} ${x - 6},${y + 4}`;
+    return `${x},${y - 8} ${x + 7},${y + 5} ${x - 7},${y + 5}`;
+  }
+
+  diamondPoints(x: number, y: number): string {
+    return `${x},${y - 8} ${x + 8},${y} ${x},${y + 8} ${x - 8},${y}`;
+  }
+
+  starPoints(x: number, y: number): string {
+    const pts = [0, -9, 2.12, -2.91, 8.56, -2.78, 3.42, 1.11, 5.29, 7.28, 0, 3.6, -5.29, 7.28, -3.42, 1.11, -8.56, -2.78, -2.12, -2.91];
+    const result: string[] = [];
+    for (let i = 0; i < pts.length; i += 2) result.push(`${x + pts[i]},${y + pts[i + 1]}`);
+    return result.join(' ');
+  }
+
+  pentagonPoints(x: number, y: number): string {
+    const pts = [0, -9, 8.56, -2.78, 5.29, 7.28, -5.29, 7.28, -8.56, -2.78];
+    const result: string[] = [];
+    for (let i = 0; i < pts.length; i += 2) result.push(`${x + pts[i]},${y + pts[i + 1]}`);
+    return result.join(' ');
+  }
+
+  hexagonPoints(x: number, y: number): string {
+    const pts = [9, 0, 4.5, 7.79, -4.5, 7.79, -9, 0, -4.5, -7.79, 4.5, -7.79];
+    const result: string[] = [];
+    for (let i = 0; i < pts.length; i += 2) result.push(`${x + pts[i]},${y + pts[i + 1]}`);
+    return result.join(' ');
+  }
+
+  crossPath(x: number, y: number): string {
+    return `M${x - 3},${y - 9} H${x + 3} V${y - 3} H${x + 9} V${y + 3} H${x + 3} V${y + 9} H${x - 3} V${y + 3} H${x - 9} V${y - 3} H${x - 3} Z`;
   }
 
   private get pixelsPerKm(): number {

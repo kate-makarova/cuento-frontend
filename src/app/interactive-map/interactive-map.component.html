@@ -65,18 +65,23 @@
       @for (mark of mapConfig.marks; track mark.title) {
         @if (!hiddenMarkTypes().has(mark.type)) {
           <g style="pointer-events: all; cursor: pointer" (click)="showMarkTooltip($event, mark)">
-            @switch (getMarkType(mark.type).shape) {
-              @case ('circle') {
-                <circle [attr.cx]="mark.x" [attr.cy]="mark.y" r="6" [attr.fill]="getMarkType(mark.type).color" class="map-mark" vector-effect="non-scaling-stroke"/>
+            @if (getMarkType(mark.type); as mt) {
+              @switch (mt.shape) {
+                @case ('circle')   { <circle [attr.cx]="mark.x" [attr.cy]="mark.y" r="7" [attr.fill]="mt.color" class="map-mark" vector-effect="non-scaling-stroke"/> }
+                @case ('square')   { <rect [attr.x]="mark.x - 6" [attr.y]="mark.y - 6" width="12" height="12" [attr.fill]="mt.color" class="map-mark" vector-effect="non-scaling-stroke"/> }
+                @case ('triangle') { <polygon [attr.points]="trianglePoints(mark.x, mark.y)" [attr.fill]="mt.color" class="map-mark" vector-effect="non-scaling-stroke"/> }
+                @case ('diamond')  { <polygon [attr.points]="diamondPoints(mark.x, mark.y)" [attr.fill]="mt.color" class="map-mark" vector-effect="non-scaling-stroke"/> }
+                @case ('star')     { <polygon [attr.points]="starPoints(mark.x, mark.y)" [attr.fill]="mt.color" class="map-mark" vector-effect="non-scaling-stroke"/> }
+                @case ('pentagon') { <polygon [attr.points]="pentagonPoints(mark.x, mark.y)" [attr.fill]="mt.color" class="map-mark" vector-effect="non-scaling-stroke"/> }
+                @case ('hexagon')  { <polygon [attr.points]="hexagonPoints(mark.x, mark.y)" [attr.fill]="mt.color" class="map-mark" vector-effect="non-scaling-stroke"/> }
+                @case ('cross')    { <path [attr.d]="crossPath(mark.x, mark.y)" [attr.fill]="mt.color" class="map-mark" vector-effect="non-scaling-stroke"/> }
               }
-              @case ('square') {
-                <rect [attr.x]="mark.x - 5" [attr.y]="mark.y - 5" width="10" height="10" [attr.fill]="getMarkType(mark.type).color" class="map-mark" vector-effect="non-scaling-stroke"/>
+              @if (mark.title) {
+                <text [attr.x]="mark.x" [attr.y]="mark.y - 12 / scale()" class="map-mark-label" text-anchor="middle" [style.font-size.px]="12 / scale()">{{ mark.title }}</text>
               }
-              @case ('triangle') {
-                <polygon [attr.points]="trianglePoints(mark.x, mark.y)" [attr.fill]="getMarkType(mark.type).color" class="map-mark" vector-effect="non-scaling-stroke"/>
-              }
+            } @else if (mark.title) {
+              <text [attr.x]="mark.x" [attr.y]="mark.y" class="map-mark-label" text-anchor="middle" dominant-baseline="middle" [style.font-size.px]="12 / scale()">{{ mark.title }}</text>
             }
-            <text [attr.x]="mark.x" [attr.y]="mark.y - 10 / scale()" class="map-mark-label" text-anchor="middle" [style.font-size.px]="12 / scale()">{{ mark.title }}</text>
           </g>
         }
       }
@@ -138,15 +143,14 @@
       <div class="legend-row" [class.hidden]="hiddenMarkTypes().has(type.key)" (click)="toggleMarkType(type.key)">
         <svg class="legend-icon" viewBox="0 0 14 14" width="14" height="14">
           @switch (type.shape) {
-            @case ('circle') {
-              <circle cx="7" cy="7" r="5" [attr.fill]="type.color" class="map-mark"/>
-            }
-            @case ('square') {
-              <rect x="2" y="2" width="10" height="10" [attr.fill]="type.color" class="map-mark"/>
-            }
-            @case ('triangle') {
-              <polygon points="7,1 13,12 1,12" [attr.fill]="type.color" class="map-mark"/>
-            }
+            @case ('circle')   { <circle cx="7" cy="7" r="5" [attr.fill]="type.color" class="map-mark"/> }
+            @case ('square')   { <rect x="2" y="2" width="10" height="10" [attr.fill]="type.color" class="map-mark"/> }
+            @case ('triangle') { <polygon points="7,1 13,12 1,12" [attr.fill]="type.color" class="map-mark"/> }
+            @case ('diamond')  { <polygon points="7,1 13,7 7,13 1,7" [attr.fill]="type.color" class="map-mark"/> }
+            @case ('star')     { <polygon points="7,1.5 8.2,5.1 12,5.1 9,7.4 10.1,11 7,8.8 3.9,11 5,7.4 2,5.1 5.8,5.1" [attr.fill]="type.color" class="map-mark"/> }
+            @case ('pentagon') { <polygon points="7,1.5 12,5.1 10,11.5 4,11.5 2,5.1" [attr.fill]="type.color" class="map-mark"/> }
+            @case ('hexagon')  { <polygon points="12,7 9.5,11.3 4.5,11.3 2,7 4.5,2.7 9.5,2.7" [attr.fill]="type.color" class="map-mark"/> }
+            @case ('cross')    { <path d="M5,1 H9 V5 H13 V9 H9 V13 H5 V9 H1 V5 H5 Z" [attr.fill]="type.color" class="map-mark"/> }
           }
         </svg>
         <span class="legend-label">{{ type.legend }}</span>

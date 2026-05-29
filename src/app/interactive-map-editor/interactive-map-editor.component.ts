@@ -50,7 +50,18 @@ export class InteractiveMapEditorComponent implements AfterViewInit {
 
   containerRef = viewChild.required<ElementRef<HTMLDivElement>>('container');
 
-  mapConfig = signal<MapConfig>({});
+  mapConfig = signal<MapConfig>({
+    mapUrl: '',
+    mapWidth: 0,
+    mapHeight: 0,
+    horizontalDirection: 'right',
+    verticalDirection: 'bottom',
+    zeroPoint: [0, 0],
+    measureUnit: '',
+    measureRatio: [1, 1],
+    markTypes: {},
+    marks: []
+  });
 
   // ── Setup panel ──
   setupOpen = signal(false);
@@ -66,6 +77,12 @@ export class InteractiveMapEditorComponent implements AfterViewInit {
   metaZeroPointY = '';
   metaMeasureRatioPixels = '';
   metaMeasureRatioUnits = '';
+
+  // ── Config panel ──
+  configOpen = signal(false);
+  rawConfigModalOpen = signal(false);
+  rawConfigText = '';
+  rawConfigError = '';
 
   // ── Marks panel ──
   marksOpen = signal(false);
@@ -371,6 +388,38 @@ export class InteractiveMapEditorComponent implements AfterViewInit {
     this.mapConfig.update(cfg => ({ ...cfg, measureRatio: [pixelDist, dist] }));
     this.distanceRefPoints.set([]);
     this.activeSetupSection.set(null);
+  }
+
+  // ── Config panel ──
+
+  toggleConfig(): void {
+    this.configOpen.update(v => !v);
+    if (this.configOpen()) { this.setupOpen.set(false); this.marksOpen.set(false); this.closeAllModes(); }
+  }
+
+  openRawConfigModal(): void {
+    this.rawConfigText = JSON.stringify(this.mapConfig(), null, 2);
+    this.rawConfigError = '';
+    this.rawConfigModalOpen.set(true);
+    this.configOpen.set(false);
+  }
+
+  closeRawConfigModal(): void {
+    this.rawConfigModalOpen.set(false);
+    this.rawConfigError = '';
+  }
+
+  applyRawConfig(): void {
+    try {
+      const parsed = JSON.parse(this.rawConfigText) as MapConfig;
+      this.mapConfig.set(parsed);
+      if (parsed.mapWidth && parsed.mapHeight) {
+        this.fitImageToScreen(parsed.mapWidth, parsed.mapHeight);
+      }
+      this.closeRawConfigModal();
+    } catch {
+      this.rawConfigError = 'Invalid JSON — please fix the syntax and try again.';
+    }
   }
 
   // ── Marks panel ──
