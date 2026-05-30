@@ -116,7 +116,7 @@ export class InteractiveMapEditorComponent implements AfterViewInit {
   distanceInput = '';
 
   // ── Pan / zoom ──
-  private scale = signal(1);
+  protected scale = signal(1);
   private translateX = signal(0);
   private translateY = signal(0);
   containerWidth = signal(window.innerWidth);
@@ -305,8 +305,8 @@ export class InteractiveMapEditorComponent implements AfterViewInit {
   }
 
   private nextMarkId(): number {
-    const marks = this.mapConfig().marks ?? [];
-    return marks.length === 0 ? 1 : Math.max(...marks.map(m => m.id)) + 1;
+    const ids = (this.mapConfig().marks ?? []).map(m => m.id).filter(id => id != null);
+    return ids.length === 0 ? 1 : Math.max(...ids) + 1;
   }
 
   // ── Setup panel ──
@@ -412,6 +412,8 @@ export class InteractiveMapEditorComponent implements AfterViewInit {
   applyRawConfig(): void {
     try {
       const parsed = JSON.parse(this.rawConfigText) as MapConfig;
+      let nextId = Math.max(0, ...(parsed.marks ?? []).filter(m => m.id != null).map(m => m.id)) + 1;
+      parsed.marks = (parsed.marks ?? []).map(m => m.id != null ? m : { ...m, id: nextId++ });
       this.mapConfig.set(parsed);
       if (parsed.mapWidth && parsed.mapHeight) {
         this.fitImageToScreen(parsed.mapWidth, parsed.mapHeight);

@@ -22,22 +22,57 @@
       class="map-grid"
       [attr.width]="mapConfig.mapWidth"
       [attr.height]="mapConfig.mapHeight"
+      overflow="visible"
     >
-      @for (x of gridLines().verticals; track x) {
-        <line
-          [attr.x1]="x" y1="0"
-          [attr.x2]="x" [attr.y2]="mapConfig.mapHeight"
-          class="grid-line"
-          vector-effect="non-scaling-stroke"
-        />
-      }
-      @for (y of gridLines().horizontals; track y) {
-        <line
-          x1="0" [attr.y1]="y"
-          [attr.x2]="mapConfig.mapWidth" [attr.y2]="y"
-          class="grid-line"
-          vector-effect="non-scaling-stroke"
-        />
+      @if (radialGrid(); as rg) {
+        @for (circle of rg.circles; track circle.px) {
+          <circle
+            [attr.cx]="rg.zx" [attr.cy]="rg.zy"
+            [attr.r]="circle.px"
+            class="grid-line" fill="none"
+            vector-effect="non-scaling-stroke"
+          />
+        }
+        @for (line of rg.radialLines; track line.label) {
+          <line
+            [attr.x1]="line.x1" [attr.y1]="line.y1"
+            [attr.x2]="line.x2" [attr.y2]="line.y2"
+            class="grid-line"
+            vector-effect="non-scaling-stroke"
+          />
+        }
+        @if (rg.refCircle; as rc) {
+          <circle
+            [attr.cx]="rg.zx" [attr.cy]="rg.zy"
+            [attr.r]="rc.px"
+            class="grid-line grid-line-ref" fill="none"
+            vector-effect="non-scaling-stroke"
+          />
+          <text
+            [attr.x]="rc.labelX" [attr.y]="rc.labelY"
+            class="grid-ref-label"
+            dominant-baseline="middle"
+            [style.font-size.px]="11 / scale()"
+            vector-effect="non-scaling-stroke"
+          >{{ rc.label }}</text>
+        }
+      } @else {
+        @for (line of gridLines().verticals; track line.px) {
+          <line
+            [attr.x1]="line.px" y1="0"
+            [attr.x2]="line.px" [attr.y2]="mapConfig.mapHeight"
+            class="grid-line"
+            vector-effect="non-scaling-stroke"
+          />
+        }
+        @for (line of gridLines().horizontals; track line.px) {
+          <line
+            x1="0" [attr.y1]="line.px"
+            [attr.x2]="mapConfig.mapWidth" [attr.y2]="line.px"
+            class="grid-line"
+            vector-effect="non-scaling-stroke"
+          />
+        }
       }
       @for (flag of flags(); track $index) {
         <g [attr.transform]="'translate(' + flag.x + ',' + flag.y + ')'">
@@ -123,19 +158,21 @@
     }
   </div>
 
-  <!-- Top ruler -->
-  <div class="map-ruler map-ruler-top">
-    @for (label of gridLabels().xLabels; track label.screenX) {
-      <span class="ruler-label ruler-label-x" [style.left.px]="label.screenX">{{ label.value }}</span>
-    }
-  </div>
+  @if (mapConfig.coordinateSystem !== 'radial') {
+    <!-- Top ruler -->
+    <div class="map-ruler map-ruler-top">
+      @for (label of gridLabels().xLabels; track label.screenX) {
+        <span class="ruler-label ruler-label-x" [style.left.px]="label.screenX">{{ label.value }}</span>
+      }
+    </div>
 
-  <!-- Left ruler -->
-  <div class="map-ruler map-ruler-left">
-    @for (label of gridLabels().yLabels; track label.screenY) {
-      <span class="ruler-label ruler-label-y" [style.top.px]="label.screenY">{{ label.value }}</span>
-    }
-  </div>
+    <!-- Left ruler -->
+    <div class="map-ruler map-ruler-left">
+      @for (label of gridLabels().yLabels; track label.screenY) {
+        <span class="ruler-label ruler-label-y" [style.top.px]="label.screenY">{{ label.value }}</span>
+      }
+    </div>
+  }
 
   <!-- Legend -->
   <div class="map-legend" (mousedown)="$event.stopPropagation()">
@@ -160,7 +197,7 @@
 
   @if (tooltip(); as t) {
     <div class="map-tooltip" [style.left.px]="t.screenX + 14" [style.top.px]="t.screenY + 14">
-      <div>{{ t.unitX }} × {{ t.unitY }} {{ mapConfig.measureUnit }}</div>
+      <div>{{ t.text }}</div>
       <div>{{ t.mapX }} × {{ t.mapY }} px</div>
     </div>
   }

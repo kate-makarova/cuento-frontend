@@ -60,6 +60,23 @@
   stroke-width: 1;
 }
 
+.grid-line-ref {
+  stroke: rgba(255, 255, 255, 0.5);
+  stroke-dasharray: 6 4;
+}
+
+.grid-ref-label {
+  fill: rgba(255, 255, 255, 0.65);
+  font-size: 11px;
+  font-family: monospace;
+  paint-order: stroke;
+  stroke: #000;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  pointer-events: none;
+  vector-effect: non-scaling-stroke;
+}
+
 .map-tool-panel {
   position: absolute;
   top: calc(var(--ruler-top) + 10px);

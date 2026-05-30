@@ -79,12 +79,12 @@
                 @case ('hexagon')  { <polygon points="9,0 4.5,7.79 -4.5,7.79 -9,0 -4.5,-7.79 4.5,-7.79" [attr.fill]="mt.color" class="mark-shape" vector-effect="non-scaling-stroke"/> }
                 @case ('cross')    { <path d="M-3,-9 H3 V-3 H9 V3 H3 V9 H-3 V3 H-9 V-3 H-3 Z" [attr.fill]="mt.color" class="mark-shape" vector-effect="non-scaling-stroke"/> }
               }
-              <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="mark-number">{{ mark.id }}</text>
-              @if (mark.title) {
-                <text x="0" y="18" text-anchor="middle" class="mark-title-label" vector-effect="non-scaling-stroke">{{ mark.title }}</text>
-              }
-            } @else if (mark.title) {
-              <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="mark-title-label" vector-effect="non-scaling-stroke">{{ mark.title }}</text>
+            } @else {
+              <circle cx="0" cy="0" r="9" fill="#888" class="mark-shape" vector-effect="non-scaling-stroke"/>
+            }
+            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="mark-number" [style.font-size.px]="9 / scale()">{{ mark.id }}</text>
+            @if (mark.title) {
+              <text x="0" [attr.y]="18 / scale()" text-anchor="middle" class="mark-title-label" [style.font-size.px]="11 / scale()" vector-effect="non-scaling-stroke">{{ mark.title }}</text>
             }
           </g>
         }
