@@ -25,6 +25,7 @@ const FIXED_COLUMNS = [
   selector: 'app-episode-list',
   imports: [RouterLink, FormsModule, CommonModule],
   templateUrl: './episode-list.component.html',
+  styleUrl: './episode-list.component.css',
   standalone: true,
 })
 export class EpisodeListComponent implements OnInit {
