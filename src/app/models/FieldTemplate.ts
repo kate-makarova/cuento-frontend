@@ -5,6 +5,7 @@ export interface FieldTemplate {
   content_field_type: string,
   order: number,
   width?: number,
-  height?: number
+  height?: number,
+  options?: Record<string, string>
 }
 

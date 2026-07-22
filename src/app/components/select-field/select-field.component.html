@@ -1,0 +1,23 @@
+<label [for]="name">{{ fieldName }}</label>
+
+@if (contentFieldType === 'dropdown') {
+  <select [id]="name" [name]="name">
+    <option value="">—</option>
+    @for (opt of optionEntries; track opt.id) {
+      <option [value]="opt.id" [selected]="isSelected(opt.id)">{{ opt.label }}</option>
+    }
+  </select>
+} @else {
+  <div class="radio-group">
+    @for (opt of optionEntries; track opt.id) {
+      <label class="radio-label">
+        <input
+          type="radio"
+          [name]="name"
+          [value]="opt.id"
+          [checked]="isSelected(opt.id)">
+        {{ opt.label }}
+      </label>
+    }
+  </div>
+}

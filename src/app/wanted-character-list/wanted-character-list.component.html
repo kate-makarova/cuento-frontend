@@ -1,17 +1,21 @@
 <div id="pun-main" class="main wanted-character-list">
   <div class="main-header">
     <h1><span i18n="@@wantedCharacterList.title">Wanted Characters</span></h1>
-  </div>
-
-  <div class="dashboard-layout">
-    <aside class="filter-sidebar">
+    <div class="main-header-controls">
       <div class="view-toggle">
         <button class="button" [class.active]="cardView()" (click)="cardView.set(true)" i18n="@@wantedCharacterList.cardView">Card view</button>
         <button class="button" [class.active]="!cardView()" (click)="cardView.set(false)" i18n="@@wantedCharacterList.listView">List view</button>
       </div>
+      <button class="button filter-toggle-btn" (click)="filtersOpen.set(!filtersOpen())">
+        <ng-container i18n="@@wantedCharacterList.filters">Filters</ng-container>
+        <span class="filter-toggle-icon">{{ filtersOpen() ? '▲' : '▼' }}</span>
+      </button>
+    </div>
+  </div>
 
-      <h3 i18n="@@wantedCharacterList.filters">Filters</h3>
-
+  <div class="dashboard-layout">
+    @if (filtersOpen()) {
+    <aside class="filter-sidebar">
       <div class="filter-group">
         <h4>{{ factionsHeader() }}</h4>
         <div class="checkbox-list">
@@ -24,8 +28,33 @@
         </div>
       </div>
 
+      @for (field of filterableFields(); track field.machine_field_name) {
+        <div class="filter-group">
+          <h4>{{ field.human_field_name }}</h4>
+          @if (field.field_type === 'select' || field.content_field_type === 'dropdown' || field.content_field_type === 'radiobox') {
+            <select [(ngModel)]="customFieldFilters[field.machine_field_name]">
+              <option value="">—</option>
+              @for (opt of getSelectOptions(field); track opt.id) {
+                <option [value]="opt.id">{{ opt.label }}</option>
+              }
+            </select>
+          } @else {
+            <input type="text"
+              [attr.list]="'ac-' + field.machine_field_name"
+              [(ngModel)]="customFieldFilters[field.machine_field_name]"
+              (input)="onStringFilterInput(field.machine_field_name, $any($event.target).value)" />
+            <datalist [id]="'ac-' + field.machine_field_name">
+              @for (opt of (autocompleteOptions[field.machine_field_name] ?? []); track opt) {
+                <option [value]="opt"></option>
+              }
+            </datalist>
+          }
+        </div>
+      }
+
       <button class="button" (click)="applyFilters()" i18n="@@wantedCharacterList.applyFilters">Apply Filters</button>
     </aside>
+    }
 
     <section class="content-area">
       @if (cardView()) {

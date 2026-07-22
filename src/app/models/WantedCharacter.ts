@@ -6,6 +6,7 @@ import { UserInfo } from './User';
 export interface GetWantedCharacterListRequest {
   faction_ids: number[];
   page: number;
+  custom_field_filters?: Record<string, string>;
 }
 
 export interface WantedCharacterListResponse {

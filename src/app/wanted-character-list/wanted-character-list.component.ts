@@ -37,6 +37,7 @@ export class WantedCharacterListComponent implements OnInit {
   currentUser = this.authService.currentUser;
 
   cardView = signal(true);
+  filtersOpen = signal(false);
   selectedFactions: number[] = [];
 
   currentPage = 1;
@@ -45,6 +46,21 @@ export class WantedCharacterListComponent implements OnInit {
   list = this.wantedCharacterService.wantedCharacterList;
   treeList = this.wantedCharacterService.wantedCharacterTreeList;
   factions = this.factionService.wantedFactions;
+  template = this.wantedCharacterService.template;
+
+  filterableFields = computed(() =>
+    this.template()
+      .filter(f =>
+        f.field_type === 'string' ||
+        f.field_type === 'select' ||
+        ['dropdown', 'radiobox'].includes(f.content_field_type)
+      )
+      .sort((a, b) => a.order - b.order)
+  );
+
+  customFieldFilters: Record<string, string> = {};
+  autocompleteOptions: Record<string, string[]> = {};
+  private autocompleteTimers: Record<string, any> = {};
 
   factionsHeader = computed(() => {
     const setting = this.factionSettingService.factionSettings()
@@ -72,6 +88,7 @@ export class WantedCharacterListComponent implements OnInit {
 
   ngOnInit() {
     this.wantedCharacterService.loadTreeList();
+    this.wantedCharacterService.loadTemplate();
     this.factionService.loadWantedFactions();
     this.factionSettingService.load();
     this.applyFilters();
@@ -110,10 +127,35 @@ export class WantedCharacterListComponent implements OnInit {
   }
 
   private loadPage() {
+    const activeFilters: Record<string, string> = {};
+    for (const [k, v] of Object.entries(this.customFieldFilters)) {
+      if (v !== '' && v != null) activeFilters[k] = v;
+    }
     this.wantedCharacterService.loadListPage({
       faction_ids: this.selectedFactions,
-      page: this.currentPage
+      page: this.currentPage,
+      ...(Object.keys(activeFilters).length > 0 ? { custom_field_filters: activeFilters } : {})
     });
+  }
+
+  onStringFilterInput(machineName: string, term: string) {
+    clearTimeout(this.autocompleteTimers[machineName]);
+    if (term.length < 2) {
+      this.autocompleteOptions[machineName] = [];
+      return;
+    }
+    this.autocompleteTimers[machineName] = setTimeout(() => {
+      this.wantedCharacterService.autocompleteField(machineName, term).subscribe({
+        next: (results) => { this.autocompleteOptions[machineName] = results; },
+        error: () => {}
+      });
+    }, 250);
+  }
+
+  getSelectOptions(field: FieldTemplate): { id: string; label: string }[] {
+    return Object.entries(field.options ?? {})
+      .sort((a, b) => Number(a[0]) - Number(b[0]))
+      .map(([id, label]) => ({ id, label }));
   }
 
   expandedCards = signal<Set<number>>(new Set());
@@ -176,12 +218,16 @@ export class WantedCharacterListComponent implements OnInit {
 
         if (customField) {
           let content = customField.content;
-          if (content !== null && content !== undefined && typeof content === 'object') {
-            content = 'content' in content ? (content as any).content : '';
+          if (config.content_field_type === 'dropdown' || config.content_field_type === 'radiobox') {
+            fieldValue = content?.value ?? '';
+          } else {
+            if (content !== null && content !== undefined && typeof content === 'object') {
+              content = 'content' in content ? (content as any).content : '';
+            }
+            fieldValue = config.content_field_type === 'long_text'
+              ? (customField.content_html || (content != null ? String(content) : ''))
+              : content;
           }
-          fieldValue = config.content_field_type === 'long_text'
-            ? (customField.content_html || (content != null ? String(content) : ''))
-            : content;
         }
 
         return {
