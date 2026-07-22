@@ -72,4 +72,8 @@ export class WantedCharacterService {
   revokeClaimRecord(claimRecordId: number): Observable<void> {
     return this.apiService.post<void>('claim-record/revoke', { claim_record_id: claimRecordId });
   }
+
+  autocompleteField(field: string, term: string): Observable<string[]> {
+    return this.apiService.get<string[]>(`custom-field/autocomplete?entity_type=wanted_character&field=${field}&term=${encodeURIComponent(term)}`);
+  }
 }

@@ -2187,6 +2187,22 @@ span.mention {
   padding: 15px;
 }
 
+.filter-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-toggle-icon {
+  font-size: 0.75em;
+}
+
+.main-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .filter-group {
   margin-bottom: 20px;
 }

@@ -25,6 +25,7 @@ export interface EpisodeFilterRequest {
   faction_ids: number[];
   page: number;
   order?: string[];
+  custom_field_filters?: Record<string, string>;
 }
 
 export interface EpisodeListItem {
