@@ -29,7 +29,8 @@
       <select
         [id]="'field-type-' + index"
         [name]="'field_type_' + index"
-        [(ngModel)]="field.field_type">
+        [(ngModel)]="field.field_type"
+        (ngModelChange)="onFieldTypeChange()">
         @for (type of fieldTypes; track type) {
           <option [value]="type">{{ type }}</option>
         }
@@ -42,7 +43,7 @@
         [id]="'content-type-' + index"
         [name]="'content_field_type_' + index"
         [(ngModel)]="field.content_field_type">
-        @for (type of contentFieldTypes; track type) {
+        @for (type of availableContentFieldTypes; track type) {
           <option [value]="type">{{ type }}</option>
         }
       </select>
@@ -77,6 +78,25 @@
           [(ngModel)]="field.height">
       </div>
     </div>
+  }
+
+  @if (field.field_type === 'select') {
+    <fieldset class="select-options-fieldset">
+      <legend>Options</legend>
+      @for (opt of selectOptionsEntries; track opt.id) {
+        <div class="select-option-row">
+          <span class="option-id">#{{ opt.id }}</span>
+          <input
+            type="text"
+            [name]="'option_' + index + '_' + opt.id"
+            [value]="opt.label"
+            (input)="updateOptionLabel(opt.id, $any($event.target).value)"
+            placeholder="Option label">
+          <button type="button" (click)="removeOption(opt.id)" class="btn-danger btn-small">Remove</button>
+        </div>
+      }
+      <button type="button" (click)="addOption()" class="btn-secondary btn-small">Add option</button>
+    </fieldset>
   }
 
   <div class="fieldset-actions">

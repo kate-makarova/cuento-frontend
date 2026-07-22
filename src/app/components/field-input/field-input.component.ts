@@ -6,11 +6,12 @@ import { NumberFieldComponent } from '../number-field/number-field.component';
 import { ImageFieldComponent } from '../image-field/image-field.component';
 import { CroppedImageFieldComponent } from '../cropped-image-field/cropped-image-field.component';
 import { FreeFormatDateFieldComponent } from '../free-format-date-field/free-format-date-field.component';
+import { SelectFieldComponent } from '../select-field/select-field.component';
 
 @Component({
   selector: 'app-field-input',
   standalone: true,
-  imports: [ShortTextFieldComponent, LongTextFieldComponent, NumberFieldComponent, ImageFieldComponent, CroppedImageFieldComponent, FreeFormatDateFieldComponent],
+  imports: [ShortTextFieldComponent, LongTextFieldComponent, NumberFieldComponent, ImageFieldComponent, CroppedImageFieldComponent, FreeFormatDateFieldComponent, SelectFieldComponent],
   templateUrl: './field-input.component.html'
 })
 export class FieldInputComponent {
