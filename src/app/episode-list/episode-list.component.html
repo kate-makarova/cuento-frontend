@@ -66,7 +66,7 @@
       @for (field of filterableFields(); track field.machine_field_name) {
         <div class="filter-group">
           <h4>{{ field.human_field_name }}</h4>
-          @if (field.field_type === 'select' || field.content_field_type === 'dropdown' || field.content_field_type === 'radiobox') {
+          @if (field.content_field_type === 'dropdown' || field.content_field_type === 'radiobox') {
             <select [(ngModel)]="customFieldFilters[field.machine_field_name]">
               <option value="">—</option>
               @for (opt of getSelectOptions(field); track opt.id) {
