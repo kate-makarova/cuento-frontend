@@ -52,11 +52,7 @@ export class EpisodeListComponent implements OnInit {
 
   protected filterableFields = computed(() =>
     this.episodeTemplate()
-      .filter(f =>
-        f.field_type === 'string' ||
-        f.field_type === 'select' ||
-        ['dropdown', 'radiobox'].includes(f.content_field_type)
-      )
+      .filter(f => ['short_text', 'dropdown', 'radiobox'].includes(f.content_field_type))
       .sort((a, b) => a.order - b.order)
   );
 
