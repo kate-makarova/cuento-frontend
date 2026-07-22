@@ -134,6 +134,11 @@ export class WantedCharacterListComponent implements OnInit {
     });
   }
 
+  selectAutocompleteOption(machineName: string, value: string) {
+    this.customFieldFilters[machineName] = value;
+    this.autocompleteOptions[machineName] = [];
+  }
+
   onStringFilterInput(machineName: string, term: string) {
     clearTimeout(this.autocompleteTimers[machineName]);
     if (term.length < 2) {

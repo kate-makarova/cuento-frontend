@@ -47,7 +47,7 @@ export class EpisodeListComponent implements OnInit {
   protected subforums = this.episodeService.subforumList;
   protected characterSuggestions = this.characterService.shortCharacterList;
   protected factions = this.factionService.factions;
-  protected order = signal<string[]>(['name']);
+  protected order = signal<string[]>([]);
   protected filtersOpen = signal(false);
 
   protected filterableFields = computed(() =>
@@ -204,6 +204,11 @@ export class EpisodeListComponent implements OnInit {
     if (current.includes(col)) return '▲';
     if (current.includes('-' + col)) return '▼';
     return '⇅';
+  }
+
+  protected selectAutocompleteOption(machineName: string, value: string) {
+    this.customFieldFilters[machineName] = value;
+    this.autocompleteOptions[machineName] = [];
   }
 
   protected onStringFilterInput(machineName: string, term: string) {
