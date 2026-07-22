@@ -96,34 +96,22 @@
       <legend i18n="@@admin.widgetEdit.filters">Filters</legend>
 
       <div class="field">
-        <label i18n="@@admin.widgetEdit.filterStatus">Status</label>
-        <div class="checkbox-group">
-          <label>
-            <input type="checkbox"
-              [checked]="filterStatusActive().includes('1')"
-              (change)="toggleFilter(filterStatusActive, '1')" />
-            <ng-container i18n="@@admin.widgetEdit.filterStatusActive">Active</ng-container>
-          </label>
-          <label>
-            <input type="checkbox"
-              [checked]="filterStatusActive().includes('0')"
-              (change)="toggleFilter(filterStatusActive, '0')" />
-            <ng-container i18n="@@admin.widgetEdit.filterStatusInactive">Inactive</ng-container>
-          </label>
-        </div>
+        <label for="filter-status" i18n="@@admin.widgetEdit.filterStatus">Status</label>
+        <select id="filter-status" [(ngModel)]="filterStatus">
+          <option value="">—</option>
+          <option value="0" i18n="@@admin.widgetEdit.filterStatusActive">Active</option>
+          <option value="1" i18n="@@admin.widgetEdit.filterStatusInactive">Inactive</option>
+        </select>
       </div>
 
       @if (entityType() === 'wanted_character') {
         <div class="field">
-          <label i18n="@@admin.widgetEdit.filterIsClaimed">Is claimed</label>
-          <div class="checkbox-group">
-            <label>
-              <input type="checkbox"
-                [checked]="filterIsClaimed().includes('1')"
-                (change)="toggleFilter(filterIsClaimed, '1')" />
-              <ng-container i18n="@@admin.widgetEdit.filterIsClaimedYes">Claimed</ng-container>
-            </label>
-          </div>
+          <label for="filter-is-claimed" i18n="@@admin.widgetEdit.filterIsClaimed">Is claimed</label>
+          <select id="filter-is-claimed" [(ngModel)]="filterIsClaimed">
+            <option value="">—</option>
+            <option value="1" i18n="@@admin.widgetEdit.filterIsClaimedYes">Claimed</option>
+            <option value="0" i18n="@@admin.widgetEdit.filterIsClaimedNo">Not claimed</option>
+          </select>
         </div>
       }
     </fieldset>
