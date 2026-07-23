@@ -1,0 +1,207 @@
+<div id="pun-main" class="main">
+  @if (migration(); as m) {
+    <div class="main-header">
+      <h1>Migration #{{ m.id }}</h1>
+    </div>
+
+    <section class="migration-stats">
+      <dl class="stats-grid">
+        <dt>Status</dt>
+        <dd><span class="status-badge status-{{ m.status }}">{{ statusLabels[m.status] }}</span></dd>
+
+        <dt>Domain</dt>
+        <dd>{{ m.forum_domain ?? '—' }}</dd>
+
+        <dt>Original Topic ID</dt>
+        <dd>{{ m.original_topic_id }}</dd>
+
+        @if (m.original_topic_title) {
+          <dt>Topic Title</dt>
+          <dd>{{ m.original_topic_title }}</dd>
+        }
+
+        <dt>New Topic ID</dt>
+        <dd>{{ m.new_topic_id ?? '—' }}</dd>
+
+        <dt>Original Posts</dt>
+        <dd>{{ m.original_post_count }}</dd>
+
+        <dt>Parsed Posts</dt>
+        <dd>{{ m.parsed_post_count ?? '—' }}</dd>
+
+        <dt>Created</dt>
+        <dd>{{ m.date_created | date:'yyyy-MM-dd HH:mm' }}</dd>
+      </dl>
+    </section>
+
+    @if (m.status !== MigrationStatus.Published && !publishResult()) {
+
+    @if (m.data_extraction_urls && m.data_extraction_urls.length > 0) {
+      <section class="extraction-links">
+        <h2>Data Extraction Links</h2>
+        <p class="instructions">
+          Open each link below in your browser, copy all the text on the page, and paste it into the processing block one at a time.
+          Tip: use <kbd>Ctrl+A</kbd> then <kbd>Ctrl+C</kbd> to quickly select and copy everything.
+        </p>
+        <ol class="url-list">
+          @for (url of m.data_extraction_urls; track url) {
+            <li><a [href]="url" target="_blank" rel="noopener">{{ url }}</a></li>
+          }
+        </ol>
+      </section>
+    }
+
+    <section class="processing-block">
+      <h2>Process Data</h2>
+      <textarea
+        class="json-textarea"
+        [(ngModel)]="jsonBlob"
+        placeholder="Paste the page content here..."
+        rows="12">
+      </textarea>
+
+      @if (processError) {
+        <p class="error-message">{{ processError }}</p>
+      }
+
+      <button class="button" (click)="process()" [disabled]="processing || !jsonBlob.trim()">
+        {{ processing ? 'Processing...' : 'Process' }}
+      </button>
+    </section>
+
+    @if (processingResult(); as result) {
+      <section class="processing-stats">
+        <h2>Processing Result</h2>
+        <dl class="stats-grid">
+          <dt>Found Posts</dt>
+          <dd>{{ result.found_posts }}</dd>
+          <dt>Skipped Duplicates</dt>
+          <dd>{{ result.skipped_duplicates }}</dd>
+          <dt>All Parsed</dt>
+          <dd>{{ result.all_parsed ? 'Yes' : 'No' }}</dd>
+        </dl>
+      </section>
+    }
+
+    @if (displayUsers().length > 0) {
+      <section class="user-mapping">
+        <h2>User Mapping</h2>
+
+        <table class="user-map-table" cellspacing="0">
+          <thead>
+            <tr>
+              <th>Original User</th>
+              <th>Mapped Character</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of displayUsers(); track u.original_user_id) {
+              <tr>
+                <td>
+                  <span class="username">{{ u.original_user_name }}</span>
+                  <span class="user-id">(#{{ u.original_user_id }})</span>
+                </td>
+                <td>
+                  @if (userMap()[u.original_user_id] !== undefined) {
+                    <span class="mapped-char">{{ charSearchTerms[u.original_user_id] }}</span>
+                    @if (u.character_id === null) {
+                      <button class="btn-clear" (click)="clearChar(u.original_user_id)">×</button>
+                    }
+                  } @else {
+                    <div class="autocomplete-wrapper">
+                      <input type="text"
+                        placeholder="Search character..."
+                        [ngModel]="charSearchTerms[u.original_user_id]"
+                        (ngModelChange)="charSearchTerms[u.original_user_id] = $event; onCharInput(u.original_user_id, $event)" />
+                      @if ((charSuggestions[u.original_user_id] ?? []).length > 0) {
+                        <div class="suggestions-dropdown">
+                          @for (char of charSuggestions[u.original_user_id]; track char.id) {
+                            <div class="suggestion-item" (mousedown)="selectChar(u.original_user_id, char)">
+                              @if (char.avatar) {
+                                <img [src]="char.avatar" [alt]="char.name" />
+                              }
+                              <span>{{ char.name }}</span>
+                            </div>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        @if (mappingError) {
+          <p class="error-message">{{ mappingError }}</p>
+        }
+
+        @if (mappingSuccess) {
+          <p class="success-message">Mapping updated successfully.</p>
+          <button class="button" (click)="redoMapping()">Redo Mapping</button>
+        } @else {
+          <button class="button" (click)="updateMapping()" [disabled]="!allMapped() || mappingSubmitting">
+            {{ mappingSubmitting ? 'Saving...' : 'Update Mapping' }}
+          </button>
+        }
+      </section>
+    }
+
+    } <!-- /not published -->
+
+    @if (canPublish()) {
+      <section class="publish-block">
+        <h2>Publish</h2>
+
+        @if (m.status === MigrationStatus.Published || publishResult()) {
+          @if (publishResult(); as result) {
+            <dl class="stats-grid">
+              <dt>Published Posts</dt>
+              <dd>{{ result.published_posts }}</dd>
+              <dt>Skipped Posts</dt>
+              <dd>{{ result.skipped_posts }}</dd>
+            </dl>
+          } @else {
+            <p class="success-message">This migration has already been published.</p>
+          }
+        } @else {
+          <div class="form-group">
+            <label>Episode</label>
+            <div class="autocomplete-wrapper">
+              <input type="text"
+                [(ngModel)]="episodeSearchTerm"
+                (ngModelChange)="onEpisodeInput($event)"
+                placeholder="Search episode..." />
+              @if (episodeSuggestions().length > 0) {
+                <div class="suggestions-dropdown">
+                  @for (ep of episodeSuggestions(); track ep.id) {
+                    <div class="suggestion-item" (mousedown)="selectEpisode(ep)">{{ ep.name }}</div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" [(ngModel)]="skipFirstPost" />
+              Skip first post
+            </label>
+          </div>
+
+          @if (publishError) {
+            <p class="error-message">{{ publishError }}</p>
+          }
+
+          <button class="button" (click)="publish()" [disabled]="!selectedEpisode || publishing">
+            {{ publishing ? 'Publishing...' : 'Publish' }}
+          </button>
+        }
+      </section>
+    }
+
+  } @else {
+    <p>Loading migration...</p>
+  }
+</div>

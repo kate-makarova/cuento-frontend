@@ -77,6 +77,9 @@ import { ForbiddenComponent } from './error-pages/forbidden/forbidden.component'
 import { ServerErrorComponent } from './error-pages/server-error/server-error.component';
 import { AdminExternalAppsComponent } from './admin/admin-external-apps/admin-external-apps.component';
 import { AdminExternalAppEditComponent } from './admin/admin-external-app-edit/admin-external-app-edit.component';
+import { MigrationListComponent } from './migration-list/migration-list.component';
+import { CreateUserDataMigrationComponent } from './create-user-data-migration/create-user-data-migration.component';
+import { UserDataMigrationComponent } from './user-data-migration/user-data-migration.component';
 
 
 export const routes: Routes = [
@@ -496,6 +499,24 @@ export const routes: Routes = [
         title: 'Admin - External App'
       }
     ]
+  },
+  {
+    path: 'migration-list',
+    component: MigrationListComponent,
+    title: 'User Data Migrations',
+    data: { pageId: 'pun-migration-list' }
+  },
+  {
+    path: 'migration-create',
+    component: CreateUserDataMigrationComponent,
+    title: 'Create Migration',
+    data: { pageId: 'pun-migration-create' }
+  },
+  {
+    path: 'migration/:id',
+    component: UserDataMigrationComponent,
+    title: 'User Data Migration',
+    data: { pageId: 'pun-migration' }
   },
   {
     path: 'search',

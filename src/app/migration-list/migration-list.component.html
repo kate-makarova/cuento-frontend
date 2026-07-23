@@ -1,0 +1,37 @@
+<div id="pun-main" class="main">
+  <div class="main-header">
+    <h1>User Data Migrations</h1>
+    <a class="button" routerLink="/migration-create">New Migration</a>
+  </div>
+
+  <table class="migration-table" cellspacing="0">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Status</th>
+        <th>Original Topic</th>
+        <th>New Topic ID</th>
+        <th>Original Posts</th>
+        <th>Parsed Posts</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (m of migrations(); track m.id) {
+        <tr>
+          <td>{{ m.date_created | date:'yyyy-MM-dd HH:mm' }}</td>
+          <td><span class="status-badge" [ngClass]="statusClass(m.status)">{{ statusLabels[m.status] }}</span></td>
+          <td>{{ m.original_topic_title }} <span class="topic-id">(#{{ m.original_topic_id }})</span></td>
+          <td>{{ m.new_topic_id ?? '—' }}</td>
+          <td>{{ m.original_post_count }}</td>
+          <td>{{ m.parsed_post_count ?? '—' }}</td>
+          <td><a class="button" [routerLink]="['/migration', m.id]">Open</a></td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="7" class="empty-row">No migrations found.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

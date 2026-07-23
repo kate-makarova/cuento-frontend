@@ -1,0 +1,40 @@
+<div id="pun-main" class="main">
+  <div class="main-header">
+    <h1>Create User Data Migration</h1>
+  </div>
+
+  <form class="migration-form" (ngSubmit)="submit()">
+    <div class="form-group">
+      <label for="platform">Platform</label>
+      <select id="platform" [(ngModel)]="platform" name="platform">
+        <option value="mybb">MyBB</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="forumDomain">Forum Domain</label>
+      <input id="forumDomain" type="text" [(ngModel)]="forumDomain" name="forumDomain"
+  required />
+    </div>
+
+    <div class="form-group">
+      <label for="topicId">Topic ID</label>
+      <input id="topicId" type="text" [(ngModel)]="topicId" name="topicId"
+  required />
+    </div>
+
+    <div class="form-group">
+      <label for="postCount">Number of Posts</label>
+      <input id="postCount" type="number" [(ngModel)]="postCount" name="postCount"
+        min="1" required />
+    </div>
+
+    @if (error) {
+      <p class="error-message">{{ error }}</p>
+    }
+
+    <button class="button" type="submit" [disabled]="loading || !forumDomain || !topicId || !postCount">
+      {{ loading ? 'Generating...' : 'Generate Migration Link(s)' }}
+    </button>
+  </form>
+</div>

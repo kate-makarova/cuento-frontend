@@ -1,0 +1,51 @@
+.migration-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.migration-table th,
+.migration-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.migration-table th {
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.topic-id {
+  opacity: 0.6;
+  font-size: 0.85em;
+}
+
+.empty-row {
+  text-align: center;
+  padding: 20px;
+  opacity: 0.6;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-weight: 600;
+}
+
+.status-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-processed {
+  background: #cff4fc;
+  color: #055160;
+}
+
+.status-published {
+  background: #d1e7dd;
+  color: #0a3622;
+}
