@@ -1,35 +1,35 @@
 <div id="pun-main" class="main">
   @if (migration(); as m) {
     <div class="main-header">
-      <h1>Migration #{{ m.id }}</h1>
+      <h1 i18n="@@migration.title">Migration #{{ m.id }}</h1>
     </div>
 
     <section class="migration-stats">
       <dl class="stats-grid">
-        <dt>Status</dt>
+        <dt i18n="@@migration.status">Status</dt>
         <dd><span class="status-badge status-{{ m.status }}">{{ statusLabels[m.status] }}</span></dd>
 
-        <dt>Domain</dt>
+        <dt i18n="@@migration.domain">Domain</dt>
         <dd>{{ m.forum_domain ?? '—' }}</dd>
 
-        <dt>Original Topic ID</dt>
+        <dt i18n="@@migration.originalTopicId">Original Topic ID</dt>
         <dd>{{ m.original_topic_id }}</dd>
 
         @if (m.original_topic_title) {
-          <dt>Topic Title</dt>
+          <dt i18n="@@migration.topicTitle">Topic Title</dt>
           <dd>{{ m.original_topic_title }}</dd>
         }
 
-        <dt>New Topic ID</dt>
+        <dt i18n="@@migration.newTopicId">New Topic ID</dt>
         <dd>{{ m.new_topic_id ?? '—' }}</dd>
 
-        <dt>Original Posts</dt>
+        <dt i18n="@@migration.originalPosts">Original Posts</dt>
         <dd>{{ m.original_post_count }}</dd>
 
-        <dt>Parsed Posts</dt>
+        <dt i18n="@@migration.parsedPosts">Parsed Posts</dt>
         <dd>{{ m.parsed_post_count ?? '—' }}</dd>
 
-        <dt>Created</dt>
+        <dt i18n="@@migration.created">Created</dt>
         <dd>{{ m.date_created | date:'yyyy-MM-dd HH:mm' }}</dd>
       </dl>
     </section>
@@ -38,8 +38,8 @@
 
     @if (m.data_extraction_urls && m.data_extraction_urls.length > 0) {
       <section class="extraction-links">
-        <h2>Data Extraction Links</h2>
-        <p class="instructions">
+        <h2 i18n="@@migration.extractionLinksTitle">Data Extraction Links</h2>
+        <p class="instructions" i18n="@@migration.extractionInstructions">
           Open each link below in your browser, copy all the text on the page, and paste it into the processing block one at a time.
           Tip: use <kbd>Ctrl+A</kbd> then <kbd>Ctrl+C</kbd> to quickly select and copy everything.
         </p>
@@ -52,10 +52,11 @@
     }
 
     <section class="processing-block">
-      <h2>Process Data</h2>
+      <h2 i18n="@@migration.processDataTitle">Process Data</h2>
       <textarea
         class="json-textarea"
         [(ngModel)]="jsonBlob"
+        i18n-placeholder="@@migration.processPlaceholder"
         placeholder="Paste the page content here..."
         rows="12">
       </textarea>
@@ -65,33 +66,43 @@
       }
 
       <button class="button" (click)="process()" [disabled]="processing || !jsonBlob.trim()">
-        {{ processing ? 'Processing...' : 'Process' }}
+        @if (processing) {
+          <ng-container i18n="@@migration.processing">Processing...</ng-container>
+        } @else {
+          <ng-container i18n="@@migration.process">Process</ng-container>
+        }
       </button>
     </section>
 
     @if (processingResult(); as result) {
       <section class="processing-stats">
-        <h2>Processing Result</h2>
+        <h2 i18n="@@migration.processingResultTitle">Processing Result</h2>
         <dl class="stats-grid">
-          <dt>Found Posts</dt>
+          <dt i18n="@@migration.foundPosts">Found Posts</dt>
           <dd>{{ result.found_posts }}</dd>
-          <dt>Skipped Duplicates</dt>
+          <dt i18n="@@migration.skippedDuplicates">Skipped Duplicates</dt>
           <dd>{{ result.skipped_duplicates }}</dd>
-          <dt>All Parsed</dt>
-          <dd>{{ result.all_parsed ? 'Yes' : 'No' }}</dd>
+          <dt i18n="@@migration.allParsed">All Parsed</dt>
+          <dd>
+            @if (result.all_parsed) {
+              <ng-container i18n="@@migration.yes">Yes</ng-container>
+            } @else {
+              <ng-container i18n="@@migration.no">No</ng-container>
+            }
+          </dd>
         </dl>
       </section>
     }
 
     @if (displayUsers().length > 0) {
       <section class="user-mapping">
-        <h2>User Mapping</h2>
+        <h2 i18n="@@migration.userMappingTitle">User Mapping</h2>
 
         <table class="user-map-table" cellspacing="0">
           <thead>
             <tr>
-              <th>Original User</th>
-              <th>Mapped Character</th>
+              <th i18n="@@migration.originalUser">Original User</th>
+              <th i18n="@@migration.mappedCharacter">Mapped Character</th>
             </tr>
           </thead>
           <tbody>
@@ -110,6 +121,7 @@
                   } @else {
                     <div class="autocomplete-wrapper">
                       <input type="text"
+                        i18n-placeholder="@@migration.searchCharacter"
                         placeholder="Search character..."
                         [ngModel]="charSearchTerms[u.original_user_id]"
                         (ngModelChange)="charSearchTerms[u.original_user_id] = $event; onCharInput(u.original_user_id, $event)" />
@@ -138,11 +150,15 @@
         }
 
         @if (mappingSuccess) {
-          <p class="success-message">Mapping updated successfully.</p>
-          <button class="button" (click)="redoMapping()">Redo Mapping</button>
+          <p class="success-message" i18n="@@migration.mappingUpdated">Mapping updated successfully.</p>
+          <button class="button" (click)="redoMapping()" i18n="@@migration.redoMapping">Redo Mapping</button>
         } @else {
           <button class="button" (click)="updateMapping()" [disabled]="!allMapped() || mappingSubmitting">
-            {{ mappingSubmitting ? 'Saving...' : 'Update Mapping' }}
+            @if (mappingSubmitting) {
+              <ng-container i18n="@@migration.saving">Saving...</ng-container>
+            } @else {
+              <ng-container i18n="@@migration.updateMapping">Update Mapping</ng-container>
+            }
           </button>
         }
       </section>
@@ -152,26 +168,27 @@
 
     @if (canPublish()) {
       <section class="publish-block">
-        <h2>Publish</h2>
+        <h2 i18n="@@migration.publishTitle">Publish</h2>
 
         @if (m.status === MigrationStatus.Published || publishResult()) {
           @if (publishResult(); as result) {
             <dl class="stats-grid">
-              <dt>Published Posts</dt>
+              <dt i18n="@@migration.publishedPosts">Published Posts</dt>
               <dd>{{ result.published_posts }}</dd>
-              <dt>Skipped Posts</dt>
+              <dt i18n="@@migration.skippedPosts">Skipped Posts</dt>
               <dd>{{ result.skipped_posts }}</dd>
             </dl>
           } @else {
-            <p class="success-message">This migration has already been published.</p>
+            <p class="success-message" i18n="@@migration.alreadyPublished">This migration has already been published.</p>
           }
         } @else {
           <div class="form-group">
-            <label>Episode</label>
+            <label i18n="@@migration.episode">Episode</label>
             <div class="autocomplete-wrapper">
               <input type="text"
                 [(ngModel)]="episodeSearchTerm"
                 (ngModelChange)="onEpisodeInput($event)"
+                i18n-placeholder="@@migration.searchEpisode"
                 placeholder="Search episode..." />
               @if (episodeSuggestions().length > 0) {
                 <div class="suggestions-dropdown">
@@ -186,7 +203,7 @@
           <div class="form-group">
             <label>
               <input type="checkbox" [(ngModel)]="skipFirstPost" />
-              Skip first post
+              <ng-container i18n="@@migration.skipFirstPost">Skip first post</ng-container>
             </label>
           </div>
 
@@ -195,13 +212,17 @@
           }
 
           <button class="button" (click)="publish()" [disabled]="!selectedEpisode || publishing">
-            {{ publishing ? 'Publishing...' : 'Publish' }}
+            @if (publishing) {
+              <ng-container i18n="@@migration.publishing">Publishing...</ng-container>
+            } @else {
+              <ng-container i18n="@@migration.publish">Publish</ng-container>
+            }
           </button>
         }
       </section>
     }
 
   } @else {
-    <p>Loading migration...</p>
+    <p i18n="@@migration.loading">Loading migration...</p>
   }
 </div>

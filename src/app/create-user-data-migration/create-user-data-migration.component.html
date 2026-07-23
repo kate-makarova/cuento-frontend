@@ -1,32 +1,29 @@
 <div id="pun-main" class="main">
   <div class="main-header">
-    <h1>Create User Data Migration</h1>
+    <h1 i18n="@@createMigration.title">Create User Data Migration</h1>
   </div>
 
   <form class="migration-form" (ngSubmit)="submit()">
     <div class="form-group">
-      <label for="platform">Platform</label>
+      <label for="platform" i18n="@@createMigration.platform">Platform</label>
       <select id="platform" [(ngModel)]="platform" name="platform">
         <option value="mybb">MyBB</option>
       </select>
     </div>
 
     <div class="form-group">
-      <label for="forumDomain">Forum Domain</label>
-      <input id="forumDomain" type="text" [(ngModel)]="forumDomain" name="forumDomain"
-  required />
+      <label for="forumDomain" i18n="@@createMigration.forumDomain">Forum Domain</label>
+      <input id="forumDomain" type="text" [(ngModel)]="forumDomain" name="forumDomain" required />
     </div>
 
     <div class="form-group">
-      <label for="topicId">Topic ID</label>
-      <input id="topicId" type="text" [(ngModel)]="topicId" name="topicId"
-  required />
+      <label for="topicId" i18n="@@createMigration.topicId">Topic ID</label>
+      <input id="topicId" type="text" [(ngModel)]="topicId" name="topicId" required />
     </div>
 
     <div class="form-group">
-      <label for="postCount">Number of Posts</label>
-      <input id="postCount" type="number" [(ngModel)]="postCount" name="postCount"
-        min="1" required />
+      <label for="postCount" i18n="@@createMigration.postCount">Number of Posts</label>
+      <input id="postCount" type="number" [(ngModel)]="postCount" name="postCount" min="1" required />
     </div>
 
     @if (error) {
@@ -34,7 +31,11 @@
     }
 
     <button class="button" type="submit" [disabled]="loading || !forumDomain || !topicId || !postCount">
-      {{ loading ? 'Generating...' : 'Generate Migration Link(s)' }}
+      @if (loading) {
+        <ng-container i18n="@@createMigration.generating">Generating...</ng-container>
+      } @else {
+        <ng-container i18n="@@createMigration.submit">Generate Migration Link(s)</ng-container>
+      }
     </button>
   </form>
 </div>

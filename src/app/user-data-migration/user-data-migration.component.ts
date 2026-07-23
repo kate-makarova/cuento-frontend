@@ -54,9 +54,9 @@ export class UserDataMigrationComponent implements OnInit {
 
   readonly MigrationStatus = MigrationStatus;
   readonly statusLabels: Record<number, string> = {
-    [MigrationStatus.Pending]: 'Pending',
-    [MigrationStatus.Processed]: 'Processed',
-    [MigrationStatus.Published]: 'Published'
+    [MigrationStatus.Pending]: $localize`:@@migration.statusPending:Pending`,
+    [MigrationStatus.Processed]: $localize`:@@migration.statusProcessed:Processed`,
+    [MigrationStatus.Published]: $localize`:@@migration.statusPublished:Published`
   };
 
   displayUsers = computed<ProcessingUser[]>(() => {

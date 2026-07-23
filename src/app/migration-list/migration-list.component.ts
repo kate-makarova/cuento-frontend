@@ -17,9 +17,9 @@ export class MigrationListComponent implements OnInit {
   migrations = this.migrationService.migrations;
 
   readonly statusLabels: Record<number, string> = {
-    [MigrationStatus.Pending]: 'Pending',
-    [MigrationStatus.Processed]: 'Processed',
-    [MigrationStatus.Published]: 'Published'
+    [MigrationStatus.Pending]: $localize`:@@migration.statusPending:Pending`,
+    [MigrationStatus.Processed]: $localize`:@@migration.statusProcessed:Processed`,
+    [MigrationStatus.Published]: $localize`:@@migration.statusPublished:Published`
   };
 
   statusClass(status: number): string {

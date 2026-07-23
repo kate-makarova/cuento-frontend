@@ -1,18 +1,18 @@
 <div id="pun-main" class="main">
   <div class="main-header">
-    <h1>User Data Migrations</h1>
-    <a class="button" routerLink="/migration-create">New Migration</a>
+    <h1 i18n="@@migrationList.title">User Data Migrations</h1>
+    <a class="button" routerLink="/migration-create" i18n="@@migrationList.newMigration">New Migration</a>
   </div>
 
   <table class="migration-table" cellspacing="0">
     <thead>
       <tr>
-        <th>Date</th>
-        <th>Status</th>
-        <th>Original Topic</th>
-        <th>New Topic ID</th>
-        <th>Original Posts</th>
-        <th>Parsed Posts</th>
+        <th i18n="@@migrationList.date">Date</th>
+        <th i18n="@@migrationList.status">Status</th>
+        <th i18n="@@migrationList.originalTopic">Original Topic</th>
+        <th i18n="@@migrationList.newTopicId">New Topic ID</th>
+        <th i18n="@@migrationList.originalPosts">Original Posts</th>
+        <th i18n="@@migrationList.parsedPosts">Parsed Posts</th>
         <th></th>
       </tr>
     </thead>
@@ -25,11 +25,11 @@
           <td>{{ m.new_topic_id ?? '—' }}</td>
           <td>{{ m.original_post_count }}</td>
           <td>{{ m.parsed_post_count ?? '—' }}</td>
-          <td><a class="button" [routerLink]="['/migration', m.id]">Open</a></td>
+          <td><a class="button" [routerLink]="['/migration', m.id]" i18n="@@migrationList.open">Open</a></td>
         </tr>
       } @empty {
         <tr>
-          <td colspan="7" class="empty-row">No migrations found.</td>
+          <td colspan="7" class="empty-row" i18n="@@migrationList.empty">No migrations found.</td>
         </tr>
       }
     </tbody>
