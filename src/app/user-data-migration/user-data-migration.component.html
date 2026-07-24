@@ -1,7 +1,7 @@
 <div id="pun-main" class="main">
   @if (migration(); as m) {
     <div class="main-header">
-      <h1 i18n="@@migration.title">Migration #{{ m.id }}</h1>
+      <h1><ng-container i18n="@@migration.title">Migration</ng-container> #{{ m.id }}</h1>
     </div>
 
     <section class="migration-stats">

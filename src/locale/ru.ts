@@ -1016,7 +1016,7 @@ export const TRANSLATIONS_RU = {
   "migration.statusProcessed": "Обработано",
   "migration.statusPublished": "Опубликовано",
 
-  "migration.title": "Миграция #{{ m.id }}",
+  "migration.title": "Миграция",
   "migration.status": "Статус",
   "migration.domain": "Домен",
   "migration.originalTopicId": "ID исходной темы",
