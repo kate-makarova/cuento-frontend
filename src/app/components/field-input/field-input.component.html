@@ -45,4 +45,22 @@
       [characterIds]="characterIds">
     </app-free-format-date-field>
   }
+  @case ('dropdown') {
+    <app-select-field
+      [fieldName]="field.human_field_name"
+      [name]="field.machine_field_name"
+      [fieldValue]="fieldValue"
+      contentFieldType="dropdown"
+      [selectOptions]="field.options ?? {}">
+    </app-select-field>
+  }
+  @case ('radiobox') {
+    <app-select-field
+      [fieldName]="field.human_field_name"
+      [name]="field.machine_field_name"
+      [fieldValue]="fieldValue"
+      contentFieldType="radiobox"
+      [selectOptions]="field.options ?? {}">
+    </app-select-field>
+  }
 }

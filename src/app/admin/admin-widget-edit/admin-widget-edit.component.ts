@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -63,8 +63,8 @@ export class AdminWidgetEditComponent implements OnInit {
   saveState = signal<SaveState>('idle');
   deleteState = signal<SaveState>('idle');
 
-  filterStatusActive = signal<string[]>([]);
-  filterIsClaimed = signal<string[]>([]);
+  filterStatus = signal<string>('');
+  filterIsClaimed = signal<string>('');
 
   entityType = computed(() => this.configFields().find(f => f.key === 'entity_type')?.value as string | undefined);
 
@@ -97,8 +97,8 @@ export class AdminWidgetEditComponent implements OnInit {
 
   onTypeChange(typeId: number) {
     this.selectedTypeId = typeId;
-    this.filterStatusActive.set([]);
-    this.filterIsClaimed.set([]);
+    this.filterStatus.set('');
+    this.filterIsClaimed.set('');
     this.loadConfigTemplate({});
   }
 
@@ -142,8 +142,10 @@ export class AdminWidgetEditComponent implements OnInit {
         this.configFields.set(fields);
 
         const savedFilters = savedValues['filters'] ?? {};
-        this.filterStatusActive.set(savedFilters['status_active'] ?? []);
-        this.filterIsClaimed.set(savedFilters['is_claimed'] ?? []);
+        const rawStatus = savedFilters['status_active'];
+        this.filterStatus.set(Array.isArray(rawStatus) ? (rawStatus[0] ?? '') : (rawStatus ?? ''));
+        const rawClaimed = savedFilters['is_claimed'];
+        this.filterIsClaimed.set(Array.isArray(rawClaimed) ? (rawClaimed[0] ?? '') : (rawClaimed ?? ''));
 
         // Load endpoint options for fields that have endpoints
         for (const field of fields) {
@@ -186,8 +188,8 @@ export class AdminWidgetEditComponent implements OnInit {
 
   onFieldChange(changedField: ConfigField) {
     if (changedField.key === 'entity_type') {
-      this.filterStatusActive.set([]);
-      this.filterIsClaimed.set([]);
+      this.filterStatus.set('');
+      this.filterIsClaimed.set('');
     }
     // Reload endpoint options for any field that depends on the changed field
     const fields = this.configFields();
@@ -196,10 +198,6 @@ export class AdminWidgetEditComponent implements OnInit {
         this.loadEndpointOptions(field);
       }
     }
-  }
-
-  toggleFilter(sig: WritableSignal<string[]>, val: string) {
-    sig.update(arr => arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val]);
   }
 
   delete() {
@@ -224,9 +222,9 @@ export class AdminWidgetEditComponent implements OnInit {
 
     const et = this.entityType();
     if (et === 'character' || et === 'wanted_character') {
-      const filters: Record<string, string[]> = {};
-      if (this.filterStatusActive().length > 0) filters['status_active'] = this.filterStatusActive();
-      if (et === 'wanted_character' && this.filterIsClaimed().length > 0) filters['is_claimed'] = this.filterIsClaimed();
+      const filters: Record<string, string> = {};
+      if (this.filterStatus()) filters['status_active'] = this.filterStatus();
+      if (et === 'wanted_character' && this.filterIsClaimed()) filters['is_claimed'] = this.filterIsClaimed();
       if (Object.keys(filters).length > 0) config['filters'] = filters;
     }
 

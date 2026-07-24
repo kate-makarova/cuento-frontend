@@ -2182,9 +2182,21 @@ span.mention {
   margin-top: 15px;
 }
 
-.filter-sidebar {
-  flex: 0 0 250px;
-  padding: 15px;
+
+.filter-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-toggle-icon {
+  font-size: 0.75em;
+}
+
+.main-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .filter-group {

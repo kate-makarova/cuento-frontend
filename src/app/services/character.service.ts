@@ -56,6 +56,11 @@ export class CharacterService {
     return this.apiService.post('template/character/update', template);
   }
 
+  searchCharacters(term: string): Observable<CharacterShort[]> {
+    if (!term || term.trim() === '') return new Observable(obs => { obs.next([]); obs.complete(); });
+    return this.apiService.get<CharacterShort[]>(`character-autocomplete/${term}`);
+  }
+
   loadShortCharacterList(term: string): void {
     if (!term || term.trim() === '') {
       this.shortCharacterListSignal.set([]);

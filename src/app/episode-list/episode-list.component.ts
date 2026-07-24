@@ -2,6 +2,7 @@ import {Component, computed, inject, OnInit, signal} from '@angular/core';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {EpisodeFilterRequest} from '../models/Episode';
 import {CharacterShort} from '../models/Character';
+import {FieldTemplate} from '../models/FieldTemplate';
 import {FormsModule} from '@angular/forms';
 import {TopicStatus} from '../models/Topic';
 import {EpisodeService} from '../services/episode.service';
@@ -24,6 +25,7 @@ const FIXED_COLUMNS = [
   selector: 'app-episode-list',
   imports: [RouterLink, FormsModule, CommonModule],
   templateUrl: './episode-list.component.html',
+  styleUrl: './episode-list.component.css',
   standalone: true,
 })
 export class EpisodeListComponent implements OnInit {
@@ -46,7 +48,18 @@ export class EpisodeListComponent implements OnInit {
   protected subforums = this.episodeService.subforumList;
   protected characterSuggestions = this.characterService.shortCharacterList;
   protected factions = this.factionService.factions;
-  protected order = signal<string[]>(['name']);
+  protected order = signal<string[]>([]);
+  protected filtersOpen = signal(false);
+
+  protected filterableFields = computed(() =>
+    this.episodeTemplate()
+      .filter(f => ['short_text', 'dropdown', 'radiobox'].includes(f.content_field_type))
+      .sort((a, b) => a.order - b.order)
+  );
+
+  protected customFieldFilters: Record<string, string> = {};
+  protected autocompleteOptions: Record<string, string[]> = {};
+  private autocompleteTimers: Record<string, any> = {};
 
   protected visibleColumns = signal<string[]>(['name', 'subforum_name', 'topic_status', 'last_post_date', 'characters']);
 
@@ -194,13 +207,43 @@ export class EpisodeListComponent implements OnInit {
     return '⇅';
   }
 
+  protected selectAutocompleteOption(machineName: string, value: string) {
+    this.customFieldFilters[machineName] = value;
+    this.autocompleteOptions[machineName] = [];
+  }
+
+  protected onStringFilterInput(machineName: string, term: string) {
+    clearTimeout(this.autocompleteTimers[machineName]);
+    if (term.length < 2) {
+      this.autocompleteOptions[machineName] = [];
+      return;
+    }
+    this.autocompleteTimers[machineName] = setTimeout(() => {
+      this.episodeService.autocompleteField(machineName, term).subscribe({
+        next: (results) => { this.autocompleteOptions[machineName] = results; },
+        error: () => {}
+      });
+    }, 250);
+  }
+
+  protected getSelectOptions(field: FieldTemplate): { id: string; label: string }[] {
+    return Object.entries(field.options ?? {})
+      .sort((a, b) => Number(a[0]) - Number(b[0]))
+      .map(([id, label]) => ({ id, label }));
+  }
+
   protected applyFilters() {
+    const activeFilters: Record<string, string> = {};
+    for (const [k, v] of Object.entries(this.customFieldFilters)) {
+      if (v !== '' && v != null) activeFilters[k] = v;
+    }
     const request: EpisodeFilterRequest = {
       subforum_ids: this.selectedSubforums,
       character_ids: this.selectedCharacters.map(c => c.id),
       faction_ids: this.selectedFactions,
       page: this.currentPage,
-      order: this.order()
+      order: this.order(),
+      ...(Object.keys(activeFilters).length > 0 ? { custom_field_filters: activeFilters } : {})
     };
 
     this.updateUrlParams();

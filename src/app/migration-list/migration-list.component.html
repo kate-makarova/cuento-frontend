@@ -1,0 +1,37 @@
+<div id="pun-main" class="main">
+  <div class="main-header">
+    <h1 i18n="@@migrationList.title">User Data Migrations</h1>
+    <a class="button" routerLink="/migration-create" i18n="@@migrationList.newMigration">New Migration</a>
+  </div>
+
+  <table class="migration-table" cellspacing="0">
+    <thead>
+      <tr>
+        <th i18n="@@migrationList.date">Date</th>
+        <th i18n="@@migrationList.status">Status</th>
+        <th i18n="@@migrationList.originalTopic">Original Topic</th>
+        <th i18n="@@migrationList.newTopicId">New Topic ID</th>
+        <th i18n="@@migrationList.originalPosts">Original Posts</th>
+        <th i18n="@@migrationList.parsedPosts">Parsed Posts</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (m of migrations(); track m.id) {
+        <tr>
+          <td>{{ m.date_created | date:'yyyy-MM-dd HH:mm' }}</td>
+          <td><span class="status-badge" [ngClass]="statusClass(m.status)">{{ statusLabels[m.status] }}</span></td>
+          <td>{{ m.original_topic_title }} <span class="topic-id">(#{{ m.original_topic_id }})</span></td>
+          <td>{{ m.new_topic_id ?? '—' }}</td>
+          <td>{{ m.original_post_count }}</td>
+          <td>{{ m.parsed_post_count ?? '—' }}</td>
+          <td><a class="button" [routerLink]="['/migration', m.id]" i18n="@@migrationList.open">Open</a></td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="7" class="empty-row" i18n="@@migrationList.empty">No migrations found.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

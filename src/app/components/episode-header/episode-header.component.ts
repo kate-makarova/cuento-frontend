@@ -47,12 +47,18 @@ export class EpisodeHeaderComponent implements OnInit, OnChanges {
 
       if (customField) {
         let content = customField.content;
-        if (content !== null && content !== undefined && typeof content === 'object') {
-          content = 'content' in content ? (content as any).content : '';
+        if (config.content_field_type === 'dropdown' || config.content_field_type === 'radiobox') {
+          fieldValue = content?.value ?? '';
+        } else {
+          if (content !== null && content !== undefined && typeof content === 'object') {
+            content = 'content' in content ? (content as any).content : '';
+          }
+          if (config.content_field_type === 'long_text') {
+            fieldValue = customField.content_html || (content != null ? String(content) : '');
+          } else {
+            fieldValue = content;
+          }
         }
-        fieldValue = config.content_field_type === 'long_text'
-          ? (customField.content_html || (content != null ? String(content) : ''))
-          : content;
       }
 
       return {

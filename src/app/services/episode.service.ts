@@ -81,6 +81,10 @@ export class EpisodeService {
     });
   }
 
+  autocompleteField(field: string, term: string) {
+    return this.apiService.get<string[]>(`custom-field/autocomplete?entity_type=episode&field=${field}&term=${encodeURIComponent(term)}`);
+  }
+
   createEpisode(data: any) {
     return this.apiService.post('episode/create', data);
   }
