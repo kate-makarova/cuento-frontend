@@ -6,9 +6,10 @@ import { WantedCharacterService } from '../services/wanted-character.service';
 import { FactionService } from '../services/faction.service';
 import { FactionSettingService } from '../services/faction-setting.service';
 import { AuthService } from '../services/auth.service';
+import { CharacterService } from '../services/character.service';
 import { WantedCharacter } from '../models/WantedCharacter';
 import { Faction } from '../models/Faction';
-import { CustomFieldsData, CustomFieldValue } from '../models/Character';
+import { CharacterShort, CustomFieldsData, CustomFieldValue } from '../models/Character';
 import { FieldTemplate } from '../models/FieldTemplate';
 import { FieldDisplayComponent } from '../components/field-display/field-display.component';
 import { UserInfoComponent } from '../components/user-info/user-info.component';
@@ -33,6 +34,7 @@ export class WantedCharacterListComponent implements OnInit {
   private factionService = inject(FactionService);
   private factionSettingService = inject(FactionSettingService);
   private authService = inject(AuthService);
+  private characterService = inject(CharacterService);
 
   isAuthenticated = this.authService.isAuthenticated;
   currentUser = this.authService.currentUser;
@@ -40,6 +42,12 @@ export class WantedCharacterListComponent implements OnInit {
   cardView = signal(true);
   filtersOpen = signal(false);
   selectedFactions: number[] = [];
+
+  relationFilterInput = '';
+  selectedRelations: CharacterShort[] = [];
+  relationFilterActive = false;
+  characterSuggestions = this.characterService.shortCharacterList;
+  private relationSearchTimer: any = null;
 
   currentPage = 1;
   totalPages = this.wantedCharacterService.totalPages;
@@ -104,6 +112,33 @@ export class WantedCharacterListComponent implements OnInit {
     return this.selectedFactions.includes(id);
   }
 
+  onRelationFilterInput(value: string) {
+    this.relationFilterInput = value;
+    clearTimeout(this.relationSearchTimer);
+    if (value.length >= 2) {
+      this.relationFilterActive = true;
+      this.relationSearchTimer = setTimeout(() => {
+        this.characterService.loadShortCharacterList(value);
+      }, 300);
+    } else {
+      this.relationFilterActive = false;
+      this.characterService.loadShortCharacterList('');
+    }
+  }
+
+  selectRelationFilter(char: CharacterShort) {
+    if (!this.selectedRelations.some(r => r.id === char.id)) {
+      this.selectedRelations.push(char);
+    }
+    this.relationFilterInput = '';
+    this.relationFilterActive = false;
+    this.characterService.loadShortCharacterList('');
+  }
+
+  removeRelationFilter(id: number) {
+    this.selectedRelations = this.selectedRelations.filter(r => r.id !== id);
+  }
+
   applyFilters() {
     this.currentPage = 1;
     this.loadPage();
@@ -128,10 +163,12 @@ export class WantedCharacterListComponent implements OnInit {
     for (const [k, v] of Object.entries(this.customFieldFilters)) {
       if (v !== '' && v != null) activeFilters[k] = v;
     }
+    const relationIds = this.selectedRelations.map(r => r.id);
     this.wantedCharacterService.loadListPage({
       faction_ids: this.selectedFactions,
       page: this.currentPage,
-      ...(Object.keys(activeFilters).length > 0 ? { custom_field_filters: activeFilters } : {})
+      ...(Object.keys(activeFilters).length > 0 ? { custom_field_filters: activeFilters } : {}),
+      ...(relationIds.length > 0 ? { relation_ids: relationIds } : {})
     });
   }
 

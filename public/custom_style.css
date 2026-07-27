@@ -1693,6 +1693,51 @@ app-root.dark .has-new-messages div.icon {
   background: #c8a84b;
 }
 
+/* === wanted-character-header relations === */
+.relation-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.relation-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background-color: #f2f6f8;
+  border: 1px solid rgba(160, 200, 220, 0.4);
+  border-radius: 20px;
+  font-size: 0.9em;
+  color: #1e2e38;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.relation-chip:hover {
+  background-color: #e2eef4;
+  text-decoration: none;
+}
+
+.relation-chip-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+app-root.dark .relation-chip {
+  background-color: #252537;
+  border-color: rgba(80, 80, 130, 0.3);
+  color: #c8c8e0;
+}
+
+app-root.dark .relation-chip:hover {
+  background-color: #2e2e48;
+}
+
 /* === mask-list.component === */
 .mask-table th,
 .mask-table td {
