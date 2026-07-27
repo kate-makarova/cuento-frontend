@@ -1680,6 +1680,19 @@ tr.altstyle td {
   text-decoration: underline;
 }
 
+/* === home subforum: has new messages === */
+.has-new-messages div.icon {
+  background: #c8a84b;
+}
+
+.has-new-messages .tclcon h3 a {
+  font-weight: bold;
+}
+
+app-root.dark .has-new-messages div.icon {
+  background: #c8a84b;
+}
+
 /* === mask-list.component === */
 .mask-table th,
 .mask-table td {

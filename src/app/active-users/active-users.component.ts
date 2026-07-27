@@ -8,8 +8,8 @@ import { NotificationService } from '../services/notification.service';
 import { ActiveUserInfo } from '../models/event';
 
 const PAGE_TYPE_NAMES: Record<string, string> = {
-  home: $localize`:@@activeUsers.page.home:Home`,
-  forum: $localize`:@@activeUsers.page.forum:Forum`,
+  index: $localize`:@@activeUsers.page.home:Home`,
+  viewforum: $localize`:@@activeUsers.page.forum:Forum`,
   profile: $localize`:@@activeUsers.page.profile:Profile`,
   character: $localize`:@@activeUsers.page.character:Character`,
   episode: $localize`:@@activeUsers.page.episode:Episode`,
@@ -77,10 +77,10 @@ export class ActiveUsersComponent implements OnInit, OnDestroy {
     switch (user.current_page_type) {
       case 'topic':
       case 'episode': return id ? ['/viewtopic', id] : null;
-      case 'forum': return id ? ['/viewforum', id] : null;
+      case 'viewforum': return id ? ['/viewforum', id] : null;
       case 'profile': return id ? ['/profile', id] : null;
       case 'character': return id ? ['/character', id] : null;
-      case 'home': return ['/'];
+      case 'index': return ['/'];
       case 'character-list': return ['/character-list'];
       case 'episode-list': return ['/episode-list'];
       case 'wanted-character-list': return ['/wanted-character-list'];

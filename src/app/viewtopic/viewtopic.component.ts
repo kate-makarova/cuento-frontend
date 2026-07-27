@@ -146,6 +146,14 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   private pageLoadedSubscription: Subscription | null = null;
   private topicLoadedOnInit = false;
   private pendingScrollPostId: number | null = null;
+  private onVisibilityChange = () => {
+    if (document.visibilityState === 'visible') {
+      const topicId = this.id();
+      if (topicId) {
+        this.topicService.loadPosts(topicId, this.pageNumber(), this.postId());
+      }
+    }
+  };
 
   @ViewChild('mainPostForm') postForm!: PostFormComponent;
   @ViewChildren('editPostForm') editPostForms!: QueryList<PostFormComponent>;
@@ -299,6 +307,8 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
+
     this.topicService.ownPostAdded$.pipe(takeUntil(this.destroy$)).subscribe(postId => {
       this.pendingScrollPostId = postId;
       this.tryScrollToPost();
@@ -325,6 +335,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
     this.destroy$.next();
     this.destroy$.complete();
     if (this.pageLoadedSubscription) {
