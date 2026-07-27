@@ -114,6 +114,20 @@
               @if (wc.factions && wc.factions.length > 0) {
                 <div class="card-factions">{{ factionsString(wc) }}</div>
               }
+              @if (wc.relations && wc.relations.length > 0) {
+                <div class="card-relations">
+                  <div class="relation-chips">
+                    @for (rel of wc.relations; track rel.id) {
+                      <a [routerLink]="['/character', rel.id]" class="relation-chip">
+                        @if (rel.avatar) {
+                          <img [src]="rel.avatar" [alt]="rel.name" class="relation-chip-avatar" />
+                        }
+                        {{ rel.name }}
+                      </a>
+                    }
+                  </div>
+                </div>
+              }
               @if (getFields(wc).length > 0) {
                 <ul class="card-fields">
                   @for (field of getFields(wc); track (field.fieldName || $index)) {
