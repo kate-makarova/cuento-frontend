@@ -1,4 +1,4 @@
-import { CustomFieldsData } from './Character';
+import { CharacterShort, CustomFieldsData } from './Character';
 import { ClaimRecord } from './CharacterClaim';
 import { Faction } from './Faction';
 import { UserInfo } from './User';
@@ -7,6 +7,7 @@ export interface GetWantedCharacterListRequest {
   faction_ids: number[];
   page: number;
   custom_field_filters?: Record<string, string>;
+  relation_ids?: number[];
 }
 
 export interface WantedCharacterListResponse {
@@ -29,4 +30,5 @@ export interface WantedCharacter {
   claim_record: ClaimRecord | null;
   active_claim_record: string | null;
   user_info?: UserInfo | null;
+  relations?: CharacterShort[];
 }

@@ -27,6 +27,22 @@
       </div>
     }
 
+    @if (wantedCharacter.relations && wantedCharacter.relations.length > 0) {
+      <div class="wanted-character-relations">
+        <h3 i18n="@@wantedcharacter.relatedCharacters">Related characters</h3>
+        <div class="relation-chips">
+          @for (rel of wantedCharacter.relations; track rel.id) {
+            <a [routerLink]="['/character', rel.id]" class="relation-chip">
+              @if (rel.avatar) {
+                <img [src]="rel.avatar" [alt]="rel.name" class="relation-chip-avatar" />
+              }
+              {{ rel.name }}
+            </a>
+          }
+        </div>
+      </div>
+    }
+
     @if (customFields.length > 0) {
       <div class="wanted-character-custom-fields">
         <ul>

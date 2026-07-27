@@ -180,6 +180,7 @@ export class TopicService {
     this.postsSignal.update(posts => posts.filter(p => p.id !== postId));
   }
 
+
   createTopic(data: CreateTopicRequest, endpoint = 'topic/create') {
     return this.apiService.post(endpoint, data);
   }

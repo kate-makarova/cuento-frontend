@@ -2,9 +2,11 @@ import { Component, inject, OnInit, Input, Output, EventEmitter, signal } from '
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { WantedCharacterService } from '../services/wanted-character.service';
+import { CharacterService } from '../services/character.service';
 import { FieldInputComponent } from '../components/field-input/field-input.component';
 import { FactionPathsComponent } from '../components/faction-paths/faction-paths.component';
 import { Faction } from '../models/Faction';
+import { CharacterShort } from '../models/Character';
 import { WantedCharacter } from '../models/WantedCharacter';
 import { TopicService } from '../services/topic.service';
 
@@ -16,14 +18,21 @@ import { TopicService } from '../services/topic.service';
 })
 export class WantedCharacterCreateComponent implements OnInit {
   private wantedCharacterService = inject(WantedCharacterService);
+  private characterService = inject(CharacterService);
   private topicService = inject(TopicService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
   template = this.wantedCharacterService.template;
+  characterSuggestions = this.characterService.shortCharacterList;
   subforumId: number = 0;
   characterName: string = '';
   factionPaths: Faction[][] = [[]];
+
+  relationInputValues: string[] = [''];
+  selectedRelationIds: (number | null)[] = [null];
+  activeRelationIndex: number | null = null;
+  private relationSearchTimer: any = null;
 
   @Input() initialData: WantedCharacter | null = null;
   @Output() formSubmit = new EventEmitter<any>();
@@ -95,6 +104,44 @@ export class WantedCharacterCreateComponent implements OnInit {
     this.factionPaths = paths;
   }
 
+  onRelationInput(index: number, value: string) {
+    this.relationInputValues[index] = value;
+    this.selectedRelationIds[index] = null;
+    clearTimeout(this.relationSearchTimer);
+    if (value.length >= 2) {
+      this.activeRelationIndex = index;
+      this.relationSearchTimer = setTimeout(() => {
+        this.characterService.loadShortCharacterList(value);
+      }, 300);
+    } else {
+      this.activeRelationIndex = null;
+      this.characterService.loadShortCharacterList('');
+    }
+  }
+
+  selectRelation(index: number, char: CharacterShort) {
+    this.relationInputValues[index] = char.name;
+    this.selectedRelationIds[index] = char.id;
+    this.activeRelationIndex = null;
+    this.characterService.loadShortCharacterList('');
+  }
+
+  addRelationField() {
+    this.relationInputValues.push('');
+    this.selectedRelationIds.push(null);
+  }
+
+  removeRelationField(index: number) {
+    this.relationInputValues.splice(index, 1);
+    this.selectedRelationIds.splice(index, 1);
+    if (this.activeRelationIndex === index) {
+      this.activeRelationIndex = null;
+      this.characterService.loadShortCharacterList('');
+    } else if (this.activeRelationIndex !== null && this.activeRelationIndex > index) {
+      this.activeRelationIndex--;
+    }
+  }
+
   onSubmit(event: Event) {
     event.preventDefault();
     const form = event.target as HTMLFormElement;
@@ -128,11 +175,14 @@ export class WantedCharacterCreateComponent implements OnInit {
       characters: []
     }));
 
+    const relations = this.selectedRelationIds.filter((id): id is number => id !== null);
+
     const request = {
       subforum_id: this.subforumId,
       name: formData.get('req_name') as string,
       custom_fields: customFields,
-      factions
+      factions,
+      relations
     };
 
     if (this.formSubmit.observed) {
