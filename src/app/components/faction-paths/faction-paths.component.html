@@ -1,6 +1,5 @@
 @for (path of pathLevels(); track $index; let pathIndex = $index) {
   <fieldset>
-    <legend>Choose Faction</legend>
     @for (level of path; track $index; let i = $index) {
       <div class="faction-field">
         <label [for]="'faction-' + pathIndex + '-' + i">{{ getLabelForLevel(pathIndex, i) }}:</label>
