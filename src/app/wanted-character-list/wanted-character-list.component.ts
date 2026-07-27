@@ -1,7 +1,8 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { take } from 'rxjs';
 import { WantedCharacterService } from '../services/wanted-character.service';
 import { FactionService } from '../services/faction.service';
 import { FactionSettingService } from '../services/faction-setting.service';
@@ -35,6 +36,8 @@ export class WantedCharacterListComponent implements OnInit {
   private factionSettingService = inject(FactionSettingService);
   private authService = inject(AuthService);
   private characterService = inject(CharacterService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   isAuthenticated = this.authService.isAuthenticated;
   currentUser = this.authService.currentUser;
@@ -96,7 +99,18 @@ export class WantedCharacterListComponent implements OnInit {
     this.wantedCharacterService.loadTemplate();
     this.factionService.loadWantedFactions();
     this.factionSettingService.load();
-    this.applyFilters();
+    this.route.queryParamMap.pipe(take(1)).subscribe(params => {
+      const ids = params.getAll('relation_ids').map(Number).filter(n => !isNaN(n) && n > 0);
+      const names = params.getAll('relation_names');
+      if (ids.length > 0) {
+        this.selectedRelations = ids.map((id, i) => ({
+          id,
+          name: names[i] ?? String(id),
+          avatar: null
+        }));
+      }
+      this.applyFilters();
+    });
   }
 
   toggleFaction(id: number) {
@@ -141,6 +155,12 @@ export class WantedCharacterListComponent implements OnInit {
 
   applyFilters() {
     this.currentPage = 1;
+    const queryParams: Record<string, any> = {};
+    if (this.selectedRelations.length > 0) {
+      queryParams['relation_ids'] = this.selectedRelations.map(r => r.id);
+      queryParams['relation_names'] = this.selectedRelations.map(r => r.name);
+    }
+    this.router.navigate([], { queryParams, queryParamsHandling: 'replace' });
     this.loadPage();
   }
 
