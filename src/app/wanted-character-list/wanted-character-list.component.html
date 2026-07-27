@@ -81,7 +81,7 @@
             @for (rel of selectedRelations; track rel.id) {
               <span class="relation-chip">
                 @if (rel.avatar) {
-                  <img [src]="rel.avatar" [alt]="rel.name" class="relation-chip-avatar" />
+                  <img [src]="rel.avatar" [alt]="rel.name" class="relation-chip-avatar" style="width:20px;height:20px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:4px;" />
                 }
                 {{ rel.name }}
                 <span class="relation-chip-remove" (click)="removeRelationFilter(rel.id)">×</span>
@@ -120,7 +120,7 @@
                     @for (rel of wc.relations; track rel.id) {
                       <a [routerLink]="['/character', rel.id]" class="relation-chip">
                         @if (rel.avatar) {
-                          <img [src]="rel.avatar" [alt]="rel.name" class="relation-chip-avatar" />
+                          <img [src]="rel.avatar" [alt]="rel.name" class="relation-chip-avatar" style="width:20px;height:20px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:4px;" />
                         }
                         {{ rel.name }}
                       </a>
