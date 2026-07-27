@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Subject } from 'rxjs';
-import { PostCreatedEvent, TopicCreatedEvent, NotificationEvent, WebSocketEvent, TopicViewersUpdateEvent, UnreadNotificationsResponse, NotificationData, PostUpdatedEvent, DirectMessageCreatedEvent, ActiveUsersUpdateEvent, ActiveUsersActivityUpdateEvent, PanelReloadEvent, ReactionCreatedEvent, HealthUpdateEvent, UserRefreshRequiredEvent, DraftUpdatedEvent, AiMessageEvent, AiTaskDoneEvent, AiQueuePositionEvent, AiErrorEvent } from '../models/event';
+import { PostCreatedEvent, TopicCreatedEvent, NotificationEvent, WebSocketEvent, TopicViewersUpdateEvent, UnreadNotificationsResponse, NotificationData, PostUpdatedEvent, DirectMessageCreatedEvent, ActiveUsersUpdateEvent, ActiveUsersActivityUpdateEvent, PanelReloadEvent, ReactionCreatedEvent, HealthUpdateEvent, UserRefreshRequiredEvent, DraftUpdatedEvent, AiMessageEvent, AiTaskDoneEvent, AiQueuePositionEvent, AiErrorEvent, PageChangedEvent } from '../models/event';
 import { AuthService } from './auth.service';
 import { ApiService } from './api.service';
 import { environment } from '../../environments/environment';
@@ -65,6 +65,9 @@ export class NotificationService {
 
   private aiErrorSubject = new Subject<AiErrorEvent>();
   public aiError$ = this.aiErrorSubject.asObservable();
+
+  private pageChangedSubject = new Subject<PageChangedEvent>();
+  public pageChanged$ = this.pageChangedSubject.asObservable();
 
 private systemNotificationsSignal = signal<NotificationData[]>([]);
   public systemNotifications = this.systemNotificationsSignal.asReadonly();
@@ -437,6 +440,9 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
         break;
       case 'ai_error':
         this.aiErrorSubject.next(notification as AiErrorEvent);
+        break;
+      case 'page_changed':
+        this.pageChangedSubject.next(notification as PageChangedEvent);
         break;
       case 'user_refresh_required':
         this.authService.refreshToken().subscribe({

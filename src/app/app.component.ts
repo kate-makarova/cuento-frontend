@@ -148,11 +148,11 @@ export class AppComponent implements OnInit {
           pageId = +params['id'] || 0;
           break;
         case 'pun-viewforum':
-          pageType = 'forum';
+          pageType = 'viewforum';
           pageId = +params['id'] || 0;
           break;
         case 'pun-index':
-          pageType = 'home';
+          pageType = 'index';
           break;
         case 'pun-profile':
           pageType = 'profile';
