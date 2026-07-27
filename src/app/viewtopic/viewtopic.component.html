@@ -245,6 +245,24 @@
   </div>
   }
 
+  @if (isSubmitting()) {
+    <div class="post post-pending" aria-busy="true">
+      <h3>
+        <span class="post-pending-bar post-pending-bar--short"></span>
+        <span class="post-pending-bar post-pending-bar--xs"></span>
+      </h3>
+      <div class="container">
+        <div class="post-main">
+          <div class="post-pending-avatar"></div>
+          <div class="post-body">
+            <div class="post-pending-bar post-pending-bar--line"></div>
+            <div class="post-pending-bar post-pending-bar--line post-pending-bar--line-short"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
   <app-topic-read-by></app-topic-read-by>
 
   <div class="linksb">

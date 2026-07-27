@@ -485,10 +485,11 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       payload.guest_name = this.guestName;
     }
 
+    this.postForm.messageField.nativeElement.value = '';
+
     this.topicService.createPost(payload).subscribe({
       next: () => {
         this.isSubmitting.set(false);
-        this.postForm.messageField.nativeElement.value = '';
         if (!this.authService.isAuthenticated()) {
           window.location.reload();
         } else {

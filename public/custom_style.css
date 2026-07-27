@@ -2311,6 +2311,41 @@ app-root.dark .has-new-messages div.icon {
   animation: spin 0.6s linear infinite;
 }
 
+/* === pending post skeleton === */
+@keyframes post-pending-shimmer {
+  0%   { opacity: 0.5; }
+  50%  { opacity: 0.25; }
+  100% { opacity: 0.5; }
+}
+
+.post.post-pending {
+  pointer-events: none;
+}
+
+.post-pending-bar {
+  display: inline-block;
+  background: currentColor;
+  border-radius: 3px;
+  opacity: 0.5;
+  animation: post-pending-shimmer 1.4s ease-in-out infinite;
+}
+
+.post-pending-bar--short  { width: 120px; height: 10px; }
+.post-pending-bar--xs     { width: 40px;  height: 10px; float: right; }
+.post-pending-bar--line   { display: block; width: 80%; height: 12px; margin-bottom: 10px; }
+.post-pending-bar--line-short { width: 55%; }
+
+.post-pending-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 4px;
+  background: currentColor;
+  opacity: 0.2;
+  flex-shrink: 0;
+  margin-right: 14px;
+  animation: post-pending-shimmer 1.4s ease-in-out infinite;
+}
+
 /* === viewtopic.component === */
 .topic-full-banner {
   border: 1px solid #d1bc9b;
