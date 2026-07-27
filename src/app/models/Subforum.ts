@@ -16,6 +16,7 @@ export interface Subforum {
   permissions: SubforumPermissions|null;
 
   show_last_topic?: boolean;
+  has_new_messages?: boolean;
 
   // Optional fields that might be present or used internally
   can_read_roles?: string[];

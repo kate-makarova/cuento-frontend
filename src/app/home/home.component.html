@@ -19,7 +19,7 @@
             <tbody>
             @for (subforum of category.subforums; track subforum.id)
             {
-            <tr class="rowodd">
+            <tr class="rowodd" [class.has-new-messages]="subforum.has_new_messages">
               <td class="tcl">
                 <div class="intd">
                   <div class="icon"></div>
