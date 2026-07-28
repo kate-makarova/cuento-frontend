@@ -25,10 +25,11 @@ export class CreateUserDataMigrationComponent {
     if (!this.forumDomain || !this.topicId || !this.postCount) return;
     this.loading = true;
     this.error = '';
+    const domain = this.forumDomain.trim().replace(/^https?:\/\//i, '').replace(/\/+$/, '');
     this.migrationService.create({
       original_topic_id: this.topicId,
       original_post_count: this.postCount,
-      forum_domain: this.forumDomain
+      forum_domain: domain
     }).subscribe({
       next: (migration) => {
         this.migrationService.currentMigration.set(migration);
