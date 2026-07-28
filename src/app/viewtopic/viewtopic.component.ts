@@ -145,7 +145,6 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   private lastLoadedProfilesForTopicId: number | null = null;
   private pageLoadedSubscription: Subscription | null = null;
   private topicLoadedOnInit = false;
-  private pendingScrollPostId: number | null = null;
   private onVisibilityChange = () => {
     if (document.visibilityState === 'visible') {
       const topicId = this.id();
@@ -259,12 +258,6 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Scroll to our post once it appears in the posts signal
-    effect(() => {
-      this.posts();
-      untracked(() => this.tryScrollToPost());
-    });
-
     // Effect to reload posts when page or topic ID changes
     effect(() => {
       const topicId = this.id();
@@ -298,21 +291,8 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   isWantedCharacter() { return this.topic().type === TopicType.wanted_character; }
   isLore() { return this.topic().type === TopicType.lore; }
 
-  private tryScrollToPost(): void {
-    if (this.pendingScrollPostId === null) return;
-    const postId = this.pendingScrollPostId;
-    if (!this.posts().some(p => p.id === postId)) return;
-    this.pendingScrollPostId = null;
-    setTimeout(() => document.getElementById(String(postId))?.scrollIntoView({ behavior: 'smooth' }));
-  }
-
   ngOnInit() {
     document.addEventListener('visibilitychange', this.onVisibilityChange);
-
-    this.topicService.ownPostAdded$.pipe(takeUntil(this.destroy$)).subscribe(postId => {
-      this.pendingScrollPostId = postId;
-      this.tryScrollToPost();
-    });
 
     this.pageLoadedSubscription = this.topicService.pageLoaded$.subscribe(pageState => {
       const topicId = this.id();
