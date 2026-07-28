@@ -280,6 +280,7 @@ export class TopicService {
       topic_id: post.topic_id,
       post_id: post.id
     });
+    this.notificationService.checkPostIds([post.id]);
 
     const currentUser = this.authService.currentUser();
     if (currentUser && post.user_profile && currentUser.id === post.user_profile.user_id) {
