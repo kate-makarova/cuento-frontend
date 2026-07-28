@@ -148,12 +148,17 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
     });
   }
 
+  private mentionPostId(n: NotificationData): number | undefined {
+    return ((n.mention ?? n.data) as NotificationMention | null)?.post_id ?? undefined;
+  }
+
   private rebuildTriggers(response: UnreadNotificationsResponse): void {
     this.mentionPostTriggers.clear();
     this.gameTopicTriggers.clear();
     this.dmChatTriggers.clear();
     for (const n of response.mention || []) {
-      if (n.mention?.post_id) this.mentionPostTriggers.set(n.mention.post_id, n);
+      const postId = this.mentionPostId(n);
+      if (postId) this.mentionPostTriggers.set(postId, n);
     }
     for (const n of response.game || []) {
       if (n.game?.topic_id) this.gameTopicTriggers.set(n.game.topic_id, n);
@@ -164,8 +169,9 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
   }
 
   private addTrigger(n: NotificationData): void {
-    if (n.type === 'mention' && n.mention?.post_id) {
-      this.mentionPostTriggers.set(n.mention.post_id, n);
+    if (n.type === 'mention') {
+      const postId = this.mentionPostId(n);
+      if (postId) this.mentionPostTriggers.set(postId, n);
     } else if (n.type === 'game' && n.game?.topic_id) {
       this.gameTopicTriggers.set(n.game.topic_id, n);
     } else if (n.type === 'direct_message' && n.direct_message?.chat_id) {
@@ -174,8 +180,9 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
   }
 
   private removeTrigger(n: NotificationData): void {
-    if (n.type === 'mention' && n.mention?.post_id) {
-      this.mentionPostTriggers.delete(n.mention.post_id);
+    if (n.type === 'mention') {
+      const postId = this.mentionPostId(n);
+      if (postId) this.mentionPostTriggers.delete(postId);
     } else if (n.type === 'game' && n.game?.topic_id) {
       this.gameTopicTriggers.delete(n.game.topic_id);
     } else if (n.type === 'direct_message' && n.direct_message?.chat_id) {
