@@ -204,6 +204,15 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
     if (n) this.dismissNotification(n);
   }
 
+  public checkMentionsByTopicId(topicId: number): void {
+    const mentions = this.mentionNotificationsSignal();
+    if (mentions.length === 0) return;
+    for (const n of mentions) {
+      const tid = ((n.mention ?? n.data) as NotificationMention | null)?.topic_id;
+      if (tid === topicId) this.dismissNotification(n);
+    }
+  }
+
   public checkChatId(chatId: number): void {
     if (this.directMessageNotificationsSignal().length === 0) return;
     const n = this.dmChatTriggers.get(chatId);
