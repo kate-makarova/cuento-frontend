@@ -24,9 +24,9 @@ Before reading or embedding any screenshot, run the bundled crop script on all P
 python3 .claude/skills/generate-docs/scripts/crop_to_content.py docs/<folder>/*.png
 ```
 
-The script overwrites each file in-place. It detects the background color from the image corners and trims all edges that match it, leaving a small padding around the content. If a file has no significant background (already cropped, or a solid-colored image), it is skipped unchanged.
+The script saves the cropped version as `<name>-crop.png` alongside the original — the original is left untouched. For example, `01-create-form.png` stays as-is and `01-create-form-crop.png` is created next to it. If no significant background is detected the file is skipped and no `-crop.png` is produced.
 
-Run this **before** reading the images in Step 2 so that the images you read and embed are already cropped.
+Run this **before** reading the images in Step 2. In Step 3, embed the `-crop.png` variants in the manual (they exist alongside the originals).
 
 ### Step 1 — discover the target folder(s)
 
@@ -81,7 +81,7 @@ Mention what they will see or what will happen next.>
 
 - Derive section titles from the outline bullets — keep them short and verb-led (e.g. "Fill in the migration form", "Paste the extracted data").
 - One screenshot per step. If a step has no screenshot, write it in prose only. If there are more screenshots than steps, append extras after the closest relevant section with a short caption explaining what they show.
-- Use relative image paths (`./01-create-form.png`) — the manual lives in the same directory as the screenshots.
+- Use relative image paths to the `-crop.png` variants (`./01-create-form-crop.png`) — the manual lives in the same directory as the screenshots.
 - Tone: clear and friendly, written for the person using the forum, not a developer. No jargon unless the outline itself uses it.
 - Expand on the outline — the outline is a bullet list; the manual is a guide. Add context, explain consequences ("If any character is missing the migration cannot complete — add them to the episode first"), and surface tips from the outline's wording.
 - Add a brief `## Tips` or `## Notes` section at the end if the outline contains any caveats or non-obvious details worth highlighting.

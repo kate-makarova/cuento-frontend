@@ -66,11 +66,12 @@ def crop_file(path: Path) -> bool:
         print(f"  skip  {path.name}  (no significant chrome detected)")
         return False
     cropped = img.crop(bbox)
-    cropped.save(path)
+    out_path = path.with_stem(path.stem + "-crop")
+    cropped.save(out_path)
     orig_w, orig_h = img.size
     new_w  = bbox[2] - bbox[0]
     new_h  = bbox[3] - bbox[1]
-    print(f"  crop  {path.name}  {orig_w}×{orig_h} → {new_w}×{new_h}")
+    print(f"  crop  {path.name}  {orig_w}×{orig_h} → {new_w}×{new_h}  →  {out_path.name}")
     return True
 
 
