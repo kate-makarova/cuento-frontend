@@ -1,0 +1,11 @@
+Feature name: User Data Migrations
+Function: To migrate the existing games from other platforms to a cuento forum. 
+Process:
+ - Create a new episode on the current forum and add there all participating characters. If any pf the characters is missing, the migration cannot be complete.
+ - Start the migration. Any perticipant of the episode can do the migration. 
+ - Put in the domain of the forum (without http and url parameters)
+ - Open the url of the original episode, find there ?id=57 and put it in as topic id
+ - Put in the total number of posts (no matter inclusing the header post or excluding, the module is amrt enough to adjust for one post)
+ - Open the generated link, copy-paste the json into the textarea
+ - in the new user-character list match each original user with a character on the current forum
+ - click "Publish"

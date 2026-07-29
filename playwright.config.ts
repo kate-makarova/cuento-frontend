@@ -1,7 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  testDir: './tests',
   fullyParallel: true,
   forbidOnly: !!process.env['CI'],
   retries: process.env['CI'] ? 2 : 0,
@@ -14,17 +13,28 @@ export default defineConfig({
   },
 
   projects: [
+    // Regular tests — run across all browsers
     {
       name: 'chromium',
+      testDir: './tests',
       use: { ...devices['Desktop Chrome'] },
     },
     {
       name: 'firefox',
+      testDir: './tests',
       use: { ...devices['Desktop Firefox'] },
     },
     {
       name: 'webkit',
+      testDir: './tests',
       use: { ...devices['Desktop Safari'] },
+    },
+
+    // Doc screenshot tests — Chromium only, output goes to docs/
+    {
+      name: 'doc-tests',
+      testDir: './doc-tests',
+      use: { ...devices['Desktop Chrome'] },
     },
   ],
 });
