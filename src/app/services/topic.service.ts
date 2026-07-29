@@ -133,7 +133,6 @@ export class TopicService {
             });
             this.notificationService.checkPostIds(postIds);
             this.notificationService.checkTopicId(topicId);
-            this.notificationService.checkMentionsByTopicId(topicId);
           } else {
             const topicType = this.topicSignal()?.type;
             if (topicType === TopicType.character || topicType === TopicType.episode || topicType === TopicType.wanted_character) {
