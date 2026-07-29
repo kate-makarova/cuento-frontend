@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Subject } from 'rxjs';
-import { PostCreatedEvent, TopicCreatedEvent, NotificationEvent, WebSocketEvent, TopicViewersUpdateEvent, UnreadNotificationsResponse, NotificationData, PostUpdatedEvent, DirectMessageCreatedEvent, ActiveUsersUpdateEvent, ActiveUsersActivityUpdateEvent, PanelReloadEvent, ReactionCreatedEvent } from '../models/event';
+import { PostCreatedEvent, TopicCreatedEvent, NotificationEvent, WebSocketEvent, TopicViewersUpdateEvent, UnreadNotificationsResponse, NotificationData, NotificationMention, PostUpdatedEvent, DirectMessageCreatedEvent, ActiveUsersUpdateEvent, ActiveUsersActivityUpdateEvent, PanelReloadEvent, ReactionCreatedEvent } from '../models/event';
 import { AuthService } from './auth.service';
 import { ApiService } from './api.service';
 import { environment } from '../../environments/environment';
@@ -153,6 +153,15 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
     if (this.gameNotificationsSignal().length === 0) return;
     const n = this.gameTopicTriggers.get(topicId);
     if (n) this.dismissNotification(n);
+  }
+
+  public checkMentionsByTopicId(topicId: number): void {
+    const mentions = this.mentionNotificationsSignal();
+    if (mentions.length === 0) return;
+    for (const n of mentions) {
+      const tid = ((n.mention ?? n.data) as NotificationMention | null)?.topic_id;
+      if (tid === topicId) this.dismissNotification(n);
+    }
   }
 
   public checkChatId(chatId: number): void {
