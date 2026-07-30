@@ -29,15 +29,7 @@
       @for (field of configFields(); track field.key) {
         @if (field.isSpecial) {
           <!-- Special fields -->
-          @if (field.key === '_is_link') {
-            <div class="field field--checkbox">
-              <label>
-                <input type="checkbox" [(ngModel)]="field.value" />
-                <ng-container i18n="@@admin.widgetEdit.isLink">Block is link to entity</ng-container>
-              </label>
-            </div>
-          }
-          @if (field.key === '_refresh_interval') {
+          @if (field.key === 'interval') {
             <div class="field field--inline">
               <label>
                 <ng-container i18n="@@admin.widgetEdit.refreshIntervalBefore">Refresh widget every</ng-container>

@@ -115,15 +115,17 @@ export class AdminWidgetEditComponent implements OnInit {
           this.configFields.set([]);
           return;
         }
-        const fields: ConfigField[] = Object.entries(template).map(([key, def]) => {
+        const DEPRECATED_KEYS = ['_is_link', '_refresh_interval'];
+        const fields: ConfigField[] = Object.entries(template)
+          .filter(([key]) => !DEPRECATED_KEYS.includes(key))
+          .map(([key, def]) => {
           const dependsOn = def.endpoint
             ? (def.endpoint.match(/:(\w+)/g) ?? []).map(p => p.slice(1))
             : [];
           const canEmpty = !!def.can_empty;
           const isSpecial = key.startsWith('_');
-          const specialDefault = key === '_refresh_interval' ? 0 : false;
           const defaultValue = isSpecial
-            ? (savedValues[key] ?? specialDefault)
+            ? (savedValues[key] ?? false)
             : (savedValues[key] ?? (def.type === 'int' ? 0 : (canEmpty ? '' : (def.values?.[0] ?? ''))));
           return {
             key,
@@ -137,6 +139,20 @@ export class AdminWidgetEditComponent implements OnInit {
             isSpecial
           };
         });
+
+        if (!fields.some(f => f.key === 'interval')) {
+          fields.push({
+            key: 'interval',
+            type: 'int',
+            value: savedValues['interval'] ?? 0,
+            values: undefined,
+            endpoint: undefined,
+            endpointOptions: [],
+            dependsOn: [],
+            canEmpty: false,
+            isSpecial: true
+          });
+        }
 
         console.log('[widget-edit] setting configFields', fields);
         this.configFields.set(fields);
@@ -215,7 +231,9 @@ export class AdminWidgetEditComponent implements OnInit {
     this.saveState.set('loading');
 
     const config: Record<string, any> = {};
+    const KNOWN_SPECIAL_KEYS = ['interval'];
     for (const field of this.configFields()) {
+      if (field.isSpecial && !KNOWN_SPECIAL_KEYS.includes(field.key)) continue;
       if (!field.isSpecial && (field.value === '' || field.value === null || field.value === undefined)) continue;
       config[field.key] = field.type === 'int' ? Number(field.value) : field.value;
     }
