@@ -99,10 +99,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
     panel.addEventListener('click', this.panelLinkHandler);
 
     const widgetData = this.parseWidgetComments(panel);
+    console.log('[header] widgetData', widgetData);
+    console.log('[header] random_entity widgets', panel.querySelectorAll('[data-widget-id][widget-type="random_entity"]').length);
 
     panel.querySelectorAll<HTMLElement>('[data-widget-id][widget-type="random_entity"]').forEach(widget => {
       const widgetId = widget.getAttribute('data-widget-id')!;
       const data = widgetData[widgetId];
+      console.log('[header] widget', widgetId, 'data', data);
       if (!data || data.sets.length === 0) return;
 
       widget.style.display = 'flex';
