@@ -72,6 +72,16 @@
                   <option [value]="opt.value">{{ opt.label }}</option>
                 }
               </select>
+              @if (needsDimensions(field)) {
+                <div class="dimensions-row">
+                  <label i18n="@@admin.widgetEdit.width">W
+                    <input type="number" [(ngModel)]="getDimensions(field.key).width" min="1" />
+                  </label>
+                  <label i18n="@@admin.widgetEdit.height">H
+                    <input type="number" [(ngModel)]="getDimensions(field.key).height" min="1" />
+                  </label>
+                </div>
+              }
             } @else {
               <!-- Plain input -->
               @switch (field.type) {

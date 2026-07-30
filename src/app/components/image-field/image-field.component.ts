@@ -1,6 +1,7 @@
-import { Component, inject, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, computed, inject, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ImageService } from '../../services/image.service';
+import { BoardService } from '../../services/board.service';
 
 @Component({
   selector: 'app-image-field',
@@ -15,6 +16,9 @@ export class ImageFieldComponent implements OnInit, OnChanges {
   @Input() name: string | undefined;
 
   private imageService = inject(ImageService);
+  private boardService = inject(BoardService);
+
+  readonly canUpload = computed(() => this.boardService.board().use_image_uploading === 'y');
 
   mode: 'upload' | 'url' = 'upload';
   value: string = '';
@@ -24,7 +28,7 @@ export class ImageFieldComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.value = this.fieldValue;
-    if (this.fieldValue) {
+    if (this.fieldValue || !this.canUpload()) {
       this.mode = 'url';
     }
   }
@@ -33,7 +37,6 @@ export class ImageFieldComponent implements OnInit, OnChanges {
     if (changes['fieldValue']) {
       const prev = changes['fieldValue'].previousValue ?? '';
       const next = changes['fieldValue'].currentValue ?? '';
-      // Only sync if the user hasn't manually changed the value
       if (this.value === prev) {
         this.value = next;
         if (next) this.mode = 'url';

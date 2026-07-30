@@ -1,6 +1,7 @@
-import { Component, inject, Input, NgZone, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, Input, NgZone, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ImageService } from '../../services/image.service';
+import { BoardService } from '../../services/board.service';
 
 type UploadState = 'idle' | 'uploading' | 'done' | 'error';
 
@@ -20,6 +21,9 @@ export class CroppedImageFieldComponent implements OnInit {
 
   private imageService = inject(ImageService);
   private ngZone = inject(NgZone);
+  private boardService = inject(BoardService);
+
+  readonly canUpload = computed(() => this.boardService.board().use_image_uploading === 'y');
 
   readonly MAX_DISPLAY_W = 560;
 
@@ -57,7 +61,7 @@ export class CroppedImageFieldComponent implements OnInit {
 
   ngOnInit() {
     this.value = this.fieldValue;
-    if (this.fieldValue) this.mode = 'url';
+    if (this.fieldValue || !this.canUpload()) this.mode = 'url';
   }
 
   onFileChange(event: Event) {

@@ -20,7 +20,9 @@ export class BoardService {
     visual_navlinks_after_header_panel: 'n',
     auto_archiving_show_page_link: 'n',
     auto_archiving_enabled: 'n',
-    auto_archiving_days: ''
+    auto_archiving_days: '',
+    use_image_uploading: 'y',
+    use_image_proxy: 'n'
   });
   readonly board = this.boardSignal.asReadonly();
 

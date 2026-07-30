@@ -29,6 +29,7 @@ interface ConfigFieldDef {
 interface EndpointOption {
   value: string;
   label: string;
+  renderType?: string;
 }
 
 interface ConfigField {
@@ -65,6 +66,7 @@ export class AdminWidgetEditComponent implements OnInit {
 
   filterStatus = signal<string>('');
   filterIsClaimed = signal<string>('');
+  fieldDimensions: Record<string, { width: string; height: string }> = {};
 
   entityType = computed(() => this.configFields().find(f => f.key === 'entity_type')?.value as string | undefined);
 
@@ -161,6 +163,16 @@ export class AdminWidgetEditComponent implements OnInit {
 
         this.configFields.set(fields);
 
+        this.fieldDimensions = {};
+        for (const key of Object.keys(savedValues)) {
+          const match = key.match(/^(entity_field_\d+)_(width|height)$/);
+          if (match) {
+            const fk = match[1];
+            if (!this.fieldDimensions[fk]) this.fieldDimensions[fk] = { width: '', height: '' };
+            this.fieldDimensions[fk][match[2] as 'width' | 'height'] = String(savedValues[key] ?? '');
+          }
+        }
+
         const savedFilters = savedValues['filters'] ?? {};
         const rawStatus = savedFilters['status_active'];
         this.filterStatus.set(Array.isArray(rawStatus) ? (rawStatus[0] ?? '') : (rawStatus ?? ''));
@@ -196,7 +208,7 @@ export class AdminWidgetEditComponent implements OnInit {
         const options: EndpointOption[] = raw.map(item =>
           typeof item === 'string'
             ? { value: item, label: item }
-            : { value: item.machine_field_name, label: item.human_field_name }
+            : { value: item.machine_field_name, label: item.human_field_name, renderType: item.render_type }
         );
         this.configFields.update(fs =>
           fs.map(f => f.key === field.key ? { ...f, endpointOptions: options } : f)
@@ -204,6 +216,17 @@ export class AdminWidgetEditComponent implements OnInit {
       },
       error: () => {}
     });
+  }
+
+  needsDimensions(field: ConfigField): boolean {
+    if (!/^entity_field_\d+$/.test(field.key)) return false;
+    const selected = field.endpointOptions.find(o => o.value === field.value);
+    return selected?.renderType === 'image' || selected?.renderType === 'cropped_image';
+  }
+
+  getDimensions(key: string): { width: string; height: string } {
+    if (!this.fieldDimensions[key]) this.fieldDimensions[key] = { width: '', height: '' };
+    return this.fieldDimensions[key];
   }
 
   onFieldChange(changedField: ConfigField) {
@@ -240,6 +263,11 @@ export class AdminWidgetEditComponent implements OnInit {
       if (field.isSpecial && !KNOWN_SPECIAL_KEYS.includes(field.key)) continue;
       if (!field.isSpecial && (field.value === '' || field.value === null || field.value === undefined)) continue;
       config[field.key] = field.type === 'int' ? Number(field.value) : field.value;
+    }
+
+    for (const [fk, dims] of Object.entries(this.fieldDimensions)) {
+      if (dims.width !== '') config[`${fk}_width`] = Number(dims.width);
+      if (dims.height !== '') config[`${fk}_height`] = Number(dims.height);
     }
 
     const et = this.entityType();
