@@ -1,4 +1,4 @@
-import {Component, effect, inject, OnInit, signal, HostBinding} from '@angular/core';
+import {afterRender, Component, effect, inject, OnInit, signal, HostBinding} from '@angular/core';
 import {DOCUMENT} from '@angular/common';
 import {ActivatedRoute, NavigationEnd, NavigationStart, Router, RouterOutlet} from '@angular/router';
 import {FooterComponent} from './components/footer/footer.component';
@@ -42,6 +42,7 @@ export class AppComponent implements OnInit {
   private sanitizer = inject(DomSanitizer);
 
   footerPanelHtml = signal<SafeHtml>('');
+  private needsFooterProcessing = false;
 
   @HostBinding('class')
   get designClass(): string {
@@ -59,6 +60,12 @@ export class AppComponent implements OnInit {
   private document = inject<Document>(DOCUMENT);
 
   constructor() {
+    afterRender(() => {
+      if (this.needsFooterProcessing) {
+        this.needsFooterProcessing = false;
+        this.processFooterPanel();
+      }
+    });
     this.applyDraftStyles();
     this.listenForAuthChanges();
     this.setupRouteListener();
@@ -120,7 +127,7 @@ export class AppComponent implements OnInit {
     this.apiService.getText('panel/footer/content').subscribe({
       next: html => {
         this.footerPanelHtml.set(this.sanitizer.bypassSecurityTrustHtml(html));
-        setTimeout(() => this.processFooterPanel());
+        this.needsFooterProcessing = true;
       },
       error: () => {}
     });

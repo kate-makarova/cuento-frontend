@@ -159,7 +159,6 @@ export class AdminWidgetEditComponent implements OnInit {
           }
         }
 
-        console.log('[widget-edit] setting configFields', fields);
         this.configFields.set(fields);
 
         const savedFilters = savedValues['filters'] ?? {};
@@ -175,7 +174,7 @@ export class AdminWidgetEditComponent implements OnInit {
           }
         }
       },
-      error: (err) => { console.error('[widget-edit] config template error', err); }
+      error: () => {}
     });
   }
 

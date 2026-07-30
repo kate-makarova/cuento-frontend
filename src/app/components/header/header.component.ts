@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { afterRender, Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
@@ -44,6 +44,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private widgetRefreshIntervals: ReturnType<typeof setInterval>[] = [];
   private panelReloadSub?: Subscription;
   private panelLinkHandler: ((e: MouseEvent) => void) | null = null;
+  private needsPanelProcessing = false;
+
+  constructor() {
+    afterRender(() => {
+      if (this.needsPanelProcessing) {
+        this.needsPanelProcessing = false;
+        this.processPanel();
+      }
+    });
+  }
 
   ngOnInit() {
     this.load();
@@ -67,7 +77,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.apiService.getText('panel/header/content').subscribe({
       next: html => {
         this.headerPanelHtml.set(this.sanitizer.bypassSecurityTrustHtml(html));
-        setTimeout(() => this.processPanel());
+        this.needsPanelProcessing = true;
       },
       error: () => {}
     });
@@ -98,15 +108,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     };
     panel.addEventListener('click', this.panelLinkHandler);
 
-    console.log('[header] panel.innerHTML', panel.innerHTML);
     const widgetData = this.parseWidgetComments(panel);
-    console.log('[header] widgetData', widgetData);
-    console.log('[header] random_entity widgets', panel.querySelectorAll('[data-widget-id][widget-type="random_entity"]').length);
 
     panel.querySelectorAll<HTMLElement>('[data-widget-id][widget-type="random_entity"]').forEach(widget => {
       const widgetId = widget.getAttribute('data-widget-id')!;
       const data = widgetData[widgetId];
-      console.log('[header] widget', widgetId, 'data', data);
       if (!data || data.sets.length === 0) return;
 
       widget.style.display = 'flex';
