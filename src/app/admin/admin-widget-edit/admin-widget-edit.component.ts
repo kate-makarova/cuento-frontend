@@ -140,18 +140,23 @@ export class AdminWidgetEditComponent implements OnInit {
           };
         });
 
-        if (!fields.some(f => f.key === 'interval')) {
-          fields.push({
-            key: 'interval',
-            type: 'int',
-            value: savedValues['interval'] ?? 0,
-            values: undefined,
-            endpoint: undefined,
-            endpointOptions: [],
-            dependsOn: [],
-            canEmpty: false,
-            isSpecial: true
-          });
+        for (const spec of [
+          { key: 'number', defaultValue: 1 },
+          { key: 'interval', defaultValue: 0 }
+        ]) {
+          if (!fields.some(f => f.key === spec.key)) {
+            fields.push({
+              key: spec.key,
+              type: 'int',
+              value: savedValues[spec.key] ?? spec.defaultValue,
+              values: undefined,
+              endpoint: undefined,
+              endpointOptions: [],
+              dependsOn: [],
+              canEmpty: false,
+              isSpecial: true
+            });
+          }
         }
 
         console.log('[widget-edit] setting configFields', fields);
@@ -231,7 +236,7 @@ export class AdminWidgetEditComponent implements OnInit {
     this.saveState.set('loading');
 
     const config: Record<string, any> = {};
-    const KNOWN_SPECIAL_KEYS = ['interval'];
+    const KNOWN_SPECIAL_KEYS = ['number', 'interval'];
     for (const field of this.configFields()) {
       if (field.isSpecial && !KNOWN_SPECIAL_KEYS.includes(field.key)) continue;
       if (!field.isSpecial && (field.value === '' || field.value === null || field.value === undefined)) continue;
