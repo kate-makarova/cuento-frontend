@@ -27,6 +27,42 @@
     </fieldset>
 
     <fieldset>
+      <legend i18n="@@wantedcharacter.relatedCharacters">Related characters</legend>
+      <div class="fs-box hashelp">
+        @for (val of relationInputValues; track $index; let i = $index) {
+          <div class="character-input-group">
+            <span class="input">
+              <input
+                type="text"
+                [value]="val"
+                (input)="onRelationInput(i, $any($event.target).value)"
+                placeholder="Search characters…"
+                i18n-placeholder="@@wantedcharacter.searchCharacters"
+                autocomplete="off"
+              />
+            </span>
+            @if (i > 0) {
+              <span class="remove-char" (click)="removeRelationField(i)">×</span>
+            }
+            @if (activeRelationIndex === i && characterSuggestions().length > 0) {
+              <ul class="autocomplete-list">
+                @for (char of characterSuggestions(); track char.id) {
+                  <li (click)="selectRelation(i, char)" style="display:flex;align-items:center;gap:6px">
+                    @if (char.avatar) {
+                      <img [src]="char.avatar" [alt]="char.name" style="width:20px;height:20px;border-radius:50%;object-fit:cover;flex-shrink:0" />
+                    }
+                    {{ char.name }}
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        }
+        <button type="button" class="button" (click)="addRelationField()" i18n="@@wantedcharacter.addCharacter">Add character</button>
+      </div>
+    </fieldset>
+
+    <fieldset>
       @for (field of template(); track field.order) {
         <div class="fs-box hashelp">
           <p class="inputfield required">

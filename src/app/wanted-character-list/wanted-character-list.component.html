@@ -54,6 +54,43 @@
         </div>
       }
 
+      <div class="filter-group">
+        <h4 i18n="@@wantedcharacter.relatedCharacters">Related characters</h4>
+        <div class="autocomplete-wrapper">
+          <input type="text"
+            [value]="relationFilterInput"
+            (input)="onRelationFilterInput($any($event.target).value)"
+            placeholder="Search characters…"
+            i18n-placeholder="@@wantedcharacter.searchCharacters"
+            autocomplete="off" />
+          @if (relationFilterActive && characterSuggestions().length > 0) {
+            <div class="suggestions-dropdown">
+              @for (char of characterSuggestions(); track char.id) {
+                <div class="suggestion-item" (mousedown)="selectRelationFilter(char)">
+                  @if (char.avatar) {
+                    <img [src]="char.avatar" [alt]="char.name" class="suggestion-avatar" />
+                  }
+                  {{ char.name }}
+                </div>
+              }
+            </div>
+          }
+        </div>
+        @if (selectedRelations.length > 0) {
+          <div class="selected-relations">
+            @for (rel of selectedRelations; track rel.id) {
+              <span class="relation-chip">
+                @if (rel.avatar) {
+                  <img [src]="rel.avatar" [alt]="rel.name" class="relation-chip-avatar" style="width:20px;height:20px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:4px;" />
+                }
+                {{ rel.name }}
+                <span class="relation-chip-remove" (click)="removeRelationFilter(rel.id)">×</span>
+              </span>
+            }
+          </div>
+        }
+      </div>
+
       <button class="button" (click)="applyFilters()" i18n="@@wantedCharacterList.applyFilters">Apply Filters</button>
     </aside>
 
@@ -76,6 +113,20 @@
               </div>
               @if (wc.factions && wc.factions.length > 0) {
                 <div class="card-factions">{{ factionsString(wc) }}</div>
+              }
+              @if (wc.relations && wc.relations.length > 0) {
+                <div class="card-relations">
+                  <div class="relation-chips">
+                    @for (rel of wc.relations; track rel.id) {
+                      <a [routerLink]="['/character', rel.id]" class="relation-chip">
+                        @if (rel.avatar) {
+                          <img [src]="rel.avatar" [alt]="rel.name" class="relation-chip-avatar" style="width:20px;height:20px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:4px;" />
+                        }
+                        {{ rel.name }}
+                      </a>
+                    }
+                  </div>
+                </div>
               }
               @if (getFields(wc).length > 0) {
                 <ul class="card-fields">

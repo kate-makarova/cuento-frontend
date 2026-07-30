@@ -1,4 +1,4 @@
-import { afterNextRender, Component, computed, inject, Injector, OnDestroy, OnInit, signal } from '@angular/core';
+import { afterRender, Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
@@ -10,6 +10,18 @@ import { NotificationsComponent } from '../notifications/notifications.component
 import { NavlinksComponent } from '../navlinks/navlinks.component';
 import { UlinksComponent } from '../ulinks/ulinks.component';
 import { RouterLinksDirective } from '../../directives/router-links.directive';
+
+interface WidgetEntity {
+  id: number;
+  type: string;
+  name: string;
+  custom_fields?: { field_name: string; value: string; render_type: string }[];
+}
+
+interface WidgetData {
+  interval: number;
+  sets: WidgetEntity[][];
+}
 
 @Component({
   selector: 'app-header',
@@ -24,8 +36,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private apiService = inject(ApiService);
   private sanitizer = inject(DomSanitizer);
   private router = inject(Router);
-  private injector = inject(Injector);
-
   title = computed(() => this.boardService.board().site_name || 'Cuento');
   navlinksAfterHeader = computed(() => this.boardService.board().visual_navlinks_after_header_panel === 'y');
   currentUser = this.authService.currentUser;
@@ -34,6 +44,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private widgetRefreshIntervals: ReturnType<typeof setInterval>[] = [];
   private panelReloadSub?: Subscription;
   private panelLinkHandler: ((e: MouseEvent) => void) | null = null;
+  private needsPanelProcessing = false;
+
+  constructor() {
+    afterRender(() => {
+      if (this.needsPanelProcessing) {
+        this.needsPanelProcessing = false;
+        this.processPanel();
+      }
+    });
+  }
 
   ngOnInit() {
     this.load();
@@ -57,7 +77,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.apiService.getText('panel/header/content').subscribe({
       next: html => {
         this.headerPanelHtml.set(this.sanitizer.bypassSecurityTrustHtml(html));
-        afterNextRender(() => this.processPanel(), { injector: this.injector });
+        this.needsPanelProcessing = true;
       },
       error: () => {}
     });
@@ -88,27 +108,80 @@ export class HeaderComponent implements OnInit, OnDestroy {
     };
     panel.addEventListener('click', this.panelLinkHandler);
 
+    const widgetData = this.parseWidgetComments(panel);
+
+    panel.querySelectorAll<HTMLElement>('[data-widget-id][widget-type="random_entity"]').forEach(widget => {
+      const widgetId = widget.getAttribute('data-widget-id')!;
+      const data = widgetData[widgetId];
+      if (!data || data.sets.length === 0) return;
+
+      widget.style.display = 'flex';
+      widget.innerHTML = this.buildEntityHtml(data.sets[0]);
+
+      if (data.sets.length < 2 || !data.interval) return;
+
+      let index = 0;
+      const id = setInterval(() => {
+        index = (index + 1) % data.sets.length;
+        widget.innerHTML = this.buildEntityHtml(data.sets[index]);
+      }, data.interval * 1000);
+      this.widgetRefreshIntervals.push(id);
+    });
+
     panel.querySelectorAll<HTMLElement>('[data-is-link="true"]').forEach(widget => {
       this.attachWidgetLinks(widget);
     });
+  }
 
-    panel.querySelectorAll<HTMLElement>('[data-refresh-interval][data-widget-id]').forEach(widget => {
-      const intervalSeconds = +(widget.getAttribute('data-refresh-interval') ?? 0);
-      const widgetId = widget.getAttribute('data-widget-id');
-      if (!intervalSeconds || !widgetId) return;
+  private parseWidgetComments(panel: HTMLElement): Record<string, WidgetData> {
+    const result: Record<string, WidgetData> = {};
+    const iterator = document.createNodeIterator(panel, NodeFilter.SHOW_COMMENT);
+    let node: Node | null;
+    while ((node = iterator.nextNode())) {
+      const text = node.nodeValue?.trim() ?? '';
+      if (!text.startsWith('widget:')) continue;
+      const rest = text.slice(7);
+      const colonIdx = rest.indexOf(':');
+      if (colonIdx === -1) continue;
+      const widgetId = rest.slice(0, colonIdx);
+      try {
+        result[widgetId] = JSON.parse(rest.slice(colonIdx + 1));
+      } catch {
+        // ignore malformed comment
+      }
+    }
+    return result;
+  }
 
-      const isLink = widget.getAttribute('data-is-link') === 'true';
-      const id = setInterval(() => {
-        this.apiService.getText(`widget/${widgetId}/render?innerOnly=true`).subscribe({
-          next: innerHtml => {
-            widget.innerHTML = innerHtml;
-            if (isLink) this.attachWidgetLinks(widget);
-          },
-          error: () => {}
-        });
-      }, intervalSeconds * 1000);
-      this.widgetRefreshIntervals.push(id);
-    });
+  private buildEntityHtml(entities: WidgetEntity[]): string {
+    return entities.map(e => {
+      const path = this.entityPath(e.type, e.id);
+      const fields = (e.custom_fields ?? []).map(f => {
+        if (f.render_type === 'image' || f.render_type === 'cropped_image') {
+          return f.value ? `<img src="${this.escapeHtml(f.value)}" alt="" style="max-width:100%" />` : '';
+        }
+        return `<span>${this.escapeHtml(f.value)}</span>`;
+      }).join('');
+      if (path) {
+        return `<a href="${path}" style="flex:1">${this.escapeHtml(e.name)}${fields}</a>`;
+      }
+      return `<div style="flex:1">${this.escapeHtml(e.name)}${fields}</div>`;
+    }).join('');
+  }
+
+  private entityPath(entityType: string, entityId: number): string | null {
+    switch (entityType) {
+      case 'character': return `/character/${entityId}`;
+      case 'topic':
+      case 'episode':
+      case 'wanted_character': return `/viewtopic/${entityId}`;
+      case 'user': return `/profile/${entityId}`;
+      default: return null;
+    }
+  }
+
+  private escapeHtml(s: string): string {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
   private attachWidgetLinks(widget: HTMLElement) {

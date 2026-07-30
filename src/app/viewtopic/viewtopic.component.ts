@@ -145,7 +145,14 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   private lastLoadedProfilesForTopicId: number | null = null;
   private pageLoadedSubscription: Subscription | null = null;
   private topicLoadedOnInit = false;
-  private pendingScrollPostId: number | null = null;
+  private onVisibilityChange = () => {
+    if (document.visibilityState === 'visible') {
+      const topicId = this.id();
+      if (topicId) {
+        this.topicService.loadPosts(topicId, this.pageNumber(), this.postId());
+      }
+    }
+  };
 
   @ViewChild('mainPostForm') postForm!: PostFormComponent;
   @ViewChildren('editPostForm') editPostForms!: QueryList<PostFormComponent>;
@@ -251,12 +258,6 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Scroll to our post once it appears in the posts signal
-    effect(() => {
-      this.posts();
-      untracked(() => this.tryScrollToPost());
-    });
-
     // Effect to reload posts when page or topic ID changes
     effect(() => {
       const topicId = this.id();
@@ -290,19 +291,8 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   isWantedCharacter() { return this.topic().type === TopicType.wanted_character; }
   isLore() { return this.topic().type === TopicType.lore; }
 
-  private tryScrollToPost(): void {
-    if (this.pendingScrollPostId === null) return;
-    const postId = this.pendingScrollPostId;
-    if (!this.posts().some(p => p.id === postId)) return;
-    this.pendingScrollPostId = null;
-    setTimeout(() => document.getElementById(String(postId))?.scrollIntoView({ behavior: 'smooth' }));
-  }
-
   ngOnInit() {
-    this.topicService.ownPostAdded$.pipe(takeUntil(this.destroy$)).subscribe(postId => {
-      this.pendingScrollPostId = postId;
-      this.tryScrollToPost();
-    });
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
 
     this.pageLoadedSubscription = this.topicService.pageLoaded$.subscribe(pageState => {
       const topicId = this.id();
@@ -325,6 +315,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
     this.destroy$.next();
     this.destroy$.complete();
     if (this.pageLoadedSubscription) {
@@ -474,10 +465,11 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       payload.guest_name = this.guestName;
     }
 
+    this.postForm.messageField.nativeElement.value = '';
+
     this.topicService.createPost(payload).subscribe({
       next: () => {
         this.isSubmitting.set(false);
-        this.postForm.messageField.nativeElement.value = '';
         if (!this.authService.isAuthenticated()) {
           window.location.reload();
         } else {

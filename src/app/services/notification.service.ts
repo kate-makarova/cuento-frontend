@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Subject } from 'rxjs';
-import { PostCreatedEvent, TopicCreatedEvent, NotificationEvent, WebSocketEvent, TopicViewersUpdateEvent, UnreadNotificationsResponse, NotificationData, PostUpdatedEvent, DirectMessageCreatedEvent, ActiveUsersUpdateEvent, ActiveUsersActivityUpdateEvent, PanelReloadEvent, ReactionCreatedEvent, HealthUpdateEvent, UserRefreshRequiredEvent, DraftUpdatedEvent, AiMessageEvent, AiTaskDoneEvent, AiQueuePositionEvent, AiErrorEvent } from '../models/event';
+import { PostCreatedEvent, TopicCreatedEvent, NotificationEvent, WebSocketEvent, TopicViewersUpdateEvent, UnreadNotificationsResponse, NotificationData, NotificationMention, PostUpdatedEvent, DirectMessageCreatedEvent, ActiveUsersUpdateEvent, ActiveUsersActivityUpdateEvent, PanelReloadEvent, ReactionCreatedEvent, HealthUpdateEvent, UserRefreshRequiredEvent, DraftUpdatedEvent, AiMessageEvent, AiTaskDoneEvent, AiQueuePositionEvent, AiErrorEvent, PageChangedEvent } from '../models/event';
 import { AuthService } from './auth.service';
 import { ApiService } from './api.service';
 import { environment } from '../../environments/environment';
@@ -65,6 +65,9 @@ export class NotificationService {
 
   private aiErrorSubject = new Subject<AiErrorEvent>();
   public aiError$ = this.aiErrorSubject.asObservable();
+
+  private pageChangedSubject = new Subject<PageChangedEvent>();
+  public pageChanged$ = this.pageChangedSubject.asObservable();
 
 private systemNotificationsSignal = signal<NotificationData[]>([]);
   public systemNotifications = this.systemNotificationsSignal.asReadonly();
@@ -145,12 +148,17 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
     });
   }
 
+  private mentionPostId(n: NotificationData): number | undefined {
+    return ((n.mention ?? n.data) as NotificationMention | null)?.post_id ?? undefined;
+  }
+
   private rebuildTriggers(response: UnreadNotificationsResponse): void {
     this.mentionPostTriggers.clear();
     this.gameTopicTriggers.clear();
     this.dmChatTriggers.clear();
     for (const n of response.mention || []) {
-      if (n.mention?.post_id) this.mentionPostTriggers.set(n.mention.post_id, n);
+      const postId = this.mentionPostId(n);
+      if (postId) this.mentionPostTriggers.set(postId, n);
     }
     for (const n of response.game || []) {
       if (n.game?.topic_id) this.gameTopicTriggers.set(n.game.topic_id, n);
@@ -161,8 +169,9 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
   }
 
   private addTrigger(n: NotificationData): void {
-    if (n.type === 'mention' && n.mention?.post_id) {
-      this.mentionPostTriggers.set(n.mention.post_id, n);
+    if (n.type === 'mention') {
+      const postId = this.mentionPostId(n);
+      if (postId) this.mentionPostTriggers.set(postId, n);
     } else if (n.type === 'game' && n.game?.topic_id) {
       this.gameTopicTriggers.set(n.game.topic_id, n);
     } else if (n.type === 'direct_message' && n.direct_message?.chat_id) {
@@ -171,8 +180,9 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
   }
 
   private removeTrigger(n: NotificationData): void {
-    if (n.type === 'mention' && n.mention?.post_id) {
-      this.mentionPostTriggers.delete(n.mention.post_id);
+    if (n.type === 'mention') {
+      const postId = this.mentionPostId(n);
+      if (postId) this.mentionPostTriggers.delete(postId);
     } else if (n.type === 'game' && n.game?.topic_id) {
       this.gameTopicTriggers.delete(n.game.topic_id);
     } else if (n.type === 'direct_message' && n.direct_message?.chat_id) {
@@ -192,6 +202,15 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
     if (this.gameNotificationsSignal().length === 0) return;
     const n = this.gameTopicTriggers.get(topicId);
     if (n) this.dismissNotification(n);
+  }
+
+  public checkMentionsByTopicId(topicId: number): void {
+    const mentions = this.mentionNotificationsSignal();
+    if (mentions.length === 0) return;
+    for (const n of mentions) {
+      const tid = ((n.mention ?? n.data) as NotificationMention | null)?.topic_id;
+      if (tid === topicId) this.dismissNotification(n);
+    }
   }
 
   public checkChatId(chatId: number): void {
@@ -437,6 +456,9 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
         break;
       case 'ai_error':
         this.aiErrorSubject.next(notification as AiErrorEvent);
+        break;
+      case 'page_changed':
+        this.pageChangedSubject.next(notification as PageChangedEvent);
         break;
       case 'user_refresh_required':
         this.authService.refreshToken().subscribe({

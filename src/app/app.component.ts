@@ -1,4 +1,4 @@
-import {afterNextRender, Component, effect, inject, Injector, OnInit, signal, HostBinding} from '@angular/core';
+import {afterRender, Component, effect, inject, OnInit, signal, HostBinding} from '@angular/core';
 import {DOCUMENT} from '@angular/common';
 import {ActivatedRoute, NavigationEnd, NavigationStart, Router, RouterOutlet} from '@angular/router';
 import {FooterComponent} from './components/footer/footer.component';
@@ -16,6 +16,13 @@ import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import { RouterLinksDirective } from './directives/router-links.directive';
 import { environment } from '../environments/environment';
 import { HeaderComponent } from './components/header/header.component';
+
+interface WidgetEntity {
+  id: number;
+  type: string;
+  name: string;
+  custom_fields?: { field_name: string; value: string; render_type: string }[];
+}
 
 @Component({
   selector: 'app-root',
@@ -35,6 +42,7 @@ export class AppComponent implements OnInit {
   private sanitizer = inject(DomSanitizer);
 
   footerPanelHtml = signal<SafeHtml>('');
+  private needsFooterProcessing = false;
 
   @HostBinding('class')
   get designClass(): string {
@@ -49,11 +57,15 @@ export class AppComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private featureService = inject(FeatureService);
   private currencyService = inject(CurrencyService);
-  private injector = inject(Injector);
-
   private document = inject<Document>(DOCUMENT);
 
   constructor() {
+    afterRender(() => {
+      if (this.needsFooterProcessing) {
+        this.needsFooterProcessing = false;
+        this.processFooterPanel();
+      }
+    });
     this.applyDraftStyles();
     this.listenForAuthChanges();
     this.setupRouteListener();
@@ -115,7 +127,7 @@ export class AppComponent implements OnInit {
     this.apiService.getText('panel/footer/content').subscribe({
       next: html => {
         this.footerPanelHtml.set(this.sanitizer.bypassSecurityTrustHtml(html));
-        afterNextRender(() => this.processFooterPanel(), { injector: this.injector });
+        this.needsFooterProcessing = true;
       },
       error: () => {}
     });
@@ -148,11 +160,11 @@ export class AppComponent implements OnInit {
           pageId = +params['id'] || 0;
           break;
         case 'pun-viewforum':
-          pageType = 'forum';
+          pageType = 'viewforum';
           pageId = +params['id'] || 0;
           break;
         case 'pun-index':
-          pageType = 'home';
+          pageType = 'index';
           break;
         case 'pun-profile':
           pageType = 'profile';
@@ -240,27 +252,80 @@ export class AppComponent implements OnInit {
     };
     panel.addEventListener('click', this.footerLinkHandler);
 
+    const widgetData = this.parseWidgetComments(panel);
+
+    panel.querySelectorAll<HTMLElement>('[data-widget-id][widget-type="random_entity"]').forEach(widget => {
+      const widgetId = widget.getAttribute('data-widget-id')!;
+      const data = widgetData[widgetId];
+      if (!data || data.sets.length === 0) return;
+
+      widget.style.display = 'flex';
+      widget.innerHTML = this.buildEntityHtml(data.sets[0]);
+
+      if (data.sets.length < 2 || !data.interval) return;
+
+      let index = 0;
+      const id = setInterval(() => {
+        index = (index + 1) % data.sets.length;
+        widget.innerHTML = this.buildEntityHtml(data.sets[index]);
+      }, data.interval * 1000);
+      this.footerWidgetRefreshIntervals.push(id);
+    });
+
     panel.querySelectorAll<HTMLElement>('[data-is-link="true"]').forEach(widget => {
       this.attachWidgetLinks(widget);
     });
+  }
 
-    panel.querySelectorAll<HTMLElement>('[data-refresh-interval][data-widget-id]').forEach(widget => {
-      const intervalSeconds = +(widget.getAttribute('data-refresh-interval') ?? 0);
-      const widgetId = widget.getAttribute('data-widget-id');
-      if (!intervalSeconds || !widgetId) return;
+  private parseWidgetComments(panel: HTMLElement): Record<string, { interval: number; sets: WidgetEntity[][] }> {
+    const result: Record<string, { interval: number; sets: WidgetEntity[][] }> = {};
+    const iterator = document.createNodeIterator(panel, NodeFilter.SHOW_COMMENT);
+    let node: Node | null;
+    while ((node = iterator.nextNode())) {
+      const text = node.nodeValue?.trim() ?? '';
+      if (!text.startsWith('widget:')) continue;
+      const rest = text.slice(7);
+      const colonIdx = rest.indexOf(':');
+      if (colonIdx === -1) continue;
+      const widgetId = rest.slice(0, colonIdx);
+      try {
+        result[widgetId] = JSON.parse(rest.slice(colonIdx + 1));
+      } catch {
+        // ignore malformed comment
+      }
+    }
+    return result;
+  }
 
-      const isLink = widget.getAttribute('data-is-link') === 'true';
-      const id = setInterval(() => {
-        this.apiService.getText(`widget/${widgetId}/render?innerOnly=true`).subscribe({
-          next: html => {
-            widget.innerHTML = html;
-            if (isLink) this.attachWidgetLinks(widget);
-          },
-          error: () => {}
-        });
-      }, intervalSeconds * 1000);
-      this.footerWidgetRefreshIntervals.push(id);
-    });
+  private buildEntityHtml(entities: WidgetEntity[]): string {
+    return entities.map(e => {
+      const path = this.entityPath(e.type, e.id);
+      const fields = (e.custom_fields ?? []).map(f => {
+        if (f.render_type === 'image' || f.render_type === 'cropped_image') {
+          return f.value ? `<img src="${this.escapeHtml(f.value)}" alt="" style="max-width:100%" />` : '';
+        }
+        return `<span>${this.escapeHtml(f.value)}</span>`;
+      }).join('');
+      if (path) {
+        return `<a href="${path}" style="flex:1">${this.escapeHtml(e.name)}${fields}</a>`;
+      }
+      return `<div style="flex:1">${this.escapeHtml(e.name)}${fields}</div>`;
+    }).join('');
+  }
+
+  private entityPath(entityType: string, entityId: number): string | null {
+    switch (entityType) {
+      case 'character': return `/character/${entityId}`;
+      case 'topic':
+      case 'episode':
+      case 'wanted_character': return `/viewtopic/${entityId}`;
+      case 'user': return `/profile/${entityId}`;
+      default: return null;
+    }
+  }
+
+  private escapeHtml(s: string): string {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
   private attachWidgetLinks(widget: HTMLElement) {
