@@ -1,6 +1,7 @@
-import { Component, EventEmitter, inject, Output, signal } from '@angular/core';
+import { Component, computed, EventEmitter, inject, Output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ImageService } from '../../services/image.service';
+import { BoardService } from '../../services/board.service';
 
 interface ImageEntry {
   id: number;
@@ -22,8 +23,17 @@ export class ImageUploadComponent {
   @Output() insert = new EventEmitter<string>();
 
   private imageService = inject(ImageService);
+  private boardService = inject(BoardService);
+
+  readonly canUpload = computed(() => this.boardService.board().use_image_uploading === 'y');
 
   mode: 'upload' | 'link' = 'upload';
+
+  constructor() {
+    if (!this.canUpload()) {
+      this.mode = 'link';
+    }
+  }
   directLink = '';
 
   private nextId = 0;
