@@ -29,6 +29,15 @@
       @for (field of configFields(); track field.key) {
         @if (field.isSpecial) {
           <!-- Special fields -->
+          @if (field.key === 'number') {
+            <div class="field field--inline">
+              <label>
+                <ng-container i18n="@@admin.widgetEdit.entityCountBefore">Show</ng-container>
+                <input type="number" [(ngModel)]="field.value" min="1" />
+                <ng-container i18n="@@admin.widgetEdit.entityCountAfter">entities</ng-container>
+              </label>
+            </div>
+          }
           @if (field.key === 'interval') {
             <div class="field field--inline">
               <label>

@@ -147,7 +147,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return entities.map(e => {
       const path = this.entityPath(e.type, e.id);
       const fields = (e.custom_fields ?? []).map(f => {
-        if (f.render_type === 'image') {
+        if (f.render_type === 'image' || f.render_type === 'cropped_image') {
           return f.value ? `<img src="${this.escapeHtml(f.value)}" alt="" style="max-width:100%" />` : '';
         }
         return `<span>${this.escapeHtml(f.value)}</span>`;
