@@ -8,12 +8,14 @@
   }
 
   <div style="flex: 1;">
-    <div class="mode-toggle">
-      <button type="button" [class.active]="mode === 'upload'" (click)="mode = 'upload'" i18n="@@imageField.uploadImage">Upload image</button>
-      <button type="button" [class.active]="mode === 'url'" (click)="mode = 'url'" i18n="@@imageField.useUrl">Use URL</button>
-    </div>
+    @if (canUpload()) {
+      <div class="mode-toggle">
+        <button type="button" [class.active]="mode === 'upload'" (click)="mode = 'upload'" i18n="@@imageField.uploadImage">Upload image</button>
+        <button type="button" [class.active]="mode === 'url'" (click)="mode = 'url'" i18n="@@imageField.useUrl">Use URL</button>
+      </div>
+    }
 
-    @if (mode === 'upload') {
+    @if (canUpload() && mode === 'upload') {
       <div class="upload-section">
         <input type="file" accept="image/*" (change)="onFileChange($event)" />
 
@@ -40,7 +42,7 @@
       </div>
     }
 
-    @if (mode === 'url') {
+    @if (!canUpload() || mode === 'url') {
       <input type="text" [attr.id]="fieldName" [(ngModel)]="value" style="width: 100%;" />
     }
   </div>
