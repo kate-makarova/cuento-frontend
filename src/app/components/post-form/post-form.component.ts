@@ -99,9 +99,27 @@ export class PostFormComponent implements AfterViewInit, OnDestroy {
 
     if (imageFiles.length === 0) return;
     event.preventDefault();
+    this.uploadFiles(imageFiles);
+  }
 
+  onDragOver(event: DragEvent) {
+    if (!this.canUpload()) return;
+    event.preventDefault();
+  }
+
+  onDrop(event: DragEvent) {
+    if (!this.canUpload()) return;
+    event.preventDefault();
+
+    const imageFiles = Array.from(event.dataTransfer?.files ?? [])
+      .filter(f => f.type.startsWith('image/'));
+
+    this.uploadFiles(imageFiles);
+  }
+
+  private uploadFiles(files: File[]) {
     const textarea = this.messageField.nativeElement;
-    for (const file of imageFiles) {
+    for (const file of files) {
       const placeholderId = `uploading_${Date.now()}_${Math.random().toString(36).slice(2)}`;
       const placeholder = `[${placeholderId}]`;
       const pos = textarea.selectionStart;
