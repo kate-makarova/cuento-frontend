@@ -336,6 +336,8 @@ export const TRANSLATIONS_RU = {
   "adminSettings.visual_navlinks_after_header_panel": "Рендерить навигацию после панели шапки",
   "adminSettings.user_avatar_width": "Ширина аватара",
   "adminSettings.user_avatar_height": "Высота аватара",
+  "adminSettings.character_avatar_width": "Ширина аватара анкеты персонажа",
+  "adminSettings.character_avatar_height": "Высота аватара анкеты персонажа",
   "adminSettings.github_owner": "Владелец",
   "adminSettings.github_repo": "Репозиторий",
   "adminSettings.github_branch": "Ветка",

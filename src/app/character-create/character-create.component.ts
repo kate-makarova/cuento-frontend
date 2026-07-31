@@ -5,25 +5,27 @@ import { TopicService } from '../services/topic.service';
 import { AuthService } from '../services/auth.service';
 import { FieldInputComponent } from '../components/field-input/field-input.component';
 import { FactionPathsComponent } from '../components/faction-paths/faction-paths.component';
-import { ImageFieldComponent } from '../components/image-field/image-field.component';
+import { CroppedImageFieldComponent } from '../components/cropped-image-field/cropped-image-field.component';
 import { CreateCharacterRequest, Character } from '../models/Character';
 import { ClaimAutocompleteItem, ClaimRecord } from '../models/CharacterClaim';
 import { Topic, TopicType, TopicStatus } from '../models/Topic';
 import { Faction } from '../models/Faction';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { BoardService } from '../services/board.service';
 import { PreviewService } from '../services/preview.service';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-character-create',
-  imports: [FieldInputComponent, FactionPathsComponent, CommonModule, FormsModule, ImageFieldComponent],
+  imports: [FieldInputComponent, FactionPathsComponent, CommonModule, FormsModule, CroppedImageFieldComponent],
   templateUrl: './character-create.component.html',
   standalone: true,
 })
 export class CharacterCreateComponent implements OnInit, OnDestroy {
   characterService = inject(CharacterService);
+  private boardService = inject(BoardService);
   topicService = inject(TopicService);
   authService = inject(AuthService);
   previewService = inject(PreviewService);
@@ -307,6 +309,9 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
       });
     }
   }
+
+  get avatarWidth(): number { return this.boardService.board().character_avatar_width ?? 100; }
+  get avatarHeight(): number { return this.boardService.board().character_avatar_height ?? 100; }
 
   onCancel() {
     this.cancel.emit();
