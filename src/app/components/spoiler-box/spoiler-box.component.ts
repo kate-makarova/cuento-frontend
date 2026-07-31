@@ -24,8 +24,11 @@ export class SpoilerBoxComponent implements AfterViewInit {
     content.innerHTML = innerContent;
 
     header.addEventListener('click', () => {
+      const opening = content.style.height === '0px' || content.style.height === '';
       header.classList.toggle('open');
-      if (content.style.height === '0px' || content.style.height === '') {
+      host.classList.toggle('open', opening);
+      host.classList.toggle('closed', !opening);
+      if (opening) {
         content.style.height = content.scrollHeight + 'px';
         content.style.padding = '8px 10px';
         content.addEventListener('transitionend', () => {
@@ -39,6 +42,8 @@ export class SpoilerBoxComponent implements AfterViewInit {
         });
       }
     });
+
+    host.classList.add('closed');
 
     host.appendChild(header);
     host.appendChild(content);
