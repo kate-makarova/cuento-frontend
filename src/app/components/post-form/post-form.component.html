@@ -7,7 +7,7 @@
 
         <div class="post-editor-container">
           <div class="textarea-wrapper">
-            <textarea #messageField name="req_message" rows="12" (input)="onTextareaInput()" (blur)="closeMention()"></textarea>
+            <textarea #messageField name="req_message" rows="12" (input)="onTextareaInput()" (blur)="closeMention()" (paste)="onPaste($event)"></textarea>
             @if (mentionResults.length > 0) {
               <ul class="mention-dropdown">
                 @for (user of mentionResults; track user.id) {

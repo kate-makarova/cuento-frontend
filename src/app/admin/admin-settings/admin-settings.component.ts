@@ -15,7 +15,7 @@ interface SettingGroup {
 const GENERAL_SETTING_GROUPS: SettingGroup[] = [
   {
     legend: $localize`:@@adminSettings.groupGeneral:General`,
-    names: ['site_name', 'domain', 'posts_per_page', 'visual_navlinks_after_header_panel'],
+    names: ['site_name', 'domain', 'posts_per_page', 'visual_navlinks_after_header_panel', 'user_avatar_width', 'user_avatar_height'],
   },
   {
     legend: $localize`:@@adminSettings.groupGithub:GitHub`,
@@ -57,6 +57,8 @@ const SETTING_LABELS: Record<string, string> = {
   domain: $localize`:@@adminSettings.domain:Domain`,
   posts_per_page: $localize`:@@adminSettings.posts_per_page:Posts per page`,
   visual_navlinks_after_header_panel: $localize`:@@adminSettings.visual_navlinks_after_header_panel:Render navlinks after header panel`,
+  user_avatar_width: $localize`:@@adminSettings.user_avatar_width:Avatar width`,
+  user_avatar_height: $localize`:@@adminSettings.user_avatar_height:Avatar height`,
 
   github_owner: $localize`:@@adminSettings.github_owner:Owner`,
   github_repo: $localize`:@@adminSettings.github_repo:Repository`,
@@ -82,7 +84,7 @@ const SETTING_LABELS: Record<string, string> = {
   image_hosting: $localize`:@@adminSettings.image_hosting:Image hosting`,
   imgbb_api_key: $localize`:@@adminSettings.imgbb_api_key:ImgBB API key`,
   use_image_proxy: $localize`:@@adminSettings.use_image_proxy:Use image proxy`,
-  proxy_cache_size: $localize`:@@adminSettings.proxy_cache_size:Proxy cache size`,
+  proxy_cache_size: $localize`:@@adminSettings.proxy_cache_size:Proxy cache size (MB)`,
 };
 
 @Component({

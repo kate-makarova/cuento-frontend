@@ -22,7 +22,9 @@ export class BoardService {
     auto_archiving_enabled: 'n',
     auto_archiving_days: '',
     use_image_uploading: 'y',
-    use_image_proxy: 'n'
+    use_image_proxy: 'n',
+    user_avatar_width: undefined,
+    user_avatar_height: undefined
   });
   readonly board = this.boardSignal.asReadonly();
 
