@@ -6,12 +6,14 @@
   <div class="dimensions">{{ width }} × {{ height }} px</div>
 }
 
-<div class="mode-toggle">
-  <button type="button" [class.active]="mode === 'upload'" (click)="mode = 'upload'" i18n="@@imageField.uploadImage">Upload image</button>
-  <button type="button" [class.active]="mode === 'url'" (click)="mode = 'url'" i18n="@@imageField.useUrl">Use URL</button>
-</div>
+@if (canUpload()) {
+  <div class="mode-toggle">
+    <button type="button" [class.active]="mode === 'upload'" (click)="mode = 'upload'" i18n="@@imageField.uploadImage">Upload image</button>
+    <button type="button" [class.active]="mode === 'url'" (click)="mode = 'url'" i18n="@@imageField.useUrl">Use URL</button>
+  </div>
+}
 
-@if (mode === 'upload') {
+@if (canUpload() && mode === 'upload') {
   <div class="upload-section">
 
     @if (!imageDataUrl && uploadState() !== 'done') {
@@ -82,7 +84,7 @@
   </div>
 }
 
-@if (mode === 'url') {
+@if (!canUpload() || mode === 'url') {
   <input type="text" [attr.id]="fieldName" [(ngModel)]="value" />
 }
 

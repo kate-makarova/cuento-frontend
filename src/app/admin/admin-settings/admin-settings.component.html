@@ -1,18 +1,39 @@
 <div class="settings-container">
   <h2 i18n="@@admin.settings">Settings</h2>
 
-  <form (submit)="save(); $event.preventDefault()">
+  @for (group of generalSettingGroups; track group.legend) {
+    <form (submit)="saveGroup(group.settings, group.saveState); $event.preventDefault()">
+      <fieldset>
+        <legend>{{ group.legend }}</legend>
+        @for (setting of group.settings; track setting.setting_name) {
+          <div class="field-row">
+            <label [for]="setting.setting_name">{{ settingLabels[setting.setting_name] ?? setting.setting_name }}</label>
+            <input [id]="setting.setting_name" type="text" [(ngModel)]="setting.setting_value" [name]="setting.setting_name" />
+          </div>
+        }
+      </fieldset>
+
+      <div class="form-actions">
+        <app-save-button type="submit" [state]="group.saveState()">
+          <span i18n="@@common.save">Save</span>
+        </app-save-button>
+      </div>
+    </form>
+  }
+
+  <form (submit)="saveImageUpload(); $event.preventDefault()">
     <fieldset>
-      @for (setting of settings(); track setting.setting_name) {
+      <legend i18n="@@adminSettings.imageUploadSettings">Image upload settings</legend>
+      @for (setting of imageUploadSettings; track setting.setting_name) {
         <div class="field-row">
-          <label [for]="setting.setting_name">{{ settingLabels[setting.setting_name] ?? setting.setting_name }}</label>
-          <input [id]="setting.setting_name" type="text" [(ngModel)]="setting.setting_value" [name]="setting.setting_name" />
+          <label [for]="'img-' + setting.setting_name">{{ settingLabels[setting.setting_name] ?? setting.setting_name }}</label>
+          <input [id]="'img-' + setting.setting_name" type="text" [(ngModel)]="setting.setting_value" [name]="setting.setting_name" [disabled]="setting.setting_name === 'image_hosting'" />
         </div>
       }
     </fieldset>
 
     <div class="form-actions">
-      <app-save-button type="submit" [state]="saveState()">
+      <app-save-button type="submit" [state]="imageUploadSaveState()">
         <span i18n="@@common.save">Save</span>
       </app-save-button>
     </div>

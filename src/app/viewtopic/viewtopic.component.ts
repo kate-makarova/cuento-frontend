@@ -467,6 +467,8 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
     this.postForm.messageField.nativeElement.value = '';
 
+    setTimeout(() => document.getElementById('post-pending')?.scrollIntoView({ behavior: 'smooth' }));
+
     this.topicService.createPost(payload).subscribe({
       next: () => {
         this.isSubmitting.set(false);

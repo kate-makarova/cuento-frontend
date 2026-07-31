@@ -7,6 +7,7 @@ import { Faction } from "../models/Faction";
 import { CharacterShort, CharacterProfile, CreateCharacterRequest, Character, CharacterListItem } from "../models/Character";
 import { ClaimAutocompleteItem } from "../models/CharacterClaim";
 
+
 @Injectable({ providedIn: 'root' })
 export class CharacterService {
   private apiService = inject(ApiService);
@@ -136,6 +137,7 @@ export class CharacterService {
   saveCharacterProfileTemplate(template: FieldTemplate[]) {
     return this.apiService.post('template/character_profile/update', template);
   }
+
 
   createCharacter(data: CreateCharacterRequest) {
     return this.apiService.post('character/create', data);

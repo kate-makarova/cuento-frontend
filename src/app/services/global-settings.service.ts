@@ -12,9 +12,22 @@ export class GlobalSettingsService {
 
   loadSettings(): void {
     this.apiService.get<Setting[]>('global-settings').subscribe({
-      next: (data) => this.settingsSignal.set(data),
+      next: (data) => {
+        this.settingsSignal.set(data);
+        this.applyDefaults();
+      },
       error: (err) => console.error('Failed to load global settings', err)
     });
+  }
+
+  private applyDefaults(): void {
+    const defaults: Setting[] = [
+      { setting_name: 'use_image_uploading', setting_value: 'n' },
+    ];
+    const missing = defaults.filter(d => !this.settingsSignal().find(s => s.setting_name === d.setting_name));
+    if (missing.length) {
+      this.settingsSignal.update(list => [...list, ...missing]);
+    }
   }
 
   getSetting(name: string): string | null {

@@ -21,7 +21,7 @@
 
         <div class="inputfield required longinput">
           <label i18n="@@characterprofileedit.avatarUrl">Avatar URL</label>
-          <app-image-field [name]="'req_avatar'" [fieldValue]="characterAvatar" [showFieldName]="false"></app-image-field>
+          <app-cropped-image-field [name]="'req_avatar'" [fieldValue]="characterAvatar" [showFieldName]="false" [width]="avatarWidth" [height]="avatarHeight"></app-cropped-image-field>
         </div>
 
         <app-faction-paths

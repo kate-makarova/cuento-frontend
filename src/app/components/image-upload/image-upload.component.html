@@ -1,10 +1,12 @@
 <div class="image-upload-panel">
   <h3 i18n="@@imageUpload.title">Upload Images</h3>
 
-  <div class="mode-toggle">
-    <button type="button" [class.active]="mode === 'upload'" (click)="mode = 'upload'" i18n="@@imageUpload.modeUpload">Upload</button>
-    <button type="button" [class.active]="mode === 'link'" (click)="mode = 'link'" i18n="@@imageUpload.modeLink">Direct link</button>
-  </div>
+  @if (canUpload()) {
+    <div class="mode-toggle">
+      <button type="button" [class.active]="mode === 'upload'" (click)="mode = 'upload'" i18n="@@imageUpload.modeUpload">Upload</button>
+      <button type="button" [class.active]="mode === 'link'" (click)="mode = 'link'" i18n="@@imageUpload.modeLink">Direct link</button>
+    </div>
+  }
 
   @if (mode === 'link') {
     <div class="link-mode">

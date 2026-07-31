@@ -24,6 +24,7 @@ export class CodeCopyDirective implements AfterViewInit, OnDestroy {
       pre.setAttribute('data-copy-processed', 'true');
 
       const wrapper = document.createElement('div');
+      wrapper.className = 'code-block';
       wrapper.style.cssText = 'position:relative';
       pre.parentNode!.insertBefore(wrapper, pre);
       wrapper.appendChild(pre);

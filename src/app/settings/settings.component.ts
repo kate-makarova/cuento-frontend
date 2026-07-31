@@ -6,8 +6,9 @@ import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
 import { ApiService } from '../services/api.service';
 import { UpdateSettingsRequest } from '../models/User';
-import { ImageFieldComponent } from '../components/image-field/image-field.component';
+import { CroppedImageFieldComponent } from '../components/cropped-image-field/cropped-image-field.component';
 import { BbToolbarComponent } from '../components/bb-toolbar/bb-toolbar.component';
+import { BoardService } from '../services/board.service';
 
 interface UserNotificationSetting {
   notification_type: string;
@@ -76,7 +77,7 @@ const IANA_TIMEZONES = [
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ImageFieldComponent, BbToolbarComponent],
+  imports: [CommonModule, FormsModule, RouterLink, CroppedImageFieldComponent, BbToolbarComponent],
   templateUrl: './settings.component.html',
 })
 export class SettingsComponent implements OnInit {
@@ -85,6 +86,10 @@ export class SettingsComponent implements OnInit {
   private userService = inject(UserService);
   private apiService = inject(ApiService);
   private router = inject(Router);
+  private boardService = inject(BoardService);
+
+  get avatarWidth(): number { return this.boardService.board().user_avatar_width ?? 100; }
+  get avatarHeight(): number { return this.boardService.board().user_avatar_height ?? 100; }
 
   language: string = 'en-US';
   timezone: string = 'UTC+00:00';

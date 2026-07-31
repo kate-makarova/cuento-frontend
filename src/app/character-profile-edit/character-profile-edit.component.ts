@@ -4,20 +4,22 @@ import { CharacterService } from '../services/character.service';
 import { MaskService } from '../services/mask.service';
 import { AuthService } from '../services/auth.service';
 import { FieldInputComponent } from '../components/field-input/field-input.component';
-import { ImageFieldComponent } from '../components/image-field/image-field.component';
+import { CroppedImageFieldComponent } from '../components/cropped-image-field/cropped-image-field.component';
 import { BbToolbarComponent } from '../components/bb-toolbar/bb-toolbar.component';
 import { FormsModule } from '@angular/forms';
+import { BoardService } from '../services/board.service';
 import { CharacterProfile } from '../models/Character';
 
 @Component({
   selector: 'app-character-profile-edit',
-  imports: [FieldInputComponent, ImageFieldComponent, FormsModule, BbToolbarComponent],
+  imports: [FieldInputComponent, CroppedImageFieldComponent, FormsModule, BbToolbarComponent],
   templateUrl: './character-profile-edit.component.html',
   standalone: true
 })
 export class CharacterProfileEditComponent implements OnInit {
   @ViewChild('signatureField') signatureField!: ElementRef<HTMLTextAreaElement>;
   private characterService = inject(CharacterService);
+  private boardService = inject(BoardService);
   private maskService = inject(MaskService);
   private authService = inject(AuthService);
   private route = inject(ActivatedRoute);
@@ -151,6 +153,9 @@ export class CharacterProfileEditComponent implements OnInit {
       });
     }
   }
+
+  get avatarWidth(): number { return this.boardService.board().user_avatar_width ?? 100; }
+  get avatarHeight(): number { return this.boardService.board().user_avatar_height ?? 100; }
 
   getFieldValue(machineName: string): any {
     if (this.isNewMask) return null;
