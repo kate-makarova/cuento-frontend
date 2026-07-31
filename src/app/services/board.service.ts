@@ -24,7 +24,9 @@ export class BoardService {
     use_image_uploading: 'y',
     use_image_proxy: 'n',
     user_avatar_width: undefined,
-    user_avatar_height: undefined
+    user_avatar_height: undefined,
+    character_avatar_width: undefined,
+    character_avatar_height: undefined
   });
   readonly board = this.boardSignal.asReadonly();
 
