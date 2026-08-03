@@ -291,6 +291,10 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   isWantedCharacter() { return this.topic().type === TopicType.wanted_character; }
   isLore() { return this.topic().type === TopicType.lore; }
 
+  readonly topicTypeClass = computed(() =>
+    'topic-type-' + TopicType[this.topic().type].replace('_', '-')
+  );
+
   ngOnInit() {
     document.addEventListener('visibilitychange', this.onVisibilityChange);
 
