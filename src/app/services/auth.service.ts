@@ -62,7 +62,11 @@ export class AuthService {
     const token = localStorage.getItem('access_token');
     if (!token) return true;
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const padded = base64.padEnd(base64.length + (4 - base64.length % 4) % 4, '=');
+      const bytes = Uint8Array.from(atob(padded), c => c.charCodeAt(0));
+      const payload = JSON.parse(new TextDecoder().decode(bytes));
       return payload.exp * 1000 < Date.now();
     } catch {
       return true;
