@@ -23,7 +23,7 @@
 
         <div class="inputfield required">
           <label i18n="@@characterprofileedit.avatarUrl">Avatar URL</label>
-          <app-cropped-image-field [name]="'avatar'" [fieldValue]="characterAvatar" [showFieldName]="false" [width]="avatarWidth" [height]="avatarHeight" [disabled]="!canUpload()"></app-cropped-image-field>
+          <app-cropped-image-field [name]="'avatar'" [fieldValue]="characterAvatar" [showFieldName]="false" [width]="avatarWidth" [height]="avatarHeight" [uploadFn]="characterProfileAvatarUploadFn"></app-cropped-image-field>
         </div>
       </div>
     </fieldset>

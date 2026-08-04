@@ -13,6 +13,7 @@ import { Faction } from '../models/Faction';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BoardService } from '../services/board.service';
+import { ImageService } from '../services/image.service';
 import { PreviewService } from '../services/preview.service';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -26,6 +27,14 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 export class CharacterCreateComponent implements OnInit, OnDestroy {
   characterService = inject(CharacterService);
   private boardService = inject(BoardService);
+  private imageService = inject(ImageService);
+
+  readonly characterAvatarUploadFn = (file: File) => {
+    const id = this.initialData?.id;
+    return id
+      ? this.imageService.uploadCharacterAvatar(id, file)
+      : this.imageService.upload(file);
+  };
   topicService = inject(TopicService);
   authService = inject(AuthService);
   previewService = inject(PreviewService);
