@@ -42,7 +42,7 @@
       <legend i18n="@@characterprofileedit.signature">Signature</legend>
       <div class="fs-box">
         <app-bb-toolbar [textarea]="signatureField" [showSpoiler]="false" [showImageUpload]="false"></app-bb-toolbar>
-        <textarea #signatureField rows="5" style="width: 100%; box-sizing: border-box;" [value]="characterSignature"></textarea>
+        <textarea #signatureField rows="5" style="width: 100%; box-sizing: border-box;" [(ngModel)]="characterSignature" name="signature_field"></textarea>
       </div>
     </fieldset>
     <p class="formsubmit">

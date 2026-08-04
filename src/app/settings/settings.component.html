@@ -21,7 +21,7 @@
         <legend i18n="@@settings.signature">Signature</legend>
         <div class="fs-box">
           <app-bb-toolbar [textarea]="signatureField" [showSpoiler]="false" [showImageUpload]="false"></app-bb-toolbar>
-          <textarea #signatureField rows="5" style="width: 100%; box-sizing: border-box;" [value]="signature"></textarea>
+          <textarea #signatureField rows="5" style="width: 100%; box-sizing: border-box;" [(ngModel)]="signature" name="signature_field"></textarea>
         </div>
       </fieldset>
 
