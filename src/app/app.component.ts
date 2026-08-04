@@ -307,9 +307,9 @@ export class AppComponent implements OnInit {
         return `<span>${this.escapeHtml(f.value)}</span>`;
       }).join('');
       if (path) {
-        return `<a href="${path}" style="flex:1">${this.escapeHtml(e.name)}${fields}</a>`;
+        return `<a href="${path}" style="flex:1"><span class="random-entity-name">${this.escapeHtml(e.name)}</span>${fields}</a>`;
       }
-      return `<div style="flex:1">${this.escapeHtml(e.name)}${fields}</div>`;
+      return `<div style="flex:1"><span class="random-entity-name">${this.escapeHtml(e.name)}</span>${fields}</div>`;
     }).join('');
   }
 

@@ -6,17 +6,20 @@
   <div class="dimensions">{{ width }} × {{ height }} px</div>
 }
 
-@if (canUpload()) {
-  <div class="mode-toggle">
-    <button type="button" [class.active]="mode === 'upload'" (click)="mode = 'upload'" i18n="@@imageField.uploadImage">Upload image</button>
-    <button type="button" [class.active]="mode === 'url'" (click)="mode = 'url'" i18n="@@imageField.useUrl">Use URL</button>
+@if (disabled) {
+  <div class="upload-section upload-section--disabled">
+    @if (value) {
+      <img class="preview" [src]="value" alt="" />
+    }
+    <input type="file" accept="image/*" disabled />
   </div>
-}
-
-@if (canUpload() && mode === 'upload') {
+} @else {
   <div class="upload-section">
 
     @if (!imageDataUrl && uploadState() !== 'done') {
+      @if (value) {
+        <img class="preview" [src]="value" alt="" />
+      }
       <input type="file" accept="image/*" (change)="onFileChange($event)" />
     }
 
@@ -82,10 +85,6 @@
     }
 
   </div>
-}
-
-@if (!canUpload() || mode === 'url') {
-  <input type="text" [attr.id]="fieldName" [(ngModel)]="value" />
 }
 
 <input type="hidden" [attr.name]="name" [value]="value" />

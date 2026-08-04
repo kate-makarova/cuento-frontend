@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnInit, effect, Input, booleanAttribute, signal, ViewChild } from '@angular/core';
+import { Component, computed, ElementRef, inject, OnInit, effect, Input, booleanAttribute, signal, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CharacterService } from '../services/character.service';
 import { MaskService } from '../services/mask.service';
@@ -154,6 +154,7 @@ export class CharacterProfileEditComponent implements OnInit {
     }
   }
 
+  readonly canUpload = computed(() => this.boardService.board().use_image_uploading === 'y');
   get avatarWidth(): number { return this.boardService.board().user_avatar_width ?? 100; }
   get avatarHeight(): number { return this.boardService.board().user_avatar_height ?? 100; }
 

@@ -7,7 +7,7 @@
     </div>
   </div>
 } @else {
-<div id="pun-main" class="main">
+<div id="pun-main" [class]="'main ' + topicTypeClass()">
   <div class="main-header">
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <h1><span>{{ topic().name }}</span></h1>
@@ -144,7 +144,7 @@
   }
 
   @for(post of posts(); track (post.id || $index); let i = $index; let isEven = $even) {
-  <div id="{{post.id}}" class="post" [class.altstyle]="isEven">
+  <div id="{{post.id}}" [class]="'post ' + topicTypeClass() + (isEven ? ' altstyle' : '')">
     <h3>
       <span class="post-meta">{{ post.date_created_localized }}</span>
       <strong class="post-number">

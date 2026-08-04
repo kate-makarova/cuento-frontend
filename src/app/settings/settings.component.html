@@ -12,7 +12,7 @@
           </div>
           <div class="avatar-input">
             <label i18n="@@settings.avatarUrl">Avatar URL</label>
-            <app-cropped-image-field [name]="'avatar_url'" [fieldValue]="avatarUrl" [showFieldName]="false" [width]="avatarWidth" [height]="avatarHeight"></app-cropped-image-field>
+            <app-cropped-image-field [name]="'avatar_url'" [fieldValue]="avatarUrl" [showFieldName]="false" [width]="avatarWidth" [height]="avatarHeight" [disabled]="!canUpload()"></app-cropped-image-field>
           </div>
         </div>
       </fieldset>
