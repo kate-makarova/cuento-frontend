@@ -128,6 +128,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   });
 
   editingPostId = signal<number | null>(null);
+  editingPostProfileId = signal<number | null>(null);
   editingTopic = signal(false);
   showDeactivateModal = signal(false);
   postToDelete = signal<Post | null>(null);
@@ -365,6 +366,8 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   editPost(post: Post, event: Event) {
     event.preventDefault();
     this.editingPostId.set(post.id);
+    const profileId = post.use_character_profile ? (post.character_profile?.id ?? null) : null;
+    this.editingPostProfileId.set(profileId);
   }
 
   cancelEdit() {
@@ -416,7 +419,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     }
   }
 
-  onUpdatePost(event: Event, postId: number) {
+  onUpdatePost(event: Event, post: Post) {
     event.preventDefault();
     const form = event.target as HTMLFormElement;
     const textarea = form.querySelector('textarea');
@@ -424,16 +427,19 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
     if (!content) return;
 
-    const payload = {
-      content: content
+    const newProfileId = this.editingPostProfileId();
+    const payload: any = {
+      content,
+      use_character_profile: newProfileId !== null,
+      character_profile_id: newProfileId ?? undefined,
     };
 
-    this.topicService.updatePost(postId, payload).subscribe({
+    this.topicService.updatePost(post.id, payload).subscribe({
       next: (updatedPost: any) => {
         if (updatedPost && updatedPost.id) {
-             this.topicService.updateLocalPost(updatedPost);
+          this.topicService.updateLocalPost(updatedPost);
         } else {
-             if (this.id()) this.topicService.loadPosts(this.id()!, this.pageNumber());
+          if (this.id()) this.topicService.loadPosts(this.id()!, this.pageNumber());
         }
         this.cancelEdit();
       },

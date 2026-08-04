@@ -1,4 +1,4 @@
-import { Component, Input, NgZone, OnInit, inject, signal } from '@angular/core';
+import { Component, Input, NgZone, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { ImageService } from '../../services/image.service';
@@ -11,9 +11,14 @@ type UploadState = 'idle' | 'uploading' | 'done' | 'error';
   templateUrl: './cropped-image-field.component.html',
   standalone: true,
 })
-export class CroppedImageFieldComponent implements OnInit {
+export class CroppedImageFieldComponent {
   @Input() fieldName: string | undefined;
-  @Input() fieldValue: string = '';
+  private _fieldValue = '';
+  @Input() set fieldValue(v: string) {
+    this._fieldValue = v;
+    if (this.uploadState() !== 'done') this.value = v;
+  }
+  get fieldValue() { return this._fieldValue; }
   @Input() showFieldName: boolean = true;
   @Input() name: string | undefined;
   @Input() width: number | undefined;
@@ -56,10 +61,6 @@ export class CroppedImageFieldComponent implements OnInit {
   private resizeStartClientX = 0;
   private resizeStartCropW = 0;
   private resizeStartCropH = 0;
-
-  ngOnInit() {
-    this.value = this.fieldValue;
-  }
 
   onFileChange(event: Event) {
     const input = event.target as HTMLInputElement;
