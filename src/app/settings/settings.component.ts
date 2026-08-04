@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, computed, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -88,6 +88,7 @@ export class SettingsComponent implements OnInit {
   private router = inject(Router);
   private boardService = inject(BoardService);
 
+  readonly canUpload = computed(() => this.boardService.board().use_image_uploading === 'y');
   get avatarWidth(): number { return this.boardService.board().user_avatar_width ?? 100; }
   get avatarHeight(): number { return this.boardService.board().user_avatar_height ?? 100; }
 
