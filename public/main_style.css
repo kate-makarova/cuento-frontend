@@ -3641,3 +3641,14 @@ app-number-field-display:host {
 .footer-rating-value {
   cursor: help;
 }
+
+.edit-post-footer {
+  margin-top: 10px;
+  text-align: right;
+}
+
+.edit-profile-select {
+  width: 100%;
+  margin-top: 8px;
+  box-sizing: border-box;
+}

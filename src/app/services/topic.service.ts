@@ -173,6 +173,7 @@ export class TopicService {
     return this.apiService.post(`post/update/${id}`, data);
   }
 
+
   deletePost(id: number) {
     return this.apiService.post(`post/delete/${id}`, {});
   }
