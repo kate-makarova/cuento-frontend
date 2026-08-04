@@ -1,5 +1,6 @@
 import { Component, Input, NgZone, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Observable } from 'rxjs';
 import { ImageService } from '../../services/image.service';
 
 type UploadState = 'idle' | 'uploading' | 'done' | 'error';
@@ -18,6 +19,7 @@ export class CroppedImageFieldComponent implements OnInit {
   @Input() width: number | undefined;
   @Input() height: number | undefined;
   @Input() disabled: boolean = false;
+  @Input() uploadFn: ((file: File) => Observable<{ url: string }>) | null = null;
 
   private imageService = inject(ImageService);
   private ngZone = inject(NgZone);
@@ -173,7 +175,8 @@ export class CroppedImageFieldComponent implements OnInit {
         canvas.toBlob(blob => {
           if (!blob) { this.uploadState.set('error'); return; }
           const file = new File([blob], this.selectedFile!.name, { type: 'image/jpeg' });
-          this.imageService.upload(file).subscribe({
+          const upload$ = this.uploadFn ? this.uploadFn(file) : this.imageService.upload(file);
+          upload$.subscribe({
             next: res => { this.value = res.url; this.uploadState.set('done'); this.imageDataUrl = ''; },
             error: () => { this.errorMessage = 'Upload failed. Please try again.'; this.uploadState.set('error'); }
           });

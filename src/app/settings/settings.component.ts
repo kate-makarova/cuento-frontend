@@ -1,4 +1,4 @@
-import { Component, computed, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -9,6 +9,7 @@ import { UpdateSettingsRequest } from '../models/User';
 import { CroppedImageFieldComponent } from '../components/cropped-image-field/cropped-image-field.component';
 import { BbToolbarComponent } from '../components/bb-toolbar/bb-toolbar.component';
 import { BoardService } from '../services/board.service';
+import { ImageService } from '../services/image.service';
 
 interface UserNotificationSetting {
   notification_type: string;
@@ -88,7 +89,10 @@ export class SettingsComponent implements OnInit {
   private router = inject(Router);
   private boardService = inject(BoardService);
 
-  readonly canUpload = computed(() => this.boardService.board().use_image_uploading === 'y');
+  private imageService = inject(ImageService);
+
+  readonly userAvatarUploadFn = (file: File) => this.imageService.uploadUserAvatar(file);
+
   get avatarWidth(): number { return this.boardService.board().user_avatar_width ?? 100; }
   get avatarHeight(): number { return this.boardService.board().user_avatar_height ?? 100; }
 
