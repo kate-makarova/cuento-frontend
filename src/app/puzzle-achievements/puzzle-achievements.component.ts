@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PuzzleService } from '../services/puzzle.service';
-import { Puzzle, PuzzleAchievement } from '../models/Puzzle';
+import { PuzzleAchievement } from '../models/Puzzle';
 
 @Component({
   selector: 'app-puzzle-achievements',
@@ -13,17 +13,12 @@ export class PuzzleAchievementsComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private puzzleService = inject(PuzzleService);
 
-  puzzle: Puzzle | null = null;
   achievements: PuzzleAchievement[] = [];
   loading = true;
 
   ngOnInit() {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.puzzleService.get(id).subscribe({
-      next: (p) => (this.puzzle = p),
-      error: (err) => console.error('Failed to load puzzle', err),
-    });
-    this.puzzleService.getAchievements(id).subscribe({
+    const userId = Number(this.route.snapshot.paramMap.get('id'));
+    this.puzzleService.getUserAchievements(userId).subscribe({
       next: (data) => {
         this.achievements = data;
         this.loading = false;

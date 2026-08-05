@@ -533,7 +533,7 @@ export const routes: Routes = [
     data: { pageId: 'pun-puzzle' }
   },
   {
-    path: 'puzzle/:id/achievements',
+    path: 'user/:id/puzzle-achievements',
     component: PuzzleAchievementsComponent,
     title: 'Puzzle Achievements',
     data: { pageId: 'pun-puzzle-achievements' }

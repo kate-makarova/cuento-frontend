@@ -15,17 +15,9 @@ export class AdminPuzzlesComponent implements OnInit {
   puzzles: Puzzle[] = [];
 
   ngOnInit() {
-    this.puzzleService.list().subscribe({
+    this.puzzleService.adminList().subscribe({
       next: (data) => (this.puzzles = data),
       error: (err) => console.error('Failed to load puzzles', err),
-    });
-  }
-
-  delete(puzzle: Puzzle) {
-    if (!confirm(`Delete puzzle "${puzzle.title}"?`)) return;
-    this.puzzleService.delete(puzzle.id).subscribe({
-      next: () => (this.puzzles = this.puzzles.filter(p => p.id !== puzzle.id)),
-      error: (err) => console.error('Failed to delete puzzle', err),
     });
   }
 }

@@ -32,7 +32,7 @@ export class AdminPuzzleEditComponent implements OnInit {
       this.isNew = true;
     } else {
       const id = Number(raw);
-      this.puzzleService.get(id).subscribe({
+      this.puzzleService.adminGet(id).subscribe({
         next: (p) => {
           this.puzzle = p;
           this.title = p.title;
@@ -48,7 +48,7 @@ export class AdminPuzzleEditComponent implements OnInit {
   submit() {
     this.saveState = 'loading';
     if (this.isNew) {
-      this.puzzleService.create({ title: this.title, iframe_code: this.iframeCode, is_public: this.isPublic }).subscribe({
+      this.puzzleService.create({ title: this.title, iframe_code: this.iframeCode, is_public: this.isPublic, is_active: this.isActive }).subscribe({
         next: (created) => {
           this.saveState = 'success';
           setTimeout(() => {

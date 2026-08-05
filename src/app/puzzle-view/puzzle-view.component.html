@@ -2,7 +2,9 @@
   <div class="puzzle-page">
     <div class="puzzle-header">
       <h1>{{ puzzle.title }}</h1>
-      <a [routerLink]="['/puzzle', puzzle.id, 'achievements']" class="puzzle-achievements-link" i18n="@@puzzles.viewAchievements">Achievements</a>
+      @if (authService.isAuthenticated()) {
+        <a [routerLink]="['/user', authService.currentUser()!.id, 'puzzle-achievements']" class="puzzle-achievements-link" i18n="@@puzzles.myAchievements">My achievements</a>
+      }
     </div>
 
     @if (safeUrl) {

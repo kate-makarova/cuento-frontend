@@ -29,9 +29,8 @@
             <span class="status-inactive" i18n="@@common.no">No</span>
           }
         </td>
-        <td class="table-actions">
+        <td>
           <a [routerLink]="['/admin/features/puzzle', puzzle.id]" i18n="@@common.edit">Edit</a>
-          <button type="button" class="link-button danger" (click)="delete(puzzle)" i18n="@@common.delete">Delete</button>
         </td>
       </tr>
     }

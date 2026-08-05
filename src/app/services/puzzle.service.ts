@@ -7,30 +7,34 @@ export class PuzzleService {
   private apiService = inject(ApiService);
 
   list() {
-    return this.apiService.get<Puzzle[]>('puzzle/list');
+    return this.apiService.get<Puzzle[]>('puzzles');
   }
 
   get(id: number) {
     return this.apiService.get<Puzzle>(`puzzle/${id}`);
   }
 
-  create(data: { title: string; iframe_code: string; is_public: boolean }) {
-    return this.apiService.post<Puzzle>('puzzle/create', data);
+  saveAchievement(puzzleId: number, screenshotUrl: string) {
+    return this.apiService.post<PuzzleAchievement>(`puzzle/${puzzleId}/achievement`, { screenshot_url: screenshotUrl });
+  }
+
+  getUserAchievements(userId: number) {
+    return this.apiService.get<PuzzleAchievement[]>(`user/${userId}/puzzle-achievements`);
+  }
+
+  adminList() {
+    return this.apiService.get<Puzzle[]>('admin/puzzle/list');
+  }
+
+  adminGet(id: number) {
+    return this.apiService.get<Puzzle>(`admin/puzzle/${id}`);
+  }
+
+  create(data: { title: string; iframe_code: string; is_public: boolean; is_active: boolean }) {
+    return this.apiService.post<Puzzle>('admin/puzzle/create', data);
   }
 
   update(id: number, data: Partial<{ title: string; iframe_code: string; is_public: boolean; is_active: boolean }>) {
-    return this.apiService.post<Puzzle>(`puzzle/update/${id}`, data);
-  }
-
-  delete(id: number) {
-    return this.apiService.post<void>(`puzzle/delete/${id}`, {});
-  }
-
-  getAchievements(puzzleId: number) {
-    return this.apiService.get<PuzzleAchievement[]>(`puzzle/${puzzleId}/achievements`);
-  }
-
-  saveAchievement(puzzleId: number, screenshotUrl: string) {
-    return this.apiService.post<PuzzleAchievement>(`puzzle/${puzzleId}/achievement`, { screenshot_url: screenshotUrl });
+    return this.apiService.post<Puzzle>(`admin/puzzle/update/${id}`, data);
   }
 }
