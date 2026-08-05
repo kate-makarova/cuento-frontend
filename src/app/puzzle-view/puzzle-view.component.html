@@ -1,0 +1,38 @@
+@if (puzzle) {
+  <div class="puzzle-page">
+    <div class="puzzle-header">
+      <h1>{{ puzzle.title }}</h1>
+      <a [routerLink]="['/puzzle', puzzle.id, 'achievements']" class="puzzle-achievements-link" i18n="@@puzzles.viewAchievements">Achievements</a>
+    </div>
+
+    @if (safeUrl) {
+      <div class="puzzle-frame-wrapper">
+        <iframe
+          [src]="safeUrl"
+          class="puzzle-frame"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation"
+          allowfullscreen>
+        </iframe>
+      </div>
+    } @else {
+      <p class="puzzle-error" i18n="@@puzzles.invalidFrame">This puzzle cannot be displayed.</p>
+    }
+
+    @if (canSaveAchievement) {
+      <div class="puzzle-achievement-area">
+        <input #fileInput type="file" accept="image/*" style="display:none" (change)="onFileSelected($event)" />
+        @if (achievementState === 'idle') {
+          <button class="button" type="button" (click)="triggerFileInput()" i18n="@@puzzles.saveAchievement">Save Achievement</button>
+        } @else if (achievementState === 'uploading') {
+          <button class="button" type="button" disabled i18n="@@puzzles.savingAchievement">Saving...</button>
+        } @else if (achievementState === 'success') {
+          <span class="achievement-saved" i18n="@@puzzles.achievementSaved">Achievement saved!</span>
+        } @else if (achievementState === 'error') {
+          <span class="achievement-error" i18n="@@puzzles.achievementError">Failed to save achievement.</span>
+        }
+      </div>
+    }
+  </div>
+} @else {
+  <p i18n="@@common.loading">Loading...</p>
+}

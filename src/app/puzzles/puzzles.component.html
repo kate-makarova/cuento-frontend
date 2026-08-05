@@ -1,0 +1,15 @@
+<h1 i18n="@@puzzles.title">Puzzles</h1>
+
+@if (loading) {
+  <p i18n="@@common.loading">Loading...</p>
+} @else if (puzzles.length === 0) {
+  <p i18n="@@puzzles.empty">No puzzles available yet.</p>
+} @else {
+  <ul class="puzzles-list">
+    @for (puzzle of puzzles; track puzzle.id) {
+      <li class="puzzle-item">
+        <a [routerLink]="['/puzzle', puzzle.id]">{{ puzzle.title }}</a>
+      </li>
+    }
+  </ul>
+}

@@ -1,0 +1,41 @@
+<h2>
+  @if (isNew) {
+    <ng-container i18n="@@adminPuzzleEdit.createTitle">Create Puzzle</ng-container>
+  } @else {
+    <ng-container i18n="@@adminPuzzleEdit.editTitle">Edit Puzzle</ng-container>
+  }
+</h2>
+
+<form class="admin-form">
+  <div class="form-group">
+    <label for="puzzle-title" i18n="@@adminPuzzleEdit.titleLabel">Title</label>
+    <input id="puzzle-title" type="text" [(ngModel)]="title" name="title" required />
+  </div>
+
+  <div class="form-group">
+    <label for="puzzle-iframe" i18n="@@adminPuzzleEdit.iframeLabel">iframe code</label>
+    <textarea id="puzzle-iframe" [(ngModel)]="iframeCode" name="iframe_code" rows="6" required></textarea>
+    <small i18n="@@adminPuzzleEdit.iframeHint">Only the iframe src will be used. JavaScript injection is blocked.</small>
+  </div>
+
+  <div class="form-group">
+    <label>
+      <input type="checkbox" [(ngModel)]="isPublic" name="is_public" />
+      <ng-container i18n="@@adminPuzzleEdit.isPublic">Public (visible to all users)</ng-container>
+    </label>
+  </div>
+
+  @if (!isNew) {
+    <div class="form-group">
+      <label>
+        <input type="checkbox" [(ngModel)]="isActive" name="is_active" />
+        <ng-container i18n="@@adminPuzzleEdit.isActive">Active</ng-container>
+      </label>
+    </div>
+  }
+
+  <div class="form-actions">
+    <app-save-button [state]="saveState" (clicked)="submit()"></app-save-button>
+    <a [routerLink]="['/admin/features/puzzles']" i18n="@@common.cancel">Cancel</a>
+  </div>
+</form>
