@@ -33,19 +33,19 @@
       } @else {
         <div class="avatar-empty"></div>
       }
-      @if (isCharacter && post?.character_profile?.factions?.length) {
-        <div class="pa-factions">
-          @for (faction of post!.character_profile!.factions!; track faction.id) {
-            <span class="faction-badge">{{ faction.icon ? faction.icon + ' ' : '' }}{{ faction.name }}</span>
-          }
-        </div>
-      }
     </li>
+    @if (isCharacter && post?.character_profile?.factions?.length) {
+      <li class="pa-factions">
+        @for (faction of post!.character_profile!.factions!; track faction.id) {
+          <span class="faction-badge">{{ faction.icon ? faction.icon + ' ' : '' }}{{ faction.name }}</span>
+        }
+      </li>
+    }
     @if (post && !isCharacter && post.user_profile) {
-      <li class="pa-posts"><span class="accont-profile-field"><ng-container i18n="@@userprofile.totalPosts">Game posts</ng-container></span>: {{ post.user_profile.total_posts }}</li>
-      <li class="pa-posts"><span class="accont-profile-field"><ng-container i18n="@@userprofile.totalGeneralPosts">General posts</ng-container></span>: {{ post.user_profile.total_general_posts }}</li>
+      <li class="pa-game-posts"><span class="accont-profile-field"><ng-container i18n="@@userprofile.totalPosts">Game posts</ng-container></span><span class="account-profile-delimeter">:</span> <span class="account-profile-value">{{ post.user_profile.total_posts }}</span></li>
+      <li class="pa-posts"><span class="accont-profile-field"><ng-container i18n="@@userprofile.totalGeneralPosts">General posts</ng-container></span><span class="account-profile-delimeter">:</span> <span class="account-profile-value">{{ post.user_profile.total_general_posts }}</span></li>
       @if (featureService.isFeatureActive('currency') && post.user_profile.currency_amount != null) {
-        <li class="pa-currency">{{ currencyService.settings().currency_name }}: {{ post.user_profile.currency_amount }}</li>
+        <li class="pa-currency"><span class="accont-profile-field">{{ currencyService.settings().currency_name }}</span><span class="account-profile-delimeter">:</span> <span class="account-profile-value">{{ post.user_profile.currency_amount }}</span></li>
       }
     }
     @if (isCharacter && customFields.length > 0) {

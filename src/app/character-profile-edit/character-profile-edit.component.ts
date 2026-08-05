@@ -8,6 +8,7 @@ import { CroppedImageFieldComponent } from '../components/cropped-image-field/cr
 import { BbToolbarComponent } from '../components/bb-toolbar/bb-toolbar.component';
 import { FormsModule } from '@angular/forms';
 import { BoardService } from '../services/board.service';
+import { ImageService } from '../services/image.service';
 import { CharacterProfile } from '../models/Character';
 
 @Component({
@@ -153,6 +154,11 @@ export class CharacterProfileEditComponent implements OnInit {
       });
     }
   }
+
+  private imageService = inject(ImageService);
+
+  readonly characterProfileAvatarUploadFn = (file: File) =>
+    this.imageService.uploadCharacterProfileAvatar(this.characterId, file);
 
   get avatarWidth(): number { return this.boardService.board().user_avatar_width ?? 100; }
   get avatarHeight(): number { return this.boardService.board().user_avatar_height ?? 100; }

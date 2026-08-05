@@ -12,7 +12,7 @@
           </div>
           <div class="avatar-input">
             <label i18n="@@settings.avatarUrl">Avatar URL</label>
-            <app-cropped-image-field [name]="'avatar_url'" [fieldValue]="avatarUrl" [showFieldName]="false" [width]="avatarWidth" [height]="avatarHeight"></app-cropped-image-field>
+            <app-cropped-image-field [name]="'avatar_url'" [fieldValue]="avatarUrl" [showFieldName]="false" [width]="avatarWidth" [height]="avatarHeight" [uploadFn]="userAvatarUploadFn"></app-cropped-image-field>
           </div>
         </div>
       </fieldset>
@@ -21,7 +21,7 @@
         <legend i18n="@@settings.signature">Signature</legend>
         <div class="fs-box">
           <app-bb-toolbar [textarea]="signatureField" [showSpoiler]="false" [showImageUpload]="false"></app-bb-toolbar>
-          <textarea #signatureField rows="5" style="width: 100%; box-sizing: border-box;" [value]="signature"></textarea>
+          <textarea #signatureField rows="5" style="width: 100%; box-sizing: border-box;" [(ngModel)]="signature" name="signature_field"></textarea>
         </div>
       </fieldset>
 

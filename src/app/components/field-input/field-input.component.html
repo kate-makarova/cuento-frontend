@@ -29,13 +29,15 @@
     </app-image-field>
   }
   @case ('cropped_image') {
-    <app-cropped-image-field
-      [fieldName]="field.human_field_name"
-      [name]="field.machine_field_name"
-      [fieldValue]="fieldValue"
-      [width]="field.width"
-      [height]="field.height">
-    </app-cropped-image-field>
+    @if (canUpload()) {
+      <app-cropped-image-field
+        [fieldName]="field.human_field_name"
+        [name]="field.machine_field_name"
+        [fieldValue]="fieldValue"
+        [width]="field.width"
+        [height]="field.height">
+      </app-cropped-image-field>
+    }
   }
   @case ('free_format_date') {
     <app-free-format-date-field

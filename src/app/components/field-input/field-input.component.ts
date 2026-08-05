@@ -1,5 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, computed, inject, Input } from '@angular/core';
 import { FieldTemplate } from '../../models/FieldTemplate';
+import { BoardService } from '../../services/board.service';
 import { ShortTextFieldComponent } from '../short-text-field/short-text-field.component';
 import { LongTextFieldComponent } from '../long-text-field/long-text-field.component';
 import { NumberFieldComponent } from '../number-field/number-field.component';
@@ -18,4 +19,7 @@ export class FieldInputComponent {
   @Input() field!: FieldTemplate;
   @Input() fieldValue: any = null;
   @Input() characterIds: number[] = [];
+
+  private boardService = inject(BoardService);
+  readonly canUpload = computed(() => this.boardService.board().use_image_uploading === 'y');
 }

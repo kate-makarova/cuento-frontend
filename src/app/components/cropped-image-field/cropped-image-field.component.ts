@@ -1,7 +1,7 @@
-import { Component, computed, inject, Input, NgZone, OnInit, signal } from '@angular/core';
+import { Component, Input, NgZone, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Observable } from 'rxjs';
 import { ImageService } from '../../services/image.service';
-import { BoardService } from '../../services/board.service';
 
 type UploadState = 'idle' | 'uploading' | 'done' | 'error';
 
@@ -11,23 +11,26 @@ type UploadState = 'idle' | 'uploading' | 'done' | 'error';
   templateUrl: './cropped-image-field.component.html',
   standalone: true,
 })
-export class CroppedImageFieldComponent implements OnInit {
+export class CroppedImageFieldComponent {
   @Input() fieldName: string | undefined;
-  @Input() fieldValue: string = '';
+  private _fieldValue = '';
+  @Input() set fieldValue(v: string) {
+    this._fieldValue = v;
+    if (this.uploadState() !== 'done') this.value = v;
+  }
+  get fieldValue() { return this._fieldValue; }
   @Input() showFieldName: boolean = true;
   @Input() name: string | undefined;
   @Input() width: number | undefined;
   @Input() height: number | undefined;
+  @Input() disabled: boolean = false;
+  @Input() uploadFn: ((file: File) => Observable<{ url: string }>) | null = null;
 
   private imageService = inject(ImageService);
   private ngZone = inject(NgZone);
-  private boardService = inject(BoardService);
-
-  readonly canUpload = computed(() => this.boardService.board().use_image_uploading === 'y');
 
   readonly MAX_DISPLAY_W = 560;
 
-  mode: 'upload' | 'url' = 'upload';
   value: string = '';
   uploadState = signal<UploadState>('idle');
   selectedFile: File | null = null;
@@ -58,11 +61,6 @@ export class CroppedImageFieldComponent implements OnInit {
   private resizeStartClientX = 0;
   private resizeStartCropW = 0;
   private resizeStartCropH = 0;
-
-  ngOnInit() {
-    this.value = this.fieldValue;
-    if (this.fieldValue || !this.canUpload()) this.mode = 'url';
-  }
 
   onFileChange(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -178,7 +176,8 @@ export class CroppedImageFieldComponent implements OnInit {
         canvas.toBlob(blob => {
           if (!blob) { this.uploadState.set('error'); return; }
           const file = new File([blob], this.selectedFile!.name, { type: 'image/jpeg' });
-          this.imageService.upload(file).subscribe({
+          const upload$ = this.uploadFn ? this.uploadFn(file) : this.imageService.upload(file);
+          upload$.subscribe({
             next: res => { this.value = res.url; this.uploadState.set('done'); this.imageDataUrl = ''; },
             error: () => { this.errorMessage = 'Upload failed. Please try again.'; this.uploadState.set('error'); }
           });

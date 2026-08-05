@@ -160,16 +160,28 @@
     </h3>
     <div class="container">
       <div class="post-main">
-        <app-character-profile [post]="post" (authorClicked)="onAuthorMention($event)"></app-character-profile>
+        @if (editingPostId() === post.id) {
+          <app-character-profile
+            [showAccount]="showAccount"
+            [accountName]="accountName"
+            [loadProfiles]="false"
+            [initialCharacterId]="post.character_profile?.id"
+            (characterSelected)="editingPostProfileId.set($event)">
+          </app-character-profile>
+        } @else {
+          <app-character-profile [post]="post" (authorClicked)="onAuthorMention($event)"></app-character-profile>
+        }
 
         <div class="post-body">
           <div class="post-box">
             @if (editingPostId() === post.id) {
-              <form (submit)="onUpdatePost($event, post.id)">
+              <form (submit)="onUpdatePost($event, post)">
                 <app-post-form [initialContent]="post.content"></app-post-form>
-                <div class="buttons" style="margin-top: 10px; text-align: right;">
-                  <button type="submit" class="button">Save</button>
-                  <button type="button" class="button" (click)="cancelEdit()">Cancel</button>
+                <div class="edit-post-footer">
+                  <div class="buttons">
+                    <button type="submit" class="button" i18n="@@common.save">Save</button>
+                    <button type="button" class="button" (click)="cancelEdit()" i18n="@@common.cancel">Cancel</button>
+                  </div>
                 </div>
               </form>
             } @else {
