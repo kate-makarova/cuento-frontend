@@ -65,7 +65,7 @@ export class PuzzleViewComponent implements OnInit {
       const rect = this.puzzleFrame.nativeElement.getBoundingClientRect();
 
       const stream = await navigator.mediaDevices.getDisplayMedia({
-        video: true,
+        video: { displaySurface: 'browser' },
         // @ts-ignore preferCurrentTab pre-selects the current tab in supported browsers
         preferCurrentTab: true,
       } as DisplayMediaStreamOptions);
@@ -106,18 +106,21 @@ export class PuzzleViewComponent implements OnInit {
       video.srcObject = stream;
 
       video.addEventListener('playing', () => {
-        const scaleX = video.videoWidth / document.documentElement.clientWidth;
-        const scaleY = video.videoHeight / document.documentElement.clientHeight;
+        const scaleX = video.videoWidth / window.innerWidth;
+        const scaleY = video.videoHeight / window.innerHeight;
 
         const sx = Math.round(rect.left * scaleX);
         const sy = Math.round(rect.top * scaleY);
         const sw = Math.round(rect.width * scaleX);
         const sh = Math.round(rect.height * scaleY);
 
+        // Output at CSS pixel dimensions so the image matches the iframe's logical size
+        const outW = Math.round(rect.width);
+        const outH = Math.round(rect.height);
         const canvas = document.createElement('canvas');
-        canvas.width = sw;
-        canvas.height = sh;
-        canvas.getContext('2d')!.drawImage(video, sx, sy, sw, sh, 0, 0, sw, sh);
+        canvas.width = outW;
+        canvas.height = outH;
+        canvas.getContext('2d')!.drawImage(video, sx, sy, sw, sh, 0, 0, outW, outH);
 
         canvas.toBlob(
           b => b ? resolve(b) : reject(new Error('toBlob failed')),
