@@ -49,7 +49,6 @@ const IMAGE_UPLOAD_SETTING_NAMES = new Set([
   'image_hosting',
   'imgbb_api_key',
   'use_image_proxy',
-  'proxy_cache_size',
 ]);
 
 const SETTING_LABELS: Record<string, string> = {
@@ -86,7 +85,6 @@ const SETTING_LABELS: Record<string, string> = {
   image_hosting: $localize`:@@adminSettings.image_hosting:Image hosting`,
   imgbb_api_key: $localize`:@@adminSettings.imgbb_api_key:ImgBB API key`,
   use_image_proxy: $localize`:@@adminSettings.use_image_proxy:Use image proxy`,
-  proxy_cache_size: $localize`:@@adminSettings.proxy_cache_size:Proxy cache size (MB)`,
 };
 
 @Component({
