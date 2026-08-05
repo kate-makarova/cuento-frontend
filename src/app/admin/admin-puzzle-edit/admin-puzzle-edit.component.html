@@ -6,7 +6,7 @@
   }
 </h2>
 
-<form class="admin-form">
+<form class="admin-form" (submit)="submit(); $event.preventDefault()">
   <div class="form-group">
     <label for="puzzle-title" i18n="@@adminPuzzleEdit.titleLabel">Title</label>
     <input id="puzzle-title" type="text" [(ngModel)]="title" name="title" required />
@@ -35,7 +35,7 @@
   }
 
   <div class="form-actions">
-    <app-save-button [state]="saveState" (clicked)="submit()">
+    <app-save-button type="submit" [state]="saveState">
       <span i18n="@@common.save">Save</span>
     </app-save-button>
     <a [routerLink]="['/admin/features/puzzles']" i18n="@@common.cancel">Cancel</a>

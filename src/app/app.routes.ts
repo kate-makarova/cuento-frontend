@@ -464,11 +464,6 @@ export const routes: Routes = [
         title: 'Admin - Puzzles'
       },
       {
-        path: 'features/puzzle/new',
-        component: AdminPuzzleEditComponent,
-        title: 'Admin - Create Puzzle'
-      },
-      {
         path: 'features/puzzle/:id',
         component: AdminPuzzleEditComponent,
         title: 'Admin - Edit Puzzle'
