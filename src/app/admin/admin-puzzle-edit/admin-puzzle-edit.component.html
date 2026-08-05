@@ -35,7 +35,9 @@
   }
 
   <div class="form-actions">
-    <app-save-button [state]="saveState" (clicked)="submit()"></app-save-button>
+    <app-save-button [state]="saveState" (clicked)="submit()">
+      <span i18n="@@common.save">Save</span>
+    </app-save-button>
     <a [routerLink]="['/admin/features/puzzles']" i18n="@@common.cancel">Cancel</a>
   </div>
 </form>
