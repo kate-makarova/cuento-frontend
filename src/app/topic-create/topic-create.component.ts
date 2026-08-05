@@ -1,8 +1,10 @@
-import { Component, inject, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, effect, inject, Input, OnInit, ViewChild } from '@angular/core';
 import { LongTextFieldComponent } from '../components/long-text-field/long-text-field.component';
 import { CharacterProfileComponent } from '../components/character-profile/character-profile.component';
+import { BreadcrumbItem, BreadcrumbsComponent } from '../components/breadcrumbs/breadcrumbs.component';
 import { AuthService } from '../services/auth.service';
 import { TopicService } from '../services/topic.service';
+import { ForumService } from '../services/forum.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CreateTopicRequest, Topic, TopicType, TopicStatus } from '../models/Topic';
 import { Post } from '../models/Post';
@@ -10,7 +12,7 @@ import { PreviewService } from '../services/preview.service';
 
 @Component({
   selector: 'app-topic-create',
-  imports: [LongTextFieldComponent, CharacterProfileComponent],
+  imports: [LongTextFieldComponent, CharacterProfileComponent, BreadcrumbsComponent],
   templateUrl: './topic-create.component.html',
   standalone: true,
 })
@@ -19,6 +21,7 @@ export class TopicCreateComponent implements OnInit {
 
   private authService = inject(AuthService);
   private topicService = inject(TopicService);
+  private forumService = inject(ForumService);
   private previewService = inject(PreviewService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -26,10 +29,24 @@ export class TopicCreateComponent implements OnInit {
   accountName = this.authService.currentUser()?.username || 'Guest';
   selectedCharacterId: number | null = null;
   subforumId: number = 0;
+  breadcrumbs: BreadcrumbItem[] = [];
   restoredTitle: string = '';
   restoredContent: string = '';
 
   @ViewChild(LongTextFieldComponent) messageField!: LongTextFieldComponent;
+
+  constructor() {
+    effect(() => {
+      const s = this.forumService.subforum();
+      if (s?.id) {
+        this.breadcrumbs = [
+          { label: 'Home', link: '/' },
+          { label: s.name, link: `/viewforum/${s.id}` },
+          { label: $localize`:@@topiccreate.title:Start a new topic` }
+        ];
+      }
+    });
+  }
 
   ngOnInit() {
     const previewState = this.previewService.state();
@@ -48,6 +65,7 @@ export class TopicCreateComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       if (params['fid']) {
         this.subforumId = +params['fid'];
+        this.forumService.loadSubforum(this.subforumId);
       }
     });
   }
