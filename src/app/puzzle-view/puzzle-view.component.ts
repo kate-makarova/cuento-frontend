@@ -21,10 +21,12 @@ export class PuzzleViewComponent implements OnInit {
   authService = inject(AuthService);
   boardService = inject(BoardService);
 
-  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('puzzleFrame') puzzleFrame!: ElementRef<HTMLIFrameElement>;
 
   puzzle: Puzzle | null = null;
   safeUrl: SafeResourceUrl | null = null;
+  iframeWidth: string | null = null;
+  iframeHeight: string | null = null;
   achievementState: 'idle' | 'uploading' | 'success' | 'error' = 'idle';
 
   get canSaveAchievement(): boolean {
@@ -36,51 +38,95 @@ export class PuzzleViewComponent implements OnInit {
     this.puzzleService.get(id).subscribe({
       next: (p) => {
         this.puzzle = p;
-        this.safeUrl = this.extractSafeUrl(p.iframe_code);
+        this.extractIframeData(p.iframe_code);
       },
       error: (err) => console.error('Failed to load puzzle', err),
     });
   }
 
-  private extractSafeUrl(iframeCode: string): SafeResourceUrl | null {
+  private extractIframeData(iframeCode: string): void {
     const parser = new DOMParser();
     const doc = parser.parseFromString(iframeCode, 'text/html');
     const iframe = doc.querySelector('iframe');
-    if (!iframe) return null;
+    if (!iframe) return;
     const src = iframe.getAttribute('src') ?? '';
-    if (!src || /^javascript:/i.test(src)) return null;
-    if (!/^https?:\/\//i.test(src)) return null;
-    return this.sanitizer.bypassSecurityTrustResourceUrl(src);
+    if (!src || /^javascript:/i.test(src)) return;
+    if (!/^https?:\/\//i.test(src)) return;
+    this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(src);
+    this.iframeWidth = iframe.getAttribute('width');
+    this.iframeHeight = iframe.getAttribute('height');
   }
 
-  triggerFileInput() {
-    this.fileInput.nativeElement.click();
-  }
-
-  onFileSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file || !this.puzzle) return;
-
+  async saveAchievement() {
+    if (!this.puzzle) return;
     this.achievementState = 'uploading';
-    this.imageService.upload(file).subscribe({
-      next: (res) => {
-        this.puzzleService.saveAchievement(this.puzzle!.id, res.url).subscribe({
-          next: () => {
-            this.achievementState = 'success';
-            setTimeout(() => (this.achievementState = 'idle'), 3000);
-          },
-          error: () => {
-            this.achievementState = 'error';
-            setTimeout(() => (this.achievementState = 'idle'), 3000);
-          },
-        });
-      },
-      error: () => {
-        this.achievementState = 'error';
-        setTimeout(() => (this.achievementState = 'idle'), 3000);
-      },
+
+    try {
+      const rect = this.puzzleFrame.nativeElement.getBoundingClientRect();
+
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+        // @ts-ignore preferCurrentTab pre-selects the current tab in supported browsers
+        preferCurrentTab: true,
+      } as DisplayMediaStreamOptions);
+
+      const blob = await this.captureRegion(stream, rect);
+      stream.getTracks().forEach(t => t.stop());
+
+      const file = new File([blob], 'achievement.png', { type: 'image/png' });
+      this.imageService.upload(file).subscribe({
+        next: (res) => {
+          this.puzzleService.saveAchievement(this.puzzle!.id, res.url).subscribe({
+            next: () => {
+              this.achievementState = 'success';
+              setTimeout(() => (this.achievementState = 'idle'), 3000);
+            },
+            error: () => {
+              this.achievementState = 'error';
+              setTimeout(() => (this.achievementState = 'idle'), 3000);
+            },
+          });
+        },
+        error: () => {
+          this.achievementState = 'error';
+          setTimeout(() => (this.achievementState = 'idle'), 3000);
+        },
+      });
+    } catch (e) {
+      console.error('Screenshot failed:', e);
+      this.achievementState = 'error';
+      setTimeout(() => (this.achievementState = 'idle'), 3000);
+    }
+  }
+
+  private captureRegion(stream: MediaStream, rect: DOMRect): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video');
+      video.muted = true;
+      video.srcObject = stream;
+
+      video.addEventListener('playing', () => {
+        const scaleX = video.videoWidth / document.documentElement.clientWidth;
+        const scaleY = video.videoHeight / document.documentElement.clientHeight;
+
+        const sx = Math.round(rect.left * scaleX);
+        const sy = Math.round(rect.top * scaleY);
+        const sw = Math.round(rect.width * scaleX);
+        const sh = Math.round(rect.height * scaleY);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = sw;
+        canvas.height = sh;
+        canvas.getContext('2d')!.drawImage(video, sx, sy, sw, sh, 0, 0, sw, sh);
+
+        canvas.toBlob(
+          b => b ? resolve(b) : reject(new Error('toBlob failed')),
+          'image/png'
+        );
+      }, { once: true });
+
+      video.onerror = reject;
+      video.play().catch(reject);
     });
-    input.value = '';
   }
 }
