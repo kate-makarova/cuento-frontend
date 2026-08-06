@@ -24,7 +24,7 @@
   <span title="Grid" i18n-title="@@postform.grid" (click)="toggleArea('grid')"><i class="bi bi-grid-3x3-gap"></i></span>
 </div>
 
-<div id="tags">
+<div id="tags" (mousedown)="$event.preventDefault()">
   @if (activeArea === 'font') {
     <div class="container" id="font-area">
       @for (font of fonts; track font) {
