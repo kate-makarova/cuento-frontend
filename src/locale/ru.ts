@@ -1105,5 +1105,32 @@ export const TRANSLATIONS_RU = {
   "createMigration.generating": "Генерируем...",
   "createMigration.submit": "Сгенерировать ссылки для миграции",
 
-  "userprofile.migrations": "Миграции"
+  "userprofile.migrations": "Миграции",
+
+  "puzzles.title": "Пазлы",
+  "puzzles.empty": "Пазлов пока нет.",
+  "puzzles.achievements": "Достижения",
+  "puzzles.noAchievements": "Достижений пока нет.",
+  "puzzles.myAchievements": "Мои достижения",
+  "puzzles.invalidFrame": "Этот пазл не может быть отображён.",
+  "puzzles.saveAchievement": "Сохранить достижение",
+  "puzzles.savingAchievement": "Сохраняем...",
+  "puzzles.achievementSaved": "Достижение сохранено!",
+  "puzzles.achievementError": "Не удалось сохранить достижение.",
+
+  "admin.puzzles": "Пазлы",
+  "adminPuzzles.title": "Пазлы",
+  "adminPuzzles.id": "ID",
+  "adminPuzzles.public": "Публичный",
+  "adminPuzzles.active": "Активный",
+  "adminPuzzles.empty": "Пазлов пока нет.",
+  "adminPuzzles.createNew": "Создать новый",
+  "adminPuzzles.open": "Открыть",
+  "adminPuzzleEdit.createTitle": "Создать пазл",
+  "adminPuzzleEdit.editTitle": "Редактировать пазл",
+  "adminPuzzleEdit.titleLabel": "Название",
+  "adminPuzzleEdit.iframeLabel": "Код iframe",
+  "adminPuzzleEdit.iframeHint": "Используется только атрибут src. JavaScript-инъекции заблокированы.",
+  "adminPuzzleEdit.isPublic": "Публичный (виден всем пользователям)",
+  "adminPuzzleEdit.isActive": "Активный"
 };
