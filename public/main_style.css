@@ -2874,6 +2874,35 @@ app-number-field-display:host {
   background-color: rgba(0, 0, 0, 0.12);
 }
 
+#form-buttons span {
+  position: relative;
+}
+
+.toolbar-color-swatch {
+  display: block;
+  position: absolute;
+  bottom: 2px;
+  left: 4px;
+  right: 4px;
+  height: 3px;
+  border-radius: 1px;
+}
+
+.toolbar-inline-label {
+  font-size: 0.6em;
+  line-height: 1;
+  position: absolute;
+  bottom: 1px;
+  right: 2px;
+  color: #555;
+  pointer-events: none;
+}
+
+#form-buttons span .bi {
+  display: block;
+  margin-bottom: 2px;
+}
+
 #url-area {
   display: flex;
   gap: 6px;
