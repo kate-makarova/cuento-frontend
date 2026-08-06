@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, Input, Output, EventEmitter, signal, computed } from '@angular/core';
+import { Component, effect, inject, OnInit, OnDestroy, Input, Output, EventEmitter, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CharacterService } from '../services/character.service';
 import { TopicService } from '../services/topic.service';
@@ -13,6 +13,8 @@ import { Faction } from '../models/Faction';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BoardService } from '../services/board.service';
+import { ForumService } from '../services/forum.service';
+import { BreadcrumbItem, BreadcrumbsComponent } from '../components/breadcrumbs/breadcrumbs.component';
 import { ImageService } from '../services/image.service';
 import { PreviewService } from '../services/preview.service';
 import { Subject, Subscription } from 'rxjs';
@@ -20,13 +22,14 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-character-create',
-  imports: [FieldInputComponent, FactionPathsComponent, CommonModule, FormsModule, CroppedImageFieldComponent],
+  imports: [FieldInputComponent, FactionPathsComponent, CommonModule, FormsModule, CroppedImageFieldComponent, BreadcrumbsComponent],
   templateUrl: './character-create.component.html',
   standalone: true,
 })
 export class CharacterCreateComponent implements OnInit, OnDestroy {
   characterService = inject(CharacterService);
   private boardService = inject(BoardService);
+  private forumService = inject(ForumService);
   private imageService = inject(ImageService);
 
   readonly characterAvatarUploadFn = (file: File) => {
@@ -48,6 +51,20 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
 
   subforumId: number = 0;
   factionPaths: Faction[][] = [[]]; // Start with one empty path
+  breadcrumbs: BreadcrumbItem[] = [];
+
+  constructor() {
+    effect(() => {
+      const s = this.forumService.subforum();
+      if (s?.id) {
+        this.breadcrumbs = [
+          { label: 'Home', link: '/' },
+          { label: s.name, link: `/viewforum/${s.id}` },
+          { label: $localize`:@@charactercreate.title:Create character` }
+        ];
+      }
+    });
+  }
 
   characterName: string = '';
   characterAvatar: string = '';
@@ -156,6 +173,7 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
     this.route.queryParams.subscribe(params => {
       if (params['fid']) {
         this.subforumId = +params['fid'];
+        this.forumService.loadSubforum(this.subforumId);
       }
     });
 
