@@ -145,8 +145,11 @@ export class BbToolbarComponent {
 
   insertSpoiler(title: string) {
     if (this.editor) {
-      const tag = title ? `[spoiler=${title}]` : '[spoiler]';
-      this.editor.insertTextAtCursor(`${tag}[/spoiler]`);
+      const caption = title || 'Spoiler';
+      const dataTitleAttr = title ? ` data-title="${title}"` : '';
+      this.editor.insertBlockAtCursor(
+        `<div class="wysiwyg-spoiler"${dataTitleAttr}><div class="wysiwyg-spoiler-header">${caption}</div><div class="wysiwyg-spoiler-content">&nbsp;</div></div><div><br></div>`
+      );
       this.showSpoilerModal = false;
       this.editor.focus();
       return;

@@ -1760,6 +1760,39 @@ spoiler-box .spoiler-content {
   padding: 0 10px;
 }
 
+/* Editor imitation of spoiler-box — always open, no toggle */
+.wysiwyg-spoiler {
+  display: block;
+  margin: 8px 0;
+}
+
+.wysiwyg-spoiler .wysiwyg-spoiler-header {
+  background-color: #e9e3d5;
+  border: 1px solid #d1bc9b;
+  border-radius: 4px 4px 0 0;
+  padding: 6px 10px;
+  font-size: 0.9em;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wysiwyg-spoiler .wysiwyg-spoiler-header::before {
+  content: '▶';
+  font-size: 0.7em;
+  color: #9c7d58;
+  display: inline-block;
+  transform: rotate(90deg);
+}
+
+.wysiwyg-spoiler .wysiwyg-spoiler-content {
+  border: 1px solid #d1bc9b;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  padding: 8px 10px;
+}
+
 .widget-grid {
   display: grid;
 }

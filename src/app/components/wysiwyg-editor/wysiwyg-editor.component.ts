@@ -22,6 +22,7 @@ const FORMAT_COMMANDS: Record<string, string> = {
       (paste)="onPaste($event)"
       (dragover)="onDragOver($event)"
       (drop)="onDrop($event)"
+      (keydown)="onKeyDown($event)"
     ></div>
   `,
 })
@@ -47,6 +48,18 @@ export class WysiwygEditorComponent implements OnDestroy {
 
   onFocus() { this.focused = true; this.updateActiveFormats(); }
   onBlur()  { this.focused = false; }
+
+  onKeyDown(event: KeyboardEvent) {
+    if (event.key !== 'Enter') return;
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return;
+    const anchor = sel.getRangeAt(0).commonAncestorContainer;
+    const node = anchor.nodeType === Node.TEXT_NODE ? anchor.parentElement : anchor as HTMLElement;
+    if (node?.closest('.wysiwyg-spoiler-content')) {
+      event.preventDefault();
+      document.execCommand('insertLineBreak');
+    }
+  }
 
   private updateActiveFormats() {
     if (!this.focused) return;
@@ -97,6 +110,49 @@ export class WysiwygEditorComponent implements OnDestroy {
   insertHtmlAtCursor(html: string): void {
     this.editorEl.nativeElement.focus();
     document.execCommand('insertHTML', false, html);
+  }
+
+  insertBlockAtCursor(html: string): void {
+    const editor = this.editorEl.nativeElement;
+    editor.focus();
+
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+    const nodes: Node[] = Array.from(temp.childNodes);
+
+    const sel = window.getSelection();
+
+    if (!sel || !sel.rangeCount) {
+      nodes.forEach(n => editor.appendChild(n));
+    } else {
+      const range = sel.getRangeAt(0);
+
+      // Walk up to the direct child of the editor that contains the cursor
+      let blockAncestor: Node | null = range.startContainer;
+      while (blockAncestor && blockAncestor.parentNode !== editor) {
+        blockAncestor = blockAncestor.parentNode;
+      }
+
+      if (blockAncestor) {
+        let ref = blockAncestor;
+        for (const n of nodes) {
+          editor.insertBefore(n, ref.nextSibling);
+          ref = n;
+        }
+      } else {
+        nodes.forEach(n => editor.appendChild(n));
+      }
+    }
+
+    // Place cursor inside the trailing empty div
+    const last = nodes[nodes.length - 1];
+    if (last && sel) {
+      const newRange = document.createRange();
+      newRange.setStart(last, 0);
+      newRange.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(newRange);
+    }
   }
 
   insertTextAtCursor(text: string): void {

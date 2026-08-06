@@ -10,8 +10,12 @@ function processContainer(el: Element): string {
   let result = '';
   for (const child of Array.from(el.childNodes)) {
     const tag = (child as HTMLElement).tagName?.toLowerCase();
-    const isBlock = child.nodeType === Node.ELEMENT_NODE &&
-      ['div', 'p', 'blockquote', 'pre'].includes(tag ?? '');
+    const childEl = child as HTMLElement;
+    const isBlock = child.nodeType === Node.ELEMENT_NODE && (
+      ['p', 'blockquote', 'pre'].includes(tag ?? '') ||
+      (tag === 'div' && !childEl.classList.contains('wysiwyg-spoiler-header') && !childEl.classList.contains('wysiwyg-spoiler-content')) ||
+      childEl.classList.contains('wysiwyg-spoiler')
+    );
     if (isBlock && result && !result.endsWith('\n')) {
       result += '\n';
     }
@@ -51,6 +55,40 @@ function nodeToText(node: Node): string {
     }
     case 'pre': return `[code]${el.textContent ?? ''}[/code]\n`;
 
+    case 'div': {
+      if (el.classList.contains('wysiwyg-spoiler')) {
+        const title = el.getAttribute('data-title') ?? '';
+        const contentEl = el.querySelector('.wysiwyg-spoiler-content');
+        const content = contentEl
+          ? Array.from(contentEl.childNodes).map(nodeToText).join('').trim()
+          : '';
+        return title
+          ? `[spoiler=${title}]${content}[/spoiler]\n`
+          : `[spoiler]${content}[/spoiler]\n`;
+      }
+      if (el.classList.contains('wysiwyg-spoiler-header')) return '';
+      if (el.classList.contains('wysiwyg-spoiler-content')) return inner();
+      const divChildren = inner();
+      const divContent = (divChildren === '\n' || divChildren === '') ? '' : divChildren;
+      const divAlign = el.style.textAlign;
+      let divResult = divContent;
+      if (divAlign === 'center') divResult = `[center]${divResult.trimEnd()}[/center]`;
+      else if (divAlign === 'right')  divResult = `[right]${divResult.trimEnd()}[/right]`;
+      else if (divAlign === 'left')   divResult = `[left]${divResult.trimEnd()}[/left]`;
+      return divResult + '\n';
+    }
+
+    case 'p': {
+      const children = inner();
+      const content = (children === '\n' || children === '') ? '' : children;
+      const align = el.style.textAlign;
+      let result = content;
+      if (align === 'center') result = `[center]${result.trimEnd()}[/center]`;
+      else if (align === 'right')  result = `[right]${result.trimEnd()}[/right]`;
+      else if (align === 'left')   result = `[left]${result.trimEnd()}[/left]`;
+      return result + '\n';
+    }
+
     case 'font': {
       let r = inner();
       const color = el.getAttribute('color');
@@ -66,19 +104,6 @@ function nodeToText(node: Node): string {
       if (s.fontFamily) r = `[font=${s.fontFamily.replace(/['"]/g, '')}]${r}[/font]`;
       if (s.fontSize)   r = `[size=${parseInt(s.fontSize)}]${r}[/size]`;
       return r;
-    }
-
-    case 'div':
-    case 'p': {
-      const children = inner();
-      // <div><br></div> is an empty line
-      const content = (children === '\n' || children === '') ? '' : children;
-      const align = el.style.textAlign;
-      let result = content;
-      if (align === 'center') result = `[center]${result.trimEnd()}[/center]`;
-      else if (align === 'right')  result = `[right]${result.trimEnd()}[/right]`;
-      else if (align === 'left')   result = `[left]${result.trimEnd()}[/left]`;
-      return result + '\n';
     }
 
     default: return inner();
@@ -105,5 +130,7 @@ export function bbCodeToHtml(bb: string): string {
     .replace(/\[quote=([^\]]+)\]([\s\S]*?)\[\/quote\]/g, '<blockquote data-author="$1">$2</blockquote>')
     .replace(/\[quote\]([\s\S]*?)\[\/quote\]/g,          '<blockquote>$1</blockquote>')
     .replace(/\[code\]([\s\S]*?)\[\/code\]/g,            '<pre>$1</pre>')
+    .replace(/\[spoiler=([^\]]+)\]([\s\S]*?)\[\/spoiler\]/g, '<div class="wysiwyg-spoiler" data-title="$1"><div class="wysiwyg-spoiler-header">$1</div><div class="wysiwyg-spoiler-content">$2</div></div>')
+    .replace(/\[spoiler\]([\s\S]*?)\[\/spoiler\]/g,          '<div class="wysiwyg-spoiler"><div class="wysiwyg-spoiler-header">Spoiler</div><div class="wysiwyg-spoiler-content">$1</div></div>')
     .replace(/\n/g, '<br>');
 }

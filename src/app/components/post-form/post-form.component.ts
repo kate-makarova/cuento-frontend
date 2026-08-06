@@ -2,13 +2,13 @@ import { Component, Input, ViewChild, AfterViewInit, inject, OnDestroy, signal, 
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { UserService } from '../../services/user.service';
+import { AuthService } from '../../services/auth.service';
 import { UserShort } from '../../models/UserShort';
 import { CommonModule } from '@angular/common';
 import { BbToolbarComponent } from '../bb-toolbar/bb-toolbar.component';
 import { WysiwygEditorComponent } from '../wysiwyg-editor/wysiwyg-editor.component';
 
 type EditorMode = 'wysiwyg' | 'bbcode';
-const EDITOR_MODE_KEY = 'postEditorMode';
 
 @Component({
   selector: 'app-post-form',
@@ -28,9 +28,10 @@ export class PostFormComponent implements AfterViewInit, OnDestroy {
   @Input() isEpisode: boolean = false;
 
   private userService = inject(UserService);
+  private authService = inject(AuthService);
 
   editorMode = signal<EditorMode>(
-    (localStorage.getItem(EDITOR_MODE_KEY) as EditorMode | null) ?? 'wysiwyg'
+    this.authService.currentUser()?.editor_type === 1 ? 'bbcode' : 'wysiwyg'
   );
 
   mentionResults: UserShort[] = [];
@@ -118,7 +119,6 @@ export class PostFormComponent implements AfterViewInit, OnDestroy {
     const content = this.getValue();
     const next: EditorMode = this.editorMode() === 'wysiwyg' ? 'bbcode' : 'wysiwyg';
     this.editorMode.set(next);
-    localStorage.setItem(EDITOR_MODE_KEY, next);
     this.setValue(content);
   }
 
