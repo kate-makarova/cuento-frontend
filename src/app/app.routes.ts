@@ -80,6 +80,11 @@ import { AdminExternalAppEditComponent } from './admin/admin-external-app-edit/a
 import { MigrationListComponent } from './migration-list/migration-list.component';
 import { CreateUserDataMigrationComponent } from './create-user-data-migration/create-user-data-migration.component';
 import { UserDataMigrationComponent } from './user-data-migration/user-data-migration.component';
+import { PuzzlesComponent } from './puzzles/puzzles.component';
+import { PuzzleViewComponent } from './puzzle-view/puzzle-view.component';
+import { PuzzleAchievementsComponent } from './puzzle-achievements/puzzle-achievements.component';
+import { AdminPuzzlesComponent } from './admin/admin-puzzles/admin-puzzles.component';
+import { AdminPuzzleEditComponent } from './admin/admin-puzzle-edit/admin-puzzle-edit.component';
 
 
 export const routes: Routes = [
@@ -454,6 +459,16 @@ export const routes: Routes = [
         title: 'Admin - Post Top'
       },
       {
+        path: 'features/puzzles',
+        component: AdminPuzzlesComponent,
+        title: 'Admin - Puzzles'
+      },
+      {
+        path: 'features/puzzle/:id',
+        component: AdminPuzzleEditComponent,
+        title: 'Admin - Edit Puzzle'
+      },
+      {
         path: 'reactions',
         component: AdminReactionsComponent,
         title: 'Admin - Reactions'
@@ -499,6 +514,24 @@ export const routes: Routes = [
         title: 'Admin - External App'
       }
     ]
+  },
+  {
+    path: 'puzzles',
+    component: PuzzlesComponent,
+    title: 'Puzzles',
+    data: { pageId: 'pun-puzzles' }
+  },
+  {
+    path: 'puzzle/:id',
+    component: PuzzleViewComponent,
+    title: 'Puzzle',
+    data: { pageId: 'pun-puzzle' }
+  },
+  {
+    path: 'user/:id/puzzle-achievements',
+    component: PuzzleAchievementsComponent,
+    title: 'Puzzle Achievements',
+    data: { pageId: 'pun-puzzle-achievements' }
   },
   {
     path: 'migration-list',

@@ -1,0 +1,23 @@
+<h1 i18n="@@puzzles.achievements">Puzzle Achievements</h1>
+
+@if (loading) {
+  <p i18n="@@common.loading">Loading...</p>
+} @else if (achievements.length === 0) {
+  <p i18n="@@puzzles.noAchievements">No achievements yet.</p>
+} @else {
+  <div class="achievements-grid">
+    @for (a of achievements; track a.id) {
+      <div class="achievement-card">
+        <a [href]="a.screenshot_url" target="_blank" rel="noopener">
+          <img [src]="a.screenshot_url" class="achievement-screenshot" alt="" />
+        </a>
+        <div class="achievement-meta">
+          <span class="achievement-date">{{ a.date.slice(0, 10) }}</span>
+          @if (isOwnPage) {
+            <button type="button" class="achievement-delete" (click)="delete(a)" i18n="@@common.delete">Delete</button>
+          }
+        </div>
+      </div>
+    }
+  </div>
+}

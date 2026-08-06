@@ -9,6 +9,7 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {Subject, Subscription} from 'rxjs';
 import {debounceTime, distinctUntilChanged, switchMap} from 'rxjs/operators';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-direct-chat',
@@ -20,6 +21,7 @@ export class DirectChatComponent implements OnInit, OnDestroy {
   private directChatService = inject(DirectChatService);
   private notificationService = inject(NotificationService);
   private userService = inject(UserService);
+  private route = inject(ActivatedRoute);
   private dmSub: Subscription | null = null;
 
   @ViewChild('chatInput') messageField!: ElementRef<HTMLTextAreaElement>;
@@ -75,9 +77,23 @@ export class DirectChatComponent implements OnInit, OnDestroy {
   private searchSubject = new Subject<string>();
 
   ngOnInit() {
+    const targetChatId = this.route.snapshot.queryParamMap.get('chat_id');
+
     this.directChatService.resolvePrivateKey().subscribe(() => {
       this.directChatService.loadChatList();
     });
+
+    if (targetChatId) {
+      const unsub = effect(() => {
+        const list = this.directChatService.chatList();
+        if (list.length === 0) return;
+        const chat = list.find(c => c.chat_id === +targetChatId);
+        if (chat) {
+          this.directChatService.loadDirectChat(chat.chat_id);
+          unsub.destroy();
+        }
+      });
+    }
 
     this.searchSubject.pipe(
       debounceTime(300),
