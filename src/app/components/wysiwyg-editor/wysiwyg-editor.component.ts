@@ -34,6 +34,13 @@ export class WysiwygEditorComponent implements OnDestroy {
 
   readonly canUpload = computed(() => this.boardService.board().use_image_uploading === 'y');
   readonly activeFormats = signal<Set<string>>(new Set());
+  readonly activeColor = signal<string | null>(null);
+  readonly activeFontSize = signal<number | null>(null);
+  readonly activeFontFamily = signal<string | null>(null);
+
+  setActiveColor(color: string | null) { this.activeColor.set(color); }
+  setActiveFontSize(size: number | null) { this.activeFontSize.set(size); }
+  setActiveFontFamily(family: string | null) { this.activeFontFamily.set(family); }
 
   private focused = false;
   private selectionHandler = () => this.updateActiveFormats();
@@ -68,6 +75,49 @@ export class WysiwygEditorComponent implements OnDestroy {
       if (document.queryCommandState(cmd)) active.add(tag);
     }
     this.activeFormats.set(active);
+    this.updateInlineStyles();
+  }
+
+  private updateInlineStyles(): void {
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return;
+
+    let node: Node | null = sel.getRangeAt(0).startContainer;
+    let color: string | null = null;
+    let fontSize: number | null = null;
+    let fontFamily: string | null = null;
+
+    while (node && node !== this.editorEl.nativeElement) {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const el = node as HTMLElement;
+        if (color === null) {
+          const c = el.tagName === 'FONT' ? el.getAttribute('color') : el.style.color;
+          if (c) color = c;
+        }
+        if (fontSize === null && el.style.fontSize) {
+          fontSize = parseInt(el.style.fontSize);
+        }
+        if (fontFamily === null) {
+          const f = el.tagName === 'FONT' ? el.getAttribute('face') : el.style.fontFamily;
+          if (f) fontFamily = f.replace(/['"]/g, '').split(',')[0].trim();
+        }
+      }
+      node = node.parentNode;
+    }
+
+    this.activeColor.set(color ? this.normalizeColor(color) : null);
+    this.activeFontSize.set(fontSize);
+    this.activeFontFamily.set(fontFamily?.toLowerCase() ?? null);
+  }
+
+  private normalizeColor(color: string): string {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 1;
+    const ctx = canvas.getContext('2d')!;
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, 1, 1);
+    const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+    return `rgb(${r}, ${g}, ${b})`;
   }
 
   // Emitted on every input so the parent can react (e.g. mention detection)

@@ -1,6 +1,16 @@
 <div id="form-buttons" (mousedown)="$event.preventDefault()">
-  <span title="Font" i18n-title="@@postform.font" (click)="toggleArea('font')"><i class="bi bi-fonts"></i></span>
-  <span title="Size" i18n-title="@@postform.size" (click)="toggleArea('size')"><i class="bi bi-type-h1"></i></span>
+  <span title="Font" i18n-title="@@postform.font" (click)="toggleArea('font')" [class.toolbar-active]="!!getActiveFont()">
+    <i class="bi bi-fonts"></i>
+    @if (getActiveFont(); as font) {
+      <span class="toolbar-inline-label">{{ font }}</span>
+    }
+  </span>
+  <span title="Size" i18n-title="@@postform.size" (click)="toggleArea('size')" [class.toolbar-active]="!!getActiveSize()">
+    <i class="bi bi-type-h1"></i>
+    @if (getActiveSize(); as size) {
+      <span class="toolbar-inline-label">{{ size }}</span>
+    }
+  </span>
   <span title="Bold" i18n-title="@@postform.bold" (click)="insertTag('b')" [class.toolbar-active]="isFormatActive('b')"><i class="bi bi-type-bold"></i></span>
   <span title="Italic" i18n-title="@@postform.italic" (click)="insertTag('i')" [class.toolbar-active]="isFormatActive('i')"><i class="bi bi-type-italic"></i></span>
   <span title="Underline" i18n-title="@@postform.underline" (click)="insertTag('u')" [class.toolbar-active]="isFormatActive('u')"><i class="bi bi-type-underline"></i></span>
@@ -11,7 +21,12 @@
   <span title="Link" i18n-title="@@postform.link" (click)="toggleArea('url')"><i class="bi bi-link-45deg"></i></span>
   <span title="Quote" i18n-title="@@postform.quote" (click)="insertTag('quote')"><i class="bi bi-quote"></i></span>
   <span title="Code" i18n-title="@@postform.code" (click)="insertTag('code')"><i class="bi bi-code-slash"></i></span>
-  <span title="Color" i18n-title="@@postform.color" (click)="toggleArea('color')"><i class="bi bi-palette"></i></span>
+  <span title="Color" i18n-title="@@postform.color" (click)="toggleArea('color')" [class.toolbar-active]="!!getActiveColor()">
+    <i class="bi bi-palette"></i>
+    @if (getActiveColor(); as color) {
+      <span class="toolbar-color-swatch" [style.background-color]="color"></span>
+    }
+  </span>
   <span title="Smile" i18n-title="@@postform.smile" (click)="toggleArea('smile')"><i class="bi bi-emoji-smile"></i></span>
   <span title="Video" i18n-title="@@postform.video" (click)="insertTag('video')"><i class="bi bi-camera-video"></i></span>
   <span title="Audio" i18n-title="@@postform.audio" (click)="insertTag('audio')"><i class="bi bi-music-note"></i></span>
@@ -28,7 +43,7 @@
   @if (activeArea === 'font') {
     <div class="container" id="font-area">
       @for (font of fonts; track font) {
-        <div [style.font-family]="font" (click)="insertTag('font=' + font)">
+        <div [style.font-family]="font" [class.toolbar-active]="isFontActive(font)" (click)="insertTag('font=' + font)">
           <span>{{ font }}</span>
         </div>
       }
@@ -37,7 +52,7 @@
   @if (activeArea === 'size') {
     <div class="container" id="size-area">
       @for (size of [8, 10, 12, 14, 16, 18, 20]; track size) {
-        <div [style.font-size.px]="size" (click)="insertTag('size=' + size)">
+        <div [style.font-size.px]="size" [class.toolbar-active]="isSizeActive(size)" (click)="insertTag('size=' + size)">
           <span>{{ size }}px</span>
         </div>
       }
@@ -55,7 +70,7 @@
       <table>
         <tr>
           @for (color of colors; track color) {
-            <td [style.background-color]="color" (click)="insertTag('color=' + color)"></td>
+            <td [style.background-color]="color" [class.toolbar-active]="isColorActive(color)" (click)="insertTag('color=' + color)"></td>
           }
         </tr>
       </table>

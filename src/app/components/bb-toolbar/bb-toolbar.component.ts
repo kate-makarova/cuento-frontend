@@ -79,6 +79,46 @@ export class BbToolbarComponent {
     return this.editor?.activeFormats().has(tag) ?? false;
   }
 
+  private normalizedColorCache = new Map<string, string>();
+  private normalizeColor(color: string): string {
+    if (!this.normalizedColorCache.has(color)) {
+      const canvas = document.createElement('canvas');
+      canvas.width = canvas.height = 1;
+      const ctx = canvas.getContext('2d')!;
+      ctx.fillStyle = color;
+      ctx.fillRect(0, 0, 1, 1);
+      const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+      this.normalizedColorCache.set(color, `rgb(${r}, ${g}, ${b})`);
+    }
+    return this.normalizedColorCache.get(color)!;
+  }
+
+  isColorActive(color: string): boolean {
+    const active = this.editor?.activeColor();
+    return !!active && this.normalizeColor(color) === active;
+  }
+
+  isSizeActive(size: number): boolean {
+    return this.editor?.activeFontSize() === size;
+  }
+
+  isFontActive(font: string): boolean {
+    const active = this.editor?.activeFontFamily();
+    return !!active && active === font.toLowerCase();
+  }
+
+  getActiveColor(): string | null {
+    return this.editor?.activeColor() ?? null;
+  }
+
+  getActiveSize(): number | null {
+    return this.editor?.activeFontSize() ?? null;
+  }
+
+  getActiveFont(): string | null {
+    return this.editor?.activeFontFamily() ?? null;
+  }
+
   insertTag(tag: string) {
     if (this.editor) {
       this.insertTagWysiwyg(tag);
@@ -120,11 +160,36 @@ export class BbToolbarComponent {
         ed.insertTextAtCursor(`[${tag}][/${tag}]`);
         break;
       default: {
-        if (tag.startsWith('font='))  { ed.exec('fontName', tag.slice(5)); break; }
-        if (tag.startsWith('color=')) { ed.exec('foreColor', tag.slice(6)); break; }
+        if (tag.startsWith('font=')) {
+          const font = tag.slice(5);
+          ed.exec('fontName', font);
+          ed.setActiveFontFamily(font.toLowerCase());
+          break;
+        }
+        if (tag.startsWith('color=')) {
+          const color = tag.slice(6);
+          ed.exec('foreColor', color);
+          ed.setActiveColor(this.normalizeColor(color));
+          break;
+        }
         if (tag.startsWith('size=')) {
           const sizePx = tag.slice(5);
-          ed.insertHtmlAtCursor(`<span style="font-size:${sizePx}px">&#8203;</span>`);
+          const sel = window.getSelection();
+          const span = document.createElement('span');
+          span.style.fontSize = `${sizePx}px`;
+          if (sel && sel.rangeCount > 0 && !sel.getRangeAt(0).collapsed) {
+            const range = sel.getRangeAt(0);
+            try {
+              range.surroundContents(span);
+            } catch {
+              span.appendChild(range.extractContents());
+              range.insertNode(span);
+            }
+          } else {
+            span.innerHTML = '&#8203;';
+            ed.insertHtmlAtCursor(span.outerHTML);
+          }
+          ed.setActiveFontSize(parseInt(sizePx));
           break;
         }
         ed.insertTextAtCursor(`[${tag}][/${tag.split('=')[0]}]`);
