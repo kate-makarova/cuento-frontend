@@ -18,6 +18,10 @@ export class PuzzleService {
     return this.apiService.post<PuzzleAchievement>(`puzzle/${puzzleId}/achievement`, { screenshot_url: screenshotUrl });
   }
 
+  deleteAchievement(achievementId: number) {
+    return this.apiService.delete<void>(`puzzle/achievement/${achievementId}`);
+  }
+
   getUserAchievements(userId: number) {
     return this.apiService.get<PuzzleAchievement[]>(`user/${userId}/puzzle-achievements`);
   }
