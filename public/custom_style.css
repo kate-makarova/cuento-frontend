@@ -1998,6 +1998,16 @@ app-root.dark #form-buttons span.toolbar-active {
   background-color: rgba(255, 255, 255, 0.15);
 }
 
+app-root.dark #font-area div.toolbar-active,
+app-root.dark #size-area div.toolbar-active {
+  background-color: rgba(255, 255, 255, 0.15);
+  font-weight: bold;
+}
+
+app-root.dark #color-area td.toolbar-active {
+  outline-color: rgba(255, 255, 255, 0.8);
+}
+
 .spoiler-modal-backdrop {
   background: rgba(0, 0, 0, 0.4);
 }
