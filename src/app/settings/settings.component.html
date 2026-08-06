@@ -68,6 +68,15 @@
               </select>
             </span>
           </p>
+          <p class="inputfield">
+            <label for="editor_type" i18n="@@settings.editorType">Editor</label><br />
+            <span class="input">
+              <select id="editor_type" name="editor_type" [(ngModel)]="editorType">
+                <option [ngValue]="0" i18n="@@settings.editorTypeWysiwyg">Visual (WYSIWYG)</option>
+                <option [ngValue]="1" i18n="@@settings.editorTypeBbcode">BBCode</option>
+              </select>
+            </span>
+          </p>
         </div>
       </fieldset>
 

@@ -1501,7 +1501,10 @@ div.punbb-admin #pun-about .container {
 /* D11.5 */
 #post .fs-box.hashelp, #post .fs-box .areafield {
   padding-bottom: 0;
+  width: 700px;
+  max-width: 100%;
 }
+
 
 /* D11.6 */
 #post #main-reply {
@@ -1755,6 +1758,39 @@ spoiler-box .spoiler-content {
   border-top: none;
   border-radius: 0 0 4px 4px;
   padding: 0 10px;
+}
+
+/* Editor imitation of spoiler-box — always open, no toggle */
+.wysiwyg-spoiler {
+  display: block;
+  margin: 8px 0;
+}
+
+.wysiwyg-spoiler .wysiwyg-spoiler-header {
+  background-color: #e9e3d5;
+  border: 1px solid #d1bc9b;
+  border-radius: 4px 4px 0 0;
+  padding: 6px 10px;
+  font-size: 0.9em;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wysiwyg-spoiler .wysiwyg-spoiler-header::before {
+  content: '▶';
+  font-size: 0.7em;
+  color: #9c7d58;
+  display: inline-block;
+  transform: rotate(90deg);
+}
+
+.wysiwyg-spoiler .wysiwyg-spoiler-content {
+  border: 1px solid #d1bc9b;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  padding: 8px 10px;
 }
 
 .widget-grid {
@@ -2819,13 +2855,49 @@ app-number-field-display:host {
 }
 
 /* === bb-toolbar.component === */
-#form-buttons td {
-  width: 23px;
-  height: 22px;
+#form-buttons {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+#form-buttons span {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  display: table-cell;
-  background-repeat: no-repeat;
-  background-position: center;
+  border-radius: 3px;
+}
+
+#form-buttons span.toolbar-active {
+  background-color: rgba(0, 0, 0, 0.12);
+}
+
+#url-area {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 4px 6px;
+}
+
+#url-area input {
+  flex: 1;
+  padding: 3px 6px;
+}
+
+#url-area button {
+  padding: 3px 10px;
+  cursor: pointer;
+}
+
+/* Edit form: prevent fieldset from overflowing its container */
+.post-box form {
+  min-width: 0;
+}
+
+.post-box form fieldset {
+  min-width: 0;
 }
 
 .spoiler-modal-backdrop {
@@ -2928,6 +3000,48 @@ app-number-field-display:host {
 .mention-dropdown li {
   padding: 6px 10px;
   cursor: pointer;
+}
+
+.wysiwyg-editor,
+.textarea-wrapper textarea {
+  background-color: #fff;
+  color: inherit;
+  min-height: 120px;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-top: none;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.wysiwyg-editor img {
+  max-width: 100%;
+  height: auto;
+}
+
+.editor-mode-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.mode-switcher-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  font-size: 0.78rem;
+  padding: 2px 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mode-switcher-btn:hover {
+  color: #333;
+  text-decoration: underline;
 }
 
 /* === faction-paths.component === */

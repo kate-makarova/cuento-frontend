@@ -250,8 +250,8 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
         const state = this.previewService.state();
         if (state?.formType === 'post' && state.formPayload?.content) {
           setTimeout(() => {
-            if (this.postForm?.messageField) {
-              this.postForm.messageField.nativeElement.value = state.formPayload.content;
+            if (this.postForm) {
+              this.postForm.setValue(state.formPayload.content);
               this.previewService.clear();
             }
           });
@@ -341,14 +341,9 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   }
 
   onAuthorMention(username: string) {
-    if (!username || !this.postForm?.messageField) return;
-    const textarea = this.postForm.messageField.nativeElement;
-    const mention = `@${username}\u200A, `;
-    const start = textarea.selectionStart ?? textarea.value.length;
-    textarea.value = textarea.value.slice(0, start) + mention + textarea.value.slice(start);
-    const newPos = start + mention.length;
-    textarea.focus();
-    setTimeout(() => { textarea.selectionStart = textarea.selectionEnd = newPos; });
+    if (!username || !this.postForm) return;
+    this.postForm.insertAtCursor(`@${username}\u200A, `);
+    this.postForm.focus();
     document.getElementById('post-form')?.scrollIntoView({ behavior: 'smooth' });
   }
 
@@ -407,14 +402,9 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
     const formattedQuote = `[quote=${authorName}]${quoteContent}[/quote]\n`;
 
-    // Append to the main post form
-    if (this.postForm && this.postForm.messageField) {
-      const textarea = this.postForm.messageField.nativeElement;
-      textarea.value += formattedQuote;
-      textarea.focus();
-      textarea.scrollTop = textarea.scrollHeight;
-
-      // Scroll to the form
+    if (this.postForm) {
+      this.postForm.appendText(formattedQuote);
+      this.postForm.focus();
       document.getElementById('post-form')?.scrollIntoView({ behavior: 'smooth' });
     }
   }
@@ -449,7 +439,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
   onSubmit(event: Event) {
     event.preventDefault();
-    const message = this.postForm.messageField.nativeElement.value;
+    const message = this.postForm.getValue();
 
     if (!message || !this.id()) return;
     if (this.isSubmitting()) return;
@@ -475,7 +465,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       payload.guest_name = this.guestName;
     }
 
-    this.postForm.messageField.nativeElement.value = '';
+    this.postForm.clear();
 
     setTimeout(() => document.getElementById('post-pending')?.scrollIntoView({ behavior: 'smooth' }));
 
@@ -497,7 +487,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
   onPreview(event: Event) {
     event.preventDefault();
-    const message = this.postForm.messageField.nativeElement.value;
+    const message = this.postForm.getValue();
 
     if (!message || !this.id()) return;
 
