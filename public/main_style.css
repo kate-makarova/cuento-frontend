@@ -2874,6 +2874,28 @@ app-number-field-display:host {
   background-color: rgba(0, 0, 0, 0.12);
 }
 
+#font-area div.toolbar-active,
+#size-area div.toolbar-active {
+  background-color: rgba(0, 0, 0, 0.12);
+  font-weight: bold;
+  position: relative;
+}
+
+#font-area div.toolbar-active::after,
+#size-area div.toolbar-active::after {
+  content: '✓';
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.85em;
+}
+
+#color-area td.toolbar-active {
+  outline: 2px solid rgba(0, 0, 0, 0.7);
+  outline-offset: -2px;
+}
+
 #form-buttons span {
   position: relative;
 }
@@ -2902,6 +2924,7 @@ app-number-field-display:host {
   display: block;
   margin-bottom: 2px;
 }
+
 
 #url-area {
   display: flex;

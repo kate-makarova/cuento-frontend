@@ -119,6 +119,55 @@ export class BbToolbarComponent {
     return this.editor?.activeFontFamily() ?? null;
   }
 
+  private applyInlineSpan(ed: WysiwygEditorComponent, configure: (el: HTMLSpanElement) => void): void {
+    const sel = window.getSelection();
+    const span = document.createElement('span');
+    configure(span);
+    if (sel && sel.rangeCount > 0 && !sel.getRangeAt(0).collapsed) {
+      const range = sel.getRangeAt(0);
+      try {
+        range.surroundContents(span);
+      } catch {
+        span.appendChild(range.extractContents());
+        range.insertNode(span);
+      }
+      // Collapse cursor to end of span content using sel.collapse (not removeAllRanges)
+      // so the editor keeps focus and updateInlineStyles() detects the new format
+      let target: Node = span;
+      while (target.lastChild) target = target.lastChild;
+      sel.collapse(target, target.nodeType === Node.TEXT_NODE ? (target as Text).length : 0);
+    } else {
+      span.innerHTML = '&#8203;';
+      ed.insertHtmlAtCursor(span.outerHTML);
+    }
+  }
+
+  private clearStyleInSelection(property: 'color' | 'fontSize' | 'fontFamily'): void {
+    const ed = this.editor;
+    if (!ed) return;
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return;
+    const range = sel.getRangeAt(0);
+
+    const walker = document.createTreeWalker(ed.nativeElement, NodeFilter.SHOW_ELEMENT);
+    let node = walker.nextNode();
+    while (node) {
+      if (range.intersectsNode(node)) {
+        const el = node as HTMLElement;
+        el.style[property] = '';
+        if (el.tagName === 'FONT') {
+          if (property === 'color') el.removeAttribute('color');
+          if (property === 'fontFamily') el.removeAttribute('face');
+        }
+      }
+      node = walker.nextNode();
+    }
+
+    if (property === 'color') ed.setActiveColor(null);
+    if (property === 'fontSize') ed.setActiveFontSize(null);
+    if (property === 'fontFamily') ed.setActiveFontFamily(null);
+  }
+
   insertTag(tag: string) {
     if (this.editor) {
       this.insertTagWysiwyg(tag);
@@ -162,34 +211,32 @@ export class BbToolbarComponent {
       default: {
         if (tag.startsWith('font=')) {
           const font = tag.slice(5);
-          ed.exec('fontName', font);
-          ed.setActiveFontFamily(font.toLowerCase());
+          if (this.isFontActive(font)) {
+            this.clearStyleInSelection('fontFamily');
+          } else {
+            this.applyInlineSpan(ed, el => { el.style.fontFamily = font; });
+            ed.setActiveFontFamily(font.toLowerCase());
+          }
           break;
         }
         if (tag.startsWith('color=')) {
           const color = tag.slice(6);
-          ed.exec('foreColor', color);
-          ed.setActiveColor(this.normalizeColor(color));
+          if (this.isColorActive(color)) {
+            this.clearStyleInSelection('color');
+          } else {
+            this.applyInlineSpan(ed, el => { el.style.color = color; });
+            ed.setActiveColor(this.normalizeColor(color));
+          }
           break;
         }
         if (tag.startsWith('size=')) {
           const sizePx = tag.slice(5);
-          const sel = window.getSelection();
-          const span = document.createElement('span');
-          span.style.fontSize = `${sizePx}px`;
-          if (sel && sel.rangeCount > 0 && !sel.getRangeAt(0).collapsed) {
-            const range = sel.getRangeAt(0);
-            try {
-              range.surroundContents(span);
-            } catch {
-              span.appendChild(range.extractContents());
-              range.insertNode(span);
-            }
+          if (this.isSizeActive(parseInt(sizePx))) {
+            this.clearStyleInSelection('fontSize');
           } else {
-            span.innerHTML = '&#8203;';
-            ed.insertHtmlAtCursor(span.outerHTML);
+            this.applyInlineSpan(ed, el => { el.style.fontSize = `${sizePx}px`; });
+            ed.setActiveFontSize(parseInt(sizePx));
           }
-          ed.setActiveFontSize(parseInt(sizePx));
           break;
         }
         ed.insertTextAtCursor(`[${tag}][/${tag.split('=')[0]}]`);
