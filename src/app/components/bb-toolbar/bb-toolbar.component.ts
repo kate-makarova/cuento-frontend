@@ -181,7 +181,7 @@ export class BbToolbarComponent {
     const text = textarea.value;
 
     const tagBase = tag.split('=')[0];
-    const openTag = `[${tag}]`;
+    const openTag = tagBase === 'font' ? `[font="${tag.slice(5)}"]` : `[${tag}]`;
     const closeTag = `[/${tagBase}]`;
 
     const selectedText = text.substring(start, end);
