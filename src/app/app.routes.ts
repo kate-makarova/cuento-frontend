@@ -1,4 +1,6 @@
-import { Routes } from '@angular/router';
+import { Routes, Router } from '@angular/router';
+import { inject } from '@angular/core';
+import { AuthService } from './services/auth.service';
 import {HomeComponent} from './home/home.component';
 import {ViewforumComponent} from './viewforum/viewforum.component';
 import {ViewtopicComponent} from './viewtopic/viewtopic.component';
@@ -85,6 +87,7 @@ import { PuzzleViewComponent } from './puzzle-view/puzzle-view.component';
 import { PuzzleAchievementsComponent } from './puzzle-achievements/puzzle-achievements.component';
 import { AdminPuzzlesComponent } from './admin/admin-puzzles/admin-puzzles.component';
 import { AdminPuzzleEditComponent } from './admin/admin-puzzle-edit/admin-puzzle-edit.component';
+import { AdminBackupComponent } from './admin/admin-backup/admin-backup.component';
 
 
 export const routes: Routes = [
@@ -467,6 +470,16 @@ export const routes: Routes = [
         path: 'features/puzzle/:id',
         component: AdminPuzzleEditComponent,
         title: 'Admin - Edit Puzzle'
+      },
+      {
+        path: 'backup',
+        component: AdminBackupComponent,
+        title: 'Admin - Backup',
+        canActivate: [() => {
+          const auth = inject(AuthService);
+          const router = inject(Router);
+          return auth.hasPermission('show_admin_backup') || router.createUrlTree(['/403']);
+        }]
       },
       {
         path: 'reactions',
