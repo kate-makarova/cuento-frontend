@@ -100,6 +100,7 @@ export class SettingsComponent implements OnInit {
   timezone: string = 'UTC+00:00';
   interfaceDesign: string | null = null;
   editorType: 0 | 1 = 0;
+  doNotBlur: boolean = false;
   signature: string = '';
   designVariations = signal<DesignVariation[]>([]);
   fontSize: number = 1.0;
@@ -143,6 +144,7 @@ export class SettingsComponent implements OnInit {
       this.fontSize = currentUser.interface_font_size || 1.0;
       this.interfaceDesign = currentUser.interface_design ?? null;
       this.editorType = currentUser.editor_type ?? 0;
+      this.doNotBlur = currentUser.do_not_blur ?? false;
     }
     this.apiService.get<DesignVariation[]>('design-variation/list').subscribe({
       next: (list) => this.designVariations.set(list),
@@ -219,6 +221,7 @@ export class SettingsComponent implements OnInit {
       interface_font_size: this.fontSize,
       interface_design: this.interfaceDesign,
       editor_type: this.editorType,
+      do_not_blur: this.doNotBlur,
       signature: this.signatureField.nativeElement.value
     };
 

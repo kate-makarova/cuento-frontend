@@ -42,7 +42,7 @@ const GENERAL_SETTING_GROUPS: SettingGroup[] = [
   },
   {
     legend: $localize`:@@adminSettings.groupRating:Rating`,
-    names: ['use_rating_system', 'site_max_rating'],
+    names: ['use_rating_system', 'site_max_rating', 'blur_content_starting_from_rate', 'show_content_warnings'],
   },
 ];
 
@@ -87,6 +87,8 @@ const SETTING_LABELS: Record<string, string> = {
 
   use_rating_system: $localize`:@@adminSettings.use_rating_system:Enable rating system`,
   site_max_rating: $localize`:@@adminSettings.site_max_rating:Maximum site rating`,
+  blur_content_starting_from_rate: $localize`:@@adminSettings.blur_content_starting_from_rate:Blur content starting from rating`,
+  show_content_warnings: $localize`:@@adminSettings.show_content_warnings:Show content warnings`,
 
   use_image_uploading: $localize`:@@adminSettings.use_image_uploading:Enable image uploading`,
   image_hosting: $localize`:@@adminSettings.image_hosting:Image hosting`,

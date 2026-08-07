@@ -218,4 +218,9 @@ export class AuthService {
     }
     return user.roles?.some(role => role.permissions?.includes(permission)) ?? false;
   }
+
+  public patchCurrentUser(patch: Partial<User>): void {
+    const user = this.currentUser();
+    if (user) this.currentUser.set({ ...user, ...patch });
+  }
 }
