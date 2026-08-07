@@ -94,14 +94,14 @@ function nodeToText(node: Node): string {
       const color = el.getAttribute('color');
       const face  = el.getAttribute('face');
       if (color) r = `[color=${color}]${r}[/color]`;
-      if (face)  r = `[font=${face}]${r}[/font]`;
+      if (face)  r = `[font="${face}"]${r}[/font]`;
       return r;
     }
     case 'span': {
       let r = inner();
       const s = el.style;
       if (s.color)      r = `[color=${s.color}]${r}[/color]`;
-      if (s.fontFamily) r = `[font=${s.fontFamily.replace(/['"]/g, '')}]${r}[/font]`;
+      if (s.fontFamily) r = `[font="${s.fontFamily.replace(/['"]/g, '')}"]${r}[/font]`;
       if (s.fontSize)   r = `[size=${parseInt(s.fontSize)}]${r}[/size]`;
       return r;
     }
@@ -120,7 +120,7 @@ export function bbCodeToHtml(bb: string): string {
     .replace(/\[u\]([\s\S]*?)\[\/u\]/g,   '<u>$1</u>')
     .replace(/\[s\]([\s\S]*?)\[\/s\]/g,   '<s>$1</s>')
     .replace(/\[color=([^\]]+)\]([\s\S]*?)\[\/color\]/g, '<font color="$1">$2</font>')
-    .replace(/\[font=([^\]]+)\]([\s\S]*?)\[\/font\]/g,   '<font face="$1">$2</font>')
+    .replace(/\[font="?([^"\]]+)"?\]([\s\S]*?)\[\/font\]/g, '<font face="$1">$2</font>')
     .replace(/\[size=(\d+)\]([\s\S]*?)\[\/size\]/g,      '<span style="font-size:$1px">$2</span>')
     .replace(/\[url=([^\]]+)\]([\s\S]*?)\[\/url\]/g,     '<a href="$1">$2</a>')
     .replace(/\[img\]([\s\S]*?)\[\/img\]/g,              '<img src="$1">')
