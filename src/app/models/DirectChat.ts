@@ -36,4 +36,5 @@ export interface DirectChatListItem {
   user_id: number;
   username: string;
   unread_count: number;
+  chat_blocked_since_date: string | null;
 }

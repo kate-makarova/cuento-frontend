@@ -2628,6 +2628,53 @@ app-number-field-display:host {
   align-items: center;
 }
 
+.pm-contact-blocked .tclcon strong {
+  opacity: 0.55;
+}
+
+.pm-blocked-icon {
+  margin-left: 5px;
+  font-size: 0.8em;
+  opacity: 0.7;
+  vertical-align: middle;
+}
+
+.pm-chat-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  min-height: 38px;
+}
+
+.pm-block-button {
+  padding: 4px 10px;
+  font-size: 0.85em;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background-color: transparent;
+  color: inherit;
+  border: 1px solid currentColor;
+  opacity: 0.7;
+}
+
+.pm-block-button:hover {
+  opacity: 1;
+  background-color: transparent;
+}
+
+.pm-unblock-button {
+  color: #c0392b;
+}
+
+.pm-blocked-notice {
+  font-size: 0.85em;
+  opacity: 0.7;
+  font-style: italic;
+}
+
 .new-chat-block {
   padding: 8px;
   display: flex;

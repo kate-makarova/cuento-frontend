@@ -221,6 +221,22 @@ export class DirectChatService {
     );
   }
 
+  blockChat(chatId: number): Observable<void> {
+    return this.apiService.post<void>(`direct-chat/${chatId}/block`, {}).pipe(
+      tap(() => this.chatListSignal.update(list =>
+        list.map(c => c.chat_id === chatId ? { ...c, chat_blocked_since_date: new Date().toISOString() } : c)
+      ))
+    );
+  }
+
+  unblockChat(chatId: number): Observable<void> {
+    return this.apiService.post<void>(`direct-chat/${chatId}/unblock`, {}).pipe(
+      tap(() => this.chatListSignal.update(list =>
+        list.map(c => c.chat_id === chatId ? { ...c, chat_blocked_since_date: null } : c)
+      ))
+    );
+  }
+
   sendMessage(content: string): Observable<any> {
     const chat = this.currentChatSignal();
     if (!chat) throw new Error('No active chat');

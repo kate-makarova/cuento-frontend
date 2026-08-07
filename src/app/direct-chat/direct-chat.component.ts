@@ -137,7 +137,8 @@ export class DirectChatComponent implements OnInit, OnDestroy {
           chat_id: response.chat_id,
           user_id: user.id,
           username: user.username,
-          unread_count: 0
+          unread_count: 0,
+          chat_blocked_since_date: null
         });
         this.newChatTerm = '';
         this.selectedNewChatUser = null;
@@ -198,6 +199,20 @@ export class DirectChatComponent implements OnInit, OnDestroy {
 
   selectUser(chat: DirectChatListItem) {
     this.directChatService.loadDirectChat(chat.chat_id);
+  }
+
+  get currentChatBlocked(): boolean {
+    const id = this.currentChat()?.chat_id;
+    return !!this.chatList().find(c => c.chat_id === id)?.chat_blocked_since_date;
+  }
+
+  toggleBlock() {
+    const chatId = this.currentChat()?.chat_id;
+    if (!chatId) return;
+    const action$ = this.currentChatBlocked
+      ? this.directChatService.unblockChat(chatId)
+      : this.directChatService.blockChat(chatId);
+    action$.subscribe({ error: (err) => console.error('Block/unblock failed', err) });
   }
   toggleSearch() {}
   onSearch(event: Event) {}
