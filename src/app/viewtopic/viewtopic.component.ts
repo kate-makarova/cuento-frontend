@@ -31,6 +31,7 @@ import { PreviewService } from '../services/preview.service';
 import { LoreTopicHeaderComponent } from '../components/lore-topic-header/lore-topic-header.component';
 import { UserInfoComponent } from '../components/user-info/user-info.component';
 import { StandardWarning } from '../models/StandardWarning';
+import { FormsModule } from '@angular/forms';
 
 function coerceToPage(value: unknown): number {
   const num = numberAttribute(value, 1);
@@ -57,6 +58,7 @@ function coerceToPage(value: unknown): number {
     RouterLinksDirective,
     CodeCopyDirective,
     UserInfoComponent,
+    FormsModule,
   ],
   templateUrl: './viewtopic.component.html',
   standalone: true,
@@ -136,6 +138,32 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   episodeWarnings = signal<StandardWarning[]>([]);
   warningsAcknowledged = signal(false);
   private warningsLoaded = signal(false);
+
+  blurAcknowledged = signal(false);
+  doNotBlurChecked = false;
+
+  get shouldBlur(): boolean {
+    if (this.blurAcknowledged()) return false;
+    if (this.showPostForm()) return false;
+    const user = this.authService.currentUser();
+    if (user && user.do_not_blur) return false;
+    const raw = this.boardService.board().blur_content_starting_from_rate;
+    const threshold = raw ? parseInt(raw, 10) : NaN;
+    if (isNaN(threshold)) return false;
+    const ep = this.topic()?.episode;
+    if (!ep) return false;
+    return (ep.rating_language ?? 0) >= threshold || (ep.rating_violence ?? 0) >= threshold || (ep.rating_sex ?? 0) >= threshold;
+  }
+
+  acknowledgeBlur() {
+    this.blurAcknowledged.set(true);
+    if (this.doNotBlurChecked && this.authService.currentUser()) {
+      this.apiService.post('user/do-not-blur', { do_not_blur: true }).subscribe({
+        next: () => this.authService.patchCurrentUser({ do_not_blur: true }),
+        error: (err) => console.error('Failed to save do_not_blur', err)
+      });
+    }
+  }
 
   reactionPickerPostId = signal<number | null>(null);
   activeReactions = signal<Reaction[]>([]);

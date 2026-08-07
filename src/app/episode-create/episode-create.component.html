@@ -123,6 +123,7 @@
               <a class="rating-help-link" (click)="showRatingHelp.set(true)" i18n="@@episodecreate.ratingHelp">Help</a>
             </div>
           </div>
+          @if (showContentWarnings()) {
           <div class="inputfield">
             <label i18n="@@episodecreate.warnings">Content Warnings</label>
             <div class="episode-warnings-add">
@@ -145,6 +146,7 @@
               </ul>
             }
           </div>
+          }
         </div>
       }
     </fieldset>

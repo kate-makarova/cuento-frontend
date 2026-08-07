@@ -36,6 +36,7 @@ export class EpisodeCreateComponent implements OnInit {
   characterSuggestions = this.characterService.shortCharacterList;
   breadcrumbs: BreadcrumbItem[] = [];
   useRatingSystem = computed(() => this.boardService.board().use_rating_system === 'y');
+  showContentWarnings = computed(() => this.boardService.board().show_content_warnings === 'y');
 
   @Input() initialData: Episode | null = null;
   @Output() formSubmit = new EventEmitter<any>();

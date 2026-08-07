@@ -17,6 +17,8 @@ export interface Board {
   features?: { [key: string]: number };
   use_rating_system?: string;
   site_max_rating?: string;
+  blur_content_starting_from_rate?: string | null;
+  show_content_warnings?: string;
   use_image_uploading?: string;
   use_image_proxy?: string;
   user_avatar_width?: number;
