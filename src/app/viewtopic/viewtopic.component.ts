@@ -403,7 +403,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     const formattedQuote = `[quote=${authorName}]${quoteContent}[/quote]\n`;
 
     if (this.postForm) {
-      this.postForm.appendText(formattedQuote);
+      this.postForm.appendBbCode(formattedQuote);
       this.postForm.focus();
       document.getElementById('post-form')?.scrollIntoView({ behavior: 'smooth' });
     }
