@@ -1,4 +1,6 @@
-import { Routes } from '@angular/router';
+import { Routes, Router } from '@angular/router';
+import { inject } from '@angular/core';
+import { AuthService } from './services/auth.service';
 import {HomeComponent} from './home/home.component';
 import {ViewforumComponent} from './viewforum/viewforum.component';
 import {ViewtopicComponent} from './viewtopic/viewtopic.component';
@@ -472,7 +474,12 @@ export const routes: Routes = [
       {
         path: 'backup',
         component: AdminBackupComponent,
-        title: 'Admin - Backup'
+        title: 'Admin - Backup',
+        canActivate: [() => {
+          const auth = inject(AuthService);
+          const router = inject(Router);
+          return auth.hasPermission('show_admin_backup') || router.createUrlTree(['/403']);
+        }]
       },
       {
         path: 'reactions',

@@ -14,7 +14,9 @@
             <li><a routerLink="/admin/subforums" routerLinkActive="active" i18n="@@admin.subforums">Subforums</a></li>
             <li><a routerLink="/admin/topic-commander" routerLinkActive="active" i18n="@@admin.topicCommander">Topic Commander</a></li>
             <li><a routerLink="/admin/external-apps" routerLinkActive="active" i18n="@@admin.externalApps">External Apps</a></li>
-            <li><a routerLink="/admin/backup" routerLinkActive="active" i18n="@@admin.backup">Backup</a></li>
+            @if (hasPermission('show_admin_backup')) {
+              <li><a routerLink="/admin/backup" routerLinkActive="active" i18n="@@admin.backup">Backup</a></li>
+            }
           </ul>
         }
       </div>
