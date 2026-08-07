@@ -7,6 +7,7 @@ import { UserShort } from '../../models/UserShort';
 import { CommonModule } from '@angular/common';
 import { BbToolbarComponent } from '../bb-toolbar/bb-toolbar.component';
 import { WysiwygEditorComponent } from '../wysiwyg-editor/wysiwyg-editor.component';
+import { bbCodeToHtml } from '../wysiwyg-editor/wysiwyg-editor.utils';
 
 type EditorMode = 'wysiwyg' | 'bbcode';
 
@@ -98,6 +99,15 @@ export class PostFormComponent implements AfterViewInit, OnDestroy {
     } else {
       const el = this.messageField?.nativeElement;
       if (el) { el.value += text; el.focus(); }
+    }
+  }
+
+  appendBbCode(bbCode: string): void {
+    if (this.editorMode() === 'wysiwyg') {
+      this.wysiwygEditor?.insertBlockAtCursor(bbCodeToHtml(bbCode));
+    } else {
+      const el = this.messageField?.nativeElement;
+      if (el) { el.value += bbCode; el.focus(); }
     }
   }
 
