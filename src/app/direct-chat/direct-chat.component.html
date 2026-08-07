@@ -30,9 +30,12 @@
 
         <div class="main-item">
           @for (chat of chatList(); track chat.chat_id) {
-            <div class="pm-contact" [class.active]="chat.chat_id === currentChat()?.chat_id" (click)="selectUser(chat)">
+            <div class="pm-contact" [class.active]="chat.chat_id === currentChat()?.chat_id" [class.pm-contact-blocked]="!!chat.chat_blocked_since_date" (click)="selectUser(chat)">
               <div class="tclcon">
                 <strong>{{ chat.username }}</strong>
+                @if (chat.chat_blocked_since_date) {
+                  <i class="bi bi-slash-circle pm-blocked-icon" title="Blocked" i18n-title="@@directchat.blocked"></i>
+                }
               </div>
               @if (chat.unread_count > 0) {
                 <span class="unread-badge">{{ chat.unread_count }}</span>
@@ -45,6 +48,25 @@
       <div class="pm-history">
         @if (currentChat()) {
           <div class="main-item">
+            <div class="pm-chat-header">
+              <button
+                type="button"
+                class="button pm-block-button"
+                [class.pm-unblock-button]="currentChatBlocked"
+                (click)="toggleBlock()"
+              >
+                @if (currentChatBlocked) {
+                  <i class="bi bi-slash-circle-fill"></i>
+                  <span i18n="@@directchat.unblock">Unblock</span>
+                } @else {
+                  <i class="bi bi-slash-circle"></i>
+                  <span i18n="@@directchat.block">Block</span>
+                }
+              </button>
+              @if (currentChatBlocked) {
+                <span class="pm-blocked-notice" i18n="@@directchat.blockedNotice">You are not receiving new messages from this chat.</span>
+              }
+            </div>
             <div class="history-scroll" #scrollContainer (scroll)="onScroll()">
               @if (isLoadingOlder()) {
                 <div class="load-older-loader">
