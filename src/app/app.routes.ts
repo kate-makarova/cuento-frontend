@@ -85,6 +85,7 @@ import { PuzzleViewComponent } from './puzzle-view/puzzle-view.component';
 import { PuzzleAchievementsComponent } from './puzzle-achievements/puzzle-achievements.component';
 import { AdminPuzzlesComponent } from './admin/admin-puzzles/admin-puzzles.component';
 import { AdminPuzzleEditComponent } from './admin/admin-puzzle-edit/admin-puzzle-edit.component';
+import { AdminBackupComponent } from './admin/admin-backup/admin-backup.component';
 
 
 export const routes: Routes = [
@@ -467,6 +468,11 @@ export const routes: Routes = [
         path: 'features/puzzle/:id',
         component: AdminPuzzleEditComponent,
         title: 'Admin - Edit Puzzle'
+      },
+      {
+        path: 'backup',
+        component: AdminBackupComponent,
+        title: 'Admin - Backup'
       },
       {
         path: 'reactions',
