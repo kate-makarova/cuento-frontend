@@ -20,6 +20,7 @@
         <td style="display: flex; gap: 8px;">
           <button class="button" (click)="openPreview(draft)" i18n="@@adminDesignDrafts.openPreview">Open Draft Preview</button>
           <button class="button" (click)="confirmPublish(draft)" i18n="@@adminDesignDrafts.publish">Publish</button>
+          <button class="button btn-deactivate" (click)="confirmDelete(draft)" i18n="@@adminDesignDrafts.delete">Delete</button>
         </td>
       </tr>
     } @empty {
@@ -40,6 +41,19 @@
       <div style="margin-top: 15px; text-align: right;">
         <button class="button" (click)="publish()" i18n="@@adminDesignDrafts.publish">Publish</button>
         <button class="button" (click)="cancelPublish()" i18n="@@common.cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (deletingDraft(); as draft) {
+  <div class="modal-overlay" (click)="cancelDelete()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h2 i18n="@@adminDesignDrafts.deleteTitle">Delete «{{ draft.name }}»?</h2>
+      <p i18n="@@adminDesignDrafts.deleteWarning">This action is irreversible. The draft and all its CSS will be permanently deleted.</p>
+      <div style="margin-top: 15px; text-align: right;">
+        <button class="button btn-deactivate" (click)="deleteDraft()" i18n="@@adminDesignDrafts.delete">Delete</button>
+        <button class="button" (click)="cancelDelete()" i18n="@@common.cancel">Cancel</button>
       </div>
     </div>
   </div>

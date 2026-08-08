@@ -1015,6 +1015,9 @@ export const TRANSLATIONS_RU = {
   "adminDesignDrafts.publishWarning2": "Пользователи могут не увидеть изменения до перезагрузки страницы.",
   "adminDesignDrafts.publishWarning3": "Действие можно отменить через страницу статических файлов.",
   "adminDesignDrafts.publishFailed": "Ошибка публикации",
+  "adminDesignDrafts.delete": "Удалить",
+  "adminDesignDrafts.deleteTitle": "Удалить «{$INTERPOLATION}»?",
+  "adminDesignDrafts.deleteWarning": "Это действие необратимо. Черновик и весь его CSS будут удалены навсегда.",
 
   "adminDesignDraftEdit.title": "Редактировать черновик оформления",
   "adminDesignDraftEdit.openPreview": "Открыть превью",
