@@ -18,7 +18,7 @@
             <div class="intd">
               <div class="icon"></div>
               <div class="tclcon">
-                <h3>{{subforum.name}}</h3>
+                 <h3>{{subforum.name}}</h3>
                 {{subforum.topic_number}} {{subforum.post_number}}
               </div>
             </div>
@@ -27,13 +27,13 @@
 
             <div class="forumdesc" approuterlinks="" [innerHTML]="(subforum.description_html ?? subforum.description) | safeHtml"></div>
           </td>
-          <td class="tcr">
+           <td class="tcr">
             @if (subforum.last_post_topic_id == null) {
               <span i18n="@@home.noPosts">No posts</span>
             } @else if (subforum.show_last_topic === true) {
-              {{subforum.last_post_topic_name}}
+              <a class="lastpost-link">{{subforum.last_post_topic_name}}</a>
             } @else {
-              {{subforum.last_post_topic_name}}
+              <a class="lastpost-link">{{subforum.last_post_topic_name}}</a>
               <br>
               <span class="lastpost">
                 <span class="datetime">{{subforum.date_last_post_localized}}</span>
