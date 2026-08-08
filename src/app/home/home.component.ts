@@ -10,6 +10,7 @@ import {CurrentlyActiveComponent} from '../components/currently-active/currently
 import {RecentlyActiveComponent} from '../components/recently-active/recently-active.component';
 import { RouterLinksDirective } from '../directives/router-links.directive';
 import { SafeHtmlPipe } from '../pipes/safe-html.pipe';
+import { CategoryComponent } from '../components/category/category.component';
 
 @Component({
   selector: 'app-home',
@@ -21,7 +22,8 @@ import { SafeHtmlPipe } from '../pipes/safe-html.pipe';
     CurrentlyActiveComponent,
     RecentlyActiveComponent,
     RouterLinksDirective,
-    SafeHtmlPipe
+    SafeHtmlPipe,
+    CategoryComponent
   ]
 })
 export class HomeComponent implements OnInit, OnDestroy {
