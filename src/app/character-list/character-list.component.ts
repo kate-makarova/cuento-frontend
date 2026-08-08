@@ -14,6 +14,7 @@ import { ClaimCreateModalComponent } from '../components/claim-create-modal/clai
 
 @Component({
   selector: 'app-character-list',
+  host: { class: 'pun-page' },
   imports: [
     RouterLink,
     FormsModule,

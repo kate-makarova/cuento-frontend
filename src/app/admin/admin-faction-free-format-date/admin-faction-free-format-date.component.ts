@@ -43,6 +43,7 @@ interface FreeFormatDateResponse {
 
 @Component({
   selector: 'app-admin-faction-free-format-date',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [FormsModule, SaveButtonComponent],
   templateUrl: './admin-faction-free-format-date.component.html',

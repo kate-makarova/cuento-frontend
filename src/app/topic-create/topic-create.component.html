@@ -34,17 +34,7 @@
             </div>
 
             <div class="textarea-wrapper">
-              <p class="areafield required">
-                <span class="input">
-                  <app-long-text-field
-                    [fieldName]="'main-reply'"
-                    [name]="'req_message'"
-                    [showFieldName]="false"
-                    [rows]="20"
-                    [fieldValue]="restoredContent">
-                  </app-long-text-field>
-                </span>
-              </p>
+              <app-post-form #postForm [initialContent]="restoredContent"></app-post-form>
             </div>
           </div>
 

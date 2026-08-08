@@ -7,6 +7,7 @@ import { UserInfoComponent } from '../components/user-info/user-info.component';
 
 @Component({
   selector: 'app-characterview',
+  host: { class: 'pun-page' },
   imports: [
     RouterLink,
     CharacterSheetHeaderComponent,

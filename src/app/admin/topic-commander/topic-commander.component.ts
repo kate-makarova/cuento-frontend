@@ -16,6 +16,7 @@ interface PanelState {
 
 @Component({
   selector: 'app-topic-commander',
+  host: { class: 'pun-page' },
   imports: [CommonModule],
   templateUrl: './topic-commander.component.html',
   standalone: true,

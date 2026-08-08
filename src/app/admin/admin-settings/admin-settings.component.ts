@@ -98,6 +98,7 @@ const SETTING_LABELS: Record<string, string> = {
 
 @Component({
   selector: 'app-admin-settings',
+  host: { class: 'pun-page' },
   imports: [CommonModule, FormsModule, SaveButtonComponent],
   standalone: true,
   templateUrl: './admin-settings.component.html',

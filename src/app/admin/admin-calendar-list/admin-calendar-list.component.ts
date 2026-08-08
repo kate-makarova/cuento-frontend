@@ -5,6 +5,7 @@ import { CalendarOption } from '../../models/Calendar';
 
 @Component({
   selector: 'app-admin-calendar-list',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [RouterLink],
   templateUrl: './admin-calendar-list.component.html',

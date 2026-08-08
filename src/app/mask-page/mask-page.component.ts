@@ -8,6 +8,7 @@ import { TopicStatus } from '../models/Topic';
 
 @Component({
   selector: 'app-mask-page',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './mask-page.component.html',

@@ -6,6 +6,7 @@ import { MigrationStatus } from '../models/Migration';
 
 @Component({
   selector: 'app-migration-list',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './migration-list.component.html',

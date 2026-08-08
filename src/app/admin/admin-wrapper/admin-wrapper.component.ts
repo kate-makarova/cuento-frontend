@@ -5,6 +5,7 @@ import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-admin-wrapper',
+  host: { class: 'pun-page' },
   imports: [RouterOutlet, RouterLink, CommonModule],
   templateUrl: './admin-wrapper.component.html',
   styleUrl: './admin-wrapper.component.css'

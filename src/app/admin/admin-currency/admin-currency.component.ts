@@ -8,6 +8,7 @@ type SaveState = 'idle' | 'loading' | 'success' | 'error';
 
 @Component({
   selector: 'app-admin-currency',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [FormsModule, SaveButtonComponent],
   templateUrl: './admin-currency.component.html',

@@ -22,6 +22,7 @@ interface AbsentUserItem {
 
 @Component({
   selector: 'app-absence-list',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [RouterLink, DatePipe, FormsModule, ErrorBannerComponent],
   templateUrl: './absence-list.component.html',

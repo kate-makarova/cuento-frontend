@@ -24,6 +24,7 @@ interface NewCategory {
 
 @Component({
   selector: 'app-admin-subforums',
+  host: { class: 'pun-page' },
   imports: [CommonModule, FormsModule, BbToolbarComponent],
   templateUrl: './admin-subforums.component.html',
   standalone: true,

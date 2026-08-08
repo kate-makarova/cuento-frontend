@@ -14,6 +14,7 @@ function coerceToPage(value: string | null): number {
 
 @Component({
   selector: 'app-transactions',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [RouterLink, AddTransactionModalComponent],
   templateUrl: './transactions.component.html',

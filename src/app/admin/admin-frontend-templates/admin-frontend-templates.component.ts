@@ -16,6 +16,7 @@ type SaveState = 'idle' | 'loading' | 'success' | 'error';
 
 @Component({
   selector: 'app-admin-frontend-templates',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [CommonModule, RouterLink, SaveButtonComponent],
   templateUrl: './admin-frontend-templates.component.html',

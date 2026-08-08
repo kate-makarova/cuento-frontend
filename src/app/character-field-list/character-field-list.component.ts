@@ -25,6 +25,7 @@ interface WantedFieldValue {
 
 @Component({
   selector: 'app-character-field-list',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [RouterLink],
   templateUrl: './character-field-list.component.html',

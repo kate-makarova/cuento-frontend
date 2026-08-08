@@ -25,6 +25,7 @@ interface ProcessedField {
 
 @Component({
   selector: 'app-wanted-character-list',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [RouterLink, CommonModule, FormsModule, FieldDisplayComponent, UserInfoComponent],
   templateUrl: './wanted-character-list.component.html',

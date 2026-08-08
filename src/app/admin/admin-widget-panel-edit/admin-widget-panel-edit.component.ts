@@ -15,6 +15,7 @@ interface PanelDetail {
 
 @Component({
   selector: 'app-admin-widget-panel-edit',
+  host: { class: 'pun-page' },
   imports: [FormsModule, BbToolbarComponent, SaveButtonComponent],
   templateUrl: './admin-widget-panel-edit.component.html',
   standalone: true,

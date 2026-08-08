@@ -7,6 +7,7 @@ import { SaveButtonComponent, SaveState } from '../save-button/save-button.compo
 
 @Component({
   selector: 'app-admin-puzzle-edit',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [FormsModule, RouterLink, SaveButtonComponent],
   templateUrl: './admin-puzzle-edit.component.html',

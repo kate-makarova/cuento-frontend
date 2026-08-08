@@ -9,6 +9,7 @@ type SaveState = 'idle' | 'loading' | 'success' | 'error';
 
 @Component({
   selector: 'app-admin-component-template',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [HtmlEditorComponent, BreadcrumbsComponent, SaveButtonComponent],
   templateUrl: './admin-component-template.component.html',

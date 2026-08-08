@@ -19,6 +19,7 @@ import { StandardWarning } from '../models/StandardWarning';
 
 @Component({
   selector: 'app-episode-create',
+  host: { class: 'pun-page' },
   imports: [CommonModule, ReactiveFormsModule, FormsModule, FieldInputComponent, BreadcrumbsComponent],
   templateUrl: './episode-create.component.html',
 })

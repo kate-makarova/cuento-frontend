@@ -1,5 +1,5 @@
 import { Component, effect, inject, Input, OnInit, ViewChild } from '@angular/core';
-import { LongTextFieldComponent } from '../components/long-text-field/long-text-field.component';
+import { PostFormComponent } from '../components/post-form/post-form.component';
 import { CharacterProfileComponent } from '../components/character-profile/character-profile.component';
 import { BreadcrumbItem, BreadcrumbsComponent } from '../components/breadcrumbs/breadcrumbs.component';
 import { AuthService } from '../services/auth.service';
@@ -12,7 +12,8 @@ import { PreviewService } from '../services/preview.service';
 
 @Component({
   selector: 'app-topic-create',
-  imports: [LongTextFieldComponent, CharacterProfileComponent, BreadcrumbsComponent],
+  host: { class: 'pun-page' },
+  imports: [PostFormComponent, CharacterProfileComponent, BreadcrumbsComponent],
   templateUrl: './topic-create.component.html',
   standalone: true,
 })
@@ -33,7 +34,7 @@ export class TopicCreateComponent implements OnInit {
   restoredTitle: string = '';
   restoredContent: string = '';
 
-  @ViewChild(LongTextFieldComponent) messageField!: LongTextFieldComponent;
+  @ViewChild('postForm') postForm!: PostFormComponent;
 
   constructor() {
     effect(() => {
@@ -79,7 +80,7 @@ export class TopicCreateComponent implements OnInit {
     const form = event.target as HTMLFormElement;
     const formData = new FormData(form);
     const title = formData.get('req_subject') as string;
-    const content = this.messageField.messageField.nativeElement.value;
+    const content = this.postForm.getValue();
     const isStickyFirstPost = (form.querySelector('input[name="is_sticky_first_post"]') as HTMLInputElement)?.checked ?? false;
 
     if (!title || !content || !this.subforumId) {

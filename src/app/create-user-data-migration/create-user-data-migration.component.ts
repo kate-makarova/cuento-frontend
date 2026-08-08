@@ -5,6 +5,7 @@ import { MigrationService } from '../services/migration.service';
 
 @Component({
   selector: 'app-create-user-data-migration',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [FormsModule],
   templateUrl: './create-user-data-migration.component.html',

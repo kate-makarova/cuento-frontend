@@ -30,6 +30,7 @@ interface BuyImmunityResponse {
 
 @Component({
   selector: 'app-auto-archive',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [RouterLink, DatePipe, FormsModule, ErrorBannerComponent],
   templateUrl: './auto-archive.component.html',

@@ -6,6 +6,7 @@ import { AdditionalNavlink, AdditionalNavlinkType } from '../../models/Additiona
 
 @Component({
   selector: 'app-admin-additional-navlinks',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './admin-additional-navlinks.component.html',

@@ -7,6 +7,7 @@ import { DesignDraftListItem } from '../../models/DesignDraft';
 
 @Component({
   selector: 'app-admin-design-drafts',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [CommonModule, DatePipe, RouterLink, FormsModule],
   templateUrl: './admin-design-drafts.component.html',

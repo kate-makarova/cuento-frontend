@@ -9,6 +9,7 @@ import { SaveButtonComponent, SaveState } from '../save-button/save-button.compo
 
 @Component({
   selector: 'app-admin-faction-settings',
+  host: { class: 'pun-page' },
   imports: [CommonModule, FormsModule, SaveButtonComponent],
   standalone: true,
   templateUrl: './admin-faction-settings.component.html',

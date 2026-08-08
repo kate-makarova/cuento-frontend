@@ -27,6 +27,7 @@ interface FormatEntry {
 
 @Component({
   selector: 'app-admin-calendar-edit',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [FormsModule, SaveButtonComponent],
   templateUrl: './admin-calendar-edit.component.html',

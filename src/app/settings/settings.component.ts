@@ -77,6 +77,7 @@ const IANA_TIMEZONES = [
 
 @Component({
   selector: 'app-settings',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, CroppedImageFieldComponent, BbToolbarComponent],
   templateUrl: './settings.component.html',

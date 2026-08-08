@@ -12,6 +12,7 @@ export interface SubforumBucketRow {
 
 @Component({
   selector: 'app-admin-ai-index-settings',
+  host: { class: 'pun-page' },
   imports: [CommonModule, FormsModule, SaveButtonComponent],
   templateUrl: './admin-ai-index-settings.component.html',
   standalone: true,

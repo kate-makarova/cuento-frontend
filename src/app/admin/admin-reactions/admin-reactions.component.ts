@@ -7,6 +7,7 @@ type UploadState = 'idle' | 'loading' | 'success' | 'error';
 
 @Component({
   selector: 'app-admin-reactions',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [CommonModule],
   templateUrl: './admin-reactions.component.html',
