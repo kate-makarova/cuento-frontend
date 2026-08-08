@@ -3,5 +3,10 @@
     "component": "src/app/components/header",
     "default_template": "src/app/components/header/header.component.html",
     "template": "src/app/components/header/header.custom.component.html"
+  },
+  {
+    "component": "src/app/components/category",
+    "default_template": "src/app/components/category/category.component.html",
+    "template": "src/app/components/category/category.custom.component.html"
   }
 ]
