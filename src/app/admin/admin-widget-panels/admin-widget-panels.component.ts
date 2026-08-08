@@ -10,6 +10,7 @@ interface PanelListItem {
 
 @Component({
   selector: 'app-admin-widget-panels',
+  host: { class: 'pun-page' },
   imports: [RouterLink],
   templateUrl: './admin-widget-panels.component.html',
   standalone: true,

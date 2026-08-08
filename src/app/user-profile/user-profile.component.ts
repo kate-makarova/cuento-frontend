@@ -8,6 +8,7 @@ import { CurrencyService } from '../services/currency.service';
 
 @Component({
   selector: 'app-user-profile',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [CommonModule, RouterLink, DatePipe],
   templateUrl: './user-profile.component.html',

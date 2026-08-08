@@ -14,6 +14,7 @@ interface EditState {
 
 @Component({
   selector: 'app-lore-navigation-edit',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [CommonModule, DatePipe, FormsModule],
   templateUrl: './lore-navigation-edit.component.html',

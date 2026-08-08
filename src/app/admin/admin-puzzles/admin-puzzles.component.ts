@@ -5,6 +5,7 @@ import { Puzzle } from '../../models/Puzzle';
 
 @Component({
   selector: 'app-admin-puzzles',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [RouterLink],
   templateUrl: './admin-puzzles.component.html',

@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-user-list',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './user-list.component.html',

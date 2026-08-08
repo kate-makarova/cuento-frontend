@@ -23,6 +23,7 @@ type SearchResults = Record<string, SearchResult[]>;
 
 @Component({
   selector: 'app-search',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './search.component.html',

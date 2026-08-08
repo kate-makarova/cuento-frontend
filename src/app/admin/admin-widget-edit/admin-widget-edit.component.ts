@@ -46,6 +46,7 @@ interface ConfigField {
 
 @Component({
   selector: 'app-admin-widget-edit',
+  host: { class: 'pun-page' },
   imports: [CommonModule, FormsModule, SaveButtonComponent],
   templateUrl: './admin-widget-edit.component.html',
   standalone: true,

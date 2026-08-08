@@ -12,6 +12,7 @@ function coerceToPage(value: unknown): number {
 
 @Component({
   selector: 'app-viewforum',
+  host: { class: 'pun-page' },
   imports: [
     RouterLink,
     BreadcrumbsComponent

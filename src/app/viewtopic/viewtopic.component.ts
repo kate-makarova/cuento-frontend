@@ -40,6 +40,7 @@ function coerceToPage(value: unknown): number {
 
 @Component({
   selector: 'app-viewtopic',
+  host: { class: 'pun-page' },
   imports: [
     PostFormComponent,
     RouterLink,

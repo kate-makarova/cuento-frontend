@@ -8,6 +8,7 @@ import { switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-register',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './register.component.html',

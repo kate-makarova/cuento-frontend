@@ -6,6 +6,7 @@ import { PuzzleAchievement } from '../models/Puzzle';
 
 @Component({
   selector: 'app-puzzle-achievements',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [RouterLink],
   templateUrl: './puzzle-achievements.component.html',

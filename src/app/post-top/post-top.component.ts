@@ -5,6 +5,7 @@ import { PostTopResult } from '../models/PostTop';
 
 @Component({
   selector: 'app-post-top',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [RouterLink],
   templateUrl: './post-top.component.html',

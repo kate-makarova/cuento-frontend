@@ -20,6 +20,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-character-create',
+  host: { class: 'pun-page' },
   imports: [FieldInputComponent, FactionPathsComponent, CommonModule, FormsModule, CroppedImageFieldComponent],
   templateUrl: './character-create.component.html',
   standalone: true,

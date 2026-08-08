@@ -62,6 +62,7 @@ const xAxis = {
 
 @Component({
   selector: 'app-admin-dashboard',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [],
   templateUrl: './admin-dashboard.component.html',

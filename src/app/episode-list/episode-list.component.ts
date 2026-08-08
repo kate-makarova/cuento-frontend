@@ -23,6 +23,7 @@ const FIXED_COLUMNS = [
 
 @Component({
   selector: 'app-episode-list',
+  host: { class: 'pun-page' },
   imports: [RouterLink, FormsModule, CommonModule],
   templateUrl: './episode-list.component.html',
   styleUrl: './episode-list.component.css',

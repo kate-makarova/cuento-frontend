@@ -13,6 +13,7 @@ import { SafeHtmlPipe } from '../pipes/safe-html.pipe';
 
 @Component({
   selector: 'app-home',
+  host: { class: 'pun-page' },
   standalone: true,
   templateUrl: './home.component.html',
   imports: [

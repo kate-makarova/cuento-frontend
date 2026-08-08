@@ -14,6 +14,7 @@ interface FreeFormatDateOption {
 
 @Component({
   selector: 'app-admin-factions',
+  host: { class: 'pun-page' },
   imports: [CommonModule, FormsModule, RouterLink, SaveButtonComponent],
   standalone: true,
   templateUrl: './admin-factions.component.html',

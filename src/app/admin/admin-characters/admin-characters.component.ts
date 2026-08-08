@@ -27,6 +27,7 @@ interface AdminCharacterListItem {
 
 @Component({
   selector: 'app-admin-characters',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [DatePipe, FormsModule, RouterLink, ErrorBannerComponent],
   templateUrl: './admin-characters.component.html',

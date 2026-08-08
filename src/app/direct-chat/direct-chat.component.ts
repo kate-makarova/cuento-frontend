@@ -13,6 +13,7 @@ import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-direct-chat',
+  host: { class: 'pun-page' },
   imports: [CommonModule, FormsModule],
   templateUrl: './direct-chat.component.html',
   standalone: true,

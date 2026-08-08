@@ -7,6 +7,7 @@ import { ErrorBannerComponent } from '../../components/error-banner/error-banner
 
 @Component({
   selector: 'app-character-claims',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [CommonModule, FormsModule, ErrorBannerComponent],
   templateUrl: './character-claims.component.html',

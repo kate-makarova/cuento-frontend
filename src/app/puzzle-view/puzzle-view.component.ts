@@ -9,6 +9,7 @@ import { Puzzle } from '../models/Puzzle';
 
 @Component({
   selector: 'app-puzzle-view',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [RouterLink],
   templateUrl: './puzzle-view.component.html',

@@ -12,6 +12,7 @@ type SaveState = 'idle' | 'loading' | 'success' | 'error';
 
 @Component({
   selector: 'app-admin-design-draft-edit',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [FormsModule, CssEditorComponent, SaveButtonComponent],
   templateUrl: './admin-design-draft-edit.component.html',

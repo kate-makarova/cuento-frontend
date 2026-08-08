@@ -13,6 +13,7 @@ function coerceToPage(value: unknown): number {
 
 @Component({
   selector: 'app-active-topics',
+  host: { class: 'pun-page' },
   imports: [CommonModule, RouterLink, BreadcrumbsComponent],
   templateUrl: './active-topics.component.html',
   standalone: true,

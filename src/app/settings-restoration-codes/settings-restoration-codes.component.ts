@@ -10,6 +10,7 @@ type Mode = 'initial_setup' | 'regenerate';
 
 @Component({
   selector: 'app-settings-restoration-codes',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './settings-restoration-codes.component.html',

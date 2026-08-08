@@ -11,6 +11,7 @@ export interface QdrantCursorItem {
 
 @Component({
   selector: 'app-admin-ai-index',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [CommonModule, DatePipe],
   templateUrl: './admin-ai-index.component.html',

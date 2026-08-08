@@ -14,6 +14,7 @@ import { TopicService } from '../services/topic.service';
 
 @Component({
   selector: 'app-wanted-character-create',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [CommonModule, FieldInputComponent, FactionPathsComponent, BreadcrumbsComponent],
   templateUrl: './wanted-character-create.component.html',

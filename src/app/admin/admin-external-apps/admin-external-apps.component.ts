@@ -5,6 +5,7 @@ import { ExternalApp } from '../../models/ExternalApp';
 
 @Component({
   selector: 'app-admin-external-apps',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [RouterLink],
   templateUrl: './admin-external-apps.component.html',

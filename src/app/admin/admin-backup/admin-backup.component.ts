@@ -10,6 +10,7 @@ type RestoreState = 'idle' | 'loading' | 'success' | 'error';
 
 @Component({
   selector: 'app-admin-backup',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [CommonModule],
   templateUrl: './admin-backup.component.html',

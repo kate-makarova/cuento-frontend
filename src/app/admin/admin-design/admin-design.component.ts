@@ -30,6 +30,7 @@ let tempId = -1;
 
 @Component({
   selector: 'app-admin-design',
+  host: { class: 'pun-page' },
   imports: [CommonModule, FormsModule, SaveButtonComponent],
   standalone: true,
   templateUrl: './admin-design.component.html',

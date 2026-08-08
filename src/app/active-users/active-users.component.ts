@@ -27,6 +27,7 @@ const PAGE_TYPE_NAMES: Record<string, string> = {
 
 @Component({
   selector: 'app-active-users',
+  host: { class: 'pun-page' },
   imports: [RouterLink, DatePipe],
   templateUrl: './active-users.component.html',
   standalone: true,

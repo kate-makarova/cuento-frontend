@@ -11,6 +11,7 @@ export interface SonicCursorItem {
 
 @Component({
   selector: 'app-admin-search',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [CommonModule, DatePipe],
   templateUrl: './admin-search.component.html',

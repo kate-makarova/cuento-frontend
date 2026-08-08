@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-recovery-codes',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [CommonModule],
   templateUrl: './recovery-codes.component.html',

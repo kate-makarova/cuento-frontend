@@ -4,6 +4,7 @@ import { FeatureService } from '../../services/feature.service';
 
 @Component({
   selector: 'app-admin-features',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [RouterLink],
   templateUrl: './admin-features.component.html',
