@@ -18,6 +18,7 @@ export class AdminDesignDraftsComponent implements OnInit {
   drafts = signal<DesignDraftListItem[]>([]);
   showCreateModal = signal(false);
   publishingDraft = signal<DesignDraftListItem | null>(null);
+  deletingDraft = signal<DesignDraftListItem | null>(null);
   newDraftName = '';
 
   ngOnInit() {
@@ -64,8 +65,32 @@ export class AdminDesignDraftsComponent implements OnInit {
   createDraft() {
     if (!this.newDraftName.trim()) return;
     this.draftService.create({ name: this.newDraftName.trim() }).subscribe({
-      next: (draft) => this.router.navigate(['/admin/design-drafts', draft.id]),
+      next: (draft) => {
+        this.showCreateModal.set(false);
+        this.drafts.update(list => [draft, ...list]);
+        this.router.navigate(['/admin/design-drafts', draft.id]);
+      },
       error: (err) => console.error('Failed to create design draft', err),
+    });
+  }
+
+  confirmDelete(draft: DesignDraftListItem) {
+    this.deletingDraft.set(draft);
+  }
+
+  cancelDelete() {
+    this.deletingDraft.set(null);
+  }
+
+  deleteDraft() {
+    const draft = this.deletingDraft();
+    if (!draft) return;
+    this.draftService.delete(draft.id).subscribe({
+      next: () => {
+        this.drafts.update(list => list.filter(d => d.id !== draft.id));
+        this.deletingDraft.set(null);
+      },
+      error: (err) => console.error('Failed to delete design draft', err),
     });
   }
 }
