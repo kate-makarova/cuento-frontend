@@ -1,4 +1,4 @@
-import {Component, effect, inject, Input, OnInit, OnDestroy, ViewChild, signal, computed, numberAttribute, ViewChildren, QueryList, input, untracked, LOCALE_ID} from '@angular/core';
+import {Component, effect, inject, Input, OnInit, OnDestroy, ViewChild, signal, computed, numberAttribute, input, untracked, LOCALE_ID} from '@angular/core';
 import {Title} from '@angular/platform-browser';
 import {PostFormComponent} from '../components/post-form/post-form.component';
 import {TopicService} from '../services/topic.service';
@@ -184,7 +184,6 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   };
 
   @ViewChild('mainPostForm') postForm!: PostFormComponent;
-  @ViewChildren('editPostForm') editPostForms!: QueryList<PostFormComponent>;
 
   acknowledgeWarnings() {
     this.warningsAcknowledged.set(true);
@@ -437,11 +436,9 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     }
   }
 
-  onUpdatePost(event: Event, post: Post) {
+  onUpdatePost(event: Event, post: Post, editForm: PostFormComponent) {
     event.preventDefault();
-    const form = event.target as HTMLFormElement;
-    const textarea = form.querySelector('textarea');
-    const content = textarea?.value;
+    const content = editForm.getValue();
 
     if (!content) return;
 
