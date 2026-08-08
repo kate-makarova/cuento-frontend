@@ -20,7 +20,10 @@
               rows="12"
               [hidden]="editorMode() !== 'bbcode'"
               (input)="onTextareaInput()"
-              (blur)="closeMention()">
+              (blur)="closeMention()"
+              (paste)="onTextareaPaste($event)"
+              (dragover)="onTextareaDragOver($event)"
+              (drop)="onTextareaDrop($event)">
             </textarea>
             @if (mentionResults.length > 0) {
               <ul class="mention-dropdown">
