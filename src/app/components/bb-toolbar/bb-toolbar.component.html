@@ -60,9 +60,11 @@
   }
   @if (activeArea === 'url') {
     <div class="container" id="url-area">
-      <input #urlInput type="text" placeholder="https://" />
-      <input #urlText type="text" placeholder="Link text" i18n-placeholder="@@postform.urlTextPlaceholder" (keydown.enter)="insertUrl(urlInput.value, urlText.value)" />
-      <button type="button" (mousedown)="$event.preventDefault()" (click)="insertUrl(urlInput.value, urlText.value)" i18n="@@postform.urlInsert">Insert</button>
+      <input #urlInput type="text" placeholder="https://" (mousedown)="$event.stopPropagation()" />
+      @if (!hasUrlSelection) {
+        <input #urlText type="text" placeholder="Link text" i18n-placeholder="@@postform.urlTextPlaceholder" (mousedown)="$event.stopPropagation()" (keydown.enter)="insertUrl(urlInput.value, urlText.value)" />
+      }
+      <button type="button" (mousedown)="$event.preventDefault()" (click)="insertUrl(urlInput.value, hasUrlSelection ? '' : urlText.value)" i18n="@@postform.urlInsert">Insert</button>
     </div>
   }
   @if (activeArea === 'color') {

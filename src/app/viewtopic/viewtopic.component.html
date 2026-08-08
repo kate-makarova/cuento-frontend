@@ -334,34 +334,27 @@
   <div id="post-form" class="formal">
     <h2><span i18n="@@postform.quickReply">Quick reply</span></h2>
     <form id="post" class="container" (submit)="onSubmit($event)">
-      <fieldset>
-        <legend><span i18n="@@postform.writeMessage">Write your message and click "Send"</span></legend>
-        <div class="fs-box hashelp">
-
-          <div class="post-editor-container" style="display: flex; gap: 15px;">
-            <div class="profile-sidebar" style="width: 200px;">
-              <app-character-profile
-                [accountName]="accountName"
-                [loadProfiles]="loadProfiles"
-                [showAccount]="showAccount"
-                [initialCharacterId]="savedTopicCharacter()"
-                (characterSelected)="onCharacterSelected($event)"
-                (guestNameChanged)="onGuestNameChanged($event)">
-              </app-character-profile>
-            </div>
-
-            <div class="form-content" style="flex: 1;">
-              <app-post-form #mainPostForm [isEpisode]="isEpisode()"></app-post-form>
-            </div>
-          </div>
-
-          <div class="buttons" style="margin-top: 15px; text-align: right;">
-            <input type="submit" value="Send" i18n-value="@@postform.send" class="button" [disabled]="isSubmitting()">
-            <input type="button" value="Preview" i18n-value="@@postform.preview" class="button" (click)="onPreview($event)">
-          </div>
-
+      <div class="post-editor-container" style="display: flex; gap: 15px;">
+        <div class="profile-sidebar" style="width: 200px;">
+          <app-character-profile
+            [accountName]="accountName"
+            [loadProfiles]="loadProfiles"
+            [showAccount]="showAccount"
+            [initialCharacterId]="savedTopicCharacter()"
+            (characterSelected)="onCharacterSelected($event)"
+            (guestNameChanged)="onGuestNameChanged($event)">
+          </app-character-profile>
         </div>
-      </fieldset>
+
+        <div class="form-content" style="flex: 1;">
+          <app-post-form #mainPostForm [isEpisode]="isEpisode()"></app-post-form>
+        </div>
+      </div>
+
+      <div class="buttons" style="margin-top: 15px; text-align: right;">
+        <input type="submit" value="Send" i18n-value="@@postform.send" class="button" [disabled]="isSubmitting()">
+        <input type="button" value="Preview" i18n-value="@@postform.preview" class="button" (click)="onPreview($event)">
+      </div>
     </form>
   </div>
   }
