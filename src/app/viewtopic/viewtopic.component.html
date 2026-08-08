@@ -196,8 +196,8 @@
         <div class="post-body">
           <div class="post-box">
             @if (editingPostId() === post.id) {
-              <form (submit)="onUpdatePost($event, post)">
-                <app-post-form [initialContent]="post.content"></app-post-form>
+              <form (submit)="onUpdatePost($event, post, editPostForm)">
+                <app-post-form #editPostForm [initialContent]="post.content"></app-post-form>
                 <div class="edit-post-footer">
                   <div class="buttons">
                     <button type="submit" class="button" i18n="@@common.save">Save</button>
