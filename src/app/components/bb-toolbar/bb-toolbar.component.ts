@@ -22,6 +22,7 @@ export class BbToolbarComponent {
 
   activeArea: string | null = null;
   showSpoilerModal = false;
+  hasUrlSelection = false;
   private spoilerSelStart = 0;
   private spoilerSelEnd = 0;
   private urlSelStart = 0;
@@ -38,9 +39,12 @@ export class BbToolbarComponent {
     if (this.activeArea === 'url') {
       if (this.editor) {
         this.editor.saveSelection();
+        const sel = window.getSelection();
+        this.hasUrlSelection = !!sel && !sel.isCollapsed;
       } else if (this.textarea) {
         this.urlSelStart = this.textarea.selectionStart;
         this.urlSelEnd = this.textarea.selectionEnd;
+        this.hasUrlSelection = this.urlSelStart !== this.urlSelEnd;
       }
     }
     if (area === 'smile' && this.activeArea === 'smile' && !this.smilesLoaded) {
