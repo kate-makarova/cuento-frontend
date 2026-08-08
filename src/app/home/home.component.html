@@ -2,56 +2,7 @@
     <div class="main-header"></div>
   @for (category of categories(); track category.id) {
     <div id="category-{{category.id}}" class="category">
-      <div class="maintitle">
-        <h2><span>{{category.name}}</span></h2>
-      </div>
-      <div class="main-content">
-        <div class="main-item">
-          <table cellspacing="0">
-            <thead>
-            <tr>
-              <th class="tcl" scope="col" i18n="@@home.forum">Forum</th>
-              <th class="tc2" scope="col" i18n="@@home.topics">Topics</th>
-              <th class="tc3" scope="col" i18n="@@home.posts">Posts</th>
-              <th class="tcr" scope="col" i18n="@@home.lastPost">Last post</th>
-            </tr>
-            </thead>
-            <tbody>
-            @for (subforum of category.subforums; track subforum.id)
-            {
-            <tr class="rowodd" [class.has-new-messages]="subforum.has_new_messages">
-              <td class="tcl">
-                <div class="intd">
-                  <div class="icon"></div>
-                  <div class="tclcon">
-                    <h3><a routerLink="/viewforum/{{subforum.id}}">{{subforum.name}}</a></h3>
-                    <div class="forumdesc" appRouterLinks [innerHTML]="(subforum.description_html ?? subforum.description) | safeHtml"></div>
-                  </div>
-                </div>
-              </td>
-              <td class="tc2">{{subforum.topic_number}}</td>
-              <td class="tc3">{{subforum.post_number}}</td>
-              <td class="tcr">
-                @if (subforum.last_post_topic_id == null) {
-                  <span i18n="@@home.noPosts">No posts</span>
-                } @else if (subforum.show_last_topic === true) {
-                  <a class="lastpost-link" [routerLink]="['/viewtopic', subforum.last_post_topic_id]">{{subforum.last_post_topic_name}}</a>
-                } @else {
-                  <a class="lastpost-link" [routerLink]="['/viewtopic', subforum.last_post_topic_id]" [queryParams]="{ post_id: subforum.last_post_id }">{{subforum.last_post_topic_name}}</a>
-                  <br>
-                  <span class="lastpost">
-                    <span class="datetime">{{subforum.date_last_post_localized}}</span>
-                    -
-                    <span class="byuser">{{subforum.last_post_author_name}}</span>
-                  </span>
-                }
-              </td>
-            </tr>
-            }
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <app-category [category]="category"></app-category>
     </div>
   }
 
