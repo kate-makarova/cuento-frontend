@@ -3,6 +3,8 @@ import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
+import { ImageService } from '../../services/image.service';
+import { BoardService } from '../../services/board.service';
 import { UserShort } from '../../models/UserShort';
 import { CommonModule } from '@angular/common';
 import { BbToolbarComponent } from '../bb-toolbar/bb-toolbar.component';
@@ -30,6 +32,8 @@ export class PostFormComponent implements AfterViewInit, OnDestroy {
 
   private userService = inject(UserService);
   private authService = inject(AuthService);
+  private imageService = inject(ImageService);
+  private boardService = inject(BoardService);
 
   editorMode = signal<EditorMode>(
     this.authService.currentUser()?.editor_type === 1 ? 'bbcode' : 'wysiwyg'
@@ -176,5 +180,47 @@ export class PostFormComponent implements AfterViewInit, OnDestroy {
   closeMention() {
     this.mentionResults = [];
     this.mentionAtPos = -1;
+  }
+
+  onTextareaPaste(event: ClipboardEvent): void {
+    if (this.boardService.board().use_image_uploading !== 'y') return;
+    const files = Array.from(event.clipboardData?.items ?? [])
+      .filter(i => i.type.startsWith('image/'))
+      .map(i => i.getAsFile())
+      .filter((f): f is File => f != null);
+    if (files.length === 0) return;
+    event.preventDefault();
+    this.uploadImagesToTextarea(files);
+  }
+
+  onTextareaDragOver(event: DragEvent): void {
+    if (this.boardService.board().use_image_uploading !== 'y') return;
+    event.preventDefault();
+  }
+
+  onTextareaDrop(event: DragEvent): void {
+    if (this.boardService.board().use_image_uploading !== 'y') return;
+    event.preventDefault();
+    const files = Array.from(event.dataTransfer?.files ?? []).filter(f => f.type.startsWith('image/'));
+    this.uploadImagesToTextarea(files);
+  }
+
+  private uploadImagesToTextarea(files: File[]): void {
+    const el = this.messageField?.nativeElement;
+    if (!el || files.length === 0) return;
+    for (const file of files) {
+      const pos = el.selectionStart ?? el.value.length;
+      const placeholder = '[img]...[/img]';
+      el.value = el.value.substring(0, pos) + placeholder + el.value.substring(pos);
+      const start = pos;
+      this.imageService.upload(file).subscribe({
+        next: (res) => {
+          el.value = el.value.substring(0, start) + `[img]${res.url}[/img]` + el.value.substring(start + placeholder.length);
+        },
+        error: () => {
+          el.value = el.value.substring(0, start) + el.value.substring(start + placeholder.length);
+        },
+      });
+    }
   }
 }

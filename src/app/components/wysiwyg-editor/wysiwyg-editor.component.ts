@@ -261,19 +261,30 @@ export class WysiwygEditorComponent implements OnDestroy {
 
   private uploadFiles(files: File[]): void {
     for (const file of files) {
-      const id = `up_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-      this.insertHtmlAtCursor(`<span id="${id}" class="wysiwyg-upload-placeholder">⏳</span>`);
+      const placeholder = document.createElement('span');
+      placeholder.className = 'wysiwyg-upload-placeholder';
+      placeholder.textContent = '⏳';
+
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount > 0) {
+        const range = sel.getRangeAt(0);
+        range.deleteContents();
+        range.insertNode(placeholder);
+        range.setStartAfter(placeholder);
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      } else {
+        this.editorEl.nativeElement.appendChild(placeholder);
+      }
 
       this.imageService.upload(file).subscribe({
         next: (res) => {
-          const el = this.editorEl.nativeElement.querySelector(`#${id}`);
-          if (el) {
-            const img = document.createElement('img');
-            img.src = res.url;
-            el.replaceWith(img);
-          }
+          const img = document.createElement('img');
+          img.src = res.url;
+          placeholder.replaceWith(img);
         },
-        error: () => this.editorEl.nativeElement.querySelector(`#${id}`)?.remove(),
+        error: () => placeholder.remove(),
       });
     }
   }
