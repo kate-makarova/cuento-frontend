@@ -170,15 +170,18 @@ export class PostFormComponent implements AfterViewInit, OnDestroy {
     const inserted = `${user.username} , `;
     if (this.editorMode() === 'wysiwyg') {
       const textBefore = this.wysiwygEditor?.getTextBeforeCursor() ?? '';
-      const charsToDelete = textBefore.length - this.mentionAtPos;
+      // mentionAtPos points to '@'; delete only the characters typed after it
+      const charsToDelete = textBefore.length - this.mentionAtPos - 1;
       this.wysiwygEditor?.replaceBeforeCursor(charsToDelete, inserted);
     } else {
       const el = this.messageField?.nativeElement;
       if (!el) return;
       const cursorPos = el.selectionStart ?? el.value.length;
-      el.value = el.value.substring(0, this.mentionAtPos) + inserted + el.value.substring(cursorPos);
+      // mentionAtPos points to '@'; keep it, replace only what was typed after
+      const replaceFrom = this.mentionAtPos + 1;
+      el.value = el.value.substring(0, replaceFrom) + inserted + el.value.substring(cursorPos);
       el.focus();
-      el.setSelectionRange(this.mentionAtPos + inserted.length, this.mentionAtPos + inserted.length);
+      el.setSelectionRange(replaceFrom + inserted.length, replaceFrom + inserted.length);
     }
     this.mentionResults = [];
     this.mentionAtPos = -1;
