@@ -210,6 +210,22 @@ export class WysiwygEditorComponent implements OnDestroy {
     document.execCommand('insertText', false, text);
   }
 
+  // Extend selection backwards by charsToDelete, then replace with text in one operation.
+  replaceBeforeCursor(charsToDelete: number, text: string): void {
+    this.editorEl.nativeElement.focus();
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+    const range = sel.getRangeAt(0).cloneRange();
+    range.collapse(false);
+    const node = range.startContainer;
+    if (node.nodeType === Node.TEXT_NODE) {
+      range.setStart(node, Math.max(0, range.startOffset - charsToDelete));
+    }
+    sel.removeAllRanges();
+    sel.addRange(range);
+    document.execCommand('insertText', false, text);
+  }
+
   appendText(text: string): void {
     const el = this.editorEl.nativeElement;
     el.focus();

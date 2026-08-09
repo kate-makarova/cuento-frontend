@@ -169,9 +169,16 @@ export class PostFormComponent implements AfterViewInit, OnDestroy {
   selectMention(user: UserShort) {
     const inserted = `${user.username} , `;
     if (this.editorMode() === 'wysiwyg') {
-      this.wysiwygEditor?.insertTextAtCursor(inserted);
+      const textBefore = this.wysiwygEditor?.getTextBeforeCursor() ?? '';
+      const charsToDelete = textBefore.length - this.mentionAtPos;
+      this.wysiwygEditor?.replaceBeforeCursor(charsToDelete, inserted);
     } else {
-      this.insertAtCursor(inserted);
+      const el = this.messageField?.nativeElement;
+      if (!el) return;
+      const cursorPos = el.selectionStart ?? el.value.length;
+      el.value = el.value.substring(0, this.mentionAtPos) + inserted + el.value.substring(cursorPos);
+      el.focus();
+      el.setSelectionRange(this.mentionAtPos + inserted.length, this.mentionAtPos + inserted.length);
     }
     this.mentionResults = [];
     this.mentionAtPos = -1;
