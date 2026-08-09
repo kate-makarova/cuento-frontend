@@ -88,7 +88,9 @@ export class TopicService {
             const postIds = data.posts.map((p: Post) => p.id);
             const maxPostId = Math.max(...postIds);
             this.notificationService.sendMessage({ type: 'topic_view', topic_id: topicId, post_id: maxPostId });
+            this.notificationService.checkPostIds(postIds);
             this.notificationService.checkTopicId(topicId);
+            this.notificationService.checkMentionsByTopicId(topicId);
           } else {
             const topicType = this.topicSignal()?.type;
             if (topicType === TopicType.character || topicType === TopicType.episode || topicType === TopicType.wanted_character) {
@@ -281,6 +283,7 @@ export class TopicService {
       topic_id: post.topic_id,
       post_id: post.id
     });
+    this.notificationService.checkPostIds([post.id]);
 
     const currentUser = this.authService.currentUser();
     if (currentUser && post.user_profile && currentUser.id === post.user_profile.user_id) {

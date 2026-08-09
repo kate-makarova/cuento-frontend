@@ -11,6 +11,7 @@ const FORMAT_COMMANDS: Record<string, string> = {
 @Component({
   selector: 'app-wysiwyg-editor',
   standalone: true,
+  styles: [`:host .wysiwyg-editor img { max-width: 100%; height: auto; }`],
   template: `
     <div
       #editorEl
