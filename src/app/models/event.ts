@@ -103,6 +103,7 @@ export interface UnreadNotificationsResponse {
   direct_message: NotificationData[];
   reaction: NotificationData[];
   auto_archiving: NotificationData[];
+  account_update: NotificationData[];
 }
 
 export interface TopicViewersUpdateEvent {
