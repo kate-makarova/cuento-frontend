@@ -167,7 +167,7 @@ export class PostFormComponent implements AfterViewInit, OnDestroy {
   }
 
   selectMention(user: UserShort) {
-    const inserted = `${user.username} , `;
+    const inserted = `${user.username} `;
     if (this.editorMode() === 'wysiwyg') {
       const textBefore = this.wysiwygEditor?.getTextBeforeCursor() ?? '';
       // mentionAtPos points to '@'; delete only the characters typed after it
