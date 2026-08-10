@@ -90,7 +90,7 @@ Available imports declared in `FooterStatisticsComponent`: `RouterLink`.
 
 ## Adding a new custom template
 
-1. Create a `*.custom.component.html` file alongside the default template.
+1. Create a `*.custom.component.html` file alongside the default template, following the naming convention `<name>.custom.component.html` (e.g. `header.custom.component.html`, not `header.component.custom.html`).
 2. Write a valid Angular template — it will be compiled as the template of the existing component class, so it must only use bindings and directives that component declares or imports.
 3. Add an entry to `src/environments/custom_templates.json`.
 4. The next `npm run build` will use the custom template.
