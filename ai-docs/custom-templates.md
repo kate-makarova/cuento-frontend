@@ -106,6 +106,7 @@ Overrides `episode-header.component.html`. The template belongs to `EpisodeHeade
 | `episode.rating_sex` | `number` | Sex rating value |
 | `ratingBadge` | `string \| null` | Pre-formatted rating string e.g. `L1V2S0`; `null` if no rating set |
 | `customFields` | `{fieldMachineName, fieldName, fieldValue, type}[]` | Processed custom fields, sorted by order |
+| `getField(machineName)` | method | Returns a single custom field by machine name, or `undefined`. Use with `@if (getField('x'); as field)` to conditionally render a specific field. |
 
 Available imports declared in `EpisodeHeaderComponent`: `RouterLink`, `FieldDisplayComponent` (`app-field-display`), `CommonModule`.
 
