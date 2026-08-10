@@ -52,3 +52,6 @@ node_modules/
 #bwoserstack
 browserstack.yml
 browserstackSetupConfig.json
+
+# Site-specific build config
+src/environments/custom_templates.json

@@ -1,6 +1,0 @@
-[
-  {
-    "default_template": "src/app/home/home.component.html",
-    "template": "src/app/home/home.component.custom.html"
-  }
-]

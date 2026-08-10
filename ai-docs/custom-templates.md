@@ -7,7 +7,7 @@ The custom template system allows overriding the HTML template of specific Angul
 `npm run build` runs `node custom-templates.plugin.mjs` instead of `ng build` directly.
 
 The plugin:
-1. Reads `src/environments/custom_templates.json` — committed to the repository. When adding a new custom template, update this file as part of the same commit.
+1. Reads `src/environments/custom_templates.json` (not committed — site-specific, gitignored).
 2. For each entry, copies the custom template file over the default `.html` file, saving a `.bak` of the original.
 3. Runs `ng build` (any extra CLI args are forwarded).
 4. Restores all original templates from their `.bak` files, regardless of whether the build succeeded.
