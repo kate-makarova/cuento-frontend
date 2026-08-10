@@ -70,33 +70,6 @@ Overrides `category.component.html`. The template belongs to `CategoryComponent`
 | `category.subforums[].last_post_*` | various | Last post metadata |
 | `category.subforums[].show_last_topic` | `boolean` | Whether to link last topic or last post |
 
-### Home — `src/app/home/home.component.custom.html`
-
-Overrides `home.component.html`. The template belongs to `HomeComponent` and has access to:
-
-| Binding | Type | Description |
-|---|---|---|
-| `board()` | `Signal<Board>` | Full board settings object |
-| `categories()` | `Signal<Category[]>` | Home page category list |
-
-Available imports declared in `HomeComponent`:
-- `app-category` — renders a single category block with its subforums
-- `app-currently-active` — currently online users/guests panel (`#pun-active`)
-- `app-recently-active` — users/characters active in the last 24 h, with a mode toggle (`#pun-recently-active`)
-- `app-footer-statistics` — combined panel that merges `pun-statistics`, `app-currently-active`, and `app-recently-active` into one component (see below)
-- `RouterLink`, `RouterLinksDirective`, `SafeHtmlPipe`
-
-The default template renders `pun-statistics` inline, then `<app-currently-active>` and `<app-recently-active>` as separate elements. The custom template replaces all three with `<app-footer-statistics>`.
-
-#### `FooterStatisticsComponent` (`src/app/components/footer-statistics/`)
-
-A standalone component (`selector: app-footer-statistics`) that combines three sections:
-
-1. **Board statistics** (`#pun-statistics`) — reads `board()` from `BoardService` directly. Shows total topics, posts, users, newest user, episodes, game posts, and characters.
-2. **Currently active** (`#pun-active`) — fetches `active-users` API on init and on tab focus (`visibilitychange`). Updates in real time via `notificationService.activeUsersUpdate$`. Shows guest count and a linked list of online users. The "Currently active" label is a router link to `/active-users` for authenticated users only.
-3. **Recently active** (`#pun-recently-active`) — fetches `user/recent` and `character/recent` on init. Has a `recentMode` signal (`'users' | 'characters'`) toggled by buttons; switches the displayed list between users (linked to `/profile/:id`) and characters (linked to `/character/:id`).
-
-All three sections render the same HTML structure and IDs as their standalone counterparts, so existing CSS applies without changes.
 
 ## Adding a new custom template
 
