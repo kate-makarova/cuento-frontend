@@ -8,10 +8,5 @@
     "component": "src/app/components/category",
     "default_template": "src/app/components/category/category.component.html",
     "template": "src/app/components/category/category.custom.component.html"
-  },
-  {
-    "component": "src/app/components/footer-statistics",
-    "default_template": "src/app/components/footer-statistics/footer-statistics.component.html",
-    "template": "src/app/components/footer-statistics/footer-statistics.custom.component.html"
   }
 ]
