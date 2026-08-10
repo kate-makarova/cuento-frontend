@@ -1,0 +1,11 @@
+<div id="pun-main" class="main">
+    <div class="main-header"></div>
+  @for (category of categories(); track category.id) {
+    <div id="category-{{category.id}}" class="category">
+      <app-category [category]="category"></app-category>
+    </div>
+  }
+
+    <app-footer-statistics></app-footer-statistics>
+    <div class="main-footer"></div>
+  </div>

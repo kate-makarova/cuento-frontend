@@ -8,6 +8,7 @@ import {CategoryService} from '../services/category.service';
 import {NotificationService} from '../services/notification.service';
 import {CurrentlyActiveComponent} from '../components/currently-active/currently-active.component';
 import {RecentlyActiveComponent} from '../components/recently-active/recently-active.component';
+import {FooterStatisticsComponent} from '../components/footer-statistics/footer-statistics.component';
 import { RouterLinksDirective } from '../directives/router-links.directive';
 import { SafeHtmlPipe } from '../pipes/safe-html.pipe';
 import { CategoryComponent } from '../components/category/category.component';
@@ -21,6 +22,7 @@ import { CategoryComponent } from '../components/category/category.component';
     RouterLink,
     CurrentlyActiveComponent,
     RecentlyActiveComponent,
+    FooterStatisticsComponent,
     RouterLinksDirective,
     SafeHtmlPipe,
     CategoryComponent
