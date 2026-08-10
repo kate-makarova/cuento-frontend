@@ -71,7 +71,7 @@ Overrides `category.component.html`. The template belongs to `CategoryComponent`
 | `category.subforums[].show_last_topic` | `boolean` | Whether to link last topic or last post |
 
 
-### Footer statistics — `src/app/components/footer-statistics/footer-statistics.component.custom.html`
+### Footer statistics — `src/app/components/footer-statistics/footer-statistics.custom.component.html`
 
 Overrides `footer-statistics.component.html`. The template belongs to `FooterStatisticsComponent` and has access to:
 
