@@ -15,10 +15,8 @@
         </strong>
       </span></p>
     </div>
-  </div>
-</div>
 
-<div id="pun-active" class="modmenu">
+    <div id="pun-active" class="modmenu">
   <p class="container" style="text-align: left">
     @if (authService.isAuthenticated()) {
       <a style="font-weight: bold" [routerLink]="['/active-users']" i18n="@@currentlyActive.title">Currently active</a>
@@ -58,6 +56,11 @@
     </p>
   </div>
 </div>
+    
+  </div>
+</div>
+
+
 
 <div class="statscon game-stats">
   <p><span><ng-container i18n="@@home.totalEpisodes">Total episodes</ng-container>: <strong>{{board().total_episode_number}}</strong></span></p>
