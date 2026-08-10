@@ -71,6 +71,23 @@ Overrides `category.component.html`. The template belongs to `CategoryComponent`
 | `category.subforums[].show_last_topic` | `boolean` | Whether to link last topic or last post |
 
 
+### Footer statistics — `src/app/components/footer-statistics/footer-statistics.component.custom.html`
+
+Overrides `footer-statistics.component.html`. The template belongs to `FooterStatisticsComponent` and has access to:
+
+| Binding | Type | Description |
+|---|---|---|
+| `board()` | `Signal<Board>` | Full board settings object (stats counts, newest user, etc.) |
+| `activeUsers()` | `Signal<UserShort[]>` | Users currently online |
+| `activeGuests()` | `Signal<number>` | Guest count currently online |
+| `recentUsers()` | `Signal<{id, username}[]>` | Users active in the last 24 h |
+| `recentCharacters()` | `Signal<{id, name}[]>` | Characters active in the last 24 h |
+| `recentMode()` | `Signal<'users' \| 'characters'>` | Which recent list is displayed |
+| `setRecentMode(m)` | method | Switches `recentMode` |
+| `authService.isAuthenticated()` | `Signal<boolean>` | Auth state |
+
+Available imports declared in `FooterStatisticsComponent`: `RouterLink`.
+
 ## Adding a new custom template
 
 1. Create a `*.custom.component.html` file alongside the default template.
