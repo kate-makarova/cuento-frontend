@@ -10,7 +10,7 @@
       <p><span><ng-container i18n="@@home.newestUser">Newest user</ng-container>:
         <strong>
           @if (board().last_registered_user) {
-            <a [routerLink]="[&#39;/profile&#39;, board().last_registered_user?.id]">{{ board().last_registered_user?.username }}</a>
+            <a [routerLink]="['/profile', board().last_registered_user?.id]">{{ board().last_registered_user?.username }}</a>
           }
         </strong>
       </span></p>
@@ -21,14 +21,14 @@
 <div id="pun-active" class="modmenu">
   <p class="container" style="text-align: left">
     @if (authService.isAuthenticated()) {
-      <a style="font-weight: bold" [routerLink]="[&#39;/active-users&#39;]" i18n="@@currentlyActive.title">Currently active</a>
+      <a style="font-weight: bold" [routerLink]="['/active-users']" i18n="@@currentlyActive.title">Currently active</a>
     } @else {
       <span style="font-weight: bold" i18n="@@currentlyActive.title">Currently active</span>
     }
     <ng-container i18n="@@currentlyActive.guests"> {{ activeGuests() }} гостей,</ng-container>
     <ng-container i18n="@@currentlyActive.users"> {{ activeUsers().length }} игроков:</ng-container>
     @for (user of activeUsers(); track user.id; let last = $last) {
-      <a class="group4" [routerLink]="[&#39;/profile&#39;, user.id]">{{ user.username }}</a>@if (!last) {, }
+      <a class="group4" [routerLink]="['/profile', user.id]">{{ user.username }}</a>@if (!last) {, }
     }
   </p>
 </div>
@@ -36,23 +36,23 @@
 <div id="pun-recently-active" class="modmenu">
   <div class="container" style="text-align: left">
     <span class="mode-toggle">
-      <button type="button" [class.active]="recentMode() === &#39;users&#39;" (click)="setRecentMode(&#39;users&#39;)" i18n="@@recentlyActive.users">Users</button>
-      <button type="button" [class.active]="recentMode() === &#39;characters&#39;" (click)="setRecentMode(&#39;characters&#39;)" i18n="@@recentlyActive.characters">Characters</button>
+      <button type="button" [class.active]="recentMode() === 'users'" (click)="setRecentMode('users')" i18n="@@recentlyActive.users">Users</button>
+      <button type="button" [class.active]="recentMode() === 'characters'" (click)="setRecentMode('characters')" i18n="@@recentlyActive.characters">Characters</button>
     </span>
     <p style="margin: 0">
-      @if (recentMode() === &#39;users&#39;) {
+      @if (recentMode() === 'users') {
         <span style="font-weight: bold" i18n="@@recentlyActive.activeUsers">Active in 24 hours users</span>
       } @else {
         <span style="font-weight: bold" i18n="@@recentlyActive.activeCharacters">Active in 24 hours characters</span>
       }
-      ({{ recentMode() === &#39;users&#39; ? recentUsers().length : recentCharacters().length }}):
-      @if (recentMode() === &#39;users&#39;) {
+      ({{ recentMode() === 'users' ? recentUsers().length : recentCharacters().length }}):
+      @if (recentMode() === 'users') {
         @for (user of recentUsers(); track user.id; let last = $last) {
-          <a class="group4" [routerLink]="[&#39;/profile&#39;, user.id]">{{ user.username }}</a>@if (!last) {, }
+          <a class="group4" [routerLink]="['/profile', user.id]">{{ user.username }}</a>@if (!last) {, }
         }
       } @else {
         @for (character of recentCharacters(); track character.id; let last = $last) {
-          <a class="group4" [routerLink]="[&#39;/character&#39;, character.id]">{{ character.name }}</a>@if (!last) {, }
+          <a class="group4" [routerLink]="['/character', character.id]">{{ character.name }}</a>@if (!last) {, }
         }
       }
     </p>
