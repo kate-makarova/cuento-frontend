@@ -1,8 +1,28 @@
-@if(episode != null) {
-<div class="episode-header">
-  <div class="episode-info">
-    <h2>
-      {{ episode.name }}
+@if (episode != null) {
+<div class="episode-header-wrapper">
+  
+  
+  <div class="episode-block-media">
+    @if (getField('image'); as field) {
+      <app-field-display 
+        [type]="field.type" 
+        [fieldMachineName]="field.fieldMachineName" 
+        [fieldName]="field.fieldName" 
+        [fieldValue]="field.fieldValue">
+      </app-field-display>
+    }
+  </div>
+
+  
+  <div class="episode-block-details">
+    
+    
+    <div class="episode-row row-title">
+      <h2>{{ episode.name }}</h2>
+    </div>
+
+    
+    <div class="episode-row row-statuses">
       @if (episode.episode_status === 0) {
         <span class="status-badge status-active" i18n="@@common.statusActive">Active</span>
       } @else if (episode.episode_status === 1) {
@@ -11,44 +31,70 @@
       @if (ratingBadge) {
         <span class="status-badge episode-rating-badge">{{ ratingBadge }}</span>
       }
-    </h2>
-    @if (episode.open_to_everyone) {
-      <div class="episode-open-badge" i18n="@@episode.openToEveryone">Open to everyone</div>
-    }
-
-    <div class="episode-characters">
-      <h3>Participants</h3>
-      <div class="character-list">
-        @for (char of episode.characters; track char.id) {
-          <div class="character-item">
-            <a routerLink="/character/{{ char.id }}" class="character-link">{{ char.name }}</a>
-          </div>
-        }
-      </div>
     </div>
 
-    @if (episode.masks && episode.masks.length > 0) {
-      <div class="episode-masks">
-        <h3>Masks</h3>
-        <div class="mask-list">
-          @for (mask of episode.masks; track mask.id) {
-            <div class="mask-item">{{ mask.mask_name }} ({{ mask.user_name }})</div>
+    
+    <div class="episode-row row-description">
+      @if (getField('description'); as field) {
+        <app-field-display 
+          [type]="field.type" 
+          [fieldMachineName]="field.fieldMachineName" 
+          [fieldName]="field.fieldName" 
+          [fieldValue]="field.fieldValue">
+        </app-field-display>
+      }
+    </div>
+
+    
+    <div class="episode-row row-meta">
+      @if (episode.open_to_everyone) {
+        <div class="episode-open-badge" i18n="@@episode.openToEveryone">Open to everyone</div>
+      }
+
+      <div class="episode-characters">
+        <h3>Participants</h3>
+        <div class="character-list">
+          @for (char of episode.characters; track char.id) {
+            <div class="character-item">
+              <a routerLink="/character/{{ char.id }}" class="character-link">{{ char.name }}</a>
+            </div>
           }
         </div>
       </div>
-    }
 
-    @if (customFields.length > 0) {
-      <div class="episode-custom-fields">
-        <ul>
-          @for(field of customFields; track field.fieldMachineName) {
-            <li class="ep-fld">
-              <app-field-display [type]="field.type" [fieldMachineName]="field.fieldMachineName" [fieldName]="field.fieldName" [fieldValue]="field.fieldValue"></app-field-display>
-            </li>
-          }
-        </ul>
-      </div>
-    }
+      @if (episode.masks &amp;&amp; episode.masks.length &gt; 0) {
+        <div class="episode-masks">
+          <h3>Masks</h3>
+          <div class="mask-list">
+            @for (mask of episode.masks; track mask.id) {
+              <div class="mask-item">{{ mask.mask_name }} ({{ mask.user_name }})</div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    
+    <div class="episode-row row-fields">
+      @if (getField('ep_date'); as field) {
+        <app-field-display 
+          [type]="field.type" 
+          [fieldMachineName]="field.fieldMachineName" 
+          [fieldName]="field.fieldName" 
+          [fieldValue]="field.fieldValue">
+        </app-field-display>
+      }
+
+      @if (getField('ep_place'); as field) {
+        <app-field-display 
+          [type]="field.type" 
+          [fieldMachineName]="field.fieldMachineName" 
+          [fieldName]="field.fieldName" 
+          [fieldValue]="field.fieldValue">
+        </app-field-display>
+      }
+    </div>
+
   </div>
 </div>
 }
