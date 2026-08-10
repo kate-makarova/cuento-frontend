@@ -88,6 +88,27 @@ Overrides `footer-statistics.component.html`. The template belongs to `FooterSta
 
 Available imports declared in `FooterStatisticsComponent`: `RouterLink`.
 
+### Episode header — `src/app/components/episode-header/episode-header.custom.component.html`
+
+Overrides `episode-header.component.html`. The template belongs to `EpisodeHeaderComponent` and has access to:
+
+| Binding | Type | Description |
+|---|---|---|
+| `episode` | `Episode \| null` | The episode object; template should guard with `@if (episode != null)` |
+| `episode.name` | `string` | Episode title |
+| `episode.episode_status` | `number` | `0` = active, `1` = inactive |
+| `episode.open_to_everyone` | `boolean` | Whether the episode is open to any character |
+| `episode.characters` | `{id, name}[]` | Participating characters |
+| `episode.masks` | `{id, mask_name, user_name}[]` | Masks (anonymous participants) |
+| `episode.rating_set` | `boolean` | Whether a content rating is assigned |
+| `episode.rating_language` | `number` | Language rating value |
+| `episode.rating_violence` | `number` | Violence rating value |
+| `episode.rating_sex` | `number` | Sex rating value |
+| `ratingBadge` | `string \| null` | Pre-formatted rating string e.g. `L1V2S0`; `null` if no rating set |
+| `customFields` | `{fieldMachineName, fieldName, fieldValue, type}[]` | Processed custom fields, sorted by order |
+
+Available imports declared in `EpisodeHeaderComponent`: `RouterLink`, `FieldDisplayComponent` (`app-field-display`), `CommonModule`.
+
 ## Adding a new custom template
 
 1. Create a `*.custom.component.html` file alongside the default template, following the naming convention `<name>.custom.component.html` (e.g. `header.custom.component.html`, not `header.component.custom.html`).
