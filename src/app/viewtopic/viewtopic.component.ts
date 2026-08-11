@@ -386,6 +386,10 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     navigator.clipboard.writeText(url.toString());
   }
 
+  isPostAuthor(post: Post): boolean {
+    return this.authService.currentUser()?.id === post.author_user_id;
+  }
+
   editPost(post: Post, event: Event) {
     event.preventDefault();
     this.editingPostId.set(post.id);

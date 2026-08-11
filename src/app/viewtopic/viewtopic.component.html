@@ -182,13 +182,17 @@
     <div class="container">
       <div class="post-main">
         @if (editingPostId() === post.id) {
-          <app-character-profile
-            [showAccount]="showAccount"
-            [accountName]="accountName"
-            [loadProfiles]="false"
-            [initialCharacterId]="post.character_profile?.id"
-            (characterSelected)="editingPostProfileId.set($event)">
-          </app-character-profile>
+          @if (isPostAuthor(post)) {
+            <app-character-profile
+              [showAccount]="showAccount"
+              [accountName]="accountName"
+              [loadProfiles]="false"
+              [initialCharacterId]="post.character_profile?.id"
+              (characterSelected)="editingPostProfileId.set($event)">
+            </app-character-profile>
+          } @else {
+            <app-character-profile [post]="post"></app-character-profile>
+          }
         } @else {
           <app-character-profile [post]="post" (authorClicked)="onAuthorMention($event)"></app-character-profile>
         }
