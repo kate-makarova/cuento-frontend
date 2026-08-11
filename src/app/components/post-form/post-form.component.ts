@@ -41,7 +41,6 @@ export class PostFormComponent implements AfterViewInit, OnDestroy {
 
   mentionResults: UserShort[] = [];
   private mentionAtPos: number = -1;
-  private mentionQueryLength: number = 0;
   private mentionSubject = new Subject<string>();
   private mentionSub: Subscription;
 
@@ -147,12 +146,10 @@ export class PostFormComponent implements AfterViewInit, OnDestroy {
     const match = textBefore.match(/@([^ @]*)$/);
     if (match) {
       this.mentionAtPos = textBefore.length - match[0].length;
-      this.mentionQueryLength = match[1].length;
       this.mentionSubject.next(match[1]);
     } else {
       this.mentionResults = [];
       this.mentionAtPos = -1;
-      this.mentionQueryLength = 0;
     }
   }
 
@@ -162,32 +159,32 @@ export class PostFormComponent implements AfterViewInit, OnDestroy {
     const match = textBefore.match(/@([^ @]*)$/);
     if (match) {
       this.mentionAtPos = textBefore.length - match[0].length;
-      this.mentionQueryLength = match[1].length;
       this.mentionSubject.next(match[1]);
     } else {
       this.mentionResults = [];
       this.mentionAtPos = -1;
-      this.mentionQueryLength = 0;
     }
   }
 
   selectMention(user: UserShort) {
     const inserted = `${user.username} `;
     if (this.editorMode() === 'wysiwyg') {
-      this.wysiwygEditor?.restoreSelection();
-      this.wysiwygEditor?.replaceBeforeCursor(this.mentionQueryLength, inserted);
+      const textBefore = this.wysiwygEditor?.getTextBeforeCursor() ?? '';
+      // mentionAtPos points to '@'; delete only the characters typed after it
+      const charsToDelete = textBefore.length - this.mentionAtPos - 1;
+      this.wysiwygEditor?.replaceBeforeCursor(charsToDelete, inserted);
     } else {
       const el = this.messageField?.nativeElement;
       if (!el) return;
+      const cursorPos = el.selectionStart ?? el.value.length;
+      // mentionAtPos points to '@'; keep it, replace only what was typed after
       const replaceFrom = this.mentionAtPos + 1;
-      const replaceEnd = replaceFrom + this.mentionQueryLength;
-      el.value = el.value.substring(0, replaceFrom) + inserted + el.value.substring(replaceEnd);
+      el.value = el.value.substring(0, replaceFrom) + inserted + el.value.substring(cursorPos);
       el.focus();
       el.setSelectionRange(replaceFrom + inserted.length, replaceFrom + inserted.length);
     }
     this.mentionResults = [];
     this.mentionAtPos = -1;
-    this.mentionQueryLength = 0;
   }
 
   closeMention() {

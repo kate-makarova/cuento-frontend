@@ -55,7 +55,7 @@ export class WysiwygEditorComponent implements OnDestroy {
   }
 
   onFocus() { this.focused = true; this.updateActiveFormats(); }
-  onBlur()  { this.focused = false; this.saveSelection(); }
+  onBlur()  { this.focused = false; }
 
   onKeyDown(event: KeyboardEvent) {
     if (event.key !== 'Enter') return;
