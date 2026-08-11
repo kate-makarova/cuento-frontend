@@ -83,6 +83,7 @@ export class WysiwygEditorComponent implements OnDestroy {
           const el = node as HTMLElement;
           if (el.classList.contains('wysiwyg-code')) { active.add('code'); break; }
           if (el.tagName === 'BLOCKQUOTE') { active.add('quote'); break; }
+          if (el.classList.contains('wysiwyg-spoiler')) { active.add('spoiler'); break; }
         }
         node = node.parentNode;
       }
@@ -149,6 +150,23 @@ export class WysiwygEditorComponent implements OnDestroy {
   clear(): void { this.editorEl.nativeElement.innerHTML = ''; }
 
   focus(): void { this.editorEl.nativeElement.focus(); }
+
+  unwrapBlock(containerSelector: string, contentSelector?: string): void {
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return;
+    let node: Node | null = sel.getRangeAt(0).startContainer;
+    while (node && node !== this.editorEl.nativeElement) {
+      if (node.nodeType === Node.ELEMENT_NODE && (node as HTMLElement).matches(containerSelector)) {
+        const container = node as HTMLElement;
+        const source = contentSelector ? container.querySelector(contentSelector) : container;
+        const fragment = document.createDocumentFragment();
+        if (source) Array.from(source.childNodes).forEach(n => fragment.appendChild(n.cloneNode(true)));
+        container.replaceWith(fragment);
+        return;
+      }
+      node = node.parentNode;
+    }
+  }
 
   private savedRange: Range | null = null;
 
