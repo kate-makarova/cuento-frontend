@@ -79,9 +79,10 @@ export class WysiwygEditorComponent implements OnDestroy {
     if (sel && sel.rangeCount > 0) {
       let node: Node | null = sel.getRangeAt(0).startContainer;
       while (node && node !== this.editorEl.nativeElement) {
-        if (node.nodeType === Node.ELEMENT_NODE && (node as HTMLElement).classList.contains('wysiwyg-code')) {
-          active.add('code');
-          break;
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          const el = node as HTMLElement;
+          if (el.classList.contains('wysiwyg-code')) { active.add('code'); break; }
+          if (el.tagName === 'BLOCKQUOTE') { active.add('quote'); break; }
         }
         node = node.parentNode;
       }

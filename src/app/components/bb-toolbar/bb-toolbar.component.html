@@ -19,8 +19,8 @@
   <span title="Center" i18n-title="@@postform.center" (click)="insertTag('center')" [class.toolbar-active]="isFormatActive('center')"><i class="bi bi-text-center"></i></span>
   <span title="Align right" i18n-title="@@postform.alignRight" (click)="insertTag('right')" [class.toolbar-active]="isFormatActive('right')"><i class="bi bi-text-right"></i></span>
   <span title="Link" i18n-title="@@postform.link" (click)="toggleArea('url')"><i class="bi bi-link-45deg"></i></span>
-  <span title="Quote" i18n-title="@@postform.quote" (click)="insertTag('quote')"><i class="bi bi-quote"></i></span>
-  <span title="Code" i18n-title="@@postform.code" (click)="insertTag('code')"><i class="bi bi-code-slash"></i></span>
+  <span title="Quote" i18n-title="@@postform.quote" (click)="insertTag('quote')" [class.toolbar-active]="isFormatActive('quote')"><i class="bi bi-quote"></i></span>
+  <span title="Code" i18n-title="@@postform.code" (click)="insertTag('code')" [class.toolbar-active]="isFormatActive('code')"><i class="bi bi-code-slash"></i></span>
   <span title="Color" i18n-title="@@postform.color" (click)="toggleArea('color')" [class.toolbar-active]="!!getActiveColor()">
     <i class="bi bi-palette"></i>
     @if (getActiveColor(); as color) {
