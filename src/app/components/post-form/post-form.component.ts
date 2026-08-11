@@ -117,6 +117,7 @@ export class PostFormComponent implements AfterViewInit, OnDestroy {
 
   insertAtCursor(text: string): void {
     if (this.editorMode() === 'wysiwyg') {
+      this.wysiwygEditor?.restoreSelection();
       this.wysiwygEditor?.insertTextAtCursor(text);
     } else {
       const el = this.messageField?.nativeElement;
