@@ -63,7 +63,7 @@ export class WysiwygEditorComponent implements OnDestroy {
     if (!sel || !sel.rangeCount) return;
     const anchor = sel.getRangeAt(0).commonAncestorContainer;
     const node = anchor.nodeType === Node.TEXT_NODE ? anchor.parentElement : anchor as HTMLElement;
-    if (node?.closest('.wysiwyg-spoiler-content')) {
+    if (node?.closest('.wysiwyg-spoiler-content, .wysiwyg-code, blockquote')) {
       event.preventDefault();
       document.execCommand('insertLineBreak');
     }
