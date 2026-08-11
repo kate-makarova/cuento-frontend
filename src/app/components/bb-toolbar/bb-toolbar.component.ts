@@ -207,7 +207,7 @@ export class BbToolbarComponent {
       case 'center': ed.exec('justifyCenter'); break;
       case 'right':  ed.exec('justifyRight'); break;
       case 'quote': ed.exec('formatBlock', 'blockquote'); break;
-      case 'code':  ed.exec('formatBlock', 'pre'); break;
+      case 'code':  ed.insertBlockAtCursor('<div class="wysiwyg-code"><br></div><div><br></div>'); break;
       case 'video':
       case 'audio':
         ed.insertTextAtCursor(`[${tag}][/${tag}]`);

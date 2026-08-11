@@ -75,6 +75,17 @@ export class WysiwygEditorComponent implements OnDestroy {
     for (const [tag, cmd] of Object.entries(FORMAT_COMMANDS)) {
       if (document.queryCommandState(cmd)) active.add(tag);
     }
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0) {
+      let node: Node | null = sel.getRangeAt(0).startContainer;
+      while (node && node !== this.editorEl.nativeElement) {
+        if (node.nodeType === Node.ELEMENT_NODE && (node as HTMLElement).classList.contains('wysiwyg-code')) {
+          active.add('code');
+          break;
+        }
+        node = node.parentNode;
+      }
+    }
     this.activeFormats.set(active);
     this.updateInlineStyles();
   }

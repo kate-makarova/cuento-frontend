@@ -129,7 +129,7 @@ content
 | `[img]…[/img]` | `<img src="…">` |
 | `[center/right/left]` | `<div style="text-align:…">` or `<p style="text-align:…">` |
 | `[quote]` / `[quote=A]` | `<blockquote>` / `<blockquote data-author="A">` |
-| `[code]` | `<pre>` |
+| `[code]` | `<div class="wysiwyg-code">` (legacy `<pre>` is also read back as `[code]`) |
 | `[spoiler=T]` | `<div class="wysiwyg-spoiler" data-title="T">` |
 | newline | `<br>` (in `bbCodeToHtml`) / `\n` (in `htmlToBbCode` at block boundaries) |
 
