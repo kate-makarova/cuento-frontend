@@ -14,7 +14,8 @@ function processContainer(el: Element): string {
     const isBlock = child.nodeType === Node.ELEMENT_NODE && (
       ['p', 'blockquote', 'pre'].includes(tag ?? '') ||
       (tag === 'div' && !childEl.classList.contains('wysiwyg-spoiler-header') && !childEl.classList.contains('wysiwyg-spoiler-content')) ||
-      childEl.classList.contains('wysiwyg-spoiler')
+      childEl.classList.contains('wysiwyg-spoiler') ||
+      childEl.classList.contains('wysiwyg-code')
     );
     if (isBlock && result && !result.endsWith('\n')) {
       result += '\n';
@@ -56,6 +57,9 @@ function nodeToText(node: Node): string {
     case 'pre': return `[code]${el.textContent ?? ''}[/code]\n`;
 
     case 'div': {
+      if (el.classList.contains('wysiwyg-code')) {
+        return `[code]${el.textContent ?? ''}[/code]\n`;
+      }
       if (el.classList.contains('wysiwyg-spoiler')) {
         const title = el.getAttribute('data-title') ?? '';
         const contentEl = el.querySelector('.wysiwyg-spoiler-content');
@@ -129,7 +133,7 @@ export function bbCodeToHtml(bb: string): string {
     .replace(/\[left\]([\s\S]*?)\[\/left\]/g,     '<div style="text-align:left">$1</div>')
     .replace(/\[quote=([^\]]+)\]([\s\S]*?)\[\/quote\]/g, '<blockquote data-author="$1">$2</blockquote>')
     .replace(/\[quote\]([\s\S]*?)\[\/quote\]/g,          '<blockquote>$1</blockquote>')
-    .replace(/\[code\]([\s\S]*?)\[\/code\]/g,            '<pre>$1</pre>')
+    .replace(/\[code\]([\s\S]*?)\[\/code\]/g,            '<div class="wysiwyg-code">$1</div>')
     .replace(/\[spoiler=([^\]]+)\]([\s\S]*?)\[\/spoiler\]/g, '<div class="wysiwyg-spoiler" data-title="$1"><div class="wysiwyg-spoiler-header">$1</div><div class="wysiwyg-spoiler-content">$2</div></div>')
     .replace(/\[spoiler\]([\s\S]*?)\[\/spoiler\]/g,          '<div class="wysiwyg-spoiler"><div class="wysiwyg-spoiler-header">Spoiler</div><div class="wysiwyg-spoiler-content">$1</div></div>')
     .replace(/\n/g, '<br>');

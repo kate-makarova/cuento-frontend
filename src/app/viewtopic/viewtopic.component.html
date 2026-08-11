@@ -267,9 +267,9 @@
         </div>
         <div class="conr">
           <p class="post-links">
-            <span><a href="#" (click)="quotePost(post, $event)" i18n="@@viewtopic.quote">Quote</a></span>
+            <span><a href="#" [class.disabled]="editingPostId() === post.id" (click)="editingPostId() === post.id ? $event.preventDefault() : quotePost(post, $event)" i18n="@@viewtopic.quote">Quote</a></span>
             @if(post.can_edit) {
-              <span><a href="#" (click)="editPost(post, $event)" i18n="@@viewtopic.edit">Edit</a></span>
+              <span><a href="#" [class.disabled]="editingPostId() === post.id" (click)="editingPostId() === post.id ? $event.preventDefault() : editPost(post, $event)" i18n="@@viewtopic.edit">Edit</a></span>
             }
             @if(post.can_delete) {
               <span><a href="#" (click)="deletePost(post, $event)" i18n="@@viewtopic.delete">Delete</a></span>
