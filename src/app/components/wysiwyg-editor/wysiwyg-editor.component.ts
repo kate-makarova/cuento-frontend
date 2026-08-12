@@ -145,6 +145,18 @@ export class WysiwygEditorComponent implements OnDestroy {
 
   setValue(bbCode: string): void {
     this.editorEl.nativeElement.innerHTML = bbCodeToHtml(bbCode);
+    this.sanitizeCodeBlocks();
+  }
+
+  private sanitizeCodeBlocks(): void {
+    this.editorEl.nativeElement.querySelectorAll<HTMLElement>('.wysiwyg-code').forEach(block => {
+      block.querySelectorAll<HTMLElement>('a, img').forEach(el => {
+        const text = el.tagName === 'IMG'
+          ? (el as HTMLImageElement).getAttribute('src') ?? ''
+          : el.textContent ?? '';
+        el.replaceWith(document.createTextNode(text));
+      });
+    });
   }
 
   clear(): void { this.editorEl.nativeElement.innerHTML = ''; }
@@ -279,6 +291,16 @@ export class WysiwygEditorComponent implements OnDestroy {
   }
 
   onPaste(event: ClipboardEvent): void {
+    const sel = window.getSelection();
+    const node = sel?.rangeCount ? sel.getRangeAt(0).startContainer : null;
+    const el = node?.nodeType === Node.TEXT_NODE ? node.parentElement : node as HTMLElement | null;
+    if (el?.closest('.wysiwyg-code')) {
+      event.preventDefault();
+      const text = event.clipboardData?.getData('text/plain') ?? '';
+      document.execCommand('insertText', false, text);
+      return;
+    }
+
     if (!this.canUpload()) return;
     const items = event.clipboardData?.items;
     if (!items) return;
