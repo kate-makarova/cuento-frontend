@@ -12,7 +12,7 @@
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <h1><span>{{ topic().name }}</span></h1>
       @if (topic().can_edit && !editingTopic()) {
-        <span style="font-size: 0.8em; margin-right: 10px;"><a href="#" (click)="editTopic($event)">[Edit]</a></span>
+        <span style="font-size: 0.8em; margin-right: 10px;"><a href="#" class="topic-edit" (click)="editTopic($event)" i18n="@@viewtopic.editTopic">Edit</a></span>
       }
     </div>
   </div>

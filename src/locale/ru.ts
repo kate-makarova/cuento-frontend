@@ -30,6 +30,7 @@ export const TRANSLATIONS_RU = {
   "viewtopic.profile": "Профиль",
   "viewtopic.character": "Персонаж",
   "viewtopic.quote": "Цитировать",
+  "viewtopic.editTopic": "Редактировать",
   "viewtopic.edit": "Редактировать",
   "viewtopic.delete": "Удалить",
   "viewtopic.deletePostConfirmTitle": "Удалить сообщение?",
