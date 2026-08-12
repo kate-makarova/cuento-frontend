@@ -132,16 +132,21 @@ function nodeToText(node: Node): string {
   }
 }
 
-// Basic BB code → HTML for the WYSIWYG editor.
-// [code] blocks are extracted before any other processing so their content is
-// never touched by the other replacement rules. The content is HTML-escaped and
-// placed directly inside <pre> so the browser renders it as plain text.
-// <pre> preserves whitespace natively — no <br> conversion needed inside it.
+// BB code → HTML for the WYSIWYG editor.
+//
+// [code] blocks are extracted first (before any other rules run) so their
+// content is never touched by the [img]/[url]/etc. replacements.
+// Content is HTML-escaped and placed in a <pre> — the browser renders it as
+// literal text, never as HTML.
+// The <span>[</span> wrapping is an extra layer: even if the regex somehow
+// missed a block, [img] etc. can't form because [ is no longer a bare character.
+// sanitizeCodeBlocks() in the component strips any remaining HTML elements from
+// <pre> after innerHTML is set, as a final safety net.
 export function bbCodeToHtml(bb: string): string {
   if (!bb) return '';
 
   const codeBlocks: string[] = [];
-  let s = bb.replace(/\[code\]([\s\S]*?)(?:\[\/code\]|$)/g, (_, content) => {
+  let s = bb.replace(/\[code\]([\s\S]*?)\[\/code\]/g, (_, content) => {
     codeBlocks.push(content);
     return `WYSIWYG_CODE_PH_${codeBlocks.length - 1}_END`;
   });
@@ -166,8 +171,6 @@ export function bbCodeToHtml(bb: string): string {
     .replace(/\[spoiler\]([\s\S]*?)\[\/spoiler\]/g,          '<div class="wysiwyg-spoiler"><div class="wysiwyg-spoiler-header">Spoiler</div><div class="wysiwyg-spoiler-content">$1</div></div>')
     .replace(/\n/g, '<br>');
 
-  // Restore code blocks. HTML-escape, then wrap [ in a <span> so any
-  // BB-code-like sequences cannot be parsed as tags by the browser.
   return s.replace(/WYSIWYG_CODE_PH_(\d+)_END/g, (_, i) => {
     const escaped = codeBlocks[parseInt(i)]
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
