@@ -145,16 +145,6 @@ export class WysiwygEditorComponent implements OnDestroy {
 
   setValue(bbCode: string): void {
     this.editorEl.nativeElement.innerHTML = bbCodeToHtml(bbCode);
-    this.resolveCodeBlocks();
-  }
-
-  // Finds <pre data-code="..."> placeholders emitted by bbCodeToHtml and sets
-  // their content via textContent so it is never parsed as HTML.
-  resolveCodeBlocks(): void {
-    this.editorEl.nativeElement.querySelectorAll<HTMLElement>('pre[data-code]').forEach(pre => {
-      pre.textContent = decodeURIComponent(pre.getAttribute('data-code')!);
-      pre.removeAttribute('data-code');
-    });
   }
 
   clear(): void { this.editorEl.nativeElement.innerHTML = ''; }
@@ -234,9 +224,6 @@ export class WysiwygEditorComponent implements OnDestroy {
         nodes.forEach(n => editor.appendChild(n));
       }
     }
-
-    // Resolve any code block placeholders that were just inserted
-    this.resolveCodeBlocks();
 
     // Place cursor inside the trailing empty div
     const last = nodes[nodes.length - 1];
