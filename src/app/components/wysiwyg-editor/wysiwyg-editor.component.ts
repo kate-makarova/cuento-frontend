@@ -145,6 +145,28 @@ export class WysiwygEditorComponent implements OnDestroy {
 
   setValue(bbCode: string): void {
     this.editorEl.nativeElement.innerHTML = bbCodeToHtml(bbCode);
+    this.sanitizeCodeBlocks();
+  }
+
+  // After any innerHTML assignment, convert the content of every code-block <pre>
+  // to plain text. This removes any rendered HTML (img, a, etc.) that slipped in
+  // regardless of how it got there (bbCodeToHtml, paste, drag-drop, etc.).
+  private sanitizeCodeBlocks(): void {
+    this.editorEl.nativeElement.querySelectorAll<HTMLElement>('.wysiwyg-code pre').forEach(pre => {
+      if (!pre.querySelector('img, a, b, i, u, s, del, font, span')) return;
+      const parts: string[] = [];
+      const walk = (node: Node) => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          parts.push(node.textContent ?? '');
+        } else if ((node as HTMLElement).tagName?.toLowerCase() === 'br') {
+          parts.push('\n');
+        } else {
+          node.childNodes.forEach(walk);
+        }
+      };
+      pre.childNodes.forEach(walk);
+      pre.textContent = parts.join('');
+    });
   }
 
   clear(): void { this.editorEl.nativeElement.innerHTML = ''; }
@@ -224,6 +246,8 @@ export class WysiwygEditorComponent implements OnDestroy {
         nodes.forEach(n => editor.appendChild(n));
       }
     }
+
+    this.sanitizeCodeBlocks();
 
     // Place cursor inside the trailing empty div
     const last = nodes[nodes.length - 1];
