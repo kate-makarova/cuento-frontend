@@ -54,10 +54,28 @@ function nodeToText(node: Node): string {
         ? `[quote=${author}]${inner()}[/quote]\n`
         : `[quote]${inner()}[/quote]\n`;
     }
-    case 'pre': return `[code]${el.textContent ?? ''}[/code]\n`;
+    case 'pre': {
+      // Walk children so <br> elements are preserved as \n
+      const parts: string[] = [];
+      el.childNodes.forEach(child => {
+        if (child.nodeType === Node.TEXT_NODE) parts.push(child.textContent ?? '');
+        else if ((child as HTMLElement).tagName?.toLowerCase() === 'br') parts.push('\n');
+      });
+      return `[code]${parts.join('')}[/code]\n`;
+    }
 
     case 'div': {
       if (el.classList.contains('wysiwyg-code')) {
+        // Inner <pre> may contain <br> elements — walk it properly
+        const pre = el.querySelector('pre');
+        if (pre) {
+          const parts: string[] = [];
+          pre.childNodes.forEach(child => {
+            if (child.nodeType === Node.TEXT_NODE) parts.push(child.textContent ?? '');
+            else if ((child as HTMLElement).tagName?.toLowerCase() === 'br') parts.push('\n');
+          });
+          return `[code]${parts.join('')}[/code]\n`;
+        }
         return `[code]${el.textContent ?? ''}[/code]\n`;
       }
       if (el.classList.contains('wysiwyg-spoiler')) {
@@ -114,21 +132,19 @@ function nodeToText(node: Node): string {
   }
 }
 
-// Basic BB code → HTML for initialising the editor from existing content
+// Basic BB code → HTML for the WYSIWYG editor.
+// [code] blocks are emitted as <div class="wysiwyg-code"><pre data-code="..."></pre></div>.
+// The raw content is URL-encoded into the data attribute; resolveCodeBlocks() must be
+// called on the editor element after innerHTML is set to fill the <pre> via textContent,
+// guaranteeing the code content is never parsed as HTML.
 export function bbCodeToHtml(bb: string): string {
   if (!bb) return '';
 
-  // Extract code blocks first so their content is never processed by other rules
-  const codePlaceholders: string[] = [];
-  let s = bb.replace(/\[code\]([\s\S]*?)\[\/code\]/g, (_, content) => {
-    const escaped = content
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/\n/g, '<br>');
-    codePlaceholders.push(escaped);
-    return `WYSIWYG_CODE_PH_${codePlaceholders.length - 1}_END`;
-  });
+  let s = bb.replace(/\[code\]([\s\S]*?)\[\/code\]/g, (_, content) =>
+    `<div class="wysiwyg-code"><pre data-code="${encodeURIComponent(content)}"></pre></div>`
+  );
 
-  s = s
+  return s
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/\[b\]([\s\S]*?)\[\/b\]/g,   '<b>$1</b>')
     .replace(/\[i\]([\s\S]*?)\[\/i\]/g,   '<i>$1</i>')
@@ -147,9 +163,4 @@ export function bbCodeToHtml(bb: string): string {
     .replace(/\[spoiler=([^\]]+)\]([\s\S]*?)\[\/spoiler\]/g, '<div class="wysiwyg-spoiler" data-title="$1"><div class="wysiwyg-spoiler-header">$1</div><div class="wysiwyg-spoiler-content">$2</div></div>')
     .replace(/\[spoiler\]([\s\S]*?)\[\/spoiler\]/g,          '<div class="wysiwyg-spoiler"><div class="wysiwyg-spoiler-header">Spoiler</div><div class="wysiwyg-spoiler-content">$1</div></div>')
     .replace(/\n/g, '<br>');
-
-  // Restore code blocks with their raw (only HTML-escaped) content
-  return s.replace(/WYSIWYG_CODE_PH_(\d+)_END/g, (_, i) =>
-    `<div class="wysiwyg-code">${codePlaceholders[parseInt(i)]}</div>`
-  );
 }

@@ -213,7 +213,7 @@ export class BbToolbarComponent {
           ed.exec('formatBlock', 'blockquote');
         }
         break;
-      case 'code':  ed.insertBlockAtCursor('<div class="wysiwyg-code"><br></div><div><br></div>'); break;
+      case 'code':  ed.insertBlockAtCursor('<div class="wysiwyg-code"><pre><br></pre></div><div><br></div>'); break;
       case 'video':
       case 'audio':
         ed.insertTextAtCursor(`[${tag}][/${tag}]`);
