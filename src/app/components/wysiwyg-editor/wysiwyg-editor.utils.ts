@@ -117,7 +117,18 @@ function nodeToText(node: Node): string {
 // Basic BB code → HTML for initialising the editor from existing content
 export function bbCodeToHtml(bb: string): string {
   if (!bb) return '';
-  return bb
+
+  // Extract code blocks first so their content is never processed by other rules
+  const codePlaceholders: string[] = [];
+  let s = bb.replace(/\[code\]([\s\S]*?)\[\/code\]/g, (_, content) => {
+    const escaped = content
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/\n/g, '<br>');
+    codePlaceholders.push(escaped);
+    return `WYSIWYG_CODE_PH_${codePlaceholders.length - 1}_END`;
+  });
+
+  s = s
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/\[b\]([\s\S]*?)\[\/b\]/g,   '<b>$1</b>')
     .replace(/\[i\]([\s\S]*?)\[\/i\]/g,   '<i>$1</i>')
@@ -133,8 +144,12 @@ export function bbCodeToHtml(bb: string): string {
     .replace(/\[left\]([\s\S]*?)\[\/left\]/g,     '<div style="text-align:left">$1</div>')
     .replace(/\[quote=([^\]]+)\]([\s\S]*?)\[\/quote\]/g, '<blockquote data-author="$1">$2</blockquote>')
     .replace(/\[quote\]([\s\S]*?)\[\/quote\]/g,          '<blockquote>$1</blockquote>')
-    .replace(/\[code\]([\s\S]*?)\[\/code\]/g,            '<div class="wysiwyg-code">$1</div>')
     .replace(/\[spoiler=([^\]]+)\]([\s\S]*?)\[\/spoiler\]/g, '<div class="wysiwyg-spoiler" data-title="$1"><div class="wysiwyg-spoiler-header">$1</div><div class="wysiwyg-spoiler-content">$2</div></div>')
     .replace(/\[spoiler\]([\s\S]*?)\[\/spoiler\]/g,          '<div class="wysiwyg-spoiler"><div class="wysiwyg-spoiler-header">Spoiler</div><div class="wysiwyg-spoiler-content">$1</div></div>')
     .replace(/\n/g, '<br>');
+
+  // Restore code blocks with their raw (only HTML-escaped) content
+  return s.replace(/WYSIWYG_CODE_PH_(\d+)_END/g, (_, i) =>
+    `<div class="wysiwyg-code">${codePlaceholders[parseInt(i)]}</div>`
+  );
 }
