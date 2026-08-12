@@ -206,7 +206,13 @@ export class BbToolbarComponent {
       case 'left':   ed.exec('justifyLeft'); break;
       case 'center': ed.exec('justifyCenter'); break;
       case 'right':  ed.exec('justifyRight'); break;
-      case 'quote': ed.exec('formatBlock', 'blockquote'); break;
+      case 'quote':
+        if (this.isFormatActive('quote')) {
+          ed.unwrapBlock('blockquote');
+        } else {
+          ed.exec('formatBlock', 'blockquote');
+        }
+        break;
       case 'code':  ed.insertBlockAtCursor('<div class="wysiwyg-code"><br></div><div><br></div>'); break;
       case 'video':
       case 'audio':
@@ -250,6 +256,10 @@ export class BbToolbarComponent {
 
   openSpoilerModal() {
     if (this.editor) {
+      if (this.isFormatActive('spoiler')) {
+        this.editor.unwrapBlock('.wysiwyg-spoiler', '.wysiwyg-spoiler-content');
+        return;
+      }
       this.showSpoilerModal = true;
       return;
     }
