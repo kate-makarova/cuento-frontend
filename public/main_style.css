@@ -86,15 +86,16 @@ body {
   font: 1.1em/140% monaco, "bitstream vera sans mono", "courier new", courier, monospace
 }
 
-/* Links and images inside code blocks should never be rendered as such */
-.punbb .post-content pre a {
-  color: inherit;
-  text-decoration: none;
+/* Links and images inside code blocks should never be rendered as such.
+   Specificity (0,1,2,2) beats the dark-mode rule app-root.dark #pun * a (0,1,1,2). */
+#pun .punbb .post-content pre a {
+  color: inherit !important;
+  text-decoration: none !important;
   pointer-events: none;
   cursor: text;
 }
-.punbb .post-content pre img {
-  display: none;
+#pun .punbb .post-content pre img {
+  display: none !important;
 }
 
 /* A3.7 */
