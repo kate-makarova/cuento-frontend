@@ -74,9 +74,9 @@ function nodeToText(node: Node): string {
             if (child.nodeType === Node.TEXT_NODE) parts.push(child.textContent ?? '');
             else if ((child as HTMLElement).tagName?.toLowerCase() === 'br') parts.push('\n');
           });
-          return `[code]${parts.join('')}[/code]\n`;
+          return `[code]${parts.join('').replace(/\[\./g, '[')}[/code]\n`;
         }
-        return `[code]${el.textContent ?? ''}[/code]\n`;
+        return `[code]${(el.textContent ?? '').replace(/\[\./g, '[')}[/code]\n`;
       }
       if (el.classList.contains('wysiwyg-spoiler')) {
         const title = el.getAttribute('data-title') ?? '';
@@ -166,11 +166,12 @@ export function bbCodeToHtml(bb: string): string {
     .replace(/\[spoiler\]([\s\S]*?)\[\/spoiler\]/g,          '<div class="wysiwyg-spoiler"><div class="wysiwyg-spoiler-header">Spoiler</div><div class="wysiwyg-spoiler-content">$1</div></div>')
     .replace(/\n/g, '<br>');
 
-  // Restore code blocks after all other processing. Content is HTML-escaped so
-  // any [img], [url], raw HTML etc. are rendered as literal text inside <pre>.
+  // Restore code blocks. HTML-escape first, then replace [ with [. so any
+  // BB-code-like sequences inside the block cannot be parsed as tags.
   return s.replace(/WYSIWYG_CODE_PH_(\d+)_END/g, (_, i) => {
     const escaped = codeBlocks[parseInt(i)]
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/\[/g, '[.');
     return `<div class="wysiwyg-code"><pre>${escaped}</pre></div>`;
   });
 }
