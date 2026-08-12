@@ -66,17 +66,17 @@ function nodeToText(node: Node): string {
 
     case 'div': {
       if (el.classList.contains('wysiwyg-code')) {
-        // Inner <pre> may contain <br> elements — walk it properly
         const pre = el.querySelector('pre');
         if (pre) {
-          const parts: string[] = [];
-          pre.childNodes.forEach(child => {
-            if (child.nodeType === Node.TEXT_NODE) parts.push(child.textContent ?? '');
-            else if ((child as HTMLElement).tagName?.toLowerCase() === 'br') parts.push('\n');
-          });
-          return `[code]${parts.join('').replace(/\[\./g, '[')}[/code]\n`;
+          const walkPre = (node: Node): string => {
+            if (node.nodeType === Node.TEXT_NODE) return node.textContent ?? '';
+            if ((node as HTMLElement).tagName?.toLowerCase() === 'br') return '\n';
+            return Array.from(node.childNodes).map(walkPre).join('');
+          };
+          const content = Array.from(pre.childNodes).map(walkPre).join('');
+          return `[code]${content}[/code]\n`;
         }
-        return `[code]${(el.textContent ?? '').replace(/\[\./g, '[')}[/code]\n`;
+        return `[code]${el.textContent ?? ''}[/code]\n`;
       }
       if (el.classList.contains('wysiwyg-spoiler')) {
         const title = el.getAttribute('data-title') ?? '';
@@ -141,7 +141,7 @@ export function bbCodeToHtml(bb: string): string {
   if (!bb) return '';
 
   const codeBlocks: string[] = [];
-  let s = bb.replace(/\[code\]([\s\S]*?)\[\/code\]/g, (_, content) => {
+  let s = bb.replace(/\[code\]([\s\S]*?)(?:\[\/code\]|$)/g, (_, content) => {
     codeBlocks.push(content);
     return `WYSIWYG_CODE_PH_${codeBlocks.length - 1}_END`;
   });
@@ -166,12 +166,12 @@ export function bbCodeToHtml(bb: string): string {
     .replace(/\[spoiler\]([\s\S]*?)\[\/spoiler\]/g,          '<div class="wysiwyg-spoiler"><div class="wysiwyg-spoiler-header">Spoiler</div><div class="wysiwyg-spoiler-content">$1</div></div>')
     .replace(/\n/g, '<br>');
 
-  // Restore code blocks. HTML-escape first, then replace [ with [. so any
-  // BB-code-like sequences inside the block cannot be parsed as tags.
+  // Restore code blocks. HTML-escape, then wrap [ in a <span> so any
+  // BB-code-like sequences cannot be parsed as tags by the browser.
   return s.replace(/WYSIWYG_CODE_PH_(\d+)_END/g, (_, i) => {
     const escaped = codeBlocks[parseInt(i)]
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/\[/g, '[.');
+      .replace(/\[/g, '<span>[</span>');
     return `<div class="wysiwyg-code"><pre>${escaped}</pre></div>`;
   });
 }
