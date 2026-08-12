@@ -133,24 +133,19 @@ function nodeToText(node: Node): string {
 }
 
 // Basic BB code → HTML for the WYSIWYG editor.
-// [code] blocks are pulled out with a string placeholder before any other
-// processing so their content is never touched by HTML escaping or other rules.
-// After all other replacements, the placeholder is swapped for
-// <div class="wysiwyg-code"><pre data-code="..."></pre></div>.
-// resolveCodeBlocks() must be called on the editor element after innerHTML is
-// set; it fills each <pre> via textContent so the browser never parses the
-// code content as HTML.
+// [code] blocks are extracted before any other processing so their content is
+// never touched by the other replacement rules. The content is HTML-escaped and
+// placed directly inside <pre> so the browser renders it as plain text.
+// <pre> preserves whitespace natively — no <br> conversion needed inside it.
 export function bbCodeToHtml(bb: string): string {
   if (!bb) return '';
 
-  // Step 1 — extract code blocks before HTML escaping so their content is safe
   const codeBlocks: string[] = [];
   let s = bb.replace(/\[code\]([\s\S]*?)\[\/code\]/g, (_, content) => {
     codeBlocks.push(content);
     return `WYSIWYG_CODE_PH_${codeBlocks.length - 1}_END`;
   });
 
-  // Step 2 — all other transformations (including HTML escaping of the rest)
   s = s
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/\[b\]([\s\S]*?)\[\/b\]/g,   '<b>$1</b>')
@@ -171,11 +166,11 @@ export function bbCodeToHtml(bb: string): string {
     .replace(/\[spoiler\]([\s\S]*?)\[\/spoiler\]/g,          '<div class="wysiwyg-spoiler"><div class="wysiwyg-spoiler-header">Spoiler</div><div class="wysiwyg-spoiler-content">$1</div></div>')
     .replace(/\n/g, '<br>');
 
-  // Step 3 — restore code blocks AFTER escaping so the wrapper HTML is not escaped.
-  // Raw content goes into data-code via encodeURIComponent; resolveCodeBlocks()
-  // sets pre.textContent from it so the browser never parses it as HTML.
+  // Restore code blocks after all other processing. Content is HTML-escaped so
+  // any [img], [url], raw HTML etc. are rendered as literal text inside <pre>.
   return s.replace(/WYSIWYG_CODE_PH_(\d+)_END/g, (_, i) => {
-    const raw = codeBlocks[parseInt(i)];
-    return `<div class="wysiwyg-code"><pre data-code="${encodeURIComponent(raw)}"></pre></div>`;
+    const escaped = codeBlocks[parseInt(i)]
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return `<div class="wysiwyg-code"><pre>${escaped}</pre></div>`;
   });
 }
