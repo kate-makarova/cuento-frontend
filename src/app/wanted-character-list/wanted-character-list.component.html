@@ -15,6 +15,7 @@
 
   <div class="dashboard-layout">
     <aside class="filter-sidebar" [class.open]="filtersOpen()">
+      <div class="filter-sidebar-inner">
       <div class="filter-group">
         <h4>{{ factionsHeader() }}</h4>
         <div class="checkbox-list">
@@ -94,6 +95,7 @@
       </div>
 
       <button class="button" (click)="applyFilters()" i18n="@@wantedCharacterList.applyFilters">Apply Filters</button>
+      </div>
     </aside>
 
     <section class="content-area">
