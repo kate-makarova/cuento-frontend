@@ -34,7 +34,6 @@
             <th class="tc2" scope="col">Subforum</th>
             <th class="tc2" scope="col">Type</th>
             <th class="tc2" scope="col">Replies</th>
-            <th class="tc3" scope="col">Views</th>
             <th class="tcr" scope="col">Last post</th>
           </tr>
           </thead>
@@ -70,7 +69,6 @@
               }
             </td>
             <td class="tc2">{{topic.post_number}}</td>
-            <td class="tc3"></td> <!-- Views not in model yet -->
             <td class="tcr">
               @if (topic.last_post_id) {
                 <a [routerLink]="['/viewtopic', topic.id]" [queryParams]="{ post_id: topic.last_post_id }">{{topic.date_last_post_localized}}</a>
