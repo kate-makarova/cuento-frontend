@@ -209,11 +209,33 @@ export class BbToolbarComponent {
       case 'quote':
         if (this.isFormatActive('quote')) {
           ed.unwrapBlock('blockquote');
+          ed.focus();
         } else {
-          ed.exec('formatBlock', 'blockquote');
+          ed.insertBlockAtCursor('<blockquote><br></blockquote><div><br></div>', 'blockquote');
+          ed.focus();
         }
         break;
-      case 'code':  ed.insertBlockAtCursor('<div class="wysiwyg-code"><pre><br></pre></div><div><br></div>'); break;
+      case 'code':
+        if (this.isFormatActive('code')) {
+          ed.unwrapBlock('.wysiwyg-code', 'pre');
+          ed.focus();
+        } else {
+          ed.insertBlockAtCursor('<div class="wysiwyg-code"><pre><br></pre></div><div><br></div>', 'pre');
+          ed.focus();
+        }
+        break;
+      case 'spoiler':
+        if (this.isFormatActive('spoiler')) {
+          ed.unwrapBlock('.wysiwyg-spoiler', '.wysiwyg-spoiler-content');
+          ed.focus();
+        } else {
+          ed.insertBlockAtCursor(
+            '<div class="wysiwyg-spoiler" data-title="Spoiler"><div class="wysiwyg-spoiler-header">Spoiler</div><div class="wysiwyg-spoiler-content">&nbsp;</div></div><div><br></div>',
+            '.wysiwyg-spoiler-content'
+          );
+          ed.focus();
+        }
+        break;
       case 'video':
       case 'audio':
         ed.insertTextAtCursor(`[${tag}][/${tag}]`);
@@ -256,11 +278,7 @@ export class BbToolbarComponent {
 
   openSpoilerModal() {
     if (this.editor) {
-      if (this.isFormatActive('spoiler')) {
-        this.editor.unwrapBlock('.wysiwyg-spoiler', '.wysiwyg-spoiler-content');
-        return;
-      }
-      this.showSpoilerModal = true;
+      this.insertTag('spoiler');
       return;
     }
     if (!this.textarea) return;
@@ -270,16 +288,6 @@ export class BbToolbarComponent {
   }
 
   insertSpoiler(title: string) {
-    if (this.editor) {
-      const caption = title || 'Spoiler';
-      const dataTitleAttr = title ? ` data-title="${title}"` : '';
-      this.editor.insertBlockAtCursor(
-        `<div class="wysiwyg-spoiler"${dataTitleAttr}><div class="wysiwyg-spoiler-header">${caption}</div><div class="wysiwyg-spoiler-content">&nbsp;</div></div><div><br></div>`
-      );
-      this.showSpoilerModal = false;
-      this.editor.focus();
-      return;
-    }
     if (!this.textarea) return;
     const textarea = this.textarea;
     const text = textarea.value;

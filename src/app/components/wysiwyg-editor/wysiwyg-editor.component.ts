@@ -57,15 +57,88 @@ export class WysiwygEditorComponent implements OnDestroy {
   onFocus() { this.focused = true; this.updateActiveFormats(); }
   onBlur()  { this.focused = false; this.saveSelection(); }
 
+  private readonly BLOCK_SEL = '.wysiwyg-code, .wysiwyg-spoiler, blockquote';
+
   onKeyDown(event: KeyboardEvent) {
-    if (event.key !== 'Enter') return;
     const sel = window.getSelection();
     if (!sel || !sel.rangeCount) return;
-    const anchor = sel.getRangeAt(0).commonAncestorContainer;
+    const range = sel.getRangeAt(0);
+    const anchor = range.commonAncestorContainer;
     const node = anchor.nodeType === Node.TEXT_NODE ? anchor.parentElement : anchor as HTMLElement;
-    if (node?.closest('.wysiwyg-spoiler-content, .wysiwyg-code, blockquote')) {
+
+    if (event.key === 'Enter') {
+      if (node?.closest('.wysiwyg-spoiler-content, .wysiwyg-code, blockquote')) {
+        event.preventDefault();
+        document.execCommand('insertLineBreak');
+      }
+      return;
+    }
+
+    if ((event.key === 'Backspace' || event.key === 'Delete') && this.wouldModifyBlock(range, event.key)) {
       event.preventDefault();
-      document.execCommand('insertLineBreak');
+    }
+  }
+
+  private closestBlock(n: Node): Element | null {
+    const el = n.nodeType === Node.TEXT_NODE ? n.parentElement : n as Element;
+    return el?.closest(this.BLOCK_SEL) ?? null;
+  }
+
+  // For spoilers the editable root is the sub-element (header or content) containing
+  // the cursor, so Backspace/Delete can't merge those two divs into each other.
+  private editableRoot(block: Element, cursor: Node): Element {
+    if (block.classList.contains('wysiwyg-code')) return block.querySelector('pre') ?? block;
+    if (block.classList.contains('wysiwyg-spoiler')) {
+      const el = cursor.nodeType === Node.TEXT_NODE ? (cursor as Text).parentElement : cursor as Element;
+      return el?.closest('.wysiwyg-spoiler-header, .wysiwyg-spoiler-content') ?? block;
+    }
+    return block;
+  }
+
+  private wouldModifyBlock(range: Range, key: string): boolean {
+    const editor = this.editorEl.nativeElement;
+    const startBlock = this.closestBlock(range.startContainer);
+    const endBlock   = this.closestBlock(range.endContainer);
+
+    // Non-collapsed selection spanning a block boundary
+    if (!range.collapsed && startBlock !== endBlock) return true;
+
+    if (startBlock) {
+      if (!range.collapsed) return false; // within-block selection — allow
+      const root = this.editableRoot(startBlock, range.startContainer);
+      const br = document.createRange();
+      br.selectNodeContents(root);
+      return key === 'Backspace'
+        ? range.compareBoundaryPoints(Range.START_TO_START, br) <= 0
+        : range.compareBoundaryPoints(Range.START_TO_END,   br) >= 0;
+    }
+
+    // Cursor is directly in the editor element (between block-level children)
+    if (range.startContainer === editor) {
+      if (key === 'Backspace' && range.startOffset > 0) {
+        return (editor.childNodes[range.startOffset - 1] as Element).matches?.(this.BLOCK_SEL) ?? false;
+      }
+      if (key === 'Delete' && range.startOffset < editor.childNodes.length) {
+        return (editor.childNodes[range.startOffset] as Element).matches?.(this.BLOCK_SEL) ?? false;
+      }
+      return false;
+    }
+
+    // Cursor inside a regular element (e.g. <div>) adjacent to a block
+    let editorChild: Node | null = range.startContainer;
+    while (editorChild?.parentNode !== editor) editorChild = editorChild?.parentNode ?? null;
+    if (!editorChild) return false;
+
+    const r = document.createRange();
+    r.selectNodeContents(editorChild);
+    if (key === 'Backspace') {
+      const prev = editorChild.previousSibling;
+      return !!(prev instanceof Element && prev.matches(this.BLOCK_SEL) &&
+                range.compareBoundaryPoints(Range.START_TO_START, r) <= 0);
+    } else {
+      const next = editorChild.nextSibling;
+      return !!(next instanceof Element && next.matches(this.BLOCK_SEL) &&
+                range.compareBoundaryPoints(Range.START_TO_END, r) >= 0);
     }
   }
 
@@ -171,7 +244,16 @@ export class WysiwygEditorComponent implements OnDestroy {
 
   clear(): void { this.editorEl.nativeElement.innerHTML = ''; }
 
-  focus(): void { this.editorEl.nativeElement.focus(); }
+  focus(): void {
+    const el = this.editorEl.nativeElement;
+    if (document.activeElement === el) {
+      // Already focused — onFocus won't re-fire, so refresh formats manually.
+      // This happens after programmatic DOM changes like unwrapBlock.
+      this.updateActiveFormats();
+    } else {
+      el.focus(); // onFocus → updateActiveFormats
+    }
+  }
 
   unwrapBlock(containerSelector: string, contentSelector?: string): void {
     const sel = window.getSelection();
@@ -215,9 +297,15 @@ export class WysiwygEditorComponent implements OnDestroy {
     document.execCommand('insertHTML', false, html);
   }
 
-  insertBlockAtCursor(html: string): void {
+  // cursorSelector: CSS selector (relative to the inserted nodes) for where to
+  // place the cursor after insertion. Defaults to the trailing empty div.
+  insertBlockAtCursor(html: string, cursorSelector?: string): void {
     const editor = this.editorEl.nativeElement;
-    editor.focus();
+    // Restore the cursor to where it was before the toolbar button click blurred
+    // the editor. Plain focus() refocuses but does not necessarily restore the
+    // selection, so the wrong blockAncestor would be picked.
+    this.restoreSelection();
+    if (document.activeElement !== editor) editor.focus();
 
     const temp = document.createElement('div');
     temp.innerHTML = html;
@@ -230,17 +318,30 @@ export class WysiwygEditorComponent implements OnDestroy {
     } else {
       const range = sel.getRangeAt(0);
 
-      // Walk up to the direct child of the editor that contains the cursor
       let blockAncestor: Node | null = range.startContainer;
       while (blockAncestor && blockAncestor.parentNode !== editor) {
         blockAncestor = blockAncestor.parentNode;
       }
 
       if (blockAncestor) {
-        let ref = blockAncestor;
-        for (const n of nodes) {
-          editor.insertBefore(n, ref.nextSibling);
-          ref = n;
+        // If the block containing the cursor is empty, replace it so we don't
+        // leave a spurious empty line before the newly inserted block.
+        const el = blockAncestor as HTMLElement;
+        const isEmpty = el.nodeType === Node.ELEMENT_NODE && el.textContent === '';
+
+        if (isEmpty) {
+          editor.replaceChild(nodes[0], blockAncestor);
+          let ref: Node = nodes[0];
+          for (let i = 1; i < nodes.length; i++) {
+            editor.insertBefore(nodes[i], ref.nextSibling);
+            ref = nodes[i];
+          }
+        } else {
+          let ref = blockAncestor;
+          for (const n of nodes) {
+            editor.insertBefore(n, ref.nextSibling);
+            ref = n;
+          }
         }
       } else {
         nodes.forEach(n => editor.appendChild(n));
@@ -249,11 +350,19 @@ export class WysiwygEditorComponent implements OnDestroy {
 
     this.sanitizeCodeBlocks();
 
-    // Place cursor inside the trailing empty div
-    const last = nodes[nodes.length - 1];
-    if (last && sel) {
+    // Place cursor at cursorSelector inside the new block, or the trailing div
+    let cursorTarget: Node = nodes[nodes.length - 1];
+    if (cursorSelector) {
+      for (const n of nodes) {
+        if (n instanceof Element) {
+          const found = n.matches(cursorSelector) ? n : n.querySelector(cursorSelector);
+          if (found) { cursorTarget = found; break; }
+        }
+      }
+    }
+    if (sel) {
       const newRange = document.createRange();
-      newRange.setStart(last, 0);
+      newRange.setStart(cursorTarget, 0);
       newRange.collapse(true);
       sel.removeAllRanges();
       sel.addRange(newRange);
