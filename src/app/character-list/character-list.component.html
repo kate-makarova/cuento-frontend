@@ -16,16 +16,22 @@
 
   <div class="character-list-filters">
     <label>
-      <input type="checkbox" [ngModel]="showCharacters()" (ngModelChange)="showCharacters.set($event)" />
-      <span i18n="@@characterList.filter.characters">Characters</span>
+      <span class="checkbox-input">
+        <input type="checkbox" [ngModel]="showCharacters()" (ngModelChange)="showCharacters.set($event)" />
+        <span i18n="@@characterList.filter.characters">Characters</span>
+      </span>
     </label>
     <label>
-      <input type="checkbox" [ngModel]="showImportantRoles()" (ngModelChange)="showImportantRoles.set($event)" />
-      <span i18n="@@characterList.filter.importantRoles">Canonical characters</span>
+      <span class="checkbox-input">
+        <input type="checkbox" [ngModel]="showImportantRoles()" (ngModelChange)="showImportantRoles.set($event)" />
+        <span i18n="@@characterList.filter.importantRoles">Canonical characters</span>
+      </span>
     </label>
     <label>
-      <input type="checkbox" [ngModel]="showWantedCharacters()" (ngModelChange)="showWantedCharacters.set($event)" />
-      <span i18n="@@characterList.filter.wantedCharacters">Wanted characters</span>
+      <span class="checkbox-input">
+        <input type="checkbox" [ngModel]="showWantedCharacters()" (ngModelChange)="showWantedCharacters.set($event)" />
+        <span i18n="@@characterList.filter.wantedCharacters">Wanted characters</span>
+      </span>
     </label>
   </div>
 

@@ -31,8 +31,6 @@
           <thead>
           <tr>
             <th class="tcl" scope="col">Topic</th>
-            <th class="tc2" scope="col">Subforum</th>
-            <th class="tc2" scope="col">Type</th>
             <th class="tc2" scope="col">Replies</th>
             <th class="tcr" scope="col">Last post</th>
           </tr>
@@ -59,14 +57,6 @@
                   <span class="byuser">by <a routerLink="/profile/{{topic.author_user_id}}">{{topic.author_username}}</a></span>
                 </div>
               </div>
-            </td>
-            <td class="tc2"><a routerLink="/viewforum/{{topic.subforum_id}}">{{topic.subforum_name}}</a></td>
-            <td class="tc2">
-              @switch (topic.type) {
-                @case (TopicType.general) { <span>General</span> }
-                @case (TopicType.episode) { <span>Episode</span> }
-                @case (TopicType.character) { <span>Character</span> }
-              }
             </td>
             <td class="tc2">{{topic.post_number}}</td>
             <td class="tcr">
