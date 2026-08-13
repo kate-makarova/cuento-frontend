@@ -17,7 +17,34 @@ A `contenteditable` div. The user edits formatted content visually. On `getValue
 - Uploaded/pasted images are inserted as `<img src="…" style="max-width:100%">` (constrained to editor width).
 - Videos/audio are inserted as raw BB tags (`[video][/video]`) because there is no HTML equivalent in the editor.
 - Spoilers are represented as a `<div class="wysiwyg-spoiler">` with two children: `.wysiwyg-spoiler-header` (title) and `.wysiwyg-spoiler-content` (body).
-- `Enter` inside `.wysiwyg-spoiler-content` inserts a line break instead of a new paragraph.
+- `Enter` inside any special block (spoiler content, code, blockquote) inserts a line break instead of a new paragraph.
+
+### Special blocks: quote, code, spoiler
+
+All three blocks are inserted and removed through a unified pattern in `BbToolbarComponent.insertTagWysiwyg()`:
+
+- **Insert** — calls `ed.insertBlockAtCursor(html, cursorSelector)`. If the current editor block is empty it is replaced (no spurious blank line before the new block). The cursor is placed inside the new block at `cursorSelector`, not in the trailing div.
+- **Remove** — calls `ed.unwrapBlock(containerSel, contentSel)` followed by `ed.focus()`. The content of the block is kept; only the wrapper is removed.
+- **Active state** — `ed.focus()` after every insert/remove refreshes `activeFormats`. `focus()` calls `updateActiveFormats()` immediately when the editor is already focused (so `onFocus` doesn't need to re-fire).
+- **Toolbar highlight** — each button uses `[class.toolbar-active]="isFormatActive('tag')"`, including the spoiler button.
+
+`updateActiveFormats()` walks from the cursor up to the editor root and sets `'quote'`, `'code'`, or `'spoiler'` in `activeFormats` when the cursor is inside the corresponding container.
+
+**Keyboard protection** — `Backspace` and `Delete` cannot delete or merge special blocks. `wouldModifyBlock(range, key)` in `WysiwygEditorComponent` intercepts keydown events and cancels the key press when:
+- the cursor is at the very start of a block and `Backspace` would delete into it, or at the very end and `Delete` would delete out of it;
+- a non-collapsed selection spans a block boundary.
+The toolbar button is the only way to remove a special block.
+
+**Spoiler in WYSIWYG** — clicking the Spoiler toolbar button in WYSIWYG mode goes through `openSpoilerModal()` → `insertTag('spoiler')` → `insertTagWysiwyg('spoiler')`, using the default title `"Spoiler"`. No modal is shown. The modal appears only in BB code (textarea) mode.
+
+### Code block content protection
+
+`[img]` and other BB tags inside `[code]` blocks must not be rendered as HTML. Two layers of protection:
+
+1. **`bbCodeToHtml`** extracts `[code]…[/code]` blocks before any other replacements run, HTML-escapes their content, and wraps each `[` as `<span>[</span>` before injecting into `<pre>`. This prevents any leftover `[tag]` syntax from matching later regex rules.
+2. **`sanitizeCodeBlocks()`** runs after every `innerHTML` assignment and strips any rendered HTML elements (`img`, `a`, `b`, etc.) from every `.wysiwyg-code pre`, converting them back to plain text. This is the final safety net for paste, drag-drop, or any path that bypasses `bbCodeToHtml`.
+
+In `htmlToBbCode`, the `.wysiwyg-code` div case uses a recursive `walkPre` function that reads text nodes and `<br>` elements directly, ignoring any stray `<span>[</span>` wrappers so they are not emitted into the BB code output.
 
 ## BB code mode
 
