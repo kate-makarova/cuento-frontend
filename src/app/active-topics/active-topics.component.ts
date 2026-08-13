@@ -3,7 +3,6 @@ import {CommonModule} from '@angular/common';
 import {RouterLink, ActivatedRoute} from '@angular/router';
 import {ForumService} from '../services/forum.service';
 import {BoardService} from '../services/board.service';
-import {TopicType} from '../models/Topic';
 import {BreadcrumbItem, BreadcrumbsComponent} from '../components/breadcrumbs/breadcrumbs.component';
 
 function coerceToPage(value: unknown): number {
@@ -32,8 +31,6 @@ export class ActiveTopicsComponent implements OnInit {
     { label: 'Home', link: '/' },
     { label: 'Active Topics' }
   ];
-
-  TopicType = TopicType;
 
   topicsPerPage = 20;
   totalPages = computed(() => {
