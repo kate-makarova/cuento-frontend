@@ -210,6 +210,7 @@ export class DirectChatService {
           });
           this.currentChatSignal.update(c => c ? { ...c, last_read_message_id: message.id } : c);
         }
+        this.notificationService.checkChatId(raw.chat_id);
       },
       error: (err) => console.error('Failed to decrypt incoming message', err)
     });

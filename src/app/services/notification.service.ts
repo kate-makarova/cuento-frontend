@@ -217,9 +217,11 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
   }
 
   public checkChatId(chatId: number): void {
-    if (this.directMessageNotificationsSignal().length === 0) return;
-    const n = this.dmChatTriggers.get(chatId);
-    if (n) this.dismissNotification(n);
+    const notifications = this.directMessageNotificationsSignal();
+    if (notifications.length === 0) return;
+    for (const n of notifications) {
+      if (n.direct_message?.chat_id === chatId) this.dismissNotification(n);
+    }
   }
 
   public dismissNotification(notification: NotificationData): void {
