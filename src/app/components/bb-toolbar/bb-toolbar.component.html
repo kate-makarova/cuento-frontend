@@ -34,7 +34,7 @@
     <span title="Upload image" i18n-title="@@postform.uploadImage" (click)="toggleArea('image')"><i class="bi bi-image"></i></span>
   }
   @if (showSpoiler) {
-    <span title="Spoiler" (click)="openSpoilerModal()"><i class="bi bi-eye-slash"></i></span>
+    <span title="Spoiler" (click)="openSpoilerModal()" [class.toolbar-active]="isFormatActive('spoiler')"><i class="bi bi-eye-slash"></i></span>
   }
   <span title="Grid" i18n-title="@@postform.grid" (click)="toggleArea('grid')"><i class="bi bi-grid-3x3-gap"></i></span>
 </div>

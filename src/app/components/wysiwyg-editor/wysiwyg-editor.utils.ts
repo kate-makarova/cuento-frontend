@@ -90,8 +90,8 @@ function nodeToText(node: Node): string {
       }
       if (el.classList.contains('wysiwyg-spoiler-header')) return '';
       if (el.classList.contains('wysiwyg-spoiler-content')) return inner();
-      const divChildren = inner();
-      const divContent = (divChildren === '\n' || divChildren === '') ? '' : divChildren;
+      const divChildren = inner().replace(/\n+$/, '');
+      const divContent = divChildren === '' ? '' : divChildren;
       const divAlign = el.style.textAlign;
       let divResult = divContent;
       if (divAlign === 'center') divResult = `[center]${divResult.trimEnd()}[/center]`;
@@ -101,8 +101,8 @@ function nodeToText(node: Node): string {
     }
 
     case 'p': {
-      const children = inner();
-      const content = (children === '\n' || children === '') ? '' : children;
+      const children = inner().replace(/\n+$/, '');
+      const content = children === '' ? '' : children;
       const align = el.style.textAlign;
       let result = content;
       if (align === 'center') result = `[center]${result.trimEnd()}[/center]`;
