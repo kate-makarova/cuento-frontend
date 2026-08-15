@@ -81,6 +81,7 @@ export const TRANSLATIONS_RU = {
   "loreNavEdit.order": "Порядок",
   "loreNavEdit.hidden": "Скрыта",
   "loreNavEdit.createLink": "Создать ссылку",
+  "freeFormatDate.hint": "Формат будет показан после выбора первого персонажа.",
   "episodecreate.title": "Начать новую игру",
   "episodecreate.characters": "Персонажи",
   "episodecreate.searchCharacters": "Поиск персонажей...",
