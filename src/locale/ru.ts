@@ -805,7 +805,7 @@ export const TRANSLATIONS_RU = {
   "settings.editorType": "Редактор",
   "settings.editorTypeWysiwyg": "Визуальный (WYSIWYG)",
   "settings.editorTypeBbcode": "BBCode",
-  "settings.doNotBlur": "Не размывать контент для взрослых",
+  "settings.doNotBlur": "Не показывать предупреждение о рейтинге",
   "admin.design": "Дизайн",
   "admin.design.variations": "Варианты дизайна",
   "admin.design.variationDefault": "По умолчанию",
