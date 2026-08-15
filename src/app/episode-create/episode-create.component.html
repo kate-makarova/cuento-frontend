@@ -97,7 +97,7 @@
           <div class="inputfield episode-rating-row">
             <label i18n="@@episodecreate.rating">Rating</label>
             <div class="episode-rating-selects">
-              <label>
+              <label class="rating-label">
                 <span i18n="@@rating.language">Language</span>
                 <select [ngModel]="ratingLanguage" (ngModelChange)="onRatingLanguageChange($event)" name="rating_language">
                   <option [ngValue]="0">L0</option>
@@ -106,7 +106,7 @@
                   <option [ngValue]="3">L3</option>
                 </select>
               </label>
-              <label>
+              <label class="rating-label">
                 <span i18n="@@rating.violence">Violence</span>
                 <select [ngModel]="ratingViolence" (ngModelChange)="onRatingViolenceChange($event)" name="rating_violence">
                   <option [ngValue]="0">V0</option>
@@ -115,7 +115,7 @@
                   <option [ngValue]="3">V3</option>
                 </select>
               </label>
-              <label>
+              <label class="rating-label">
                 <span i18n="@@rating.sexContent">Sexual Content</span>
                 <select [ngModel]="ratingSex" (ngModelChange)="onRatingSexChange($event)" name="rating_sex">
                   <option [ngValue]="0">S0</option>
