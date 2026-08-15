@@ -17,12 +17,12 @@
       </legend>
       <div class="fs-box hashelp">
         <p class="inputfield required longinput">
-          <label for="fld3"><ng-container i18n="@@topiccreate.subject">Subject</ng-container> <em><ng-container i18n="@@topiccreate.required">(Required)</ng-container></em></label><br />
+          <label for="fld3"><ng-container i18n="@@topiccreate.subject">Subject</ng-container> <em><ng-container i18n="@@topiccreate.required">(Required)</ng-container></em></label>
           <span class="input"><input id="fld3" type="text" name="req_subject" [value]="subject" size="80" maxlength="70" /></span>
         </p>
 
         <div class="inputfield required longinput">
-          <label><ng-container i18n="@@episodecreate.characters">Characters</ng-container></label><br />
+          <label><ng-container i18n="@@episodecreate.characters">Characters</ng-container></label>
           @for (control of characterControls.controls; track control; let i = $index) {
           <div class="character-input-group">
             <span class="input">
@@ -49,7 +49,7 @@
         </div>
 
         <div class="inputfield required longinput">
-          <label><ng-container i18n="@@episodecreate.masks">Masks</ng-container></label><br />
+          <label><ng-container i18n="@@episodecreate.masks">Masks</ng-container></label>
           @for (control of maskControls.controls; track control; let i = $index) {
           <div class="character-input-group">
             <span class="input">
