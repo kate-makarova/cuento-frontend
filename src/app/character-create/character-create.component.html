@@ -62,21 +62,21 @@
         } @else {
           <p class="inputfield">
             <label i18n="@@charactercreate.claimQuestion">Is this a claim on an existing character?</label><br />
-            <label class="option-label">
+            <label class="radio-label">
               <input type="radio" name="claim_type" value="no"
                 [checked]="claimType() === 'no'"
                 (change)="onClaimTypeChange('no')" />
               <ng-container i18n="@@charactercreate.claimNo">No</ng-container>
             </label>
             &nbsp;
-            <label class="option-label">
+            <label class="radio-label">
               <input type="radio" name="claim_type" value="wanted"
                 [checked]="claimType() === 'wanted'"
                 (change)="onClaimTypeChange('wanted')" />
               <ng-container i18n="@@charactercreate.claimWanted">Yes, for a wanted character</ng-container>
             </label>
             &nbsp;
-            <label class="option-label">
+            <label class="radio-label">
               <input type="radio" name="claim_type" value="direct"
                 [checked]="claimType() === 'direct'"
                 (change)="onClaimTypeChange('direct')" />
