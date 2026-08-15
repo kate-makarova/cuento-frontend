@@ -7,9 +7,6 @@
     @if (authService.isAuthenticated()) {
       <div style="margin-bottom: 10px">
         <button type="button" class="button" (click)="openModal()" i18n="@@absenceList.addButton">Add Absence</button>
-        @if (currentUserAbsence()) {
-          <button type="button" class="button" (click)="openCancelConfirm(currentUserAbsence()!.id)" i18n="@@absenceList.cancelButton">Cancel Absence</button>
-        }
       </div>
     }
 
@@ -20,6 +17,7 @@
           <th scope="col" i18n="@@absenceList.characters">Characters</th>
           <th scope="col" i18n="@@absenceList.from">From</th>
           <th scope="col" i18n="@@absenceList.to">To</th>
+          <th scope="col"></th>
         </tr>
       </thead>
       <tbody>
@@ -33,6 +31,11 @@
             </td>
             <td>{{ user.absence_start_date | date:'yyyy-MM-dd' }}</td>
             <td>{{ user.absence_end_date | date:'yyyy-MM-dd' }}</td>
+            <td>
+              @if (user.user_id === authService.currentUser()?.id) {
+                <button type="button" class="button" (click)="openCancelConfirm(user.id)" i18n="@@absenceList.cancelButton">Cancel Absence</button>
+              }
+            </td>
           </tr>
         } @empty {
           <tr>

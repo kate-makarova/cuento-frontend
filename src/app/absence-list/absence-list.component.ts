@@ -39,12 +39,7 @@ export class AbsenceListComponent implements OnInit {
   absenceToCancel = signal<number | null>(null);
   serverError = signal<string | null>(null);
 
-  currentUserAbsence = computed(() => {
-    const userId = this.authService.currentUser()?.id;
-    return userId ? this.users().find(u => u.user_id === userId) ?? null : null;
-  });
-
-  startDate = '';
+startDate = '';
   endDate = '';
   today = new Date().toISOString().slice(0, 10);
 
