@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class FactionCreateModalComponent {
   @Input() parentId: number | null = null;
+  @Input() factionLabel: string = 'Faction';
   @Output() close = new EventEmitter<void>();
   @Output() created = new EventEmitter<any>();
 

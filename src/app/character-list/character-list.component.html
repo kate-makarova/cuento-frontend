@@ -6,7 +6,7 @@
   @if (canAddFaction() || canAddClaim()) {
     <div class="character-list-actions">
       @if (canAddFaction()) {
-        <button type="button" class="button" (click)="openAddFactionModal()" i18n="@@characterList.addFaction">Add faction</button>
+        <button type="button" class="button" (click)="openAddFactionModal()" i18n="@@characterList.addFaction">Add {{ topLevelFactionName() }}</button>
       }
       @if (canAddClaim()) {
         <button type="button" class="button" (click)="showAddClaimModal.set(true)" i18n="@@characterList.addClaim">Add claim</button>
