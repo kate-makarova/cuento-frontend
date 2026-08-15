@@ -2,8 +2,8 @@
   <app-breadcrumbs [items]="breadcrumbs"></app-breadcrumbs>
   <h1><span i18n="@@topiccreate.wantedCharacter">Wanted character</span></h1>
 }
-<div id="post-form" class="formal">
-  <form id="post" class="container" (submit)="onSubmit($event)">
+<div id="wanted-character-form" class="formal entity-form">
+  <form class="container" (submit)="onSubmit($event)">
     <fieldset>
       <legend style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
 @if (cancel.observed) {
