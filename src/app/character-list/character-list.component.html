@@ -129,6 +129,7 @@
 @if (showAddFactionModal()) {
   <app-faction-create-modal
     [parentId]="null"
+    [factionLabel]="topLevelFactionName()"
     (close)="onFactionModalClose()"
     (created)="onFactionCreated($event)">
   </app-faction-create-modal>
