@@ -7,6 +7,9 @@
     @if (authService.isAuthenticated()) {
       <div style="margin-bottom: 10px">
         <button type="button" class="button" (click)="openModal()" i18n="@@absenceList.addButton">Add Absence</button>
+        @if (currentUserAbsence()) {
+          <button type="button" class="button" (click)="openCancelConfirm(currentUserAbsence()!.id)" i18n="@@absenceList.cancelButton">Cancel Absence</button>
+        }
       </div>
     }
 
@@ -41,6 +44,18 @@
 
   </div>
 </div>
+
+@if (showCancelConfirm()) {
+  <div class="modal-overlay" (click)="showCancelConfirm.set(false)">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <p i18n="@@absenceList.cancelConfirm">Are you sure you want to cancel this absence record?</p>
+      <div class="spoiler-modal-actions">
+        <button type="button" class="button btn-danger" (click)="confirmCancel()" i18n="@@absenceList.cancelConfirmYes">Yes</button>
+        <button type="button" class="button" (click)="showCancelConfirm.set(false)" i18n="@@absenceList.cancelConfirmNo">No</button>
+      </div>
+    </div>
+  </div>
+}
 
 @if (showModal()) {
   <div class="modal-overlay" (click)="showModal.set(false)">
