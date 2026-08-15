@@ -7,9 +7,6 @@
       <fieldset>
         <legend i18n="@@settings.profile">Profile</legend>
         <div class="fs-box avatar-setting">
-          <div class="current-avatar">
-            <img [src]="avatarUrl" alt="Current Avatar">
-          </div>
           <div class="avatar-input">
             <label i18n="@@settings.avatarUrl">Avatar URL</label>
             <app-cropped-image-field [name]="'avatar_url'" [fieldValue]="avatarUrl" [showFieldName]="false" [width]="avatarWidth" [height]="avatarHeight" [uploadFn]="userAvatarUploadFn"></app-cropped-image-field>
@@ -128,25 +125,25 @@
                   <th>
                     <div class="notif-col-header">
                       <span i18n="@@settings.notif.disableToast">Disable toast</span>
-                      <input type="checkbox"
+                      <label class="option-label"><input type="checkbox"
                              [checked]="isColumnAll('disable_toast')"
-                             (change)="toggleColumn('disable_toast', $any($event.target).checked)" />
+                             (change)="toggleColumn('disable_toast', $any($event.target).checked)" /></label>
                     </div>
                   </th>
                   <th>
                     <div class="notif-col-header">
                       <span i18n="@@settings.notif.disableSound">Disable sound</span>
-                      <input type="checkbox"
+                      <label class="option-label"><input type="checkbox"
                              [checked]="isColumnAll('disable_sound')"
-                             (change)="toggleColumn('disable_sound', $any($event.target).checked)" />
+                             (change)="toggleColumn('disable_sound', $any($event.target).checked)" /></label>
                     </div>
                   </th>
                   <th>
                     <div class="notif-col-header">
                       <span i18n="@@settings.notif.disableAll">Disable all</span>
-                      <input type="checkbox"
+                      <label class="option-label"><input type="checkbox"
                              [checked]="isColumnAll('disable_all')"
-                             (change)="toggleColumn('disable_all', $any($event.target).checked)" />
+                             (change)="toggleColumn('disable_all', $any($event.target).checked)" /></label>
                     </div>
                   </th>
                 </tr>
@@ -156,19 +153,19 @@
                   <tr>
                     <td>{{ notificationTypeNames[setting.notification_type] || setting.notification_type }}</td>
                     <td class="notif-check-cell">
-                      <input type="checkbox"
+                      <label class="option-label"><input type="checkbox"
                              [checked]="setting.disable_toast"
-                             (change)="toggleSetting(setting.notification_type, 'disable_toast', $any($event.target).checked)" />
+                             (change)="toggleSetting(setting.notification_type, 'disable_toast', $any($event.target).checked)" /></label>
                     </td>
                     <td class="notif-check-cell">
-                      <input type="checkbox"
+                      <label class="option-label"><input type="checkbox"
                              [checked]="setting.disable_sound"
-                             (change)="toggleSetting(setting.notification_type, 'disable_sound', $any($event.target).checked)" />
+                             (change)="toggleSetting(setting.notification_type, 'disable_sound', $any($event.target).checked)" /></label>
                     </td>
                     <td class="notif-check-cell">
-                      <input type="checkbox"
+                      <label class="option-label"><input type="checkbox"
                              [checked]="setting.disable_all"
-                             (change)="toggleSetting(setting.notification_type, 'disable_all', $any($event.target).checked)" />
+                             (change)="toggleSetting(setting.notification_type, 'disable_all', $any($event.target).checked)" /></label>
                     </td>
                   </tr>
                 }
