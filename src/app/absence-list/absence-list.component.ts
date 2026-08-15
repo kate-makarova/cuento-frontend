@@ -13,6 +13,7 @@ interface ShortCharacter {
 }
 
 interface AbsentUserItem {
+  id: number;
   user_id: number;
   username: string;
   absence_start_date: string;
@@ -34,7 +35,14 @@ export class AbsenceListComponent implements OnInit {
 
   users = signal<AbsentUserItem[]>([]);
   showModal = signal(false);
+  showCancelConfirm = signal(false);
+  absenceToCancel = signal<number | null>(null);
   serverError = signal<string | null>(null);
+
+  currentUserAbsence = computed(() => {
+    const userId = this.authService.currentUser()?.id;
+    return userId ? this.users().find(u => u.user_id === userId) ?? null : null;
+  });
 
   startDate = '';
   endDate = '';
@@ -80,6 +88,24 @@ export class AbsenceListComponent implements OnInit {
           this.serverError.set(err.error?.message ?? err.error ?? 'Bad request');
         }
       },
+    });
+  }
+
+  openCancelConfirm(id: number) {
+    this.absenceToCancel.set(id);
+    this.showCancelConfirm.set(true);
+  }
+
+  confirmCancel() {
+    const id = this.absenceToCancel();
+    if (id === null) return;
+    this.apiService.delete(`user/absence/${id}`).subscribe({
+      next: () => {
+        this.showCancelConfirm.set(false);
+        this.absenceToCancel.set(null);
+        this.loadList();
+      },
+      error: (err) => console.error('Failed to cancel absence', err),
     });
   }
 
