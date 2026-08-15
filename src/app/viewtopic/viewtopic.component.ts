@@ -372,7 +372,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     if (!username || !this.postForm) return;
     this.postForm.insertAtCursor(`@${username}\u200A, `);
     this.postForm.focus();
-    document.getElementById('post-form')?.scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('reply-form')?.scrollIntoView({ behavior: 'smooth' });
   }
 
   onGuestNameChanged(name: string) {
@@ -437,7 +437,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     if (this.postForm) {
       this.postForm.appendBbCode(formattedQuote);
       this.postForm.focus();
-      document.getElementById('post-form')?.scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('reply-form')?.scrollIntoView({ behavior: 'smooth' });
     }
   }
 
