@@ -28,7 +28,7 @@ export class ViewforumComponent implements OnInit, OnDestroy {
   route = inject(ActivatedRoute);
   private router = inject(Router);
 
-  private renderTime = Date.now();
+  private lastAuthChangeOnLoad = -1;
 
   @Input({ transform: numberAttribute }) id?: number;
   @Input({ transform: coerceToPage, alias: 'page' }) pageNumber: number = 1;
@@ -56,15 +56,6 @@ export class ViewforumComponent implements OnInit, OnDestroy {
         ];
       }
     });
-
-    effect(() => {
-      const authChangedAt = this.authService.lastAuthChange();
-      if (authChangedAt > this.renderTime && this.id) {
-        this.renderTime = Date.now();
-        this.forumService.loadSubforum(this.id, () => this.router.navigate(['/404']));
-        this.forumService.loadSubforumPage(this.id, this.pageNumber);
-      }
-    });
   }
 
   ngOnInit(): void {
@@ -75,7 +66,9 @@ export class ViewforumComponent implements OnInit, OnDestroy {
         const page = coerceToPage(queryParamMap.get('page'));
 
         if (forumId) {
-          if (this.subforum().id !== forumId) {
+          const currentAuthChange = this.authService.lastAuthChange();
+          if (this.subforum().id !== forumId || currentAuthChange !== this.lastAuthChangeOnLoad) {
+            this.lastAuthChangeOnLoad = currentAuthChange;
             this.forumService.loadSubforum(forumId, () => this.router.navigate(['/404']));
           }
           this.forumService.loadSubforumPage(forumId, page);
