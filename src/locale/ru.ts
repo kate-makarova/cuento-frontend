@@ -203,6 +203,7 @@ export const TRANSLATIONS_RU = {
   "rating.S1": "Мягкие сексуальные намёки и отсылки разрешены.",
   "rating.S2": "Сексуальный контент разрешён с некоторыми ограничениями.",
   "rating.S3": "Сексуальный контент может быть описан в деталях.",
+  "notifications.accountUpdates": "Обновления аккаунта",
   "notifications.announcements": "Объявления",
   "notifications.myGamePosts": "Посты в моих играх",
   "notifications.newGames": "Новые игры",
