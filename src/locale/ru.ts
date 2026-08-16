@@ -863,6 +863,7 @@ export const TRANSLATIONS_RU = {
   "adminCurrency.saveSpendTypes": "Сохранить",
   "common.statusActive": "Активен",
   "common.statusInactive": "Неактивен",
+  "common.statusClosed": "Закрыто",
   "common.statusPending": "На рассмотрении",
   "common.statusDeclined": "Отклонён",
   "common.statusClaimed": "Занято",

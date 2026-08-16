@@ -6,7 +6,7 @@
       @if (episode.episode_status === 0) {
         <span class="status-badge status-active" i18n="@@common.statusActive">Active</span>
       } @else if (episode.episode_status === 1) {
-        <span class="status-badge status-inactive" i18n="@@common.statusInactive">Inactive</span>
+        <span class="status-badge status-inactive" i18n="@@common.statusClosed">Inactive</span>
       }
       @if (ratingBadge) {
         <span class="status-badge episode-rating-badge">{{ ratingBadge }}</span>
