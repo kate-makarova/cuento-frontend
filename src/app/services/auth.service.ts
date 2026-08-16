@@ -137,10 +137,7 @@ export class AuthService {
   }
 
   logout() {
-    this.http.post(`${this.apiUrl}/logout`, {}).subscribe({
-      next: () => this.clearLocalAuth(true),
-      error: () => this.clearLocalAuth(true)
-    });
+    this.clearLocalAuth(true);
   }
 
   public clearLocalAuth(notify: boolean = true) {
