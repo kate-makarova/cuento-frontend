@@ -2,6 +2,7 @@ import {Component, effect, inject, Input, OnInit, OnDestroy, computed, numberAtt
 import {Router, RouterLink, ActivatedRoute} from '@angular/router';
 import {ForumService} from '../services/forum.service';
 import {NotificationService} from '../services/notification.service';
+import {AuthService} from '../services/auth.service';
 import {BreadcrumbItem, BreadcrumbsComponent} from '../components/breadcrumbs/breadcrumbs.component';
 import { Subject, takeUntil, combineLatest } from 'rxjs';
 
@@ -23,8 +24,11 @@ function coerceToPage(value: unknown): number {
 export class ViewforumComponent implements OnInit, OnDestroy {
   forumService = inject(ForumService);
   private notificationService = inject(NotificationService);
+  private authService = inject(AuthService);
   route = inject(ActivatedRoute);
   private router = inject(Router);
+
+  private renderTime = Date.now();
 
   @Input({ transform: numberAttribute }) id?: number;
   @Input({ transform: coerceToPage, alias: 'page' }) pageNumber: number = 1;
@@ -50,6 +54,15 @@ export class ViewforumComponent implements OnInit, OnDestroy {
           { label: 'Home', link: '/' },
           { label: sub.name }
         ];
+      }
+    });
+
+    effect(() => {
+      const authChangedAt = this.authService.lastAuthChange();
+      if (authChangedAt > this.renderTime && this.id) {
+        this.renderTime = Date.now();
+        this.forumService.loadSubforum(this.id, () => this.router.navigate(['/404']));
+        this.forumService.loadSubforumPage(this.id, this.pageNumber);
       }
     });
   }
