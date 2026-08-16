@@ -50,6 +50,8 @@ export const TRANSLATIONS_RU = {
   "postform.center": "Центрировать",
   "postform.alignRight": "По правому краю",
   "postform.link": "Ссылка",
+  "postform.urlTextPlaceholder": "Текст ссылки",
+  "postform.urlInsert": "Вставить",
   "postform.quote": "Цитата",
   "postform.code": "Код",
   "postform.color": "Цвет",
