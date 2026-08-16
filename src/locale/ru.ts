@@ -19,7 +19,7 @@ export const TRANSLATIONS_RU = {
   "viewforum.topic": "Тема",
   "viewforum.replies": "Ответов",
   "viewforum.lastPost": "Последнее сообщение",
-  "viewforum.sticky": "Закреплённый",
+  "viewforum.sticky": "Важно",
   "viewforum.topicView": "просмотр темы",
   "viewforum.by": "от ",
   "viewtopic.loading": "Загрузка…",
