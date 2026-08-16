@@ -27,26 +27,31 @@
 
     <div class="main-content">
       <div class="main-item">
-        <div class="buttons">
-          <div class="conl">
-            @if (subforum()?.permissions?.subforum_create_general_topic) {
-              <a routerLink="/topic-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.generic">Create standard topic</span></a>
-            }
-            @if (subforum()?.permissions?.subforum_create_episode_topic) {
-              <a routerLink="/episode-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.episode">Create game topic</span></a>
-            }
-            @if (subforum()?.permissions?.subforum_create_character_topic) {
-              <a routerLink="/character-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.character">Create character sheet</span></a>
-            }
-            @if (subforum()?.permissions?.subforum_create_wanted_character_topic) {
-              <a routerLink="/wanted-character-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.wantedCharacter">Create wanted character</span></a>
-            }
-            @if (subforum()?.permissions?.subforum_create_lore_topic) {
-              <a routerLink="/lore-topic-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.lore">Create lore topic</span></a>
-            }
+        @if (subforum()?.permissions?.subforum_create_general_topic ||
+             subforum()?.permissions?.subforum_create_episode_topic ||
+             subforum()?.permissions?.subforum_create_character_topic ||
+             subforum()?.permissions?.subforum_create_wanted_character_topic ||
+             subforum()?.permissions?.subforum_create_lore_topic) {
+          <div class="buttons">
+            <div class="conl">
+              @if (subforum()?.permissions?.subforum_create_general_topic) {
+                <a routerLink="/topic-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.generic">Create standard topic</span></a>
+              }
+              @if (subforum()?.permissions?.subforum_create_episode_topic) {
+                <a routerLink="/episode-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.episode">Create game topic</span></a>
+              }
+              @if (subforum()?.permissions?.subforum_create_character_topic) {
+                <a routerLink="/character-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.character">Create character sheet</span></a>
+              }
+              @if (subforum()?.permissions?.subforum_create_wanted_character_topic) {
+                <a routerLink="/wanted-character-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.wantedCharacter">Create wanted character</span></a>
+              }
+              @if (subforum()?.permissions?.subforum_create_lore_topic) {
+                <a routerLink="/lore-topic-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.lore">Create lore topic</span></a>
+              }
+            </div>
           </div>
-
-        </div>
+        }
 
         <table cellspacing="0">
           <thead>
@@ -104,9 +109,9 @@
           </tbody>
         </table>
 
-        <div class="buttons">
-          <p class="conr">
-            @if (totalPages() > 1) {
+        @if (totalPages() > 1) {
+          <div class="buttons">
+            <p class="conr">
               <span><ng-container i18n="@@viewforum.pages">Pages</ng-container>:
                 @for (p of [].constructor(totalPages()); track $index; let i = $index) {
                   @if (i + 1 === pageNumber) {
@@ -116,10 +121,9 @@
                   }
                 }
               </span>
-            }
-          </p>
-
-        </div>
+            </p>
+          </div>
+        }
       </div>
     </div>
   </div>
