@@ -1,32 +1,37 @@
 <div class="container">
-    <ul>
-      <li id="navindex" class="isactive"><a routerLink="/"><span i18n="@@nav.home">Home</span></a></li>
-      @if(isAuthenticated()) {
-      <li id="navprofile"><a [routerLink]="['profile', currentUser()?.id]"><span i18n="@@nav.profile">Profile</span></a></li>
-      @if(hasPrivateKey()) {
-      <li id="navchat"><a routerLink="direct-chat"><span i18n="@@nav.messages">Messages</span></a></li>
+  <button class="nav-burger" (click)="toggleMenu($event)" [attr.aria-expanded]="menuOpen()" aria-label="Menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+  <ul>
+    <li id="navindex" class="isactive"><a routerLink="/"><span i18n="@@nav.home">Home</span></a></li>
+    @if(isAuthenticated()) {
+    <li id="navprofile"><a [routerLink]="['profile', currentUser()?.id]"><span i18n="@@nav.profile">Profile</span></a></li>
+    @if(hasPrivateKey()) {
+    <li id="navchat"><a routerLink="direct-chat"><span i18n="@@nav.messages">Messages</span></a></li>
+    }
+    @if (showAiChatNavlink()) {
+    <li id="navaichat"><a routerLink="ai-chat"><span i18n="@@nav.aiChat">AI Chat</span></a></li>
+    }
+    }
+    @if(canSeeAdminPage()) {
+      <li id="navadmin"><a routerLink="admin/dashboard"><span i18n="@@nav.admin">Admin</span></a></li>
+    }
+    <li id="navsearch"><a routerLink="/search"><span i18n="@@nav.search">Search</span></a></li>
+    @if(isAuthenticated()) {
+    <li id="navlogout"><a href="#" (click)="logout($event)"><span i18n="@@nav.logout">Logout</span></a></li>
+    }
+    @if(!isAuthenticated()) {
+    <li id="navregister"><a routerLink="/register"><span i18n="@@nav.register">Register</span></a></li>
+    <li id="navlogin"><a routerLink="/login"><span i18n="@@nav.login">Login</span></a></li>
+    }
+    @for (link of additionalNavlinks(); track link.id) {
+      @if (isLoginNavlinkActive(link)) {
+        <li><span class="navlink-inactive">{{ link.title }}</span></li>
+      } @else {
+        <li><a href="#" (click)="handleNavlink($event, link)">{{ link.title }}</a></li>
       }
-      @if (showAiChatNavlink()) {
-      <li id="navaichat"><a routerLink="ai-chat"><span i18n="@@nav.aiChat">AI Chat</span></a></li>
-      }
-      }
-      @if(canSeeAdminPage()) {
-        <li id="navadmin"><a routerLink="admin/dashboard"><span i18n="@@nav.admin">Admin</span></a></li>
-      }
-      <li id="navsearch"><a routerLink="/search"><span i18n="@@nav.search">Search</span></a></li>
-      @if(isAuthenticated()) {
-      <li id="navlogout"><a href="#" (click)="logout($event)"><span i18n="@@nav.logout">Logout</span></a></li>
-      }
-      @if(!isAuthenticated()) {
-      <li id="navregister"><a routerLink="/register"><span i18n="@@nav.register">Register</span></a></li>
-      <li id="navlogin"><a routerLink="/login"><span i18n="@@nav.login">Login</span></a></li>
-      }
-      @for (link of additionalNavlinks(); track link.id) {
-        @if (isLoginNavlinkActive(link)) {
-          <li><span class="navlink-inactive">{{ link.title }}</span></li>
-        } @else {
-          <li><a href="#" (click)="handleNavlink($event, link)">{{ link.title }}</a></li>
-        }
-      }
-    </ul>
+    }
+  </ul>
 </div>
