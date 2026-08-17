@@ -1,6 +1,7 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { AdditionalNavlinkService } from '../../services/additional-navlink.service';
@@ -11,6 +12,7 @@ import { AdditionalNavlink, AdditionalNavlinkType } from '../../models/Additiona
   standalone: true,
   imports: [RouterLink],
   templateUrl: './navlinks.component.html',
+  host: { '[class.nav-open]': 'menuOpen()' },
 })
 export class NavlinksComponent {
   protected authService = inject(AuthService);
@@ -24,6 +26,18 @@ export class NavlinksComponent {
   public additionalNavlinks = this.additionalNavlinkService.navlinks;
   public canSeeAdminPage = computed(() => this.authService.hasPermission('show_admin_page'));
   public showAiChatNavlink = computed(() => this.authService.hasPermission('show_ai_chat_navlink'));
+  public menuOpen = signal(false);
+
+  constructor() {
+    this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(() => {
+      this.menuOpen.set(false);
+    });
+  }
+
+  toggleMenu(event: Event) {
+    event.stopPropagation();
+    this.menuOpen.update(v => !v);
+  }
 
   logout(event: Event) {
     event.preventDefault();
