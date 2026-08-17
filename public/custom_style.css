@@ -3861,7 +3861,61 @@ app-user-profile .status-badge {
   }
 
   #pun #form-buttons {
+    flex-direction: row;
+  }
+
+  .post-editor-container {
+    flex-direction: column-reverse;
+  }
+
+  .textarea-wrapper {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  #pun-character-list .character-tree {
+    display: flex;
     flex-direction: column;
+  }
+
+  .character-list-filters {
+    flex-direction: column;
+  }
+
+  .dashboard-layout {
+    flex-direction: column;
+  }
+
+  .filter-sidebar {
+    width: 100% !important;
+    max-height: 0;
+    overflow: hidden !important;
+    transition: max-height 0.3s ease, padding 0.3s ease !important;
+  }
+
+  .filter-sidebar.open {
+    width: calc(100% - 30px) !important;
+    max-height: 600px;
+    padding: 15px !important;
+  }
+
+  app-user-profile .main-header+.category {
+    float: none !important;
+  }
+
+  app-user-profile .status-badge {
+    border-radius: 24px;
+    font-size: 0;
+    height: 20px;
+    width: 13px;
+  }
+
+  .post-main {
+    flex-direction: column;
+  }
+
+  .post h3 {
+    margin: 0 !important;
   }
 
   /* Code block: prevent horizontal overflow */
