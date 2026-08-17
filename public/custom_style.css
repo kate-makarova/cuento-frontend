@@ -2077,6 +2077,10 @@ app-root.dark #color-area td.toolbar-active {
   font-size: 0.875rem;
 }
 
+.mode-toggle button svg {
+  display: none;
+}
+
 .mode-toggle button:first-child {
   border-radius: 4px 0 0 4px;
 }
