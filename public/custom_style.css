@@ -3910,6 +3910,14 @@ app-user-profile .status-badge {
     width: 13px;
   }
 
+  .mode-toggle button svg {
+    display: inline !important;
+  }
+
+  .mode-toggle button span {
+    display: none !important;
+  }
+
   .post-main {
     flex-direction: column;
   }
