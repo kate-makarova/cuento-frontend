@@ -10,6 +10,7 @@ import { CharacterShort } from '../models/Character';
 
 @Component({
   selector: 'app-user-data-migration',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './user-data-migration.component.html',

@@ -33,6 +33,7 @@ export class FactionPathsComponent implements OnInit {
   activePathIndex: number | null = null;
   activeLevelIndex: number | null = null;
   activeParentId: number | null = null;
+  activeFactionLabel: string = 'Faction';
 
   ngOnInit() {
     this.factionSettingService.load();
@@ -157,6 +158,7 @@ export class FactionPathsComponent implements OnInit {
     this.activeParentId = levelIndex === 0 ? 0 : levels[levelIndex - 1].selectedId;
     this.activePathIndex = pathIndex;
     this.activeLevelIndex = levelIndex;
+    this.activeFactionLabel = this.getLabelForLevel(pathIndex, levelIndex);
     this.showModal = true;
   }
 

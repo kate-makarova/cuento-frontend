@@ -3,11 +3,28 @@
       <legend><span i18n="@@postform.writeMessage">Write your message and click "Send"</span></legend>
       <div class="fs-box hashelp">
 
-        <app-bb-toolbar [textarea]="messageField"></app-bb-toolbar>
+        <app-bb-toolbar
+          [editor]="editorMode() === 'wysiwyg' ? (wysiwygEditor ?? null) : null"
+          [textarea]="editorMode() === 'bbcode' ? textareaEl : null">
+        </app-bb-toolbar>
 
         <div class="post-editor-container">
           <div class="textarea-wrapper">
-            <textarea #messageField name="req_message" rows="12" (input)="onTextareaInput()" (blur)="closeMention()" (paste)="onPaste($event)" (dragover)="onDragOver($event)" (drop)="onDrop($event)"></textarea>
+            <app-wysiwyg-editor
+              #wysiwygEditor
+              [hidden]="editorMode() !== 'wysiwyg'"
+              (blur)="closeMention()">
+            </app-wysiwyg-editor>
+            <textarea
+              #messageField
+              rows="12"
+              [hidden]="editorMode() !== 'bbcode'"
+              (input)="onTextareaInput()"
+              (blur)="closeMention()"
+              (paste)="onTextareaPaste($event)"
+              (dragover)="onTextareaDragOver($event)"
+              (drop)="onTextareaDrop($event)">
+            </textarea>
             @if (mentionResults.length > 0) {
               <ul class="mention-dropdown">
                 @for (user of mentionResults; track user.id) {
@@ -17,5 +34,16 @@
             }
           </div>
         </div>
+
+        <div class="editor-mode-bar">
+          <button type="button" class="mode-switcher-btn" (click)="switchMode()">
+            @if (editorMode() === 'wysiwyg') {
+              <i class="bi bi-code-slash"></i> BB-code
+            } @else {
+              <i class="bi bi-pencil-square"></i> Visual
+            }
+          </button>
+        </div>
+
       </div>
     </fieldset>

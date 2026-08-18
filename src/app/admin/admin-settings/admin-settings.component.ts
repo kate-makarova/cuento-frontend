@@ -40,6 +40,10 @@ const GENERAL_SETTING_GROUPS: SettingGroup[] = [
       'allow_add_faction',
     ],
   },
+  {
+    legend: $localize`:@@adminSettings.groupRating:Rating`,
+    names: ['use_rating_system', 'site_max_rating', 'blur_content_starting_from_rate', 'show_content_warnings'],
+  },
 ];
 
 const ALL_GENERAL_SETTING_NAMES = new Set(GENERAL_SETTING_GROUPS.flatMap(g => g.names));
@@ -81,6 +85,11 @@ const SETTING_LABELS: Record<string, string> = {
   allow_users_create_factions: $localize`:@@adminSettings.allow_users_create_factions:Allow users to create factions`,
   allow_add_faction: $localize`:@@adminSettings.allow_add_faction:Allow adding factions at character creation`,
 
+  use_rating_system: $localize`:@@adminSettings.use_rating_system:Enable rating system`,
+  site_max_rating: $localize`:@@adminSettings.site_max_rating:Maximum site rating`,
+  blur_content_starting_from_rate: $localize`:@@adminSettings.blur_content_starting_from_rate:Blur content starting from rating`,
+  show_content_warnings: $localize`:@@adminSettings.show_content_warnings:Show content warnings`,
+
   use_image_uploading: $localize`:@@adminSettings.use_image_uploading:Enable image uploading`,
   image_hosting: $localize`:@@adminSettings.image_hosting:Image hosting`,
   imgbb_api_key: $localize`:@@adminSettings.imgbb_api_key:ImgBB API key`,
@@ -89,6 +98,7 @@ const SETTING_LABELS: Record<string, string> = {
 
 @Component({
   selector: 'app-admin-settings',
+  host: { class: 'pun-page' },
   imports: [CommonModule, FormsModule, SaveButtonComponent],
   standalone: true,
   templateUrl: './admin-settings.component.html',

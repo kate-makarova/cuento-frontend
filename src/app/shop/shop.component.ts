@@ -4,6 +4,7 @@ import { CurrencyIncomeType, CurrencySpendType } from '../models/Currency';
 
 @Component({
   selector: 'app-shop',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [],
   templateUrl: './shop.component.html',

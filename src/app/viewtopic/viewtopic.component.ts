@@ -1,4 +1,4 @@
-import {Component, effect, inject, Input, OnInit, OnDestroy, ViewChild, signal, computed, numberAttribute, ViewChildren, QueryList, input, untracked, LOCALE_ID} from '@angular/core';
+import {Component, effect, inject, Input, OnInit, OnDestroy, ViewChild, signal, computed, numberAttribute, input, untracked, LOCALE_ID} from '@angular/core';
 import {Title} from '@angular/platform-browser';
 import {PostFormComponent} from '../components/post-form/post-form.component';
 import {TopicService} from '../services/topic.service';
@@ -31,6 +31,7 @@ import { PreviewService } from '../services/preview.service';
 import { LoreTopicHeaderComponent } from '../components/lore-topic-header/lore-topic-header.component';
 import { UserInfoComponent } from '../components/user-info/user-info.component';
 import { StandardWarning } from '../models/StandardWarning';
+import { FormsModule } from '@angular/forms';
 
 function coerceToPage(value: unknown): number {
   const num = numberAttribute(value, 1);
@@ -39,6 +40,7 @@ function coerceToPage(value: unknown): number {
 
 @Component({
   selector: 'app-viewtopic',
+  host: { class: 'pun-page' },
   imports: [
     PostFormComponent,
     RouterLink,
@@ -57,6 +59,7 @@ function coerceToPage(value: unknown): number {
     RouterLinksDirective,
     CodeCopyDirective,
     UserInfoComponent,
+    FormsModule,
   ],
   templateUrl: './viewtopic.component.html',
   standalone: true,
@@ -137,6 +140,32 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   warningsAcknowledged = signal(false);
   private warningsLoaded = signal(false);
 
+  blurAcknowledged = signal(false);
+  doNotBlurChecked = false;
+
+  get shouldBlur(): boolean {
+    if (this.blurAcknowledged()) return false;
+    if (this.showPostForm()) return false;
+    const user = this.authService.currentUser();
+    if (user && user.do_not_blur) return false;
+    const raw = this.boardService.board().blur_content_starting_from_rate;
+    const threshold = raw ? parseInt(raw, 10) : NaN;
+    if (isNaN(threshold)) return false;
+    const ep = this.topic()?.episode;
+    if (!ep) return false;
+    return (ep.rating_language ?? 0) >= threshold || (ep.rating_violence ?? 0) >= threshold || (ep.rating_sex ?? 0) >= threshold;
+  }
+
+  acknowledgeBlur() {
+    this.blurAcknowledged.set(true);
+    if (this.doNotBlurChecked && this.authService.currentUser()) {
+      this.apiService.post('user/do-not-blur', { do_not_blur: true }).subscribe({
+        next: () => this.authService.patchCurrentUser({ do_not_blur: true }),
+        error: (err) => console.error('Failed to save do_not_blur', err)
+      });
+    }
+  }
+
   reactionPickerPostId = signal<number | null>(null);
   activeReactions = signal<Reaction[]>([]);
   isSubmitting = signal(false);
@@ -156,7 +185,6 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   };
 
   @ViewChild('mainPostForm') postForm!: PostFormComponent;
-  @ViewChildren('editPostForm') editPostForms!: QueryList<PostFormComponent>;
 
   acknowledgeWarnings() {
     this.warningsAcknowledged.set(true);
@@ -250,8 +278,8 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
         const state = this.previewService.state();
         if (state?.formType === 'post' && state.formPayload?.content) {
           setTimeout(() => {
-            if (this.postForm?.messageField) {
-              this.postForm.messageField.nativeElement.value = state.formPayload.content;
+            if (this.postForm) {
+              this.postForm.setValue(state.formPayload.content);
               this.previewService.clear();
             }
           });
@@ -341,14 +369,9 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   }
 
   onAuthorMention(username: string) {
-    if (!username || !this.postForm?.messageField) return;
-    const textarea = this.postForm.messageField.nativeElement;
-    const mention = `@${username}\u200A, `;
-    const start = textarea.selectionStart ?? textarea.value.length;
-    textarea.value = textarea.value.slice(0, start) + mention + textarea.value.slice(start);
-    const newPos = start + mention.length;
-    textarea.focus();
-    setTimeout(() => { textarea.selectionStart = textarea.selectionEnd = newPos; });
+    if (!username || !this.postForm) return;
+    this.postForm.insertAtCursor(`@${username}\u200A, `);
+    this.postForm.focus();
     document.getElementById('post-form')?.scrollIntoView({ behavior: 'smooth' });
   }
 
@@ -361,6 +384,10 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     url.searchParams.delete('page');
     url.searchParams.set('post_id', String(postId));
     navigator.clipboard.writeText(url.toString());
+  }
+
+  isPostAuthor(post: Post): boolean {
+    return this.authService.currentUser()?.id === post.author_user_id;
   }
 
   editPost(post: Post, event: Event) {
@@ -407,23 +434,16 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
     const formattedQuote = `[quote=${authorName}]${quoteContent}[/quote]\n`;
 
-    // Append to the main post form
-    if (this.postForm && this.postForm.messageField) {
-      const textarea = this.postForm.messageField.nativeElement;
-      textarea.value += formattedQuote;
-      textarea.focus();
-      textarea.scrollTop = textarea.scrollHeight;
-
-      // Scroll to the form
+    if (this.postForm) {
+      this.postForm.appendBbCode(formattedQuote);
+      this.postForm.focus();
       document.getElementById('post-form')?.scrollIntoView({ behavior: 'smooth' });
     }
   }
 
-  onUpdatePost(event: Event, post: Post) {
+  onUpdatePost(event: Event, post: Post, editForm: PostFormComponent) {
     event.preventDefault();
-    const form = event.target as HTMLFormElement;
-    const textarea = form.querySelector('textarea');
-    const content = textarea?.value;
+    const content = editForm.getValue();
 
     if (!content) return;
 
@@ -449,7 +469,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
   onSubmit(event: Event) {
     event.preventDefault();
-    const message = this.postForm.messageField.nativeElement.value;
+    const message = this.postForm.getValue();
 
     if (!message || !this.id()) return;
     if (this.isSubmitting()) return;
@@ -475,7 +495,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       payload.guest_name = this.guestName;
     }
 
-    this.postForm.messageField.nativeElement.value = '';
+    this.postForm.clear();
 
     setTimeout(() => document.getElementById('post-pending')?.scrollIntoView({ behavior: 'smooth' }));
 
@@ -497,7 +517,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
   onPreview(event: Event) {
     event.preventDefault();
-    const message = this.postForm.messageField.nativeElement.value;
+    const message = this.postForm.getValue();
 
     if (!message || !this.id()) return;
 

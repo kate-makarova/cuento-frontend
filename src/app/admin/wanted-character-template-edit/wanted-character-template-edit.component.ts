@@ -6,6 +6,7 @@ import { SaveButtonComponent } from '../save-button/save-button.component';
 
 @Component({
   selector: 'app-wanted-character-template-edit',
+  host: { class: 'pun-page' },
   imports: [FieldTemplateRowComponent, CommonModule, SaveButtonComponent],
   templateUrl: './wanted-character-template-edit.component.html',
   standalone: true,

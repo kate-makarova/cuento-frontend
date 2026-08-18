@@ -12,7 +12,7 @@
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <h1><span>{{ topic().name }}</span></h1>
       @if (topic().can_edit && !editingTopic()) {
-        <span style="font-size: 0.8em; margin-right: 10px;"><a href="#" (click)="editTopic($event)">[Edit]</a></span>
+        <span style="font-size: 0.8em; margin-right: 10px;"><a href="#" class="topic-edit" (click)="editTopic($event)" i18n="@@viewtopic.editTopic">Edit</a></span>
       }
     </div>
   </div>
@@ -34,7 +34,7 @@
           </span>
         }
       </p>
-      <div class="clearer"></div>
+
     </div>
   </div>
 
@@ -67,6 +67,26 @@
     } @else if (showPostForm() || !topic().episode?.has_warnings || topic().episode?.warnings_consent || warningsAcknowledged()) {
       <app-episode-header [episode]="topic().episode" ></app-episode-header>
     }
+  }
+
+  @if (shouldBlur) {
+    <div class="modal-overlay episode-warning-overlay">
+      <div class="modal-content episode-warning-modal">
+        <h2 i18n="@@episode.blurTitle">Content Warning</h2>
+        <p i18n="@@episode.blurText">This episode contains content that may not be suitable for all audiences. Do you wish to continue?</p>
+        @if (authService.isAuthenticated()) {
+          <p class="blur-do-not-show-again">
+            <label>
+              <input type="checkbox" [(ngModel)]="doNotBlurChecked" />
+              <span i18n="@@episode.blurDoNotShowAgain">Do not blur content again</span>
+            </label>
+          </p>
+        }
+        <div class="buttons">
+          <button type="button" class="button submit" (click)="acknowledgeBlur()" i18n="@@episode.blurContinue">I understand, continue</button>
+        </div>
+      </div>
+    </div>
   }
 
   @if (topic().episode?.has_warnings && !topic().episode?.warnings_consent && !showPostForm() && !warningsAcknowledged() && episodeWarnings().length > 0) {
@@ -143,6 +163,7 @@
     </div>
   }
 
+  <div [class.content-blurred]="shouldBlur">
   @for(post of posts(); track (post.id || $index); let i = $index; let isEven = $even) {
   <div id="{{post.id}}" [class]="'post ' + topicTypeClass() + (isEven ? ' altstyle' : '')">
     <h3>
@@ -161,13 +182,17 @@
     <div class="container">
       <div class="post-main">
         @if (editingPostId() === post.id) {
-          <app-character-profile
-            [showAccount]="showAccount"
-            [accountName]="accountName"
-            [loadProfiles]="false"
-            [initialCharacterId]="post.character_profile?.id"
-            (characterSelected)="editingPostProfileId.set($event)">
-          </app-character-profile>
+          @if (isPostAuthor(post)) {
+            <app-character-profile
+              [showAccount]="showAccount"
+              [accountName]="accountName"
+              [loadProfiles]="false"
+              [initialCharacterId]="post.character_profile?.id"
+              (characterSelected)="editingPostProfileId.set($event)">
+            </app-character-profile>
+          } @else {
+            <app-character-profile [post]="post"></app-character-profile>
+          }
         } @else {
           <app-character-profile [post]="post" (authorClicked)="onAuthorMention($event)"></app-character-profile>
         }
@@ -175,8 +200,8 @@
         <div class="post-body">
           <div class="post-box">
             @if (editingPostId() === post.id) {
-              <form (submit)="onUpdatePost($event, post)">
-                <app-post-form [initialContent]="post.content"></app-post-form>
+              <form (submit)="onUpdatePost($event, post, editPostForm)">
+                <app-post-form #editPostForm [initialContent]="post.content"></app-post-form>
                 <div class="edit-post-footer">
                   <div class="buttons">
                     <button type="submit" class="button" i18n="@@common.save">Save</button>
@@ -228,7 +253,7 @@
               }
             </div>
           </div>
-          <div class="clearer"></div>
+
         </div>
         </div>
       <div class="post-footer">
@@ -242,16 +267,24 @@
         </div>
         <div class="conr">
           <p class="post-links">
-            <span><a href="#" (click)="quotePost(post, $event)" i18n="@@viewtopic.quote">Quote</a></span>
+            <span><a href="#" [class.disabled]="editingPostId() === post.id" (click)="editingPostId() === post.id ? $event.preventDefault() : quotePost(post, $event)" i18n-title="@@viewtopic.quote" title="Quote">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg>
+              <span i18n="@@viewtopic.quote">Quote</span>
+            </a></span>
             @if(post.can_edit) {
-              <span><a href="#" (click)="editPost(post, $event)" i18n="@@viewtopic.edit">Edit</a></span>
+              <span><a href="#" [class.disabled]="editingPostId() === post.id" (click)="editingPostId() === post.id ? $event.preventDefault() : editPost(post, $event)" i18n-title="@@viewtopic.edit" title="Edit">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                <span i18n="@@viewtopic.edit">Edit</span>
+              </a></span>
             }
             @if(post.can_delete) {
-              <span><a href="#" (click)="deletePost(post, $event)" i18n="@@viewtopic.delete">Delete</a></span>
+              <span><a href="#" (click)="deletePost(post, $event)" i18n-title="@@viewtopic.delete" title="Delete">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                <span i18n="@@viewtopic.delete">Delete</span>
+              </a></span>
             }
           </p>
         </div>
-        <div class="clearer"></div>
       </div>
     </div>
   </div>
@@ -276,6 +309,7 @@
   }
 
   <app-topic-read-by></app-topic-read-by>
+  </div>
 
   <div class="linksb">
     <div class="inbox">
@@ -294,7 +328,7 @@
           </span>
         }
       </p>
-      <div class="clearer"></div>
+
     </div>
   </div>
 
@@ -312,35 +346,28 @@
   @if (showPostForm()) {
   <div id="post-form" class="formal">
     <h2><span i18n="@@postform.quickReply">Quick reply</span></h2>
-    <form id="post" class="container" (submit)="onSubmit($event)">
-      <fieldset>
-        <legend><span i18n="@@postform.writeMessage">Write your message and click "Send"</span></legend>
-        <div class="fs-box hashelp">
-
-          <div class="post-editor-container" style="display: flex; gap: 15px;">
-            <div class="profile-sidebar" style="width: 200px;">
-              <app-character-profile
-                [accountName]="accountName"
-                [loadProfiles]="loadProfiles"
-                [showAccount]="showAccount"
-                [initialCharacterId]="savedTopicCharacter()"
-                (characterSelected)="onCharacterSelected($event)"
-                (guestNameChanged)="onGuestNameChanged($event)">
-              </app-character-profile>
-            </div>
-
-            <div class="form-content" style="flex: 1;">
-              <app-post-form #mainPostForm [isEpisode]="isEpisode()"></app-post-form>
-            </div>
-          </div>
-
-          <div class="buttons" style="margin-top: 15px; text-align: right;">
-            <input type="submit" value="Send" i18n-value="@@postform.send" class="button" [disabled]="isSubmitting()">
-            <input type="button" value="Preview" i18n-value="@@postform.preview" class="button" (click)="onPreview($event)">
-          </div>
-
+    <form class="container" (submit)="onSubmit($event)">
+      <div class="post-editor-container" style="display: flex; gap: 15px;">
+        <div class="profile-sidebar" style="width: 200px;">
+          <app-character-profile
+            [accountName]="accountName"
+            [loadProfiles]="loadProfiles"
+            [showAccount]="showAccount"
+            [initialCharacterId]="savedTopicCharacter()"
+            (characterSelected)="onCharacterSelected($event)"
+            (guestNameChanged)="onGuestNameChanged($event)">
+          </app-character-profile>
         </div>
-      </fieldset>
+
+        <div class="form-content" style="flex: 1;">
+          <app-post-form #mainPostForm [isEpisode]="isEpisode()"></app-post-form>
+        </div>
+      </div>
+
+      <div class="buttons" style="margin-top: 15px; text-align: right;">
+        <input type="submit" value="Send" i18n-value="@@postform.send" class="button" [disabled]="isSubmitting()">
+        <input type="button" value="Preview" i18n-value="@@postform.preview" class="button" (click)="onPreview($event)">
+      </div>
     </form>
   </div>
   }

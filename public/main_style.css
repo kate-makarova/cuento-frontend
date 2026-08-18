@@ -86,6 +86,18 @@ body {
   font: 1.1em/140% monaco, "bitstream vera sans mono", "courier new", courier, monospace
 }
 
+/* Links and images inside code blocks should never be rendered as such.
+   Specificity (0,1,2,2) beats the dark-mode rule app-root.dark #pun * a (0,1,1,2). */
+#pun .punbb .post-content pre a {
+  color: inherit !important;
+  text-decoration: none !important;
+  pointer-events: none;
+  cursor: text;
+}
+#pun .punbb .post-content pre img {
+  display: none !important;
+}
+
 /* A3.7 */
 .punbb address, .punbb em {
   font-style: normal
@@ -1501,7 +1513,10 @@ div.punbb-admin #pun-about .container {
 /* D11.5 */
 #post .fs-box.hashelp, #post .fs-box .areafield {
   padding-bottom: 0;
+  width: 700px;
+  max-width: 100%;
 }
+
 
 /* D11.6 */
 #post #main-reply {
@@ -1755,6 +1770,39 @@ spoiler-box .spoiler-content {
   border-top: none;
   border-radius: 0 0 4px 4px;
   padding: 0 10px;
+}
+
+/* Editor imitation of spoiler-box — always open, no toggle */
+.wysiwyg-spoiler {
+  display: block;
+  margin: 8px 0;
+}
+
+.wysiwyg-spoiler .wysiwyg-spoiler-header {
+  background-color: #e9e3d5;
+  border: 1px solid #d1bc9b;
+  border-radius: 4px 4px 0 0;
+  padding: 6px 10px;
+  font-size: 0.9em;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wysiwyg-spoiler .wysiwyg-spoiler-header::before {
+  content: '▶';
+  font-size: 0.7em;
+  color: #9c7d58;
+  display: inline-block;
+  transform: rotate(90deg);
+}
+
+.wysiwyg-spoiler .wysiwyg-spoiler-content {
+  border: 1px solid #d1bc9b;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  padding: 8px 10px;
 }
 
 .widget-grid {
@@ -2592,6 +2640,53 @@ app-number-field-display:host {
   align-items: center;
 }
 
+.pm-contact-blocked .tclcon strong {
+  opacity: 0.55;
+}
+
+.pm-blocked-icon {
+  margin-left: 5px;
+  font-size: 0.8em;
+  opacity: 0.7;
+  vertical-align: middle;
+}
+
+.pm-chat-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  min-height: 38px;
+}
+
+.pm-block-button {
+  padding: 4px 10px;
+  font-size: 0.85em;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background-color: transparent;
+  color: inherit;
+  border: 1px solid currentColor;
+  opacity: 0.7;
+}
+
+.pm-block-button:hover {
+  opacity: 1;
+  background-color: transparent;
+}
+
+.pm-unblock-button {
+  color: #c0392b;
+}
+
+.pm-blocked-notice {
+  font-size: 0.85em;
+  opacity: 0.7;
+  font-style: italic;
+}
+
 .new-chat-block {
   padding: 8px;
   display: flex;
@@ -2819,13 +2914,101 @@ app-number-field-display:host {
 }
 
 /* === bb-toolbar.component === */
-#form-buttons td {
-  width: 23px;
-  height: 22px;
+#form-buttons {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+#form-buttons span {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  display: table-cell;
-  background-repeat: no-repeat;
-  background-position: center;
+  border-radius: 3px;
+}
+
+#form-buttons span.toolbar-active {
+  background-color: rgba(0, 0, 0, 0.12);
+}
+
+#font-area div.toolbar-active,
+#size-area div.toolbar-active {
+  background-color: rgba(0, 0, 0, 0.12);
+  font-weight: bold;
+  position: relative;
+}
+
+#font-area div.toolbar-active::after,
+#size-area div.toolbar-active::after {
+  content: '✓';
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.85em;
+}
+
+#color-area td.toolbar-active {
+  outline: 2px solid rgba(0, 0, 0, 0.7);
+  outline-offset: -2px;
+}
+
+#form-buttons span {
+  position: relative;
+}
+
+.toolbar-color-swatch {
+  display: block;
+  position: absolute;
+  bottom: 2px;
+  left: 4px;
+  right: 4px;
+  height: 3px;
+  border-radius: 1px;
+}
+
+.toolbar-inline-label {
+  font-size: 0.6em;
+  line-height: 1;
+  position: absolute;
+  bottom: 1px;
+  right: 2px;
+  color: #555;
+  pointer-events: none;
+}
+
+#form-buttons span .bi {
+  display: block;
+  margin-bottom: 2px;
+}
+
+
+#url-area {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 4px 6px;
+}
+
+#url-area input {
+  flex: 1;
+  padding: 3px 6px;
+}
+
+#url-area button {
+  padding: 3px 10px;
+  cursor: pointer;
+}
+
+/* Edit form: prevent fieldset from overflowing its container */
+.post-box form {
+  min-width: 0;
+}
+
+.post-box form fieldset {
+  min-width: 0;
 }
 
 .spoiler-modal-backdrop {
@@ -2928,6 +3111,48 @@ app-number-field-display:host {
 .mention-dropdown li {
   padding: 6px 10px;
   cursor: pointer;
+}
+
+.wysiwyg-editor,
+.textarea-wrapper textarea {
+  background-color: #fff;
+  color: inherit;
+  min-height: 120px;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-top: none;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.wysiwyg-editor img {
+  max-width: 100%;
+  height: auto;
+}
+
+.editor-mode-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.mode-switcher-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  font-size: 0.78rem;
+  padding: 2px 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mode-switcher-btn:hover {
+  color: #333;
+  text-decoration: underline;
 }
 
 /* === faction-paths.component === */
@@ -3520,6 +3745,23 @@ app-number-field-display:host {
   gap: 0.25rem;
 }
 
+.content-blurred {
+  filter: blur(8px);
+  pointer-events: none;
+  user-select: none;
+}
+
+.blur-do-not-show-again {
+  margin-top: 1rem;
+}
+
+.blur-do-not-show-again label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
 .episode-warning-overlay {
   background: rgba(0, 0, 0, 0.97) !important;
 }
@@ -3651,4 +3893,74 @@ app-number-field-display:host {
   width: 100%;
   margin-top: 8px;
   box-sizing: border-box;
+}
+
+/* === admin-backup.component === */
+.backup-blocks {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.backup-block {
+  flex: 1;
+  min-width: 260px;
+  padding: 20px 24px;
+  border-radius: 6px;
+}
+
+.backup-block h3 {
+  margin-top: 0;
+}
+
+.backup-block .button,
+.backup-block label.button {
+  display: inline-block;
+  margin-top: 8px;
+  cursor: pointer;
+}
+
+.backup-block label.button.disabled {
+  pointer-events: none;
+  opacity: 0.65;
+}
+
+.error-msg {
+  color: #c0392b;
+  margin-top: 8px;
+}
+
+.success-msg {
+  color: #27ae60;
+  margin-top: 8px;
+}
+
+.confirm-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.confirm-modal {
+  padding: 24px 28px;
+  border-radius: 6px;
+  max-width: 460px;
+  width: 90%;
+}
+
+.confirm-modal h3 {
+  margin-top: 0;
+  color: #c0392b;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 20px;
 }

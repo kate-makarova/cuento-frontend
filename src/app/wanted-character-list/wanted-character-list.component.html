@@ -15,13 +15,16 @@
 
   <div class="dashboard-layout">
     <aside class="filter-sidebar" [class.open]="filtersOpen()">
+      <div class="filter-sidebar-inner">
       <div class="filter-group">
         <h4>{{ factionsHeader() }}</h4>
         <div class="checkbox-list">
           @for (faction of factions(); track faction.id) {
             <label [style.padding-left.rem]="faction.level > 0 ? faction.level * 1.5 : 0">
-              <input type="checkbox" [checked]="isFactionSelected(faction.id)" (change)="toggleFaction(faction.id)" />
-              {{ faction.name }}
+              <span class="checkbox-input">
+                <input type="checkbox" [checked]="isFactionSelected(faction.id)" (change)="toggleFaction(faction.id)" />
+                {{ faction.name }}
+              </span>
             </label>
           }
         </div>
@@ -92,6 +95,7 @@
       </div>
 
       <button class="button" (click)="applyFilters()" i18n="@@wantedCharacterList.applyFilters">Apply Filters</button>
+      </div>
     </aside>
 
     <section class="content-area">

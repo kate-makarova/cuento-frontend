@@ -12,6 +12,7 @@ import { RouterLinksDirective } from '../directives/router-links.directive';
 
 @Component({
   selector: 'app-preview',
+  host: { class: 'pun-page' },
   imports: [CommonModule, CharacterProfileComponent, EpisodeHeaderComponent, CharacterSheetHeaderComponent, SafeHtmlPipe, RouterLinksDirective],
   standalone: true,
   templateUrl: './preview.component.html',

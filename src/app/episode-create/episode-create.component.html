@@ -1,11 +1,11 @@
 @if (!cancel.observed) {
-  <h1><span i18n="@@topiccreate.title">Start a new game</span></h1>
+  <app-breadcrumbs [items]="breadcrumbs"></app-breadcrumbs>
+  <h1><span i18n="@@episodecreate.title">Start a new game</span></h1>
 }
-<div id="post-form" class="formal">
-  <form id="post" class="container" (submit)="onSubmit($event)">
+<div id="episode-form" class="formal entity-form">
+  <form class="container" (submit)="onSubmit($event)">
     <fieldset>
       <legend style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-        <span i18n="@@topiccreate.writeMessage">Write your message and click "Send"</span>
         @if (cancel.observed) {
           @if (statusActive()) {
             <button type="button" class="button btn-deactivate" (click)="requestDeactivate()" i18n="@@common.deactivate">Deactivate</button>
@@ -15,13 +15,15 @@
         }
       </legend>
       <div class="fs-box hashelp">
-        <p class="inputfield required longinput">
-          <label for="fld3"><ng-container i18n="@@topiccreate.subject">Subject</ng-container> <em><ng-container i18n="@@topiccreate.required">(Required)</ng-container></em></label><br />
+        <p class="inputfield required">
+          <label for="fld3"><ng-container i18n="@@topiccreate.subject">Subject</ng-container> <em><ng-container i18n="@@topiccreate.required">(Required)</ng-container></em></label>
           <span class="input"><input id="fld3" type="text" name="req_subject" [value]="subject" size="80" maxlength="70" /></span>
         </p>
+      </div>
 
-        <div class="inputfield required longinput">
-          <label><ng-container i18n="@@episodecreate.characters">Characters</ng-container></label><br />
+      <div class="fs-box hashelp">
+        <div class="inputfield required">
+          <label><ng-container i18n="@@episodecreate.characters">Characters</ng-container></label>
           @for (control of characterControls.controls; track control; let i = $index) {
           <div class="character-input-group">
             <span class="input">
@@ -46,9 +48,11 @@
           }
           <button type="button" class="button" (click)="addCharacterField()" i18n="@@episodecreate.addCharacter">Add character</button>
         </div>
+      </div>
 
-        <div class="inputfield required longinput">
-          <label><ng-container i18n="@@episodecreate.masks">Masks</ng-container></label><br />
+      <div class="fs-box hashelp">
+        <div class="inputfield required">
+          <label><ng-container i18n="@@episodecreate.masks">Masks</ng-container></label>
           @for (control of maskControls.controls; track control; let i = $index) {
           <div class="character-input-group">
             <span class="input">
@@ -68,14 +72,15 @@
           }
           <button type="button" class="button" (click)="addMaskField()" i18n="@@episodecreate.addMask">Add mask</button>
         </div>
+      </div>
 
+      <div class="fs-box hashelp">
         <div class="inputfield">
-          <label>
+          <label class="option-label">
             <input type="checkbox" name="open_to_everyone" [(ngModel)]="openToEveryone" />
             <ng-container i18n="@@episode.openToEveryone">Open to everyone</ng-container>
           </label>
         </div>
-
       </div>
     </fieldset>
 
@@ -92,7 +97,7 @@
           <div class="inputfield episode-rating-row">
             <label i18n="@@episodecreate.rating">Rating</label>
             <div class="episode-rating-selects">
-              <label>
+              <label class="rating-label">
                 <span i18n="@@rating.language">Language</span>
                 <select [ngModel]="ratingLanguage" (ngModelChange)="onRatingLanguageChange($event)" name="rating_language">
                   <option [ngValue]="0">L0</option>
@@ -101,7 +106,7 @@
                   <option [ngValue]="3">L3</option>
                 </select>
               </label>
-              <label>
+              <label class="rating-label">
                 <span i18n="@@rating.violence">Violence</span>
                 <select [ngModel]="ratingViolence" (ngModelChange)="onRatingViolenceChange($event)" name="rating_violence">
                   <option [ngValue]="0">V0</option>
@@ -110,7 +115,7 @@
                   <option [ngValue]="3">V3</option>
                 </select>
               </label>
-              <label>
+              <label class="rating-label">
                 <span i18n="@@rating.sexContent">Sexual Content</span>
                 <select [ngModel]="ratingSex" (ngModelChange)="onRatingSexChange($event)" name="rating_sex">
                   <option [ngValue]="0">S0</option>
@@ -122,6 +127,7 @@
               <a class="rating-help-link" (click)="showRatingHelp.set(true)" i18n="@@episodecreate.ratingHelp">Help</a>
             </div>
           </div>
+          @if (showContentWarnings()) {
           <div class="inputfield">
             <label i18n="@@episodecreate.warnings">Content Warnings</label>
             <div class="episode-warnings-add">
@@ -144,6 +150,7 @@
               </ul>
             }
           </div>
+          }
         </div>
       }
     </fieldset>
@@ -158,7 +165,6 @@
     </p>
   </form>
 </div>
-<div id="ajaxpostpreview"></div>
 
 @if (showRatingWarning()) {
   <div class="modal-overlay">

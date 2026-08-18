@@ -2,6 +2,7 @@ import {Component, effect, inject, Input, OnInit, OnDestroy, computed, numberAtt
 import {Router, RouterLink, ActivatedRoute} from '@angular/router';
 import {ForumService} from '../services/forum.service';
 import {NotificationService} from '../services/notification.service';
+import {AuthService} from '../services/auth.service';
 import {BreadcrumbItem, BreadcrumbsComponent} from '../components/breadcrumbs/breadcrumbs.component';
 import { Subject, takeUntil, combineLatest } from 'rxjs';
 
@@ -12,6 +13,7 @@ function coerceToPage(value: unknown): number {
 
 @Component({
   selector: 'app-viewforum',
+  host: { class: 'pun-page' },
   imports: [
     RouterLink,
     BreadcrumbsComponent
@@ -22,8 +24,11 @@ function coerceToPage(value: unknown): number {
 export class ViewforumComponent implements OnInit, OnDestroy {
   forumService = inject(ForumService);
   private notificationService = inject(NotificationService);
+  private authService = inject(AuthService);
   route = inject(ActivatedRoute);
   private router = inject(Router);
+
+  private lastAuthChangeOnLoad = -1;
 
   @Input({ transform: numberAttribute }) id?: number;
   @Input({ transform: coerceToPage, alias: 'page' }) pageNumber: number = 1;
@@ -61,7 +66,9 @@ export class ViewforumComponent implements OnInit, OnDestroy {
         const page = coerceToPage(queryParamMap.get('page'));
 
         if (forumId) {
-          if (this.subforum().id !== forumId) {
+          const currentAuthChange = this.authService.lastAuthChange();
+          if (this.subforum().id !== forumId || currentAuthChange !== this.lastAuthChangeOnLoad) {
+            this.lastAuthChangeOnLoad = currentAuthChange;
             this.forumService.loadSubforum(forumId, () => this.router.navigate(['/404']));
           }
           this.forumService.loadSubforumPage(forumId, page);

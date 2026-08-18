@@ -16,6 +16,8 @@ export interface User {
   interface_timezone: string;
   interface_font_size: number;
   interface_design?: string | null;
+  editor_type?: 0 | 1;
+  do_not_blur?: boolean;
   roles: Role[];
   notification_settings?: UserNotificationSetting[];
   currency_amount?: number;
@@ -76,6 +78,8 @@ export interface UpdateSettingsRequest {
   interface_language?: string;
   interface_font_size?: number;
   interface_design?: string | null;
+  editor_type?: 0 | 1;
+  do_not_blur?: boolean;
   password?: string;
   signature?: string;
 }

@@ -6,21 +6,22 @@ import {takeUntil} from 'rxjs/operators';
 import {BoardService} from '../services/board.service';
 import {CategoryService} from '../services/category.service';
 import {NotificationService} from '../services/notification.service';
-import {CurrentlyActiveComponent} from '../components/currently-active/currently-active.component';
-import {RecentlyActiveComponent} from '../components/recently-active/recently-active.component';
+import {FooterStatisticsComponent} from '../components/footer-statistics/footer-statistics.component';
 import { RouterLinksDirective } from '../directives/router-links.directive';
 import { SafeHtmlPipe } from '../pipes/safe-html.pipe';
+import { CategoryComponent } from '../components/category/category.component';
 
 @Component({
   selector: 'app-home',
+  host: { class: 'pun-page' },
   standalone: true,
   templateUrl: './home.component.html',
   imports: [
     RouterLink,
-    CurrentlyActiveComponent,
-    RecentlyActiveComponent,
+    FooterStatisticsComponent,
     RouterLinksDirective,
-    SafeHtmlPipe
+    SafeHtmlPipe,
+    CategoryComponent
   ]
 })
 export class HomeComponent implements OnInit, OnDestroy {

@@ -6,6 +6,7 @@ import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-wipe-out-my-user',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [ReactiveFormsModule],
   templateUrl: './wipe-out-my-user.component.html',

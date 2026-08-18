@@ -22,6 +22,7 @@ export interface Role {
 
 @Component({
   selector: 'app-admin-users',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [CommonModule, DatePipe, RouterLink, FormsModule, ErrorBannerComponent],
   templateUrl: './admin-users.component.html',

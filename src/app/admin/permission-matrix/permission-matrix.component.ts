@@ -7,6 +7,7 @@ import { SaveButtonComponent } from '../save-button/save-button.component';
 
 @Component({
   selector: 'app-permission-matrix',
+  host: { class: 'pun-page' },
   imports: [CommonModule, FormsModule, SaveButtonComponent],
   templateUrl: './permission-matrix.component.html',
   standalone: true,

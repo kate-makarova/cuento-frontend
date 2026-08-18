@@ -81,6 +81,8 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
   public reactionNotifications = this.reactionNotificationsSignal.asReadonly();
   private autoArchivingNotificationsSignal = signal<NotificationData[]>([]);
   public autoArchivingNotifications = this.autoArchivingNotificationsSignal.asReadonly();
+  private accountUpdateNotificationsSignal = signal<NotificationData[]>([]);
+  public accountUpdateNotifications = this.accountUpdateNotificationsSignal.asReadonly();
 
   // Subject for real-time toast notifications
   private notificationSubject = new Subject<NotificationData>();
@@ -142,6 +144,7 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
         this.directMessageNotificationsSignal.set(response.direct_message || []);
         this.reactionNotificationsSignal.set(response.reaction || []);
         this.autoArchivingNotificationsSignal.set(response.auto_archiving || []);
+        this.accountUpdateNotificationsSignal.set(response.account_update || []);
         this.rebuildTriggers(response);
       },
       error: (err) => console.error('Failed to load unread notifications', err)
@@ -214,9 +217,11 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
   }
 
   public checkChatId(chatId: number): void {
-    if (this.directMessageNotificationsSignal().length === 0) return;
-    const n = this.dmChatTriggers.get(chatId);
-    if (n) this.dismissNotification(n);
+    const notifications = this.directMessageNotificationsSignal();
+    if (notifications.length === 0) return;
+    for (const n of notifications) {
+      if (n.direct_message?.chat_id === chatId) this.dismissNotification(n);
+    }
   }
 
   public dismissNotification(notification: NotificationData): void {
@@ -236,6 +241,8 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
           this.reactionNotificationsSignal.update(current => current.filter(n => n.id !== notification.id));
         } else if (notification.type === 'auto_archiving') {
           this.autoArchivingNotificationsSignal.update(current => current.filter(n => n.id !== notification.id));
+        } else if (notification.type === 'account_update') {
+          this.accountUpdateNotificationsSignal.update(current => current.filter(n => n.id !== notification.id));
         }
       },
       error: (err) => console.error('Failed to dismiss notification', err)
@@ -407,6 +414,8 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
           this.reactionNotificationsSignal.update(current => [notificationData, ...current]);
         } else if (notificationData.type === 'auto_archiving') {
           this.autoArchivingNotificationsSignal.update(current => [notificationData, ...current]);
+        } else if (notificationData.type === 'account_update') {
+          this.accountUpdateNotificationsSignal.update(current => [notificationData, ...current]);
         }
 
         if (!notifSetting?.disable_sound) {

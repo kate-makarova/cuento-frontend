@@ -210,6 +210,7 @@ export class DirectChatService {
           });
           this.currentChatSignal.update(c => c ? { ...c, last_read_message_id: message.id } : c);
         }
+        this.notificationService.checkChatId(raw.chat_id);
       },
       error: (err) => console.error('Failed to decrypt incoming message', err)
     });
@@ -218,6 +219,22 @@ export class DirectChatService {
   incrementUnreadCount(chatId: number): void {
     this.chatListSignal.update(list =>
       list.map(chat => chat.chat_id === chatId ? { ...chat, unread_count: chat.unread_count + 1 } : chat)
+    );
+  }
+
+  blockChat(chatId: number): Observable<void> {
+    return this.apiService.post<void>(`direct-chat/${chatId}/block`, {}).pipe(
+      tap(() => this.chatListSignal.update(list =>
+        list.map(c => c.chat_id === chatId ? { ...c, chat_blocked_since_date: new Date().toISOString() } : c)
+      ))
+    );
+  }
+
+  unblockChat(chatId: number): Observable<void> {
+    return this.apiService.post<void>(`direct-chat/${chatId}/unblock`, {}).pipe(
+      tap(() => this.chatListSignal.update(list =>
+        list.map(c => c.chat_id === chatId ? { ...c, chat_blocked_since_date: null } : c)
+      ))
     );
   }
 

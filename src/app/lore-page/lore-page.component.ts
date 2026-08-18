@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-lore-page',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [CommonModule, RouterLink, SafeHtmlPipe, RouterLinksDirective],
   templateUrl: './lore-page.component.html',

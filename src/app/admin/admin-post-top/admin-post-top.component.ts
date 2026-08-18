@@ -5,6 +5,7 @@ import { PostTop, PostTopCreateRequest } from '../../models/PostTop';
 
 @Component({
   selector: 'app-admin-post-top',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [FormsModule],
   templateUrl: './admin-post-top.component.html',

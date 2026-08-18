@@ -20,6 +20,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   if (authToken) {
     req = addTokenHeader(req, authToken);
+  } else {
+    req = addGuestHeaders(req);
   }
 
   return next(req).pipe(
@@ -62,6 +64,15 @@ const addTokenHeader = (request: HttpRequest<any>, token: string) => {
   return request.clone({
     setHeaders: {
       Authorization: `Bearer ${token}`
+    }
+  });
+}
+
+const addGuestHeaders = (request: HttpRequest<any>) => {
+  return request.clone({
+    setHeaders: {
+      'X-Screen-Resolution': `${screen.width}x${screen.height}`,
+      'X-Color-Depth': String(screen.colorDepth)
     }
   });
 }

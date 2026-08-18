@@ -5,8 +5,10 @@
   <div class="main-content">
     <div class="userlist-filters">
       <label>
-        <input type="checkbox" [checked]="showArchived()" (change)="showArchived.set(!showArchived())">
-        <ng-container i18n="@@userlist.showArchived">Show archived users</ng-container>
+        <span class="checkbox-input">
+          <input type="checkbox" [checked]="showArchived()" (change)="showArchived.set(!showArchived())">
+          <ng-container i18n="@@userlist.showArchived">Show archived users</ng-container>
+        </span>
       </label>
     </div>
     <table cellspacing="0">

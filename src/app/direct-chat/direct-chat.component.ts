@@ -9,9 +9,11 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {Subject, Subscription} from 'rxjs';
 import {debounceTime, distinctUntilChanged, switchMap} from 'rxjs/operators';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-direct-chat',
+  host: { class: 'pun-page' },
   imports: [CommonModule, FormsModule],
   templateUrl: './direct-chat.component.html',
   standalone: true,
@@ -20,6 +22,7 @@ export class DirectChatComponent implements OnInit, OnDestroy {
   private directChatService = inject(DirectChatService);
   private notificationService = inject(NotificationService);
   private userService = inject(UserService);
+  private route = inject(ActivatedRoute);
   private dmSub: Subscription | null = null;
 
   @ViewChild('chatInput') messageField!: ElementRef<HTMLTextAreaElement>;
@@ -75,9 +78,23 @@ export class DirectChatComponent implements OnInit, OnDestroy {
   private searchSubject = new Subject<string>();
 
   ngOnInit() {
+    const targetChatId = this.route.snapshot.queryParamMap.get('chat_id');
+
     this.directChatService.resolvePrivateKey().subscribe(() => {
       this.directChatService.loadChatList();
     });
+
+    if (targetChatId) {
+      const unsub = effect(() => {
+        const list = this.directChatService.chatList();
+        if (list.length === 0) return;
+        const chat = list.find(c => c.chat_id === +targetChatId);
+        if (chat) {
+          this.directChatService.loadDirectChat(chat.chat_id);
+          unsub.destroy();
+        }
+      });
+    }
 
     this.searchSubject.pipe(
       debounceTime(300),
@@ -121,7 +138,8 @@ export class DirectChatComponent implements OnInit, OnDestroy {
           chat_id: response.chat_id,
           user_id: user.id,
           username: user.username,
-          unread_count: 0
+          unread_count: 0,
+          chat_blocked_since_date: null
         });
         this.newChatTerm = '';
         this.selectedNewChatUser = null;
@@ -182,6 +200,20 @@ export class DirectChatComponent implements OnInit, OnDestroy {
 
   selectUser(chat: DirectChatListItem) {
     this.directChatService.loadDirectChat(chat.chat_id);
+  }
+
+  get currentChatBlocked(): boolean {
+    const id = this.currentChat()?.chat_id;
+    return !!this.chatList().find(c => c.chat_id === id)?.chat_blocked_since_date;
+  }
+
+  toggleBlock() {
+    const chatId = this.currentChat()?.chat_id;
+    if (!chatId) return;
+    const action$ = this.currentChatBlocked
+      ? this.directChatService.unblockChat(chatId)
+      : this.directChatService.blockChat(chatId);
+    action$.subscribe({ error: (err) => console.error('Block/unblock failed', err) });
   }
   toggleSearch() {}
   onSearch(event: Event) {}

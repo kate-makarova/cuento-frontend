@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CharacterService } from '../services/character.service';
 import { FactionService } from '../services/faction.service';
+import { FactionSettingService } from '../services/faction-setting.service';
 import { WantedCharacterService } from '../services/wanted-character.service';
 import { GlobalSettingsService } from '../services/global-settings.service';
 import { AuthService } from '../services/auth.service';
@@ -14,6 +15,7 @@ import { ClaimCreateModalComponent } from '../components/claim-create-modal/clai
 
 @Component({
   selector: 'app-character-list',
+  host: { class: 'pun-page' },
   imports: [
     RouterLink,
     FormsModule,
@@ -27,10 +29,16 @@ import { ClaimCreateModalComponent } from '../components/claim-create-modal/clai
 export class CharacterListComponent implements OnInit {
   characterService = inject(CharacterService);
   factionService = inject(FactionService);
+  private factionSettingService = inject(FactionSettingService);
   private wantedCharacterService = inject(WantedCharacterService);
   private settingsService = inject(GlobalSettingsService);
   private authService = inject(AuthService);
   characterList = this.characterService.characterList;
+
+  topLevelFactionName = computed(() => {
+    const settings = this.factionSettingService.factionSettings();
+    return settings.find(s => s.level === 0)?.human_name ?? 'faction';
+  });
 
   canAddFaction = computed(() => {
     const isGuest = !this.authService.isAuthenticated();
@@ -138,6 +146,7 @@ export class CharacterListComponent implements OnInit {
   ngOnInit() {
     this.characterService.loadCharacterList();
     this.settingsService.loadSettings();
+    this.factionSettingService.load();
   }
 
 }

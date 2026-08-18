@@ -8,6 +8,7 @@ import { CodeCopyDirective } from '../directives/code-copy.directive';
 
 @Component({
   selector: 'app-post-page',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [SafeHtmlPipe, RouterLinksDirective, CodeCopyDirective],
   templateUrl: './post-page.component.html',

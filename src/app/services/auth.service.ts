@@ -23,6 +23,7 @@ export class AuthService {
   isAuthenticated = computed(() => !!this.currentUser()?.id);
   authToken = signal<string | null>(null);
   isAdmin = computed(() => this.hasRole('admin'));
+  lastAuthChange = signal<number>(0);
 
   isRefreshing = false;
   refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
@@ -128,6 +129,7 @@ export class AuthService {
             localStorage.setItem('user', JSON.stringify(res.user));
             this.currentUser.set(res.user);
             this.authToken.set(res.access_token);
+            this.lastAuthChange.set(Date.now());
           })
         );
       })
@@ -135,10 +137,7 @@ export class AuthService {
   }
 
   logout() {
-    this.http.post(`${this.apiUrl}/logout`, {}).subscribe({
-      next: () => this.clearLocalAuth(true),
-      error: () => this.clearLocalAuth(true)
-    });
+    this.clearLocalAuth(true);
   }
 
   public clearLocalAuth(notify: boolean = true) {
@@ -148,6 +147,7 @@ export class AuthService {
     localStorage.removeItem('locale');
     this.setGuestUser();
     this.authToken.set(null);
+    this.lastAuthChange.set(Date.now());
     if (notify) {
       this.authChannel.postMessage('logout');
     }
@@ -173,6 +173,7 @@ export class AuthService {
     localStorage.setItem('refresh_token', response.refresh_token);
     this.updateUser(response.user);
     this.authToken.set(response.access_token);
+    this.lastAuthChange.set(Date.now());
     this.authChannel.postMessage('login');
     if (navigate) {
       this.router.navigate(['/']);
@@ -217,5 +218,10 @@ export class AuthService {
       return false;
     }
     return user.roles?.some(role => role.permissions?.includes(permission)) ?? false;
+  }
+
+  public patchCurrentUser(patch: Partial<User>): void {
+    const user = this.currentUser();
+    if (user) this.currentUser.set({ ...user, ...patch });
   }
 }

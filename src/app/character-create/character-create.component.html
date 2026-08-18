@@ -1,8 +1,8 @@
 @if (!cancel.observed) {
-  <h1><span i18n="@@topiccreate.title">Start a new character</span></h1>
+  <h1><span i18n="@@charactercreate.title">Start a new character</span></h1>
 }
-<div id="post-form" class="formal">
-  <form id="post" class="container" (submit)="onSubmit($event)">
+<div id="character-form" class="formal entity-form">
+  <form class="container" (submit)="onSubmit($event)">
     <fieldset>
       <legend style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
 @if (cancel.observed) {
@@ -14,21 +14,24 @@
         }
       </legend>
       <div class="fs-box hashelp">
-        <p class="inputfield required longinput">
-          <label for="fld3"><ng-container i18n="@@topiccreate.characterName">Name</ng-container> <em><ng-container i18n="@@topiccreate.required">(Required)</ng-container></em></label><br />
+        <p class="inputfield required">
+          <label for="fld3"><ng-container i18n="@@topiccreate.characterName">Name</ng-container> <em><ng-container i18n="@@topiccreate.required">(Required)</ng-container></em></label>
           <span class="input"><input id="fld3" type="text" name="req_name" [value]="characterName" size="80" maxlength="70" /></span>
         </p>
+      </div>
 
-        <div class="inputfield required longinput">
+      <div class="fs-box hashelp">
+        <div class="inputfield required">
           <label i18n="@@characterprofileedit.avatarUrl">Avatar URL</label>
           <app-cropped-image-field [name]="'req_avatar'" [fieldValue]="characterAvatar" [showFieldName]="false" [width]="avatarWidth" [height]="avatarHeight" [uploadFn]="characterAvatarUploadFn"></app-cropped-image-field>
         </div>
+      </div>
 
+      <div class="fs-box hashelp">
         <app-faction-paths
           [initialFactions]="initialData?.factions ?? []"
           (factionsChange)="onFactionsChanged($event)">
         </app-faction-paths>
-
       </div>
     </fieldset>
 
@@ -59,21 +62,21 @@
         } @else {
           <p class="inputfield">
             <label i18n="@@charactercreate.claimQuestion">Is this a claim on an existing character?</label><br />
-            <label>
+            <label class="radio-label">
               <input type="radio" name="claim_type" value="no"
                 [checked]="claimType() === 'no'"
                 (change)="onClaimTypeChange('no')" />
               <ng-container i18n="@@charactercreate.claimNo">No</ng-container>
             </label>
             &nbsp;
-            <label>
+            <label class="radio-label">
               <input type="radio" name="claim_type" value="wanted"
                 [checked]="claimType() === 'wanted'"
                 (change)="onClaimTypeChange('wanted')" />
               <ng-container i18n="@@charactercreate.claimWanted">Yes, for a wanted character</ng-container>
             </label>
             &nbsp;
-            <label>
+            <label class="radio-label">
               <input type="radio" name="claim_type" value="direct"
                 [checked]="claimType() === 'direct'"
                 (change)="onClaimTypeChange('direct')" />
@@ -82,7 +85,7 @@
           </p>
 
           @if (claimType() === 'wanted' || claimType() === 'direct') {
-            <div class="inputfield longinput">
+            <div class="inputfield">
               <label for="claim_query">
                 @if (claimType() === 'wanted') {
                   <ng-container i18n="@@charactercreate.claimWantedLabel">Wanted character</ng-container>
@@ -125,7 +128,6 @@
     </p>
   </form>
 </div>
-<div id="ajaxpostpreview"></div>
 
 @if (showClaimUnlockModal()) {
   <div class="modal-overlay">

@@ -1,0 +1,66 @@
+<h2 i18n="@@admin.backup.title">Backup</h2>
+
+<div class="backup-blocks">
+
+  <section class="backup-block">
+    <h3 i18n="@@admin.backup.makeTitle">Make a Backup</h3>
+    <p i18n="@@admin.backup.makeDesc">Download a full SQL dump of the current database.</p>
+    <button
+      type="button"
+      class="button"
+      [disabled]="downloadState() === 'loading'"
+      (click)="downloadBackup()"
+    >
+      @if (downloadState() === 'loading') {
+        <span i18n="@@admin.backup.downloading">Downloading…</span>
+      } @else {
+        <span i18n="@@admin.backup.download">Download backup</span>
+      }
+    </button>
+    @if (downloadState() === 'error') {
+      <p class="error-msg" i18n="@@admin.backup.downloadError">Failed to download backup.</p>
+    }
+  </section>
+
+  <section class="backup-block">
+    <h3 i18n="@@admin.backup.restoreTitle">Restore a Backup</h3>
+    <p i18n="@@admin.backup.restoreDesc">Upload an SQL file to restore the database. Only <code>.sql</code> files are accepted.</p>
+    <label class="button file-label" [class.disabled]="restoreState() === 'loading'">
+      @if (restoreState() === 'loading') {
+        <span i18n="@@admin.backup.restoring">Restoring…</span>
+      } @else {
+        <span i18n="@@admin.backup.chooseFile">Choose .sql file</span>
+      }
+      <input
+        type="file"
+        accept=".sql"
+        [disabled]="restoreState() === 'loading'"
+        (change)="onFileSelected($event)"
+        style="display:none"
+      />
+    </label>
+    @if (restoreState() === 'success') {
+      <p class="success-msg" i18n="@@admin.backup.restoreSuccess">Database restored successfully.</p>
+    }
+    @if (restoreState() === 'error') {
+      <p class="error-msg" i18n="@@admin.backup.restoreError">Restore failed. Check server logs.</p>
+    }
+  </section>
+
+</div>
+
+@if (showConfirmModal) {
+  <div class="confirm-modal-backdrop" (click)="cancelRestore()">
+    <div class="confirm-modal" (click)="$event.stopPropagation()">
+      <h3 i18n="@@admin.backup.confirmTitle">Warning</h3>
+      <p i18n="@@admin.backup.confirmText">
+        This will <strong>permanently overwrite all data</strong> currently in the database with the contents of the uploaded file. This action cannot be undone.
+      </p>
+      <p i18n="@@admin.backup.confirmQuestion">Are you sure you want to proceed?</p>
+      <div class="confirm-actions">
+        <button type="button" class="button btn-wipe" (click)="confirmRestore()" i18n="@@admin.backup.confirmYes">Yes, restore</button>
+        <button type="button" (click)="cancelRestore()" i18n="@@admin.backup.confirmNo">Cancel</button>
+      </div>
+    </div>
+  </div>
+}

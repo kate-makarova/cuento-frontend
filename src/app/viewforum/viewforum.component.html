@@ -22,38 +22,42 @@
           }
         </p>
       </div>
-      <div class="clearer"></div>
+
     </div>
 
     <div class="main-content">
       <div class="main-item">
-        <div class="buttons">
-          <div class="conl">
-            @if (subforum()?.permissions?.subforum_create_general_topic) {
-              <a routerLink="/topic-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.generic">Create standard topic</span></a>
-            }
-            @if (subforum()?.permissions?.subforum_create_episode_topic) {
-              <a routerLink="/episode-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.episode">Create game topic</span></a>
-            }
-            @if (subforum()?.permissions?.subforum_create_character_topic) {
-              <a routerLink="/character-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.character">Create character sheet</span></a>
-            }
-            @if (subforum()?.permissions?.subforum_create_wanted_character_topic) {
-              <a routerLink="/wanted-character-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.wantedCharacter">Create wanted character</span></a>
-            }
-            @if (subforum()?.permissions?.subforum_create_lore_topic) {
-              <a routerLink="/lore-topic-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.lore">Create lore topic</span></a>
-            }
+        @if (subforum()?.permissions?.subforum_create_general_topic ||
+             subforum()?.permissions?.subforum_create_episode_topic ||
+             subforum()?.permissions?.subforum_create_character_topic ||
+             subforum()?.permissions?.subforum_create_wanted_character_topic ||
+             subforum()?.permissions?.subforum_create_lore_topic) {
+          <div class="buttons">
+            <div class="conl">
+              @if (subforum()?.permissions?.subforum_create_general_topic) {
+                <a routerLink="/topic-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.generic">Create standard topic</span></a>
+              }
+              @if (subforum()?.permissions?.subforum_create_episode_topic) {
+                <a routerLink="/episode-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.episode">Create game topic</span></a>
+              }
+              @if (subforum()?.permissions?.subforum_create_character_topic) {
+                <a routerLink="/character-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.character">Create character sheet</span></a>
+              }
+              @if (subforum()?.permissions?.subforum_create_wanted_character_topic) {
+                <a routerLink="/wanted-character-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.wantedCharacter">Create wanted character</span></a>
+              }
+              @if (subforum()?.permissions?.subforum_create_lore_topic) {
+                <a routerLink="/lore-topic-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.lore">Create lore topic</span></a>
+              }
+            </div>
           </div>
-          <div class="clearer"></div>
-        </div>
+        }
 
         <table cellspacing="0">
           <thead>
           <tr>
             <th class="tcl" scope="col" i18n="@@viewforum.topic">Topic</th>
             <th class="tc2" scope="col" i18n="@@viewforum.replies">Replies</th>
-            <th class="tc3" scope="col" i18n="@@viewforum.views">Views</th>
             <th class="tcr" scope="col" i18n="@@viewforum.lastPost">Last post</th>
           </tr>
           </thead>
@@ -81,7 +85,7 @@
                       <span class="status-badge status-sticky" i18n="@@viewforum.sticky">Sticky</span>
                     }
                     @if (topic.status === 1) {
-                      <span class="status-badge status-inactive" i18n="@@common.statusInactive">Inactive</span>
+                      <span class="status-badge status-inactive" i18n="@@common.statusClosed">Inactive</span>
                     }
                     @if (topic.not_viewed && topic.last_viewed_id) {
                       <a [routerLink]="['/viewtopic', topic.id]" [queryParams]="{ post_id: topic.last_viewed_id }" class="new-posts-link">[new posts]</a>
@@ -92,7 +96,6 @@
               </div>
             </td>
             <td class="tc2">{{topic.post_number}}</td>
-<!--            <td class="tc3"></td>-->
             <td class="tcr">
               @if (topic.last_post_id) {
                 <a [routerLink]="['/viewtopic', topic.id]" [queryParams]="{ post_id: topic.last_post_id }">{{topic.date_last_post_localized}}</a>
@@ -106,9 +109,9 @@
           </tbody>
         </table>
 
-        <div class="buttons">
-          <p class="conr">
-            @if (totalPages() > 1) {
+        @if (totalPages() > 1) {
+          <div class="buttons">
+            <p class="conr">
               <span><ng-container i18n="@@viewforum.pages">Pages</ng-container>:
                 @for (p of [].constructor(totalPages()); track $index; let i = $index) {
                   @if (i + 1 === pageNumber) {
@@ -118,10 +121,9 @@
                   }
                 }
               </span>
-            }
-          </p>
-          <div class="clearer"></div>
-        </div>
+            </p>
+          </div>
+        }
       </div>
     </div>
   </div>

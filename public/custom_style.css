@@ -969,7 +969,8 @@ app-root.dark .long-text-field div {
 /* Inputs & forms */
 app-root.dark .punbb input,
 app-root.dark .punbb textarea,
-app-root.dark .punbb select {
+app-root.dark .punbb select,
+app-root.dark .wysiwyg-editor {
   background-color: #1a1a2e;
   color: #c8c8e0;
   border-color: #3a3a5c;
@@ -1993,6 +1994,20 @@ app-root.dark .relation-chip:hover {
 }
 
 /* === bb-toolbar.component === */
+app-root.dark #form-buttons span.toolbar-active {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+app-root.dark #font-area div.toolbar-active,
+app-root.dark #size-area div.toolbar-active {
+  background-color: rgba(255, 255, 255, 0.15);
+  font-weight: bold;
+}
+
+app-root.dark #color-area td.toolbar-active {
+  outline-color: rgba(255, 255, 255, 0.8);
+}
+
 .spoiler-modal-backdrop {
   background: rgba(0, 0, 0, 0.4);
 }
@@ -2060,6 +2075,10 @@ app-root.dark .relation-chip:hover {
   background: #f5f5f5;
   cursor: pointer;
   font-size: 0.875rem;
+}
+
+.mode-toggle button svg {
+  display: none;
 }
 
 .mode-toggle button:first-child {

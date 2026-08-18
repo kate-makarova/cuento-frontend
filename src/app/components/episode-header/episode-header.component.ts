@@ -25,6 +25,10 @@ export class EpisodeHeaderComponent implements OnInit, OnChanges {
     }
   }
 
+  getField(machineName: string): any | undefined {
+    return this.customFields.find(f => f.fieldMachineName === machineName);
+  }
+
   get ratingBadge(): string | null {
     if (!this.episode?.rating_set) return null;
     return `L${this.episode.rating_language}V${this.episode.rating_violence}S${this.episode.rating_sex}`;

@@ -8,6 +8,7 @@ type UploadState = 'idle' | 'loading' | 'success' | 'error';
 
 @Component({
   selector: 'app-admin-smiles',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './admin-smiles.component.html',

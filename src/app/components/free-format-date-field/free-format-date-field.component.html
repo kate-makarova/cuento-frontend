@@ -2,6 +2,10 @@
   <label>{{ fieldName }}</label>
 }
 
+@if (dateTemplates.length === 0) {
+  <p class="ffd-hint" i18n="@@freeFormatDate.hint">The format will be shown once the first character is selected.</p>
+}
+
 @if (dateTemplates.length > 0) {
   <div class="ffd-field">
 

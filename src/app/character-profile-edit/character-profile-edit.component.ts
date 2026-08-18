@@ -13,6 +13,7 @@ import { CharacterProfile } from '../models/Character';
 
 @Component({
   selector: 'app-character-profile-edit',
+  host: { class: 'pun-page' },
   imports: [FieldInputComponent, CroppedImageFieldComponent, FormsModule, BbToolbarComponent],
   templateUrl: './character-profile-edit.component.html',
   standalone: true

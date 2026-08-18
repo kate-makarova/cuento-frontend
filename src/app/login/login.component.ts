@@ -6,6 +6,7 @@ import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-login',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './login.component.html',

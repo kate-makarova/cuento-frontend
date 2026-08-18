@@ -7,6 +7,7 @@ type Step = 'code' | 'password' | 'loading' | 'done';
 
 @Component({
   selector: 'app-restore-password',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './restore-password.component.html',

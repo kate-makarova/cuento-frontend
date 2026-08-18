@@ -1,40 +1,49 @@
-<div id="form-buttons">
-  <table cellspacing="0" cellpadding="0">
-    <tbody>
-    <tr>
-      <td title="Font" i18n-title="@@postform.font" (click)="toggleArea('font')"><i class="bi bi-fonts"></i></td>
-      <td title="Size" i18n-title="@@postform.size" (click)="toggleArea('size')"><i class="bi bi-type-h1"></i></td>
-      <td title="Bold" i18n-title="@@postform.bold" (click)="insertTag('b')"><i class="bi bi-type-bold"></i></td>
-      <td title="Italic" i18n-title="@@postform.italic" (click)="insertTag('i')"><i class="bi bi-type-italic"></i></td>
-      <td title="Underline" i18n-title="@@postform.underline" (click)="insertTag('u')"><i class="bi bi-type-underline"></i></td>
-      <td title="Strikethrough" i18n-title="@@postform.strike" (click)="insertTag('s')"><i class="bi bi-type-strikethrough"></i></td>
-      <td title="Align left" i18n-title="@@postform.alignLeft" (click)="insertTag('left')"><i class="bi bi-text-left"></i></td>
-      <td title="Center" i18n-title="@@postform.center" (click)="insertTag('center')"><i class="bi bi-text-center"></i></td>
-      <td title="Align right" i18n-title="@@postform.alignRight" (click)="insertTag('right')"><i class="bi bi-text-right"></i></td>
-      <td title="Link" i18n-title="@@postform.link" (click)="insertTag('url')"><i class="bi bi-link-45deg"></i></td>
-      <td title="Quote" i18n-title="@@postform.quote" (click)="insertTag('quote')"><i class="bi bi-quote"></i></td>
-      <td title="Code" i18n-title="@@postform.code" (click)="insertTag('code')"><i class="bi bi-code-slash"></i></td>
-      <td title="Color" i18n-title="@@postform.color" (click)="toggleArea('color')"><i class="bi bi-palette"></i></td>
-      <td title="Smile" i18n-title="@@postform.smile" (click)="toggleArea('smile')"><i class="bi bi-emoji-smile"></i></td>
-      <td title="Video" i18n-title="@@postform.video" (click)="insertTag('video')"><i class="bi bi-camera-video"></i></td>
-      <td title="Audio" i18n-title="@@postform.audio" (click)="insertTag('audio')"><i class="bi bi-music-note"></i></td>
-      @if (showImageUpload) {
-        <td title="Upload image" i18n-title="@@postform.uploadImage" (click)="toggleArea('image')"><i class="bi bi-image"></i></td>
-      }
-      @if (showSpoiler) {
-        <td title="Spoiler" (click)="openSpoilerModal()"><i class="bi bi-eye-slash"></i></td>
-      }
-      <td title="Grid" i18n-title="@@postform.grid" (click)="toggleArea('grid')"><i class="bi bi-grid-3x3-gap"></i></td>
-    </tr>
-    </tbody>
-  </table>
+<div id="form-buttons" (mousedown)="$event.preventDefault()">
+  <span title="Font" i18n-title="@@postform.font" (click)="toggleArea('font')" [class.toolbar-active]="!!getActiveFont()">
+    <i class="bi bi-fonts"></i>
+    @if (getActiveFont(); as font) {
+      <span class="toolbar-inline-label">{{ font }}</span>
+    }
+  </span>
+  <span title="Size" i18n-title="@@postform.size" (click)="toggleArea('size')" [class.toolbar-active]="!!getActiveSize()">
+    <i class="bi bi-type-h1"></i>
+    @if (getActiveSize(); as size) {
+      <span class="toolbar-inline-label">{{ size }}</span>
+    }
+  </span>
+  <span title="Bold" i18n-title="@@postform.bold" (click)="insertTag('b')" [class.toolbar-active]="isFormatActive('b')"><i class="bi bi-type-bold"></i></span>
+  <span title="Italic" i18n-title="@@postform.italic" (click)="insertTag('i')" [class.toolbar-active]="isFormatActive('i')"><i class="bi bi-type-italic"></i></span>
+  <span title="Underline" i18n-title="@@postform.underline" (click)="insertTag('u')" [class.toolbar-active]="isFormatActive('u')"><i class="bi bi-type-underline"></i></span>
+  <span title="Strikethrough" i18n-title="@@postform.strike" (click)="insertTag('s')" [class.toolbar-active]="isFormatActive('s')"><i class="bi bi-type-strikethrough"></i></span>
+  <span title="Align left" i18n-title="@@postform.alignLeft" (click)="insertTag('left')" [class.toolbar-active]="isFormatActive('left')"><i class="bi bi-text-left"></i></span>
+  <span title="Center" i18n-title="@@postform.center" (click)="insertTag('center')" [class.toolbar-active]="isFormatActive('center')"><i class="bi bi-text-center"></i></span>
+  <span title="Align right" i18n-title="@@postform.alignRight" (click)="insertTag('right')" [class.toolbar-active]="isFormatActive('right')"><i class="bi bi-text-right"></i></span>
+  <span title="Link" i18n-title="@@postform.link" (click)="toggleArea('url')"><i class="bi bi-link-45deg"></i></span>
+  <span title="Quote" i18n-title="@@postform.quote" (click)="insertTag('quote')" [class.toolbar-active]="isFormatActive('quote')"><i class="bi bi-quote"></i></span>
+  <span title="Code" i18n-title="@@postform.code" (click)="insertTag('code')" [class.toolbar-active]="isFormatActive('code')"><i class="bi bi-code-slash"></i></span>
+  <span title="Color" i18n-title="@@postform.color" (click)="toggleArea('color')" [class.toolbar-active]="!!getActiveColor()">
+    <i class="bi bi-palette"></i>
+    @if (getActiveColor(); as color) {
+      <span class="toolbar-color-swatch" [style.background-color]="color"></span>
+    }
+  </span>
+  <span title="Smile" i18n-title="@@postform.smile" (click)="toggleArea('smile')"><i class="bi bi-emoji-smile"></i></span>
+  <span title="Video" i18n-title="@@postform.video" (click)="insertTag('video')"><i class="bi bi-camera-video"></i></span>
+  <span title="Audio" i18n-title="@@postform.audio" (click)="insertTag('audio')"><i class="bi bi-music-note"></i></span>
+  @if (showImageUpload) {
+    <span title="Upload image" i18n-title="@@postform.uploadImage" (click)="toggleArea('image')"><i class="bi bi-image"></i></span>
+  }
+  @if (showSpoiler) {
+    <span title="Spoiler" (click)="openSpoilerModal()" [class.toolbar-active]="isFormatActive('spoiler')"><i class="bi bi-eye-slash"></i></span>
+  }
+  <span title="Grid" i18n-title="@@postform.grid" (click)="toggleArea('grid')"><i class="bi bi-grid-3x3-gap"></i></span>
 </div>
 
-<div id="tags">
+<div id="tags" (mousedown)="$event.preventDefault()">
   @if (activeArea === 'font') {
     <div class="container" id="font-area">
       @for (font of fonts; track font) {
-        <div [style.font-family]="font" (click)="insertTag('font=' + font)">
+        <div [style.font-family]="font" [class.toolbar-active]="isFontActive(font)" (click)="insertTag('font=' + font)">
           <span>{{ font }}</span>
         </div>
       }
@@ -43,10 +52,17 @@
   @if (activeArea === 'size') {
     <div class="container" id="size-area">
       @for (size of [8, 10, 12, 14, 16, 18, 20]; track size) {
-        <div [style.font-size.px]="size" (click)="insertTag('size=' + size)">
+        <div [style.font-size.px]="size" [class.toolbar-active]="isSizeActive(size)" (click)="insertTag('size=' + size)">
           <span>{{ size }}px</span>
         </div>
       }
+    </div>
+  }
+  @if (activeArea === 'url') {
+    <div class="container" id="url-area">
+      <input #urlInput type="text" placeholder="https://" (mousedown)="$event.stopPropagation()" />
+      <input #urlText type="text" [hidden]="hasUrlSelection" placeholder="Link text" i18n-placeholder="@@postform.urlTextPlaceholder" (mousedown)="$event.stopPropagation()" (keydown.enter)="insertUrl(urlInput.value, urlText.value)" />
+      <button type="button" (mousedown)="$event.preventDefault()" (click)="insertUrl(urlInput.value, hasUrlSelection ? '' : urlText.value)" i18n="@@postform.urlInsert">Insert</button>
     </div>
   }
   @if (activeArea === 'color') {
@@ -54,7 +70,7 @@
       <table>
         <tr>
           @for (color of colors; track color) {
-            <td [style.background-color]="color" (click)="insertTag('color=' + color)"></td>
+            <td [style.background-color]="color" [class.toolbar-active]="isColorActive(color)" (click)="insertTag('color=' + color)"></td>
           }
         </tr>
       </table>

@@ -9,13 +9,16 @@
 
   <div class="dashboard-layout">
     <aside class="filter-sidebar" [class.open]="filtersOpen()">
+      <div class="filter-sidebar-inner">
       <div class="filter-group">
         <h4 i18n="@@episodelist.sections">Sections</h4>
         <div class="checkbox-list">
           @for (forum of subforums(); track forum.id) {
             <label>
-              <input type="checkbox" [checked]="isSubforumSelected(forum.id)" (change)="toggleForum(forum.id)">
-              {{ forum.name }}
+              <span class="checkbox-input">
+                <input type="checkbox" [checked]="isSubforumSelected(forum.id)" (change)="toggleForum(forum.id)">
+                {{ forum.name }}
+              </span>
             </label>
           }
         </div>
@@ -55,8 +58,10 @@
         <div class="checkbox-list">
           @for (faction of factions(); track faction.id) {
             <label [style.padding-left.rem]="faction.level > 0 ? faction.level * 1.5 : 0">
-              <input type="checkbox" [checked]="isFactionSelected(faction.id)" (change)="toggleGroup(faction)">
-              {{ faction.name }}
+              <span class="checkbox-input">
+                <input type="checkbox" [checked]="isFactionSelected(faction.id)" (change)="toggleGroup(faction)">
+                {{ faction.name }}
+              </span>
             </label>
           }
         </div>
@@ -90,6 +95,7 @@
       }
 
       <button class="button" (click)="applyFilters()" i18n="@@episodelist.applyFilters">Apply Filters</button>
+      </div>
     </aside>
 
     <section class="table-area">
@@ -97,8 +103,10 @@
         <strong i18n="@@episodelist.columns">Columns:</strong>
         @for (col of allColumns(); track col.key) {
           <label>
-            <input type="checkbox" [checked]="isColumnVisible(col.key)" (change)="toggleColumn(col.key)">
-            {{ col.label }}
+            <span class="checkbox-input">
+              <input type="checkbox" [checked]="isColumnVisible(col.key)" (change)="toggleColumn(col.key)">
+              {{ col.label }}
+            </span>
           </label>
         }
       </div>

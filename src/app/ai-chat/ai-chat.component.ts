@@ -12,6 +12,7 @@ import { SafeHtmlPipe } from '../pipes/safe-html.pipe';
 
 @Component({
   selector: 'app-ai-chat',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [CommonModule, FormsModule, SafeHtmlPipe],
   templateUrl: './ai-chat.component.html',

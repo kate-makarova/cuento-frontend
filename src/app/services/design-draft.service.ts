@@ -26,4 +26,8 @@ export class DesignDraftService {
   publish(id: number): Observable<void> {
     return this.apiService.post<void>(`admin/design-draft/publish/${id}`, {});
   }
+
+  delete(id: number): Observable<void> {
+    return this.apiService.delete<void>(`admin/design-draft/delete/${id}`);
+  }
 }

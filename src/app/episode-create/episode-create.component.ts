@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, Input, Output, EventEmitter, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, Input, Output, EventEmitter, signal } from '@angular/core';
 import { FormArray, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { EpisodeService } from '../services/episode.service';
@@ -7,6 +7,8 @@ import { TopicService } from '../services/topic.service';
 import { FieldInputComponent } from '../components/field-input/field-input.component';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
+import { BreadcrumbItem, BreadcrumbsComponent } from '../components/breadcrumbs/breadcrumbs.component';
+import { ForumService } from '../services/forum.service';
 import { CreateEpisodeRequest, Episode } from '../models/Episode';
 import { Topic, TopicType, TopicStatus } from '../models/Topic';
 import { MaskService } from '../services/mask.service';
@@ -17,7 +19,8 @@ import { StandardWarning } from '../models/StandardWarning';
 
 @Component({
   selector: 'app-episode-create',
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, FieldInputComponent],
+  host: { class: 'pun-page' },
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, FieldInputComponent, BreadcrumbsComponent],
   templateUrl: './episode-create.component.html',
 })
 export class EpisodeCreateComponent implements OnInit {
@@ -27,11 +30,14 @@ export class EpisodeCreateComponent implements OnInit {
   maskService = inject(MaskService);
   previewService = inject(PreviewService);
   boardService = inject(BoardService);
+  private forumService = inject(ForumService);
   router = inject(Router);
   route = inject(ActivatedRoute);
   episodeTemplate = this.episodeService.episodeTemplate;
   characterSuggestions = this.characterService.shortCharacterList;
+  breadcrumbs: BreadcrumbItem[] = [];
   useRatingSystem = computed(() => this.boardService.board().use_rating_system === 'y');
+  showContentWarnings = computed(() => this.boardService.board().show_content_warnings === 'y');
 
   @Input() initialData: Episode | null = null;
   @Output() formSubmit = new EventEmitter<any>();
@@ -89,6 +95,16 @@ export class EpisodeCreateComponent implements OnInit {
   constructor() {
     this.setupAutocomplete(0);
     this.setupMaskAutocomplete(0);
+    effect(() => {
+      const s = this.forumService.subforum();
+      if (s?.id) {
+        this.breadcrumbs = [
+          { label: 'Home', link: '/' },
+          { label: s.name, link: `/viewforum/${s.id}` },
+          { label: $localize`:@@topiccreate.title:Start a new game` }
+        ];
+      }
+    });
   }
 
   activate() {
@@ -182,6 +198,7 @@ export class EpisodeCreateComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       if (params['fid']) {
         this.subforumId = +params['fid'];
+        this.forumService.loadSubforum(this.subforumId);
       }
     });
 

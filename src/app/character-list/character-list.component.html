@@ -6,7 +6,7 @@
   @if (canAddFaction() || canAddClaim()) {
     <div class="character-list-actions">
       @if (canAddFaction()) {
-        <button type="button" class="button" (click)="openAddFactionModal()" i18n="@@characterList.addFaction">Add faction</button>
+        <button type="button" class="button" (click)="openAddFactionModal()" i18n="@@characterList.addFaction">Add {{ topLevelFactionName() }}</button>
       }
       @if (canAddClaim()) {
         <button type="button" class="button" (click)="showAddClaimModal.set(true)" i18n="@@characterList.addClaim">Add claim</button>
@@ -16,16 +16,22 @@
 
   <div class="character-list-filters">
     <label>
-      <input type="checkbox" [ngModel]="showCharacters()" (ngModelChange)="showCharacters.set($event)" />
-      <span i18n="@@characterList.filter.characters">Characters</span>
+      <span class="checkbox-input">
+        <input type="checkbox" [ngModel]="showCharacters()" (ngModelChange)="showCharacters.set($event)" />
+        <span i18n="@@characterList.filter.characters">Characters</span>
+      </span>
     </label>
     <label>
-      <input type="checkbox" [ngModel]="showImportantRoles()" (ngModelChange)="showImportantRoles.set($event)" />
-      <span i18n="@@characterList.filter.importantRoles">Canonical characters</span>
+      <span class="checkbox-input">
+        <input type="checkbox" [ngModel]="showImportantRoles()" (ngModelChange)="showImportantRoles.set($event)" />
+        <span i18n="@@characterList.filter.importantRoles">Canonical characters</span>
+      </span>
     </label>
     <label>
-      <input type="checkbox" [ngModel]="showWantedCharacters()" (ngModelChange)="showWantedCharacters.set($event)" />
-      <span i18n="@@characterList.filter.wantedCharacters">Wanted characters</span>
+      <span class="checkbox-input">
+        <input type="checkbox" [ngModel]="showWantedCharacters()" (ngModelChange)="showWantedCharacters.set($event)" />
+        <span i18n="@@characterList.filter.wantedCharacters">Wanted characters</span>
+      </span>
     </label>
   </div>
 
@@ -123,6 +129,7 @@
 @if (showAddFactionModal()) {
   <app-faction-create-modal
     [parentId]="null"
+    [factionLabel]="topLevelFactionName()"
     (close)="onFactionModalClose()"
     (created)="onFactionCreated($event)">
   </app-faction-create-modal>

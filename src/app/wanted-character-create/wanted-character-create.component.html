@@ -1,8 +1,9 @@
 @if (!cancel.observed) {
-  <h1><span i18n="@@topiccreate.wantedCharacter">Wanted character</span></h1>
+  <app-breadcrumbs [items]="breadcrumbs"></app-breadcrumbs>
+  <h1><span i18n="@@wantedcharactercreate.title">Wanted character</span></h1>
 }
-<div id="post-form" class="formal">
-  <form id="post" class="container" (submit)="onSubmit($event)">
+<div id="wanted-character-form" class="formal entity-form">
+  <form class="container" (submit)="onSubmit($event)">
     <fieldset>
       <legend style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
 @if (cancel.observed) {
@@ -14,10 +15,13 @@
         }
       </legend>
       <div class="fs-box hashelp">
-        <p class="inputfield required longinput">
-          <label for="req_name"><ng-container i18n="@@topiccreate.characterName">Name</ng-container> <em><ng-container i18n="@@topiccreate.required">(Required)</ng-container></em></label><br />
+        <p class="inputfield required">
+          <label for="req_name"><ng-container i18n="@@topiccreate.characterName">Name</ng-container> <em><ng-container i18n="@@topiccreate.required">(Required)</ng-container></em></label>
           <span class="input"><input id="req_name" type="text" name="req_name" [value]="characterName" size="80" maxlength="70" /></span>
         </p>
+      </div>
+
+      <div class="fs-box hashelp">
         <app-faction-paths
           [allowCreate]="false"
           [initialFactions]="initialData?.factions ?? []"
@@ -27,8 +31,8 @@
     </fieldset>
 
     <fieldset>
-      <legend i18n="@@wantedcharacter.relatedCharacters">Related characters</legend>
       <div class="fs-box hashelp">
+        <label i18n="@@wantedcharacter.relatedCharacters">Related characters</label>
         @for (val of relationInputValues; track $index; let i = $index) {
           <div class="character-input-group">
             <span class="input">

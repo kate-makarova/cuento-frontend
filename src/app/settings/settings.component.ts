@@ -77,6 +77,7 @@ const IANA_TIMEZONES = [
 
 @Component({
   selector: 'app-settings',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, CroppedImageFieldComponent, BbToolbarComponent],
   templateUrl: './settings.component.html',
@@ -99,6 +100,8 @@ export class SettingsComponent implements OnInit {
   language: string = 'en-US';
   timezone: string = 'UTC+00:00';
   interfaceDesign: string | null = null;
+  editorType: 0 | 1 = 0;
+  doNotBlur: boolean = false;
   signature: string = '';
   designVariations = signal<DesignVariation[]>([]);
   fontSize: number = 1.0;
@@ -141,6 +144,8 @@ export class SettingsComponent implements OnInit {
       this.timezone = currentUser.interface_timezone || 'UTC';
       this.fontSize = currentUser.interface_font_size || 1.0;
       this.interfaceDesign = currentUser.interface_design ?? null;
+      this.editorType = currentUser.editor_type ?? 0;
+      this.doNotBlur = currentUser.do_not_blur ?? false;
     }
     this.apiService.get<DesignVariation[]>('design-variation/list').subscribe({
       next: (list) => this.designVariations.set(list),
@@ -149,10 +154,6 @@ export class SettingsComponent implements OnInit {
     this.apiService.get<UserNotificationSetting[]>('notifications/settings').subscribe({
       next: (list) => this.notificationSettings.set(list),
       error: (err) => console.error('Failed to load notification settings', err)
-    });
-    this.apiService.get<{ signature: string }>('user/settings').subscribe({
-      next: (data) => this.signature = data.signature || '',
-      error: () => {}
     });
   }
 
@@ -216,6 +217,8 @@ export class SettingsComponent implements OnInit {
       interface_language: this.language,
       interface_font_size: this.fontSize,
       interface_design: this.interfaceDesign,
+      editor_type: this.editorType,
+      do_not_blur: this.doNotBlur,
       signature: this.signatureField.nativeElement.value
     };
 

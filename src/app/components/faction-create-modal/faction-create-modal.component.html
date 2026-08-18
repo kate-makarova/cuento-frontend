@@ -1,25 +1,20 @@
 <div class="modal-overlay">
   <div class="modal-content">
-    <h2>Create New Faction</h2>
+    <h2 i18n="@@factionCreateModal.title">Create New {{ factionLabel }}</h2>
     <form (submit)="onSubmit()">
       <div class="form-group">
-        <label for="faction-name">Name</label>
+        <label for="faction-name" i18n="@@factionCreateModal.fieldName">Name</label>
         <input type="text" id="faction-name" name="name" [(ngModel)]="name" required />
       </div>
 
       <div class="form-group">
-        <label for="faction-desc">Description</label>
+        <label for="faction-desc" i18n="@@factionCreateModal.fieldDescription">Description</label>
         <textarea id="faction-desc" name="description" [(ngModel)]="description"></textarea>
       </div>
 
-      <div class="form-group">
-        <label for="faction-icon">Icon URL</label>
-        <input type="text" id="faction-icon" name="icon" [(ngModel)]="icon" />
-      </div>
-
       <div class="buttons">
-        <button type="submit" class="button">Create</button>
-        <button type="button" class="button" (click)="onCancel()">Cancel</button>
+        <button type="submit" class="button" i18n="@@factionCreateModal.submit">Create</button>
+        <button type="button" class="button" (click)="onCancel()" i18n="@@factionCreateModal.cancel">Cancel</button>
       </div>
     </form>
   </div>

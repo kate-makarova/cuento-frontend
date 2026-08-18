@@ -1,0 +1,48 @@
+<h2 i18n="@@adminPuzzles.title">Puzzles</h2>
+
+<table class="apps-table">
+  <thead>
+    <tr>
+      <th i18n="@@adminPuzzles.id">ID</th>
+      <th i18n="@@adminPuzzles.title">Title</th>
+      <th i18n="@@adminPuzzles.public">Public</th>
+      <th i18n="@@adminPuzzles.active">Active</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (puzzle of puzzles; track puzzle.id) {
+      <tr>
+        <td>{{ puzzle.id }}</td>
+        <td>{{ puzzle.title }}</td>
+        <td>
+          @if (puzzle.is_public) {
+            <span class="status-active" i18n="@@common.yes">Yes</span>
+          } @else {
+            <span class="status-inactive" i18n="@@common.no">No</span>
+          }
+        </td>
+        <td>
+          @if (puzzle.is_active) {
+            <span class="status-active" i18n="@@common.yes">Yes</span>
+          } @else {
+            <span class="status-inactive" i18n="@@common.no">No</span>
+          }
+        </td>
+        <td class="table-actions">
+          <a [routerLink]="['/admin/features/puzzle', puzzle.id]" i18n="@@common.edit">Edit</a>
+          <a [routerLink]="['/puzzle', puzzle.id]" i18n="@@adminPuzzles.open">Open</a>
+        </td>
+      </tr>
+    }
+    @if (puzzles.length === 0) {
+      <tr>
+        <td colspan="5" class="empty" i18n="@@adminPuzzles.empty">No puzzles yet.</td>
+      </tr>
+    }
+  </tbody>
+</table>
+
+<div class="list-actions">
+  <a [routerLink]="['/admin/features/puzzle', 'new']" class="btn-secondary" i18n="@@adminPuzzles.createNew">Create New</a>
+</div>

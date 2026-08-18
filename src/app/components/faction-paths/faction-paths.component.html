@@ -26,6 +26,7 @@
 @if (allowCreate && showModal) {
   <app-faction-create-modal
     [parentId]="activeParentId"
+    [factionLabel]="activeFactionLabel"
     (close)="onModalClose()"
     (created)="onFactionCreated($event)">
   </app-faction-create-modal>

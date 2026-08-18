@@ -5,6 +5,7 @@ import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-admin-create-user',
+  host: { class: 'pun-page' },
   standalone: true,
   imports: [],
   templateUrl: './admin-create-user.component.html',

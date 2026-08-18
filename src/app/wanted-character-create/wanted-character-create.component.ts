@@ -1,10 +1,12 @@
-import { Component, inject, OnInit, Input, Output, EventEmitter, signal } from '@angular/core';
+import { Component, effect, inject, OnInit, Input, Output, EventEmitter, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { WantedCharacterService } from '../services/wanted-character.service';
 import { CharacterService } from '../services/character.service';
 import { FieldInputComponent } from '../components/field-input/field-input.component';
 import { FactionPathsComponent } from '../components/faction-paths/faction-paths.component';
+import { BreadcrumbItem, BreadcrumbsComponent } from '../components/breadcrumbs/breadcrumbs.component';
+import { ForumService } from '../services/forum.service';
 import { Faction } from '../models/Faction';
 import { CharacterShort } from '../models/Character';
 import { WantedCharacter } from '../models/WantedCharacter';
@@ -12,20 +14,36 @@ import { TopicService } from '../services/topic.service';
 
 @Component({
   selector: 'app-wanted-character-create',
+  host: { class: 'pun-page' },
   standalone: true,
-  imports: [CommonModule, FieldInputComponent, FactionPathsComponent],
+  imports: [CommonModule, FieldInputComponent, FactionPathsComponent, BreadcrumbsComponent],
   templateUrl: './wanted-character-create.component.html',
 })
 export class WantedCharacterCreateComponent implements OnInit {
   private wantedCharacterService = inject(WantedCharacterService);
   private characterService = inject(CharacterService);
   private topicService = inject(TopicService);
+  private forumService = inject(ForumService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
   template = this.wantedCharacterService.template;
   characterSuggestions = this.characterService.shortCharacterList;
   subforumId: number = 0;
+  breadcrumbs: BreadcrumbItem[] = [];
+
+  constructor() {
+    effect(() => {
+      const s = this.forumService.subforum();
+      if (s?.id) {
+        this.breadcrumbs = [
+          { label: 'Home', link: '/' },
+          { label: s.name, link: `/viewforum/${s.id}` },
+          { label: $localize`:@@topiccreate.wantedCharacter:Wanted character` }
+        ];
+      }
+    });
+  }
   characterName: string = '';
   factionPaths: Faction[][] = [[]];
 
@@ -80,6 +98,7 @@ export class WantedCharacterCreateComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       if (params['fid']) {
         this.subforumId = +params['fid'];
+        this.forumService.loadSubforum(this.subforumId);
       }
     });
 

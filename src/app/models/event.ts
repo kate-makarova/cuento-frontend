@@ -103,6 +103,7 @@ export interface UnreadNotificationsResponse {
   direct_message: NotificationData[];
   reaction: NotificationData[];
   auto_archiving: NotificationData[];
+  account_update: NotificationData[];
 }
 
 export interface TopicViewersUpdateEvent {
@@ -120,6 +121,7 @@ export interface DirectMessageCreatedEvent {
 export interface ActiveUserInfo {
   user_id: number;
   username: string;
+  is_guest?: boolean;
   current_page_type: string;
   current_page_id: string | null;
   current_page_name: string | null;
