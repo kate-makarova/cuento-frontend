@@ -5,7 +5,7 @@ import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
 import { UserShort } from '../../models/UserShort';
-import { Subject } from 'rxjs';
+import { Subject, delay } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 interface RecentUser {
@@ -55,6 +55,10 @@ export class FooterStatisticsComponent implements OnInit, OnDestroy {
     this.notificationService.activeUsersUpdate$
       .pipe(takeUntil(this.destroy$))
       .subscribe(event => this.activeUsers.set(event.data));
+
+    this.notificationService.wsConnected$
+      .pipe(delay(500), takeUntil(this.destroy$))
+      .subscribe(() => this.fetchActiveUsers());
 
     document.addEventListener('visibilitychange', this.visibilityHandler);
   }
