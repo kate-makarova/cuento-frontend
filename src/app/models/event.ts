@@ -121,6 +121,7 @@ export interface DirectMessageCreatedEvent {
 export interface ActiveUserInfo {
   user_id: number;
   username: string;
+  is_guest?: boolean;
   current_page_type: string;
   current_page_id: string | null;
   current_page_name: string | null;

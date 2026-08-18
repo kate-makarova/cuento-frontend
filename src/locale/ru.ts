@@ -978,6 +978,7 @@ export const TRANSLATIONS_RU = {
   "admin.smiles.selectCategory": "— Выберите категорию —",
   "activeUsers.title": "Активные пользователи",
   "activeUsers.entry": "Пользователь ",
+  "activeUsers.guestEntry": "Гость ",
   "activeUsers.isOnPage": " находится на странице ",
   "activeUsers.empty": "Нет активных пользователей.",
   "activeUsers.page.home": "Главная",
