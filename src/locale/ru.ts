@@ -983,6 +983,7 @@ export const TRANSLATIONS_RU = {
   "activeUsers.empty": "Нет активных пользователей.",
   "activeUsers.page.home": "Главная",
   "activeUsers.page.forum": "Форум",
+  "activeUsers.page.topic": "Тема",
   "activeUsers.page.profile": "Профиль",
   "activeUsers.page.character": "Персонаж",
   "activeUsers.page.episode": "Эпизод",

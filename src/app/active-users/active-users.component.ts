@@ -10,6 +10,7 @@ import { ActiveUserInfo } from '../models/event';
 const PAGE_TYPE_NAMES: Record<string, string> = {
   index: $localize`:@@activeUsers.page.home:Home`,
   viewforum: $localize`:@@activeUsers.page.forum:Forum`,
+  topic: $localize`:@@activeUsers.page.topic:Topic`,
   profile: $localize`:@@activeUsers.page.profile:Profile`,
   character: $localize`:@@activeUsers.page.character:Character`,
   episode: $localize`:@@activeUsers.page.episode:Episode`,
@@ -70,7 +71,7 @@ export class ActiveUsersComponent implements OnInit, OnDestroy {
     if (user.current_page_type === 'topic' && user.current_page_name) {
       return user.current_page_name;
     }
-    return PAGE_TYPE_NAMES[user.current_page_type] || user.current_page_type;
+    return PAGE_TYPE_NAMES[user.current_page_type] || user.current_page_type || '—';
   }
 
   pageRoute(user: ActiveUserInfo): any[] | null {
