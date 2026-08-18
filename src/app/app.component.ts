@@ -52,6 +52,12 @@ export class AppComponent implements OnInit {
   pageId = 'pun-main';
   private currentPageType = 'unknown';
   private currentPageNumId = 0;
+
+  private sendGuestActivity(pageType: string, pageId: number): void {
+    const body: { page_type: string; page_id?: string } = { page_type: pageType };
+    if (pageId) body.page_id = String(pageId);
+    this.apiService.post<{ ok: boolean }>('guest/activity', body).subscribe({ error: () => {} });
+  }
   currentUser = this.authService.currentUser;
   currentDate = new Date();
   private notificationService = inject(NotificationService);
@@ -115,9 +121,13 @@ export class AppComponent implements OnInit {
     });
 
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && this.authService.isAuthenticated()) {
-        this.notificationService.loadUnreadNotifications();
-        this.notificationService.sendPageChange(this.currentPageType, this.currentPageNumId);
+      if (document.visibilityState === 'visible') {
+        if (this.authService.isAuthenticated()) {
+          this.notificationService.loadUnreadNotifications();
+          this.notificationService.sendPageChange(this.currentPageType, this.currentPageNumId);
+        } else {
+          this.sendGuestActivity(this.currentPageType, this.currentPageNumId);
+        }
         this.loadFooterPanel();
       }
     });
@@ -180,7 +190,11 @@ export class AppComponent implements OnInit {
 
       this.currentPageType = pageType;
       this.currentPageNumId = pageId;
-      this.notificationService.sendPageChange(pageType, pageId);
+      if (this.authService.isAuthenticated()) {
+        this.notificationService.sendPageChange(pageType, pageId);
+      } else {
+        this.sendGuestActivity(pageType, pageId);
+      }
     });
   }
 
