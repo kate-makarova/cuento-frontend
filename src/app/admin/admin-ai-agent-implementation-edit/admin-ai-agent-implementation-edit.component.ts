@@ -45,7 +45,7 @@ export class AdminAiAgentImplementationEditComponent implements OnInit {
   }
 
   private load(id: number) {
-    this.apiService.get<AiAgentImplementation>(`admin/ai-agent/implementation/${id}`).subscribe({
+    this.apiService.get<AiAgentImplementation>(`admin/ai-agent-implementation/${id}`).subscribe({
       next: data => {
         this.agentId.set(data.agent_id);
         this.title = data.title;
@@ -80,7 +80,7 @@ export class AdminAiAgentImplementationEditComponent implements OnInit {
         error: err => { console.error('Failed to create implementation', err); this.saving.set(false); }
       });
     } else {
-      this.apiService.put(`admin/ai-agent/implementation/${this.implId()}`, {
+      this.apiService.post(`admin/ai-agent-implementation/update/${this.implId()}`, {
         title: this.title,
         config,
         is_active: this.isActive,
