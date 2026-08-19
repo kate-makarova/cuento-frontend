@@ -1,6 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { JsonPipe } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 
@@ -21,32 +20,21 @@ interface AiAgentDetail {
   implementations: AiAgentImplementation[];
 }
 
-interface ImplForm {
-  title: string;
-  configJson: string;
-  is_active: boolean;
-  configError: string | null;
-}
-
 @Component({
   selector: 'app-admin-ai-agent',
   standalone: true,
-  imports: [FormsModule, JsonPipe],
+  imports: [JsonPipe],
   templateUrl: './admin-ai-agent.component.html',
 })
 export class AdminAiAgentComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private apiService = inject(ApiService);
 
   agent = signal<AiAgentDetail | null>(null);
-  editingId = signal<number | null>(null);
-  editForm: ImplForm = { title: '', configJson: '', is_active: true, configError: null };
-  addForm: ImplForm = { title: '', configJson: '{}', is_active: true, configError: null };
-  showAddForm = signal(false);
 
   ngOnInit() {
-    const id = this.route.snapshot.paramMap.get('id');
-    this.load(Number(id));
+    this.load(Number(this.route.snapshot.paramMap.get('id')));
   }
 
   private load(id: number) {
@@ -56,31 +44,8 @@ export class AdminAiAgentComponent implements OnInit {
     });
   }
 
-  startEdit(impl: AiAgentImplementation) {
-    this.editingId.set(impl.id);
-    this.editForm = { title: impl.title, configJson: JSON.stringify(impl.config, null, 2), is_active: impl.is_active, configError: null };
-  }
-
-  cancelEdit() {
-    this.editingId.set(null);
-  }
-
-  saveEdit(impl: AiAgentImplementation) {
-    let config: Record<string, any>;
-    try {
-      config = JSON.parse(this.editForm.configJson);
-    } catch {
-      this.editForm.configError = 'Invalid JSON';
-      return;
-    }
-    this.apiService.put(`admin/ai-agent/implementation/${impl.id}`, {
-      title: this.editForm.title,
-      config,
-      is_active: this.editForm.is_active
-    }).subscribe({
-      next: () => { this.editingId.set(null); this.load(this.agent()!.id); },
-      error: err => console.error('Failed to save implementation', err)
-    });
+  edit(impl: AiAgentImplementation) {
+    this.router.navigate(['/admin/ai-agent-implementation', impl.id]);
   }
 
   delete(impl: AiAgentImplementation) {
@@ -91,32 +56,9 @@ export class AdminAiAgentComponent implements OnInit {
     });
   }
 
-  submitAdd() {
-    let config: Record<string, any>;
-    try {
-      config = JSON.parse(this.addForm.configJson);
-    } catch {
-      this.addForm.configError = 'Invalid JSON';
-      return;
-    }
-    this.apiService.post(`admin/ai-agent/${this.agent()!.id}/implementation`, {
-      title: this.addForm.title,
-      config,
-      is_active: this.addForm.is_active
-    }).subscribe({
-      next: () => {
-        this.showAddForm.set(false);
-        this.addForm = { title: '', configJson: '{}', is_active: true, configError: null };
-        this.load(this.agent()!.id);
-      },
-      error: err => console.error('Failed to create implementation', err)
+  addImplementation() {
+    this.router.navigate(['/admin/ai-agent-implementation', 'new'], {
+      queryParams: { agent_id: this.agent()!.id }
     });
-  }
-
-  toggleAddForm() {
-    this.showAddForm.update(v => !v);
-    if (!this.showAddForm()) {
-      this.addForm = { title: '', configJson: '{}', is_active: true, configError: null };
-    }
   }
 }

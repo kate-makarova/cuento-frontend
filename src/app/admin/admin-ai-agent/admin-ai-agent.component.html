@@ -13,36 +13,21 @@
     </thead>
     <tbody>
       @for (impl of a.implementations; track impl.id) {
-        @if (editingId() === impl.id) {
-          <tr>
-            <td><input type="text" [(ngModel)]="editForm.title" /></td>
-            <td>
-              <textarea [(ngModel)]="editForm.configJson" rows="5" cols="40"></textarea>
-              @if (editForm.configError) { <div class="field-error">{{ editForm.configError }}</div> }
-            </td>
-            <td><input type="checkbox" [(ngModel)]="editForm.is_active" /></td>
-            <td class="table-actions">
-              <button type="button" (click)="saveEdit(impl)" i18n="@@common.save">Save</button>
-              <button type="button" (click)="cancelEdit()" i18n="@@common.cancel">Cancel</button>
-            </td>
-          </tr>
-        } @else {
-          <tr>
-            <td>{{ impl.title }}</td>
-            <td><pre>{{ impl.config | json }}</pre></td>
-            <td>
-              @if (impl.is_active) {
-                <span class="status-active" i18n="@@common.yes">Yes</span>
-              } @else {
-                <span class="status-inactive" i18n="@@common.no">No</span>
-              }
-            </td>
-            <td class="table-actions">
-              <button type="button" (click)="startEdit(impl)" i18n="@@common.edit">Edit</button>
-              <button type="button" class="btn-decline" (click)="delete(impl)" i18n="@@common.delete">Delete</button>
-            </td>
-          </tr>
-        }
+        <tr>
+          <td>{{ impl.title }}</td>
+          <td><pre>{{ impl.config | json }}</pre></td>
+          <td>
+            @if (impl.is_active) {
+              <span class="status-active" i18n="@@common.yes">Yes</span>
+            } @else {
+              <span class="status-inactive" i18n="@@common.no">No</span>
+            }
+          </td>
+          <td class="table-actions">
+            <button type="button" (click)="edit(impl)" i18n="@@common.edit">Edit</button>
+            <button type="button" class="btn-decline" (click)="delete(impl)" i18n="@@common.delete">Delete</button>
+          </td>
+        </tr>
       } @empty {
         <tr>
           <td colspan="4" i18n="@@adminAiAgent.empty">No implementations yet.</td>
@@ -52,29 +37,6 @@
   </table>
 
   <div class="list-actions">
-    <button type="button" class="btn-secondary" (click)="toggleAddForm()" i18n="@@adminAiAgent.addImplementation">Add Implementation</button>
+    <button type="button" class="btn-secondary" (click)="addImplementation()" i18n="@@adminAiAgent.addImplementation">Add Implementation</button>
   </div>
-
-  @if (showAddForm()) {
-    <div class="admin-form">
-      <h3 i18n="@@adminAiAgent.newImplementation">New Implementation</h3>
-      <div class="form-row">
-        <label i18n="@@adminAiAgent.colTitle">Title</label>
-        <input type="text" [(ngModel)]="addForm.title" />
-      </div>
-      <div class="form-row">
-        <label i18n="@@adminAiAgent.colConfig">Config (JSON)</label>
-        <textarea [(ngModel)]="addForm.configJson" rows="8"></textarea>
-        @if (addForm.configError) { <div class="field-error">{{ addForm.configError }}</div> }
-      </div>
-      <div class="form-row">
-        <label i18n="@@adminAiAgent.colActive">Active</label>
-        <input type="checkbox" [(ngModel)]="addForm.is_active" />
-      </div>
-      <div class="form-actions">
-        <button type="button" (click)="submitAdd()" i18n="@@common.save">Save</button>
-        <button type="button" (click)="toggleAddForm()" i18n="@@common.cancel">Cancel</button>
-      </div>
-    </div>
-  }
 }

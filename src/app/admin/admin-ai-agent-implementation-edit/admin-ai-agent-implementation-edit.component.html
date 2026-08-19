@@ -1,0 +1,27 @@
+<h2>
+  @if (isNew()) {
+    <ng-container i18n="@@adminImplEdit.titleNew">New Implementation</ng-container>
+  } @else {
+    <ng-container i18n="@@adminImplEdit.titleEdit">Edit Implementation</ng-container>
+  }
+</h2>
+
+<div class="admin-form">
+  <div class="form-row">
+    <label i18n="@@adminImplEdit.fieldTitle">Title</label>
+    <input type="text" [(ngModel)]="title" />
+  </div>
+  <div class="form-row">
+    <label i18n="@@adminImplEdit.fieldConfig">Config (JSON, optional)</label>
+    <textarea [(ngModel)]="configJson" rows="12"></textarea>
+    @if (configError) { <div class="field-error">{{ configError }}</div> }
+  </div>
+  <div class="form-row">
+    <label i18n="@@adminImplEdit.fieldActive">Active</label>
+    <input type="checkbox" [(ngModel)]="isActive" />
+  </div>
+  <div class="form-actions">
+    <button type="button" (click)="submit()" [disabled]="saving()" i18n="@@common.save">Save</button>
+    <button type="button" (click)="cancel()" i18n="@@common.cancel">Cancel</button>
+  </div>
+</div>
