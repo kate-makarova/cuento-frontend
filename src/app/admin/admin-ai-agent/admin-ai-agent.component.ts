@@ -55,6 +55,13 @@ export class AdminAiAgentComponent implements OnInit {
     });
   }
 
+  trigger(impl: AiAgentImplementation) {
+    this.apiService.post(`admin/ai-agent-implementation/${impl.id}/call`, {}).subscribe({
+      next: () => alert(`Triggered: ${impl.title}`),
+      error: err => console.error('Failed to trigger implementation', err)
+    });
+  }
+
   addImplementation() {
     this.router.navigate(['/admin/ai-agent-implementation', 'new'], {
       queryParams: { agent_id: this.agent()!.id }
