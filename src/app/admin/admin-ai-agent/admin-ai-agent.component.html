@@ -6,7 +6,6 @@
     <thead>
       <tr>
         <th i18n="@@adminAiAgent.colTitle">Title</th>
-        <th i18n="@@adminAiAgent.colConfig">Config</th>
         <th i18n="@@adminAiAgent.colActive">Active</th>
         <th></th>
       </tr>
@@ -15,7 +14,6 @@
       @for (impl of a.implementations; track impl.id) {
         <tr>
           <td>{{ impl.title }}</td>
-          <td><pre>{{ impl.config | json }}</pre></td>
           <td>
             @if (impl.is_active) {
               <span class="status-active" i18n="@@common.yes">Yes</span>
@@ -30,7 +28,7 @@
         </tr>
       } @empty {
         <tr>
-          <td colspan="4" i18n="@@adminAiAgent.empty">No implementations yet.</td>
+          <td colspan="3" i18n="@@adminAiAgent.empty">No implementations yet.</td>
         </tr>
       }
     </tbody>
