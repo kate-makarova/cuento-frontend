@@ -11,6 +11,17 @@ interface AiAgentImplementation {
   is_active: boolean;
 }
 
+interface GameDigestConfig {
+  period: string;
+  subforum_ids: number[];
+  faction_ids: number[];
+  target_topic_id: number | null;
+}
+
+interface GameDigestImplementation extends AiAgentImplementation {
+  config: GameDigestConfig;
+}
+
 @Component({
   selector: 'app-admin-ai-agent-implementation-edit',
   standalone: true,
@@ -28,9 +39,12 @@ export class AdminAiAgentImplementationEditComponent implements OnInit {
   saving = signal(false);
 
   title = '';
-  configJson = '';
   isActive = true;
-  configError: string | null = null;
+
+  period = '';
+  subforumIds = '';
+  factionIds = '';
+  targetTopicId: number | null = null;
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -45,29 +59,39 @@ export class AdminAiAgentImplementationEditComponent implements OnInit {
   }
 
   private load(id: number) {
-    this.apiService.get<AiAgentImplementation>(`admin/ai-agent-implementation/${id}`).subscribe({
+    this.apiService.get<GameDigestImplementation>(`admin/ai-agent-implementation/${id}`).subscribe({
       next: data => {
         this.agentId.set(data.agent_id);
         this.title = data.title;
-        this.configJson = data.config ? JSON.stringify(data.config, null, 2) : '';
         this.isActive = data.is_active;
+        const cfg = data.config;
+        if (cfg) {
+          this.period = cfg.period ?? '';
+          this.subforumIds = (cfg.subforum_ids ?? []).join(', ');
+          this.factionIds = (cfg.faction_ids ?? []).join(', ');
+          this.targetTopicId = cfg.target_topic_id ?? null;
+        }
       },
       error: err => console.error('Failed to load implementation', err)
     });
   }
 
+  private parseIds(input: string): number[] {
+    return input.split(',').map(s => s.trim()).filter(Boolean).map(Number).filter(n => !isNaN(n));
+  }
+
+  private buildConfig(): GameDigestConfig {
+    return {
+      period: this.period,
+      subforum_ids: this.parseIds(this.subforumIds),
+      faction_ids: this.parseIds(this.factionIds),
+      target_topic_id: this.targetTopicId || null,
+    };
+  }
+
   submit() {
-    let config: Record<string, any> | null = null;
-    if (this.configJson.trim()) {
-      try {
-        config = JSON.parse(this.configJson);
-      } catch {
-        this.configError = 'Invalid JSON';
-        return;
-      }
-    }
-    this.configError = null;
     this.saving.set(true);
+    const config = this.buildConfig();
 
     if (this.isNew()) {
       this.apiService.post('admin/ai-agent-implementation/create', {

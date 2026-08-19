@@ -12,14 +12,29 @@
     <input type="text" [(ngModel)]="title" />
   </div>
   <div class="form-row">
-    <label i18n="@@adminImplEdit.fieldConfig">Config (JSON, optional)</label>
-    <textarea [(ngModel)]="configJson" rows="12"></textarea>
-    @if (configError) { <div class="field-error">{{ configError }}</div> }
-  </div>
-  <div class="form-row">
     <label i18n="@@adminImplEdit.fieldActive">Active</label>
     <input type="checkbox" [(ngModel)]="isActive" />
   </div>
+
+  <h3 i18n="@@adminImplEdit.configSection">Config</h3>
+
+  <div class="form-row">
+    <label i18n="@@adminImplEdit.fieldPeriod">Period</label>
+    <input type="text" [(ngModel)]="period" placeholder="weekly, bi-weekly, monthly" />
+  </div>
+  <div class="form-row">
+    <label i18n="@@adminImplEdit.fieldSubforumIds">Subforum IDs</label>
+    <input type="text" [(ngModel)]="subforumIds" placeholder="3, 5, 12" />
+  </div>
+  <div class="form-row">
+    <label i18n="@@adminImplEdit.fieldFactionIds">Faction IDs</label>
+    <input type="text" [(ngModel)]="factionIds" placeholder="1, 2" />
+  </div>
+  <div class="form-row">
+    <label i18n="@@adminImplEdit.fieldTargetTopicId">Target Topic ID</label>
+    <input type="number" [(ngModel)]="targetTopicId" />
+  </div>
+
   <div class="form-actions">
     <button type="button" (click)="submit()" [disabled]="saving()" i18n="@@common.save">Save</button>
     <button type="button" (click)="cancel()" i18n="@@common.cancel">Cancel</button>
