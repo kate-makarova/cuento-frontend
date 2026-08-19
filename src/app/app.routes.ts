@@ -27,6 +27,7 @@ import {CharacterProfileTemplateEditComponent} from './admin/character-profile-t
 import {PermissionMatrixComponent} from './admin/permission-matrix/permission-matrix.component';
 import {AdminAiIndexComponent} from './admin/admin-ai-index/admin-ai-index.component';
 import {AdminAiIndexSettingsComponent} from './admin/admin-ai-index-settings/admin-ai-index-settings.component';
+import {AdminAiAgentsComponent} from './admin/admin-ai-agents/admin-ai-agents.component';
 import {AdminFactionsComponent} from './admin/admin-factions/admin-factions.component';
 import {AdminFactionSettingsComponent} from './admin/admin-faction-settings/admin-faction-settings.component';
 import {AdminFactionFreeFormatDateComponent} from './admin/admin-faction-free-format-date/admin-faction-free-format-date.component';
@@ -505,6 +506,11 @@ export const routes: Routes = [
         path: 'ai-index-settings',
         component: AdminAiIndexSettingsComponent,
         title: 'Admin - AI Index Settings'
+      },
+      {
+        path: 'ai-agents',
+        component: AdminAiAgentsComponent,
+        title: 'Admin - AI Agents'
       },
       {
         path: 'design-drafts',
