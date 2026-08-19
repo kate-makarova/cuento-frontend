@@ -1,0 +1,26 @@
+<h2 i18n="@@admin.aiAgents">AI Agents</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th i18n="@@adminAiAgents.colTitle">Title</th>
+      <th i18n="@@adminAiAgents.colDescription">Description</th>
+      <th i18n="@@adminAiAgents.colActive">Active</th>
+      <th i18n="@@adminAiAgents.colTotal">Total</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (agent of agents(); track agent.id) {
+      <tr [routerLink]="['/admin/ai-agents', agent.id]" style="cursor:pointer">
+        <td>{{ agent.title }}</td>
+        <td>{{ agent.short_description }}</td>
+        <td>{{ agent.active_implementations }}</td>
+        <td>{{ agent.total_implementations }}</td>
+      </tr>
+    } @empty {
+      <tr>
+        <td colspan="4" i18n="@@adminAiAgents.empty">No AI agents found.</td>
+      </tr>
+    }
+  </tbody>
+</table>

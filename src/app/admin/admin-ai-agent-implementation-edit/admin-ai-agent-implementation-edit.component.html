@@ -1,0 +1,54 @@
+<h2>
+  @if (isNew()) {
+    <ng-container i18n="@@adminImplEdit.titleNew">New Implementation</ng-container>
+  } @else {
+    <ng-container i18n="@@adminImplEdit.titleEdit">Edit Implementation</ng-container>
+  }
+</h2>
+
+<div class="admin-form">
+  <div class="form-row">
+    <label i18n="@@adminImplEdit.fieldTitle">Title</label>
+    <input type="text" [(ngModel)]="title" />
+  </div>
+  <div class="form-row">
+    <label i18n="@@adminImplEdit.fieldActive">Active</label>
+    <input type="checkbox" [(ngModel)]="isActive" />
+  </div>
+
+  <h3 i18n="@@adminImplEdit.configSection">Config</h3>
+
+  <div class="form-row">
+    <label i18n="@@adminImplEdit.fieldPeriod">Period</label>
+    <select [(ngModel)]="period">
+      <option value="daily" i18n="@@adminImplEdit.periodDaily">Daily</option>
+      <option value="weekly" i18n="@@adminImplEdit.periodWeekly">Weekly</option>
+      <option value="bi-weekly" i18n="@@adminImplEdit.periodBiWeekly">Bi-weekly</option>
+      <option value="monthly" i18n="@@adminImplEdit.periodMonthly">Monthly</option>
+    </select>
+  </div>
+  <div class="form-row">
+    <label i18n="@@adminImplEdit.fieldLanguage">Language</label>
+    <select [(ngModel)]="language">
+      <option value="en" i18n="@@adminImplEdit.langEn">English</option>
+      <option value="ru" i18n="@@adminImplEdit.langRu">Russian</option>
+    </select>
+  </div>
+  <div class="form-row">
+    <label i18n="@@adminImplEdit.fieldSubforumIds">Subforum IDs</label>
+    <input type="text" [(ngModel)]="subforumIds" placeholder="3, 5, 12" />
+  </div>
+  <div class="form-row">
+    <label i18n="@@adminImplEdit.fieldFactionIds">Faction IDs</label>
+    <input type="text" [(ngModel)]="factionIds" placeholder="1, 2" />
+  </div>
+  <div class="form-row">
+    <label i18n="@@adminImplEdit.fieldTargetTopicId">Target Topic ID</label>
+    <input type="number" [(ngModel)]="targetTopicId" />
+  </div>
+
+  <div class="form-actions">
+    <button type="button" (click)="submit()" [disabled]="saving()" i18n="@@common.save">Save</button>
+    <button type="button" (click)="cancel()" i18n="@@common.cancel">Cancel</button>
+  </div>
+</div>
