@@ -20,7 +20,12 @@
 
   <div class="form-row">
     <label i18n="@@adminImplEdit.fieldPeriod">Period</label>
-    <input type="text" [(ngModel)]="period" placeholder="weekly, bi-weekly, monthly" />
+    <select [(ngModel)]="period">
+      <option value="daily" i18n="@@adminImplEdit.periodDaily">Daily</option>
+      <option value="weekly" i18n="@@adminImplEdit.periodWeekly">Weekly</option>
+      <option value="bi-weekly" i18n="@@adminImplEdit.periodBiWeekly">Bi-weekly</option>
+      <option value="monthly" i18n="@@adminImplEdit.periodMonthly">Monthly</option>
+    </select>
   </div>
   <div class="form-row">
     <label i18n="@@adminImplEdit.fieldSubforumIds">Subforum IDs</label>
