@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 
 interface AiAgent {
@@ -12,6 +13,7 @@ interface AiAgent {
 @Component({
   selector: 'app-admin-ai-agents',
   standalone: true,
+  imports: [RouterLink],
   templateUrl: './admin-ai-agents.component.html',
 })
 export class AdminAiAgentsComponent implements OnInit {

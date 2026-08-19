@@ -11,7 +11,7 @@
   </thead>
   <tbody>
     @for (agent of agents(); track agent.id) {
-      <tr>
+      <tr [routerLink]="['/admin/ai-agents', agent.id]" style="cursor:pointer">
         <td>{{ agent.title }}</td>
         <td>{{ agent.short_description }}</td>
         <td>{{ agent.active_implementations }}</td>
