@@ -28,6 +28,13 @@
     </select>
   </div>
   <div class="form-row">
+    <label i18n="@@adminImplEdit.fieldLanguage">Language</label>
+    <select [(ngModel)]="language">
+      <option value="en" i18n="@@adminImplEdit.langEn">English</option>
+      <option value="ru" i18n="@@adminImplEdit.langRu">Russian</option>
+    </select>
+  </div>
+  <div class="form-row">
     <label i18n="@@adminImplEdit.fieldSubforumIds">Subforum IDs</label>
     <input type="text" [(ngModel)]="subforumIds" placeholder="3, 5, 12" />
   </div>

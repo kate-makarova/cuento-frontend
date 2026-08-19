@@ -13,6 +13,7 @@ interface AiAgentImplementation {
 
 interface GameDigestConfig {
   period: string;
+  language: string;
   subforum_ids: number[];
   faction_ids: number[];
   target_topic_id: number | null;
@@ -42,6 +43,7 @@ export class AdminAiAgentImplementationEditComponent implements OnInit {
   isActive = true;
 
   period = '';
+  language = 'en';
   subforumIds = '';
   factionIds = '';
   targetTopicId: number | null = null;
@@ -67,6 +69,7 @@ export class AdminAiAgentImplementationEditComponent implements OnInit {
         const cfg = data.config;
         if (cfg) {
           this.period = cfg.period ?? '';
+          this.language = cfg.language ?? 'en';
           this.subforumIds = (cfg.subforum_ids ?? []).join(', ');
           this.factionIds = (cfg.faction_ids ?? []).join(', ');
           this.targetTopicId = cfg.target_topic_id ?? null;
@@ -83,6 +86,7 @@ export class AdminAiAgentImplementationEditComponent implements OnInit {
   private buildConfig(): GameDigestConfig {
     return {
       period: this.period,
+      language: this.language,
       subforum_ids: this.parseIds(this.subforumIds),
       faction_ids: this.parseIds(this.factionIds),
       target_topic_id: this.targetTopicId || null,
