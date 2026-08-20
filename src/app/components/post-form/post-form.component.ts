@@ -66,6 +66,7 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
 
   autosaveEnabled = signal(true);
   loadedDraftId = signal<number | null>(null);
+  currentDraftGroupId = signal<string | null>(null);
 
   autoDraftCount = computed(() => this.drafts().filter(d => !d.is_manual).length);
   manualDraftCount = computed(() => this.drafts().filter(d => d.is_manual).length);
@@ -108,6 +109,7 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
     const onError = () => this.autosaveStatus.set('idle');
     const onSuccess = (data: PostDraft) => {
       this.autoDraftId.set(data.id);
+      this.currentDraftGroupId.set(data.draft_id);
       this.drafts.update(current => {
         const without = current.filter(d => d.id !== data.id);
         return [data, ...without];
@@ -159,7 +161,10 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
         const autoDraft = data.find(d => !d.is_manual);
         if (autoDraft) {
           if (!this.autoDraftId()) this.autoDraftId.set(autoDraft.id);
-          if (!this.loadedDraftId()) this.loadedDraftId.set(autoDraft.id);
+          if (!this.loadedDraftId()) {
+            this.loadedDraftId.set(autoDraft.id);
+            this.currentDraftGroupId.set(autoDraft.draft_id);
+          }
         }
       },
       error: () => {},
@@ -189,6 +194,7 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
       next: data => {
         this.setValue(data.content);
         this.loadedDraftId.set(draft.id);
+        this.currentDraftGroupId.set(data.draft_id);
         this.characterIdChange.emit(data.character_id);
         this.showDraftList.set(false);
       },
