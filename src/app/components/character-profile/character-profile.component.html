@@ -18,6 +18,7 @@
   </div>
 }
 
+@if (!compact) {
 <div class="post-author" [class.post-character]="isCharacter">
   <ul>
     <li class="pa-author">
@@ -86,3 +87,4 @@
     }
   </ul>
 </div>
+}

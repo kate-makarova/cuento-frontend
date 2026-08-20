@@ -97,6 +97,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
   breadcrumbs: BreadcrumbItem[] = [];
   showPostForm = signal<boolean>(false);
+  sidebarProfileCompact = signal(false);
   loadProfiles = true;
   showAccount = true;
   savedTopicCharacter = signal<number | undefined>(undefined);

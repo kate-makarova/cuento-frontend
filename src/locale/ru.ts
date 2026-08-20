@@ -70,6 +70,7 @@ export const TRANSLATIONS_RU = {
   "postform.draftDelete": "Удалить",
   "postform.saveManualDraft": "Сохранить текущую версию как новый черновик",
   "postform.deleteDraftGroup": "Удалить все версии",
+  "postform.profile": "Профиль",
   "postform.preview": "Предпросмотр",
   "topiccreate.title": "Начать новую тему",
   "topiccreate.previewMessage": "Предварительный просмотр сообщения",
