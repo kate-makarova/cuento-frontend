@@ -500,6 +500,11 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       payload.guest_name = this.guestName;
     }
 
+    const draftGroupId = this.postForm.currentDraftGroupId();
+    if (draftGroupId) {
+      payload.from_draft_id = draftGroupId;
+    }
+
     this.postForm.clear();
 
     setTimeout(() => document.getElementById('post-pending')?.scrollIntoView({ behavior: 'smooth' }));
