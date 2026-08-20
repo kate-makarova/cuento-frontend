@@ -39,7 +39,7 @@
           @if (topicId) {
             <div class="draft-controls">
               @if (drafts().length > 0) {
-                <a class="draft-summary-link" (click)="toggleDraftList()" i18n="@@postform.draftSummary">This post has {{ autoDraftCount() }} autodraft{{ autoDraftCount() !== 1 ? 's' : '' }} and {{ manualDraftCount() }} manual draft{{ manualDraftCount() !== 1 ? 's' : '' }}</a>
+                <a class="draft-summary-link" (click)="toggleDraftList()" i18n="@@postform.draftSummary">This post has {{ autoDraftCount() }} autodraft(s) and {{ manualDraftCount() }} manual draft(s)</a>
               }
               <label class="autosave-toggle">
                 <input type="checkbox" [checked]="autosaveEnabled()" (change)="autosaveEnabled.set(!autosaveEnabled())" />
