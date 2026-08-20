@@ -360,7 +360,7 @@
         </div>
 
         <div class="form-content" style="flex: 1;">
-          <app-post-form #mainPostForm [isEpisode]="isEpisode()"></app-post-form>
+          <app-post-form #mainPostForm [isEpisode]="isEpisode()" [topicId]="id() ?? null"></app-post-form>
         </div>
       </div>
 

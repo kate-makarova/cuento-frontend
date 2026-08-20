@@ -43,7 +43,51 @@
               <i class="bi bi-pencil-square"></i> Visual
             }
           </button>
+
+          @if (topicId) {
+            <div class="draft-controls">
+              @if (autosaveStatus() !== 'idle') {
+                <span class="autosave-status autosave-status--{{ autosaveStatus() }}">
+                  @switch (autosaveStatus()) {
+                    @case ('typing') {
+                      <ng-container i18n="@@postform.autosaveTyping">Author is typing, waiting to update autodraft</ng-container>
+                    }
+                    @case ('saving') {
+                      <ng-container i18n="@@postform.autosaveSaving">Autodraft updating...</ng-container>
+                    }
+                    @case ('saved') {
+                      <ng-container i18n="@@postform.autosaveSaved">Autodraft updated</ng-container>
+                    }
+                  }
+                </span>
+              }
+
+              @if (drafts().length > 0) {
+                <button type="button" class="draft-summary-btn" (click)="toggleDraftList()">
+                  <ng-container i18n="@@postform.draftSummary">This post has {{ autoDraftCount() }} autodraft{{ autoDraftCount() !== 1 ? 's' : '' }} and {{ manualDraftCount() }} manual draft{{ manualDraftCount() !== 1 ? 's' : '' }}</ng-container>
+                </button>
+              }
+            </div>
+          }
         </div>
+
+        @if (showDraftList() && drafts().length > 0) {
+          <div class="draft-list">
+            @for (draft of drafts(); track draft.id) {
+              <div class="draft-item">
+                <span class="draft-type">
+                  @if (draft.is_manual) {
+                    <ng-container i18n="@@postform.draftManual">Manual</ng-container>
+                  } @else {
+                    <ng-container i18n="@@postform.draftAuto">Auto</ng-container>
+                  }
+                </span>
+                <span class="draft-date">{{ draft.date_created }}</span>
+                <button type="button" (click)="loadDraft(draft)" i18n="@@postform.draftLoad">Load</button>
+              </div>
+            }
+          </div>
+        }
 
       </div>
     </fieldset>

@@ -1,10 +1,11 @@
-import { Component, Input, ViewChild, AfterViewInit, inject, OnDestroy, signal, ElementRef } from '@angular/core';
+import { Component, Input, ViewChild, AfterViewInit, inject, OnDestroy, OnInit, signal, computed, ElementRef } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
 import { ImageService } from '../../services/image.service';
 import { BoardService } from '../../services/board.service';
+import { ApiService } from '../../services/api.service';
 import { UserShort } from '../../models/UserShort';
 import { CommonModule } from '@angular/common';
 import { BbToolbarComponent } from '../bb-toolbar/bb-toolbar.component';
@@ -12,6 +13,19 @@ import { WysiwygEditorComponent } from '../wysiwyg-editor/wysiwyg-editor.compone
 import { bbCodeToHtml } from '../wysiwyg-editor/wysiwyg-editor.utils';
 
 type EditorMode = 'wysiwyg' | 'bbcode';
+type AutosaveStatus = 'idle' | 'typing' | 'saving' | 'saved';
+
+interface PostDraft {
+  id: number;
+  draft_id: string;
+  user_id: number;
+  character_id: number;
+  topic_id: number;
+  date_created: string;
+  is_manual: boolean;
+  is_published: boolean;
+  post_id: number | null;
+}
 
 @Component({
   selector: 'app-post-form',
@@ -19,7 +33,7 @@ type EditorMode = 'wysiwyg' | 'bbcode';
   templateUrl: './post-form.component.html',
   standalone: true,
 })
-export class PostFormComponent implements AfterViewInit, OnDestroy {
+export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
   @ViewChild('wysiwygEditor') wysiwygEditor?: WysiwygEditorComponent;
   @ViewChild('messageField') messageField?: ElementRef<HTMLTextAreaElement>;
 
@@ -29,20 +43,36 @@ export class PostFormComponent implements AfterViewInit, OnDestroy {
 
   @Input() initialContent: string = '';
   @Input() isEpisode: boolean = false;
+  @Input() topicId: number | null = null;
 
   private userService = inject(UserService);
   private authService = inject(AuthService);
   private imageService = inject(ImageService);
   private boardService = inject(BoardService);
+  private apiService = inject(ApiService);
 
   editorMode = signal<EditorMode>(
     this.authService.currentUser()?.editor_type === 1 ? 'bbcode' : 'wysiwyg'
   );
 
+  // Draft state
+  drafts = signal<PostDraft[]>([]);
+  showDraftList = signal(false);
+  autosaveStatus = signal<AutosaveStatus>('idle');
+
+  autoDraftCount = computed(() => this.drafts().filter(d => !d.is_manual).length);
+  manualDraftCount = computed(() => this.drafts().filter(d => d.is_manual).length);
+
+  // Mention state
   mentionResults: UserShort[] = [];
   private mentionAtPos: number = -1;
   private mentionSubject = new Subject<string>();
   private mentionSub: Subscription;
+
+  // Autosave
+  private autosaveSubject = new Subject<string>();
+  private autosaveSub?: Subscription;
+  private savedClearTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     this.mentionSub = this.mentionSubject.pipe(
@@ -52,6 +82,23 @@ export class PostFormComponent implements AfterViewInit, OnDestroy {
     ).subscribe(results => {
       this.mentionResults = results;
     });
+  }
+
+  ngOnInit() {
+    if (this.topicId) {
+      this.loadDrafts();
+      this.autosaveSub = this.autosaveSubject.pipe(debounceTime(3000)).subscribe(content => {
+        this.autosaveStatus.set('saving');
+        this.apiService.post('post-draft', { topic_id: this.topicId, content, is_manual: false }).subscribe({
+          next: () => {
+            this.autosaveStatus.set('saved');
+            this.loadDrafts();
+            this.savedClearTimer = setTimeout(() => this.autosaveStatus.set('idle'), 3000);
+          },
+          error: () => this.autosaveStatus.set('idle'),
+        });
+      });
+    }
   }
 
   ngAfterViewInit() {
@@ -65,6 +112,32 @@ export class PostFormComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.mentionSub.unsubscribe();
+    this.autosaveSub?.unsubscribe();
+    if (this.savedClearTimer) clearTimeout(this.savedClearTimer);
+  }
+
+  // --- Draft API ---
+
+  private loadDrafts() {
+    if (!this.topicId) return;
+    this.apiService.get<PostDraft[]>(`post-draft/topic/${this.topicId}/latest`).subscribe({
+      next: data => this.drafts.set(data),
+      error: () => {},
+    });
+  }
+
+  toggleDraftList() {
+    this.showDraftList.update(v => !v);
+  }
+
+  loadDraft(draft: PostDraft) {
+    this.apiService.get<PostDraft & { content: string }>(`post-draft/${draft.id}`).subscribe({
+      next: data => {
+        this.setValue(data.content);
+        this.showDraftList.set(false);
+      },
+      error: err => console.error('Failed to load draft', err),
+    });
   }
 
   // --- Public API used by viewtopic ---
@@ -139,7 +212,15 @@ export class PostFormComponent implements AfterViewInit, OnDestroy {
 
   // --- Internal ---
 
+  private notifyTyping() {
+    if (!this.topicId) return;
+    if (this.savedClearTimer) { clearTimeout(this.savedClearTimer); this.savedClearTimer = null; }
+    this.autosaveStatus.set('typing');
+    this.autosaveSubject.next(this.getValue());
+  }
+
   onTextareaInput(): void {
+    this.notifyTyping();
     if (this.isEpisode) return;
     const el = this.messageField?.nativeElement;
     if (!el) return;
@@ -155,6 +236,7 @@ export class PostFormComponent implements AfterViewInit, OnDestroy {
   }
 
   private onWysiwygInput() {
+    this.notifyTyping();
     if (this.isEpisode) return;
     const textBefore = this.wysiwygEditor?.getTextBeforeCursor() ?? '';
     const match = textBefore.match(/@([^ @]*)$/);
@@ -168,17 +250,15 @@ export class PostFormComponent implements AfterViewInit, OnDestroy {
   }
 
   selectMention(user: UserShort) {
-    const inserted = `${user.username} `;
+    const inserted = `${user.username} `;
     if (this.editorMode() === 'wysiwyg') {
       const textBefore = this.wysiwygEditor?.getTextBeforeCursor() ?? '';
-      // mentionAtPos points to '@'; delete only the characters typed after it
       const charsToDelete = textBefore.length - this.mentionAtPos - 1;
       this.wysiwygEditor?.replaceBeforeCursor(charsToDelete, inserted);
     } else {
       const el = this.messageField?.nativeElement;
       if (!el) return;
       const cursorPos = el.selectionStart ?? el.value.length;
-      // mentionAtPos points to '@'; keep it, replace only what was typed after
       const replaceFrom = this.mentionAtPos + 1;
       el.value = el.value.substring(0, replaceFrom) + inserted + el.value.substring(cursorPos);
       el.focus();
