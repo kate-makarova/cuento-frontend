@@ -44,6 +44,7 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
   @Input() initialContent: string = '';
   @Input() isEpisode: boolean = false;
   @Input() topicId: number | null = null;
+  @Input() characterId: number | null = null;
 
   private userService = inject(UserService);
   private authService = inject(AuthService);
@@ -59,6 +60,7 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
   drafts = signal<PostDraft[]>([]);
   showDraftList = signal(false);
   autosaveStatus = signal<AutosaveStatus>('idle');
+  private autoDraftId = signal<number | null>(null);
 
   autoDraftCount = computed(() => this.drafts().filter(d => !d.is_manual).length);
   manualDraftCount = computed(() => this.drafts().filter(d => d.is_manual).length);
@@ -89,14 +91,33 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
       this.loadDrafts();
       this.autosaveSub = this.autosaveSubject.pipe(debounceTime(3000)).subscribe(content => {
         this.autosaveStatus.set('saving');
-        this.apiService.post('post-draft', { topic_id: this.topicId, content, is_manual: false }).subscribe({
-          next: () => {
-            this.autosaveStatus.set('saved');
-            this.loadDrafts();
-            this.savedClearTimer = setTimeout(() => this.autosaveStatus.set('idle'), 3000);
-          },
-          error: () => this.autosaveStatus.set('idle'),
-        });
+        this.saveAutoDraft(content);
+      });
+    }
+  }
+
+  private saveAutoDraft(content: string) {
+    const existingId = this.autoDraftId();
+    const onSuccess = (id: number) => {
+      this.autoDraftId.set(id);
+      this.autosaveStatus.set('saved');
+      this.loadDrafts();
+      this.savedClearTimer = setTimeout(() => this.autosaveStatus.set('idle'), 3000);
+    };
+    const onError = () => this.autosaveStatus.set('idle');
+
+    if (!existingId) {
+      this.apiService.post<PostDraft>('post-draft/create', {
+        character_id: this.characterId,
+        topic_id: this.topicId,
+        is_manual: false,
+        content,
+      }).subscribe({ next: data => onSuccess(data.id), error: onError });
+    } else {
+      // update endpoint TBD
+      this.apiService.post<PostDraft>(`post-draft/update/${existingId}`, { content }).subscribe({
+        next: data => onSuccess(data.id),
+        error: onError,
       });
     }
   }
@@ -121,7 +142,13 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
   private loadDrafts() {
     if (!this.topicId) return;
     this.apiService.get<PostDraft[]>(`post-draft/topic/${this.topicId}/latest`).subscribe({
-      next: data => this.drafts.set(data),
+      next: data => {
+        this.drafts.set(data);
+        const autoDraft = data.find(d => !d.is_manual);
+        if (autoDraft && !this.autoDraftId()) {
+          this.autoDraftId.set(autoDraft.id);
+        }
+      },
       error: () => {},
     });
   }
