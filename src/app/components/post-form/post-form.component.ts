@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, AfterViewInit, inject, OnDestroy, OnInit, signal, computed, ElementRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, AfterViewInit, inject, OnDestroy, OnInit, signal, computed, ElementRef } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { UserService } from '../../services/user.service';
@@ -46,6 +46,7 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
   @Input() isEpisode: boolean = false;
   @Input() topicId: number | null = null;
   @Input() characterId: number | null = null;
+  @Output() characterIdChange = new EventEmitter<number | null>();
 
   private userService = inject(UserService);
   private authService = inject(AuthService);
@@ -186,6 +187,7 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
       next: data => {
         this.setValue(data.content);
         this.loadedDraftId.set(draft.id);
+        this.characterIdChange.emit(data.character_id);
         this.showDraftList.set(false);
       },
       error: err => console.error('Failed to load draft', err),

@@ -185,6 +185,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   };
 
   @ViewChild('mainPostForm') postForm!: PostFormComponent;
+  @ViewChild('characterProfileRef') characterProfileRef?: CharacterProfileComponent;
 
   acknowledgeWarnings() {
     this.warningsAcknowledged.set(true);
@@ -354,6 +355,10 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     if (this.pageLoadedSubscription) {
       this.pageLoadedSubscription.unsubscribe();
     }
+  }
+
+  onDraftCharacterLoaded(characterId: number | null) {
+    this.characterProfileRef?.selectCharacterById(characterId);
   }
 
   onCharacterSelected(characterId: number | null) {

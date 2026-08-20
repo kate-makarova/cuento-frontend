@@ -110,6 +110,11 @@ export class CharacterProfileComponent implements OnInit {
     }
   }
 
+  selectCharacterById(id: number | null) {
+    this.selectedCharacterId = id ?? 'account';
+    this.onSelect();
+  }
+
   onSelect() {
     if (this.selectedCharacterId === 'account') {
       this.isCharacter = false;
