@@ -36,7 +36,7 @@
         </div>
 
         <div class="editor-mode-bar">
-          @if (topicId) {
+          @if (topicId && isAuthenticated()) {
             <div class="draft-controls">
               @if (drafts().length > 0) {
                 <a class="draft-summary-link" (click)="toggleDraftList()" i18n="@@postform.draftSummary">This post has {{ autoDraftCount() }} autodraft(s) and {{ manualDraftCount() }} manual draft(s)</a>

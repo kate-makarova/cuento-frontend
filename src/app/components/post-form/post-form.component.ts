@@ -91,8 +91,10 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
     });
   }
 
+  protected isAuthenticated = this.authService.isAuthenticated;
+
   ngOnInit() {
-    if (this.topicId) {
+    if (this.topicId && this.authService.isAuthenticated()) {
       this.loadDrafts();
       this.autosaveSub = this.autosaveSubject.pipe(debounceTime(3000)).subscribe(content => {
         this.autosaveStatus.set('saving');
