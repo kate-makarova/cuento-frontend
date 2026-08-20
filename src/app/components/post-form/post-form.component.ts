@@ -97,7 +97,7 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
 
   ngOnInit() {
     if (this.topicId && this.authService.isAuthenticated()) {
-      this.loadDrafts();
+      this.loadDrafts(true);
       this.autosaveSub = this.autosaveSubject.pipe(debounceTime(3000)).subscribe(content => {
         this.autosaveStatus.set('saving');
         this.saveAutoDraft(content);
@@ -154,18 +154,20 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
 
   // --- Draft API ---
 
-  private loadDrafts() {
+  private loadDrafts(autoLoad = false) {
     if (!this.topicId) return;
     this.apiService.get<PostDraft[]>(`post-draft/topic/${this.topicId}/latest`).subscribe({
       next: data => {
         this.drafts.set(data);
         const autoDraft = data.find(d => !d.is_manual);
         if (autoDraft) {
-          if (!this.autoDraftId()) this.autoDraftId.set(autoDraft.id);
+          const isFirstLoad = !this.autoDraftId();
+          if (isFirstLoad) this.autoDraftId.set(autoDraft.id);
           if (!this.loadedDraftId()) {
             this.loadedDraftId.set(autoDraft.id);
             this.currentDraftGroupId.set(autoDraft.draft_id);
           }
+          if (autoLoad && isFirstLoad) this.loadDraft(autoDraft);
         }
       },
       error: () => {},

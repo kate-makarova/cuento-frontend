@@ -32,6 +32,7 @@ import { LoreTopicHeaderComponent } from '../components/lore-topic-header/lore-t
 import { UserInfoComponent } from '../components/user-info/user-info.component';
 import { StandardWarning } from '../models/StandardWarning';
 import { FormsModule } from '@angular/forms';
+import { PostSidebarComponent } from '../components/post-sidebar/post-sidebar.component';
 
 function coerceToPage(value: unknown): number {
   const num = numberAttribute(value, 1);
@@ -60,6 +61,7 @@ function coerceToPage(value: unknown): number {
     CodeCopyDirective,
     UserInfoComponent,
     FormsModule,
+    PostSidebarComponent,
   ],
   templateUrl: './viewtopic.component.html',
   standalone: true,
@@ -95,7 +97,6 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
   breadcrumbs: BreadcrumbItem[] = [];
   showPostForm = signal<boolean>(false);
-  sidebarMode = signal(false);
   loadProfiles = true;
   showAccount = true;
   savedTopicCharacter = signal<number | undefined>(undefined);
@@ -349,14 +350,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     });
   }
 
-  toggleSidebarMode() {
-    const next = !this.sidebarMode();
-    this.sidebarMode.set(next);
-    document.body.classList.toggle('post-sidebar-open', next);
-  }
-
   ngOnDestroy() {
-    document.body.classList.remove('post-sidebar-open');
     document.removeEventListener('visibilitychange', this.onVisibilityChange);
     this.destroy$.next();
     this.destroy$.complete();
