@@ -43,7 +43,7 @@
               }
               <label class="autosave-toggle">
                 <input type="checkbox" [checked]="autosaveEnabled()" (change)="autosaveEnabled.set(!autosaveEnabled())" />
-                <ng-container i18n="@@postform.useAutosave">Use autosave</ng-container>
+                <span i18n="@@postform.useAutosave">Use autosave</span>
               </label>
               @if (autosaveStatus() !== 'idle') {
                 <span class="autosave-status autosave-status--{{ autosaveStatus() }}">
