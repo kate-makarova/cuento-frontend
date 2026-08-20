@@ -344,7 +344,7 @@
   }
 
   @if (showPostForm()) {
-  <app-post-sidebar id="post-form" class="formal">
+  <app-post-sidebar id="post-form" class="formal" (sidebarModeChange)="onSidebarModeChange($event)">
     <form class="container" (submit)="onSubmit($event)">
       <div class="post-editor-container" style="display: flex; gap: 15px;">
         <div class="profile-sidebar" style="width: 200px;">
