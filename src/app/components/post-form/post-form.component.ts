@@ -108,6 +108,26 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
   private saveAutoDraft(content: string) {
     const existingId = this.autoDraftId();
     const onError = () => this.autosaveStatus.set('idle');
+
+    if (!content.trim() && existingId) {
+      this.apiService.get(`post-draft/delete/${existingId}`).subscribe({
+        next: () => {
+          this.autoDraftId.set(null);
+          if (this.loadedDraftId() === existingId) this.loadedDraftId.set(null);
+          if (this.drafts().filter(d => d.id !== existingId).length === 0) this.currentDraftGroupId.set(null);
+          this.autosaveStatus.set('idle');
+          this.loadDrafts();
+        },
+        error: onError,
+      });
+      return;
+    }
+
+    if (!content.trim()) {
+      this.autosaveStatus.set('idle');
+      return;
+    }
+
     const onSuccess = (data: PostDraft) => {
       this.autoDraftId.set(data.id);
       this.currentDraftGroupId.set(data.draft_id);
