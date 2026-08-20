@@ -64,6 +64,7 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
   private autoDraftId = signal<number | null>(null);
 
   autosaveEnabled = signal(true);
+  loadedDraftId = signal<number | null>(null);
 
   autoDraftCount = computed(() => this.drafts().filter(d => !d.is_manual).length);
   manualDraftCount = computed(() => this.drafts().filter(d => d.is_manual).length);
@@ -179,9 +180,22 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
     this.apiService.get<PostDraft & { content: string }>(`post-draft/${draft.id}`).subscribe({
       next: data => {
         this.setValue(data.content);
+        this.loadedDraftId.set(draft.id);
         this.showDraftList.set(false);
       },
       error: err => console.error('Failed to load draft', err),
+    });
+  }
+
+  updateManualDraft(draft: PostDraft) {
+    this.apiService.post<PostDraft>(`post-draft/update/${draft.id}`, {
+      character_id: this.characterId,
+      topic_id: this.topicId,
+      is_manual: true,
+      content: this.getValue(),
+    }).subscribe({
+      next: () => this.loadDrafts(),
+      error: err => console.error('Failed to update manual draft', err),
     });
   }
 

@@ -88,6 +88,9 @@
                 </span>
                 <span class="draft-date">{{ draft.date_created }}</span>
                 <button type="button" (click)="loadDraft(draft)" i18n="@@postform.draftLoad">Load</button>
+                @if (draft.is_manual && !autosaveEnabled() && loadedDraftId() === draft.id) {
+                  <button type="button" (click)="updateManualDraft(draft)" i18n="@@postform.draftUpdate">Update</button>
+                }
               </div>
             }
             <div class="draft-list-actions">
