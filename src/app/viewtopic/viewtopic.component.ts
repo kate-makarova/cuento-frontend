@@ -97,6 +97,8 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
   breadcrumbs: BreadcrumbItem[] = [];
   showPostForm = signal<boolean>(false);
+  sidebarMode = signal(false);
+  sidebarProfileCompact = signal(false);
   loadProfiles = true;
   showAccount = true;
   savedTopicCharacter = signal<number | undefined>(undefined);
@@ -357,6 +359,11 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     if (this.pageLoadedSubscription) {
       this.pageLoadedSubscription.unsubscribe();
     }
+  }
+
+  onSidebarModeChange(active: boolean) {
+    this.sidebarMode.set(active);
+    if (!active) this.sidebarProfileCompact.set(false);
   }
 
   onDraftCharacterLoaded(characterId: number | null) {

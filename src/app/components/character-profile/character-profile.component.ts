@@ -29,6 +29,7 @@ export class CharacterProfileComponent implements OnInit {
   @Input() accountName: string = '';
   @Input() loadProfiles: boolean = true;
   @Input() showAccount: boolean = true;
+  @Input() compact: boolean = false;
   @Input() initialCharacterId: number | null | undefined = undefined;
   @Output() characterSelected = new EventEmitter<number | null>();
   @Output() guestNameChanged = new EventEmitter<string>();

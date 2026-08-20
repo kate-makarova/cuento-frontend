@@ -344,15 +344,20 @@
   }
 
   @if (showPostForm()) {
-  <app-post-sidebar id="post-form" class="formal">
+  <app-post-sidebar id="post-form" class="formal" (sidebarModeChange)="onSidebarModeChange($event)">
     <form class="container" (submit)="onSubmit($event)">
       <div class="post-editor-container" style="display: flex; gap: 15px;">
         <div class="profile-sidebar" style="width: 200px;">
+          <button type="button" class="profile-collapse-btn" (click)="sidebarProfileCompact.set(!sidebarProfileCompact())" [title]="sidebarProfileCompact() ? 'Expand profile' : 'Collapse profile'">
+            <i [class]="sidebarProfileCompact() ? 'bi bi-chevron-down' : 'bi bi-chevron-up'"></i>
+            <span i18n="@@postform.profile">Profile</span>
+          </button>
           <app-character-profile
             #characterProfileRef
             [accountName]="accountName"
             [loadProfiles]="loadProfiles"
             [showAccount]="showAccount"
+            [compact]="sidebarProfileCompact()"
             [initialCharacterId]="savedTopicCharacter()"
             (characterSelected)="onCharacterSelected($event)"
             (guestNameChanged)="onGuestNameChanged($event)">
