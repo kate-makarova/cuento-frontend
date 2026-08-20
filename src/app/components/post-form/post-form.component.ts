@@ -114,11 +114,12 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
         content,
       }).subscribe({ next: data => onSuccess(data.id), error: onError });
     } else {
-      // update endpoint TBD
-      this.apiService.post<PostDraft>(`post-draft/update/${existingId}`, { content }).subscribe({
-        next: data => onSuccess(data.id),
-        error: onError,
-      });
+      this.apiService.post<PostDraft>(`post-draft/update/${existingId}`, {
+        character_id: this.characterId,
+        topic_id: this.topicId,
+        is_manual: false,
+        content,
+      }).subscribe({ next: data => onSuccess(data.id), error: onError });
     }
   }
 
