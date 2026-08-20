@@ -10,6 +10,7 @@ import { UserShort } from '../../models/UserShort';
 import { CommonModule } from '@angular/common';
 import { BbToolbarComponent } from '../bb-toolbar/bb-toolbar.component';
 import { WysiwygEditorComponent } from '../wysiwyg-editor/wysiwyg-editor.component';
+import { FormsModule } from '@angular/forms';
 import { bbCodeToHtml } from '../wysiwyg-editor/wysiwyg-editor.utils';
 
 type EditorMode = 'wysiwyg' | 'bbcode';
@@ -29,7 +30,7 @@ interface PostDraft {
 
 @Component({
   selector: 'app-post-form',
-  imports: [CommonModule, BbToolbarComponent, WysiwygEditorComponent],
+  imports: [CommonModule, FormsModule, BbToolbarComponent, WysiwygEditorComponent],
   templateUrl: './post-form.component.html',
   standalone: true,
 })
@@ -61,6 +62,8 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
   showDraftList = signal(false);
   autosaveStatus = signal<AutosaveStatus>('idle');
   private autoDraftId = signal<number | null>(null);
+
+  autosaveEnabled = signal(true);
 
   autoDraftCount = computed(() => this.drafts().filter(d => !d.is_manual).length);
   manualDraftCount = computed(() => this.drafts().filter(d => d.is_manual).length);
@@ -255,7 +258,7 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
   // --- Internal ---
 
   private notifyTyping() {
-    if (!this.topicId) return;
+    if (!this.topicId || !this.autosaveEnabled()) return;
     if (this.savedClearTimer) { clearTimeout(this.savedClearTimer); this.savedClearTimer = null; }
     this.autosaveStatus.set('typing');
     this.autosaveSubject.next(this.getValue());
