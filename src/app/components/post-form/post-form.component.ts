@@ -154,8 +154,9 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
       next: data => {
         this.drafts.set(data);
         const autoDraft = data.find(d => !d.is_manual);
-        if (autoDraft && !this.autoDraftId()) {
-          this.autoDraftId.set(autoDraft.id);
+        if (autoDraft) {
+          if (!this.autoDraftId()) this.autoDraftId.set(autoDraft.id);
+          if (!this.loadedDraftId()) this.loadedDraftId.set(autoDraft.id);
         }
       },
       error: () => {},

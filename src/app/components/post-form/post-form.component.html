@@ -78,7 +78,7 @@
         @if (showDraftList() && drafts().length > 0) {
           <div class="draft-list">
             @for (draft of drafts(); track draft.id) {
-              <div class="draft-item">
+              <div class="draft-item" [class.draft-item--active]="loadedDraftId() === draft.id">
                 <span class="draft-type">
                   @if (draft.is_manual) {
                     <ng-container i18n="@@postform.draftManual">Manual</ng-container>
