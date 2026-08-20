@@ -187,6 +187,30 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
     });
   }
 
+  deleteDraft(draft: PostDraft) {
+    this.apiService.get(`post-draft/delete/${draft.id}`).subscribe({
+      next: () => {
+        if (this.loadedDraftId() === draft.id) this.loadedDraftId.set(null);
+        this.loadDrafts();
+      },
+      error: err => console.error('Failed to delete draft', err),
+    });
+  }
+
+  deleteDraftGroup() {
+    const draftId = this.drafts()[0]?.draft_id;
+    if (!draftId) return;
+    this.apiService.get(`post-draft/delete-group/${draftId}`).subscribe({
+      next: () => {
+        this.drafts.set([]);
+        this.autoDraftId.set(null);
+        this.loadedDraftId.set(null);
+        this.showDraftList.set(false);
+      },
+      error: err => console.error('Failed to delete draft group', err),
+    });
+  }
+
   updateManualDraft(draft: PostDraft) {
     this.apiService.post<PostDraft>(`post-draft/update/${draft.id}`, {
       character_id: this.characterId,

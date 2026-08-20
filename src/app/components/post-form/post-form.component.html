@@ -91,10 +91,12 @@
                 @if (draft.is_manual && !autosaveEnabled() && loadedDraftId() === draft.id) {
                   <button type="button" (click)="updateManualDraft(draft)" i18n="@@postform.draftUpdate">Update</button>
                 }
+                <button type="button" class="btn-decline" (click)="deleteDraft(draft)" i18n="@@postform.draftDelete">Delete</button>
               </div>
             }
             <div class="draft-list-actions">
               <button type="button" (click)="saveManualDraft()" i18n="@@postform.saveManualDraft">Save this version manually as a new draft</button>
+              <button type="button" class="btn-decline" (click)="deleteDraftGroup()" i18n="@@postform.deleteDraftGroup">Delete all versions</button>
             </div>
           </div>
         }
