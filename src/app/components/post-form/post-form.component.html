@@ -36,16 +36,11 @@
         </div>
 
         <div class="editor-mode-bar">
-          <button type="button" class="mode-switcher-btn" (click)="switchMode()">
-            @if (editorMode() === 'wysiwyg') {
-              <i class="bi bi-code-slash"></i> BB-code
-            } @else {
-              <i class="bi bi-pencil-square"></i> Visual
-            }
-          </button>
-
           @if (topicId) {
             <div class="draft-controls">
+              @if (drafts().length > 0) {
+                <a class="draft-summary-link" (click)="toggleDraftList()" i18n="@@postform.draftSummary">This post has {{ autoDraftCount() }} autodraft{{ autoDraftCount() !== 1 ? 's' : '' }} and {{ manualDraftCount() }} manual draft{{ manualDraftCount() !== 1 ? 's' : '' }}</a>
+              }
               <label class="autosave-toggle">
                 <input type="checkbox" [checked]="autosaveEnabled()" (change)="autosaveEnabled.set(!autosaveEnabled())" />
                 <ng-container i18n="@@postform.useAutosave">Use autosave</ng-container>
@@ -65,14 +60,16 @@
                   }
                 </span>
               }
-
-              @if (drafts().length > 0) {
-                <button type="button" class="draft-summary-btn" (click)="toggleDraftList()">
-                  <ng-container i18n="@@postform.draftSummary">This post has {{ autoDraftCount() }} autodraft{{ autoDraftCount() !== 1 ? 's' : '' }} and {{ manualDraftCount() }} manual draft{{ manualDraftCount() !== 1 ? 's' : '' }}</ng-container>
-                </button>
-              }
             </div>
           }
+
+          <button type="button" class="mode-switcher-btn" (click)="switchMode()">
+            @if (editorMode() === 'wysiwyg') {
+              <i class="bi bi-code-slash"></i> BB-code
+            } @else {
+              <i class="bi bi-pencil-square"></i> Visual
+            }
+          </button>
         </div>
 
         @if (showDraftList() && drafts().length > 0) {
