@@ -158,6 +158,20 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
     this.showDraftList.update(v => !v);
   }
 
+  saveManualDraft() {
+    const autoDraft = this.drafts().find(d => !d.is_manual);
+    this.apiService.post<PostDraft>('post-draft/create', {
+      draft_id: autoDraft?.draft_id,
+      character_id: this.characterId,
+      topic_id: this.topicId,
+      is_manual: true,
+      content: this.getValue(),
+    }).subscribe({
+      next: () => this.loadDrafts(),
+      error: err => console.error('Failed to save manual draft', err),
+    });
+  }
+
   loadDraft(draft: PostDraft) {
     this.apiService.get<PostDraft & { content: string }>(`post-draft/${draft.id}`).subscribe({
       next: data => {
