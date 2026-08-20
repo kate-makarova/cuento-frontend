@@ -102,13 +102,17 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
 
   private saveAutoDraft(content: string) {
     const existingId = this.autoDraftId();
-    const onSuccess = (id: number) => {
-      this.autoDraftId.set(id);
+    const onError = () => this.autosaveStatus.set('idle');
+    const onSuccess = (data: PostDraft) => {
+      this.autoDraftId.set(data.id);
+      this.drafts.update(current => {
+        const without = current.filter(d => d.id !== data.id);
+        return [data, ...without];
+      });
       this.autosaveStatus.set('saved');
       this.loadDrafts();
       this.savedClearTimer = setTimeout(() => this.autosaveStatus.set('idle'), 3000);
     };
-    const onError = () => this.autosaveStatus.set('idle');
 
     if (!existingId) {
       this.apiService.post<PostDraft>('post-draft/create', {
@@ -116,14 +120,14 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
         topic_id: this.topicId,
         is_manual: false,
         content,
-      }).subscribe({ next: data => onSuccess(data.id), error: onError });
+      }).subscribe({ next: onSuccess, error: onError });
     } else {
       this.apiService.post<PostDraft>(`post-draft/update/${existingId}`, {
         character_id: this.characterId,
         topic_id: this.topicId,
         is_manual: false,
         content,
-      }).subscribe({ next: data => onSuccess(data.id), error: onError });
+      }).subscribe({ next: onSuccess, error: onError });
     }
   }
 
