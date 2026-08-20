@@ -32,6 +32,7 @@ interface PostDraft {
   selector: 'app-post-form',
   imports: [CommonModule, FormsModule, BbToolbarComponent, WysiwygEditorComponent],
   templateUrl: './post-form.component.html',
+  styleUrl: './post-form.component.css',
   standalone: true,
 })
 export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {

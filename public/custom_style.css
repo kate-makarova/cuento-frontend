@@ -2791,55 +2791,7 @@ app-root.dark .page-ellipsis {
   width: 100%;
 }
 
-/* app-post-form and its fieldset stretch */
-#post-form.post-form--sidebar app-post-form {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-#post-form.post-form--sidebar fieldset {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-#post-form.post-form--sidebar .fs-box {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-/* Inner post-editor-container and textarea stretch */
-#post-form.post-form--sidebar .fs-box > .post-editor-container {
-  flex: 1;
-  min-height: 0;
-}
-
-#post-form.post-form--sidebar .textarea-wrapper {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-#post-form.post-form--sidebar .textarea-wrapper textarea {
-  flex: 1;
-  height: 100% !important;
-  resize: none;
-  min-height: 100px;
-}
-
-#post-form.post-form--sidebar app-wysiwyg-editor {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
+/* app-post-form internals in sidebar mode are styled in post-form.component.css */
 
 #post-form.post-form--sidebar .wysiwyg-editor {
   flex: 1;
