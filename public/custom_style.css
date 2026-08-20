@@ -2737,3 +2737,137 @@ app-root.dark .search-pagination strong {
 app-root.dark .page-ellipsis {
   color: #666;
 }
+
+/* === Sidebar post-form mode === */
+#post-form.post-form--sidebar {
+  position: fixed !important;
+  right: 0;
+  top: 0;
+  width: 40%;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 200;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+#post-form.post-form--sidebar h2 {
+  flex-shrink: 0;
+  margin-top: 0;
+  padding-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Form stretches to fill remaining height */
+#post-form.post-form--sidebar form.container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Outer layout: profile on top, editor below */
+#post-form.post-form--sidebar > form > .post-editor-container {
+  flex-direction: column !important;
+  flex: 1;
+  min-height: 0;
+}
+
+#post-form.post-form--sidebar .profile-sidebar {
+  width: 100% !important;
+  flex-shrink: 0;
+}
+
+#post-form.post-form--sidebar .form-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+}
+
+/* app-post-form and its fieldset stretch */
+#post-form.post-form--sidebar app-post-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+#post-form.post-form--sidebar fieldset {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#post-form.post-form--sidebar .fs-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Inner post-editor-container and textarea stretch */
+#post-form.post-form--sidebar .fs-box > .post-editor-container {
+  flex: 1;
+  min-height: 0;
+}
+
+#post-form.post-form--sidebar .textarea-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#post-form.post-form--sidebar .textarea-wrapper textarea {
+  flex: 1;
+  height: 100% !important;
+  resize: none;
+  min-height: 100px;
+}
+
+#post-form.post-form--sidebar app-wysiwyg-editor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+#post-form.post-form--sidebar .wysiwyg-editor {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 100px;
+}
+
+/* Submit buttons row stays at bottom */
+#post-form.post-form--sidebar .buttons {
+  flex-shrink: 0;
+}
+
+body.post-sidebar-open #pun {
+  width: 58vw !important;
+  margin-right: 0 !important;
+  margin-left: 20px !important;
+}
+
+.sidebar-toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.6;
+}
+
+.sidebar-toggle-btn:hover {
+  opacity: 1;
+}

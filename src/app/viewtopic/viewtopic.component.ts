@@ -95,6 +95,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
   breadcrumbs: BreadcrumbItem[] = [];
   showPostForm = signal<boolean>(false);
+  sidebarMode = signal(false);
   loadProfiles = true;
   showAccount = true;
   savedTopicCharacter = signal<number | undefined>(undefined);
@@ -348,7 +349,14 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     });
   }
 
+  toggleSidebarMode() {
+    const next = !this.sidebarMode();
+    this.sidebarMode.set(next);
+    document.body.classList.toggle('post-sidebar-open', next);
+  }
+
   ngOnDestroy() {
+    document.body.classList.remove('post-sidebar-open');
     document.removeEventListener('visibilitychange', this.onVisibilityChange);
     this.destroy$.next();
     this.destroy$.complete();
