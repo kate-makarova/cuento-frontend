@@ -350,6 +350,7 @@
       <div class="post-editor-container" style="display: flex; gap: 15px;">
         <div class="profile-sidebar" style="width: 200px;">
           <app-character-profile
+            #characterProfileRef
             [accountName]="accountName"
             [loadProfiles]="loadProfiles"
             [showAccount]="showAccount"
@@ -360,7 +361,7 @@
         </div>
 
         <div class="form-content" style="flex: 1;">
-          <app-post-form #mainPostForm [isEpisode]="isEpisode()"></app-post-form>
+          <app-post-form #mainPostForm [isEpisode]="isEpisode()" [topicId]="id() ?? null" [characterId]="selectedCharacterId" (characterIdChange)="onDraftCharacterLoaded($event)"></app-post-form>
         </div>
       </div>
 
