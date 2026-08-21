@@ -2,7 +2,7 @@ import {afterRender, Component, effect, inject, OnInit, signal, HostBinding} fro
 import {DOCUMENT} from '@angular/common';
 import {ActivatedRoute, NavigationEnd, NavigationStart, Router, RouterOutlet} from '@angular/router';
 import {FooterComponent} from './components/footer/footer.component';
-import {filter, map, mergeMap} from 'rxjs';
+import {combineLatest, filter, map, mergeMap, take} from 'rxjs';
 import {ToastComponent} from './components/toast/toast.component';
 import {ScrollNavComponent} from './components/scroll-nav/scroll-nav.component';
 import {BoardService} from './services/board.service';
@@ -57,6 +57,27 @@ export class AppComponent implements OnInit {
     const body: { page_type: string; page_id?: string } = { page_type: pageType };
     if (pageId) body.page_id = String(pageId);
     this.apiService.post<{ ok: boolean }>('guest/activity', body).subscribe({ error: () => {} });
+  }
+
+  private resolvePageType(pageId: string, params: Record<string, string>): [string, number] {
+    switch (pageId) {
+      case 'pun-viewtopic': return ['topic', +params['id'] || 0];
+      case 'pun-viewforum': return ['viewforum', +params['id'] || 0];
+      case 'pun-index': return ['index', 0];
+      case 'pun-profile': return ['profile', +params['id'] || 0];
+      case 'pun-character': return ['character', +params['id'] || 0];
+      default: return [pageId.replace('pun-', ''), 0];
+    }
+  }
+
+  private sendPageActivity(pageType: string, pageNumId: number): void {
+    this.currentPageType = pageType;
+    this.currentPageNumId = pageNumId;
+    if (this.authService.isAuthenticated()) {
+      this.notificationService.sendPageChange(pageType, pageNumId);
+    } else {
+      this.sendGuestActivity(pageType, pageNumId);
+    }
   }
   currentUser = this.authService.currentUser;
   currentDate = new Date();
@@ -120,6 +141,8 @@ export class AppComponent implements OnInit {
       }
     });
 
+    this.sendInitialPageActivity();
+
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
         if (this.authService.isAuthenticated()) {
@@ -151,50 +174,23 @@ export class AppComponent implements OnInit {
         while (route.firstChild) route = route.firstChild;
         return route;
       }),
-      mergeMap(route => {
-        // We need both data and params
-        return route.data.pipe(
-          map(data => ({ data, params: route.snapshot.params }))
-        );
-      })
+      mergeMap(route => route.data.pipe(
+        map(data => ({ data, params: route.snapshot.params }))
+      ))
     ).subscribe(({ data, params }) => {
       this.pageId = data['pageId'] || 'pun-index';
+      const [pageType, pageNumId] = this.resolvePageType(this.pageId, params);
+      this.sendPageActivity(pageType, pageNumId);
+    });
+  }
 
-      // Send page change notification
-      let pageType = 'unknown';
-      let pageId = 0;
-
-      switch (this.pageId) {
-        case 'pun-viewtopic':
-          pageType = 'topic';
-          pageId = +params['id'] || 0;
-          break;
-        case 'pun-viewforum':
-          pageType = 'viewforum';
-          pageId = +params['id'] || 0;
-          break;
-        case 'pun-index':
-          pageType = 'index';
-          break;
-        case 'pun-profile':
-          pageType = 'profile';
-          pageId = +params['id'] || 0;
-          break;
-        case 'pun-character':
-          pageType = 'character';
-          pageId = +params['id'] || 0;
-          break;
-        default:
-          pageType = this.pageId.replace('pun-', '');
-      }
-
-      this.currentPageType = pageType;
-      this.currentPageNumId = pageId;
-      if (this.authService.isAuthenticated()) {
-        this.notificationService.sendPageChange(pageType, pageId);
-      } else {
-        this.sendGuestActivity(pageType, pageId);
-      }
+  private sendInitialPageActivity(): void {
+    let route = this.activatedRoute;
+    while (route.firstChild) route = route.firstChild;
+    combineLatest([route.data, route.params]).pipe(take(1)).subscribe(([data, params]) => {
+      this.pageId = data['pageId'] || 'pun-index';
+      const [pageType, pageNumId] = this.resolvePageType(this.pageId, params);
+      this.sendPageActivity(pageType, pageNumId);
     });
   }
 

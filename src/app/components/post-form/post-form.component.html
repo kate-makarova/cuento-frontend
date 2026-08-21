@@ -36,6 +36,33 @@
         </div>
 
         <div class="editor-mode-bar">
+          @if (topicId && isAuthenticated()) {
+            <div class="draft-controls">
+              @if (drafts().length > 0) {
+                <a class="draft-summary-link" (click)="toggleDraftList()" i18n="@@postform.draftSummary">This post has {{ autoDraftCount() }} autodraft(s) and {{ manualDraftCount() }} manual draft(s)</a>
+              }
+              <label class="autosave-toggle">
+                <input type="checkbox" [checked]="autosaveEnabled()" (change)="autosaveEnabled.set(!autosaveEnabled())" />
+                <span i18n="@@postform.useAutosave">Use autosave</span>
+              </label>
+              @if (autosaveStatus() !== 'idle') {
+                <span class="autosave-status autosave-status--{{ autosaveStatus() }}">
+                  @switch (autosaveStatus()) {
+                    @case ('typing') {
+                      <ng-container i18n="@@postform.autosaveTyping">Author is typing, waiting to update autodraft</ng-container>
+                    }
+                    @case ('saving') {
+                      <ng-container i18n="@@postform.autosaveSaving">Autodraft updating...</ng-container>
+                    }
+                    @case ('saved') {
+                      <ng-container i18n="@@postform.autosaveSaved">Autodraft updated</ng-container>
+                    }
+                  }
+                </span>
+              }
+            </div>
+          }
+
           <button type="button" class="mode-switcher-btn" (click)="switchMode()">
             @if (editorMode() === 'wysiwyg') {
               <i class="bi bi-code-slash"></i> BB-code
@@ -44,6 +71,32 @@
             }
           </button>
         </div>
+
+        @if (showDraftList() && drafts().length > 0) {
+          <div class="draft-list">
+            @for (draft of drafts(); track draft.id) {
+              <div class="draft-item" [class.draft-item--active]="loadedDraftId() === draft.id">
+                <span class="draft-type">
+                  @if (draft.is_manual) {
+                    <ng-container i18n="@@postform.draftManual">Manual</ng-container>
+                  } @else {
+                    <ng-container i18n="@@postform.draftAuto">Auto</ng-container>
+                  }
+                </span>
+                <span class="draft-date">{{ draft.date_created }}</span>
+                <button type="button" (click)="loadDraft(draft)" i18n="@@postform.draftLoad">Load</button>
+                @if (draft.is_manual && !autosaveEnabled() && loadedDraftId() === draft.id) {
+                  <button type="button" (click)="updateManualDraft(draft)" i18n="@@postform.draftUpdate">Update</button>
+                }
+                <button type="button" class="btn-decline" (click)="deleteDraft(draft)" i18n="@@postform.draftDelete">Delete</button>
+              </div>
+            }
+            <div class="draft-list-actions">
+              <button type="button" (click)="saveManualDraft()" i18n="@@postform.saveManualDraft">Save this version manually as a new draft</button>
+              <button type="button" class="btn-decline" (click)="deleteDraftGroup()" i18n="@@postform.deleteDraftGroup">Delete all versions</button>
+            </div>
+          </div>
+        }
 
       </div>
     </fieldset>

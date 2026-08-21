@@ -69,6 +69,9 @@ export class NotificationService {
   private pageChangedSubject = new Subject<PageChangedEvent>();
   public pageChanged$ = this.pageChangedSubject.asObservable();
 
+  private wsConnectedSubject = new Subject<void>();
+  public wsConnected$ = this.wsConnectedSubject.asObservable();
+
 private systemNotificationsSignal = signal<NotificationData[]>([]);
   public systemNotifications = this.systemNotificationsSignal.asReadonly();
   private gameNotificationsSignal = signal<NotificationData[]>([]);
@@ -320,6 +323,7 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
       this.reconnectAttempts = 0;
       this.processMessageQueue();
       this.sendDraftConfirmation();
+      this.wsConnectedSubject.next();
     };
 
     this.ws.onmessage = (event) => {

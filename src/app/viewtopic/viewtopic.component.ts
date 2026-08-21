@@ -32,6 +32,7 @@ import { LoreTopicHeaderComponent } from '../components/lore-topic-header/lore-t
 import { UserInfoComponent } from '../components/user-info/user-info.component';
 import { StandardWarning } from '../models/StandardWarning';
 import { FormsModule } from '@angular/forms';
+import { PostSidebarComponent } from '../components/post-sidebar/post-sidebar.component';
 
 function coerceToPage(value: unknown): number {
   const num = numberAttribute(value, 1);
@@ -60,6 +61,7 @@ function coerceToPage(value: unknown): number {
     CodeCopyDirective,
     UserInfoComponent,
     FormsModule,
+    PostSidebarComponent,
   ],
   templateUrl: './viewtopic.component.html',
   standalone: true,
@@ -95,6 +97,8 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
   breadcrumbs: BreadcrumbItem[] = [];
   showPostForm = signal<boolean>(false);
+  sidebarMode = signal(false);
+  sidebarProfileCompact = signal(false);
   loadProfiles = true;
   showAccount = true;
   savedTopicCharacter = signal<number | undefined>(undefined);
@@ -185,6 +189,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   };
 
   @ViewChild('mainPostForm') postForm!: PostFormComponent;
+  @ViewChild('characterProfileRef') characterProfileRef?: CharacterProfileComponent;
 
   acknowledgeWarnings() {
     this.warningsAcknowledged.set(true);
@@ -356,6 +361,15 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     }
   }
 
+  onSidebarModeChange(active: boolean) {
+    this.sidebarMode.set(active);
+    if (!active) this.sidebarProfileCompact.set(false);
+  }
+
+  onDraftCharacterLoaded(characterId: number | null) {
+    this.characterProfileRef?.selectCharacterById(characterId);
+  }
+
   onCharacterSelected(characterId: number | null) {
     this.selectedCharacterId = characterId;
     const topicId = this.id();
@@ -495,6 +509,11 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       payload.guest_name = this.guestName;
     }
 
+    const draftGroupId = this.postForm.currentDraftGroupId();
+    if (draftGroupId) {
+      payload.from_draft_id = draftGroupId;
+    }
+
     this.postForm.clear();
 
     setTimeout(() => document.getElementById('post-pending')?.scrollIntoView({ behavior: 'smooth' }));
@@ -502,6 +521,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     this.topicService.createPost(payload).subscribe({
       next: () => {
         this.isSubmitting.set(false);
+        this.postForm.reloadDrafts();
         if (!this.authService.isAuthenticated()) {
           window.location.reload();
         } else {

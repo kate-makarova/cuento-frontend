@@ -1,0 +1,49 @@
+/* Sidebar mode — styles for elements inside app-post-form */
+:host-context(#post-form.post-form--sidebar) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+}
+
+:host-context(#post-form.post-form--sidebar) fieldset {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+:host-context(#post-form.post-form--sidebar) .fs-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+:host-context(#post-form.post-form--sidebar) .fs-box > .post-editor-container {
+  flex: 1;
+  min-height: 0;
+}
+
+:host-context(#post-form.post-form--sidebar) .textarea-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+:host-context(#post-form.post-form--sidebar) .textarea-wrapper textarea {
+  flex: 1;
+  height: 100% !important;
+  resize: none;
+  min-height: 100px;
+}
+
+:host-context(#post-form.post-form--sidebar) app-wysiwyg-editor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}

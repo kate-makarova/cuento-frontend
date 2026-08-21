@@ -1,0 +1,100 @@
+.profile-collapse-btn {
+  display: none;
+}
+
+app-post-sidebar.post-form--sidebar .profile-collapse-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0 8px;
+  font-size: 0.85em;
+  opacity: 0.7;
+}
+
+app-post-sidebar.post-form--sidebar .profile-collapse-btn:hover {
+  opacity: 1;
+}
+
+.sidebar-toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.6;
+}
+
+.sidebar-toggle-btn:hover {
+  opacity: 1;
+}
+
+app-post-sidebar.post-form--sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 40%;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 200;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+app-post-sidebar.post-form--sidebar h2 {
+  flex-shrink: 0;
+  margin-top: 0;
+  padding-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+app-post-sidebar.post-form--sidebar form.container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+app-post-sidebar.post-form--sidebar > form > .post-editor-container {
+  flex-direction: column !important;
+  flex: 1;
+  min-height: 0;
+}
+
+app-post-sidebar.post-form--sidebar .profile-sidebar {
+  width: 100% !important;
+  flex-shrink: 0;
+}
+
+app-post-sidebar.post-form--sidebar .form-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+}
+
+app-post-sidebar.post-form--sidebar .wysiwyg-editor {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 100px;
+}
+
+app-post-sidebar.post-form--sidebar .buttons {
+  flex-shrink: 0;
+}
+
+body.post-sidebar-open #pun {
+  width: 58vw !important;
+  margin-left: calc(40vw + 20px) !important;
+  margin-right: 0 !important;
+}
