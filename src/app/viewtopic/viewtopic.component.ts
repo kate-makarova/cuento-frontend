@@ -521,6 +521,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     this.topicService.createPost(payload).subscribe({
       next: () => {
         this.isSubmitting.set(false);
+        this.postForm.reloadDrafts();
         if (!this.authService.isAuthenticated()) {
           window.location.reload();
         } else {

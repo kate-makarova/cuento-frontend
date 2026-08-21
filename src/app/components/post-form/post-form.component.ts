@@ -263,6 +263,13 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
 
   // --- Public API used by viewtopic ---
 
+  reloadDrafts(): void {
+    this.autoDraftId.set(null);
+    this.loadedDraftId.set(null);
+    this.currentDraftGroupId.set(null);
+    this.loadDrafts();
+  }
+
   getValue(): string {
     if (this.editorMode() === 'wysiwyg') {
       return this.wysiwygEditor?.getValue() ?? '';
