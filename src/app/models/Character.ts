@@ -25,6 +25,7 @@ export interface CharacterListItem {
   name: string;
   avatar: string | null;
   is_claim: boolean;
+  topic_id: number | null;
   wanted_character_id: number | null;
   claim_record_id: number | null;
   claim_author_id: number | null;

@@ -378,7 +378,7 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   selectMention(user: UserShort) {
-    const inserted = `${user.username} `;
+    const inserted = `${user.username}\u200A`;
     if (this.editorMode() === 'wysiwyg') {
       const textBefore = this.wysiwygEditor?.getTextBeforeCursor() ?? '';
       const charsToDelete = textBefore.length - this.mentionAtPos - 1;

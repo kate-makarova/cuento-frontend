@@ -182,7 +182,7 @@
                   <ul class="character-group">
                     @for (char of group[0].characters; track char.id) {
                       <li class="character-list-item">
-                        <a [routerLink]="['/viewtopic', char.id]">{{ char.name }}</a>
+                        <a [routerLink]="['/viewtopic', char.topic_id]">{{ char.name }}</a>
                       </li>
                     }
                   </ul>
@@ -200,7 +200,7 @@
                       <ul class="character-group">
                         @for (char of faction.characters; track char.id) {
                           <li class="character-list-item">
-                            <a [routerLink]="['/viewtopic', char.id]">{{ char.name }}</a>
+                            <a [routerLink]="['/viewtopic', char.topic_id]">{{ char.name }}</a>
                           </li>
                         }
                       </ul>

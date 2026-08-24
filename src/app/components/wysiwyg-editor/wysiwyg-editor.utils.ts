@@ -79,7 +79,8 @@ function nodeToText(node: Node): string {
         return `[code]${el.textContent ?? ''}[/code]\n`;
       }
       if (el.classList.contains('wysiwyg-spoiler')) {
-        const title = el.getAttribute('data-title') ?? '';
+        const headerEl = el.querySelector('.wysiwyg-spoiler-header');
+        const title = headerEl?.textContent?.trim() ?? '';
         const contentEl = el.querySelector('.wysiwyg-spoiler-content');
         const content = contentEl
           ? Array.from(contentEl.childNodes).map(nodeToText).join('').trim()
