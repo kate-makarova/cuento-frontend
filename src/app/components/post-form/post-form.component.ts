@@ -263,6 +263,15 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
 
   // --- Public API used by viewtopic ---
 
+  cancelPendingAutosave(): void {
+    this.autosaveSub?.unsubscribe();
+    this.autosaveStatus.set('idle');
+    this.autosaveSub = this.autosaveSubject.pipe(debounceTime(3000)).subscribe(content => {
+      this.autosaveStatus.set('saving');
+      this.saveAutoDraft(content);
+    });
+  }
+
   reloadDrafts(): void {
     this.autoDraftId.set(null);
     this.loadedDraftId.set(null);

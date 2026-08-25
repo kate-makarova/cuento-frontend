@@ -514,6 +514,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       payload.from_draft_id = draftGroupId;
     }
 
+    this.postForm.cancelPendingAutosave();
     this.postForm.clear();
 
     setTimeout(() => document.getElementById('post-pending')?.scrollIntoView({ behavior: 'smooth' }));
