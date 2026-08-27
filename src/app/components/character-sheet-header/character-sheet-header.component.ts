@@ -73,6 +73,10 @@ export class CharacterSheetHeaderComponent implements OnInit, OnChanges {
     }).sort((a, b) => a.order - b.order);
   }
 
+  getField(machineName: string): any | undefined {
+    return this.customFields.find(f => f.fieldMachineName === machineName);
+  }
+
   get factionsHeader(): string {
     const level0 = (this.character?.factions ?? []).find(f => f.level === 0 && f.faction_setting_name);
     return level0?.faction_setting_name ?? 'Factions';

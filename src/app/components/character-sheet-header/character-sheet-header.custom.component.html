@@ -1,0 +1,77 @@
+@if(character != null) {
+<div class="character-sheet-header">
+  <div class="character-sheet-avatar">
+    @if (character.avatar) {
+      <img [src]="character.avatar" [alt]="character.name">
+    }
+  </div>
+  <div class="character-sheet-info">
+    <div class="character-name-row">
+      <h2>{{ character.name }}</h2>
+      @if (character.character_status === 2) {
+        <span class="status-badge status-pending" i18n="@@common.statusPending">Pending</span>
+      } @else if (character.character_status === 0) {
+        <span class="status-badge status-active" i18n="@@common.statusActive">Active</span>
+      } @else if (character.character_status === 1) {
+        <span class="status-badge status-inactive" i18n="@@common.statusInactive">Inactive</span>
+      } @else if (character.character_status === 3) {
+        <span class="status-badge status-declined" i18n="@@common.statusDeclined">Declined</span>
+      }
+    </div>
+
+    @if (character.factions && character.factions.length > 0) {
+      <div class="character-sheet-factions">
+        <h3>{{ factionsHeader }}</h3>
+        <ul>
+          @for (faction of character.factions; track faction.id) {
+            <li>{{ faction.name }}</li>
+          }
+        </ul>
+      </div>
+    }
+
+    @if (customFields.length > 0) {
+      <div class="character-sheet-custom-fields">
+        <ul>
+          @for(field of customFields; track field.fieldMachineName) {
+            <li>
+              <app-field-display [type]="field.type" [fieldMachineName]="field.fieldMachineName" [fieldName]="field.fieldName" [fieldValue]="field.fieldValue"></app-field-display>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  </div>
+</div>
+
+@if (canSeeAdminBlock() && character.character_status === 2) {
+  <div class="admin-actions">
+    <button class="button" [disabled]="hasPendingFactions" (click)="acceptCharacter()" i18n="@@character.accept">Accept</button>
+    <button class="button btn-deactivate" (click)="declineCharacter()" i18n="@@character.decline">Decline</button>
+    @if (hasPendingFactions) {
+      <span class="admin-actions-notice" i18n="@@character.pendingFactions">
+        This character cannot be approved until all their factions are approved in the admin section.
+      </span>
+    }
+  </div>
+}
+
+@if (canSeeAdminBlock() && character.character_status === 0) {
+  <div class="admin-actions">
+    <button class="button" (click)="deactivateCharacter()" i18n="@@character.deactivate">Deactivate the character</button>
+  </div>
+}
+
+@if (canSeeAdminBlock() && character.character_status === 1) {
+  <div class="admin-actions">
+    <button class="button" (click)="activateCharacter()" i18n="@@character.activate">Activate character</button>
+    <button class="button" (click)="moveToPending()" i18n="@@character.moveToPending">Move to pending</button>
+  </div>
+}
+
+@if (canSeeAdminBlock() && character.character_status === 3) {
+  <div class="admin-actions">
+    <button class="button" (click)="moveToPending()" i18n="@@character.moveToPending">Move to pending</button>
+  </div>
+}
+}
