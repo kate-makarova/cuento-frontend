@@ -110,6 +110,32 @@ Overrides `episode-header.component.html`. The template belongs to `EpisodeHeade
 
 Available imports declared in `EpisodeHeaderComponent`: `RouterLink`, `FieldDisplayComponent` (`app-field-display`), `CommonModule`.
 
+### Wanted character card — `src/app/components/wanted-character-card/wanted-character-card.custom.component.html`
+
+Overrides `wanted-character-card.component.html`. The template belongs to `WantedCharacterCardComponent` and renders a single card in the wanted character list card view. Has access to:
+
+| Binding | Type | Description |
+|---|---|---|
+| `wantedCharacter` | `WantedCharacter` | The wanted character data object |
+| `wantedCharacter.name` | `string` | Character name |
+| `wantedCharacter.topic_id` | `number` | Topic ID (used for `/viewtopic` links) |
+| `wantedCharacter.factions` | `Faction[] \| null` | Faction memberships |
+| `wantedCharacter.relations` | `CharacterShort[] \| undefined` | Related characters |
+| `wantedCharacter.claim_record` | `ClaimRecord \| null` | Active claim record, if any |
+| `wantedCharacter.user_info` | `UserInfo \| null \| undefined` | Player info block |
+| `expanded` | `boolean` | Whether the card is in expanded state |
+| `canRevoke` | `boolean` | Whether the current user can revoke the claim |
+| `isAuthenticated` | `boolean` | Whether a user is logged in |
+| `fields` | `WantedCharacterCardField[]` | Processed custom fields, sorted by order |
+| `factionsString` | `string` | Comma-joined faction names |
+| `getField(machineName)` | method | Returns a single custom field by machine name, or `undefined` |
+| `(expand)` | output | Emit to expand the card |
+| `(collapse)` | output | Emit to collapse the card |
+| `(claim)` | output | Emit to claim the wanted character |
+| `(revoke)` | output | Emit to revoke the active claim |
+
+Available imports declared in `WantedCharacterCardComponent`: `RouterLink`, `CommonModule`, `DatePipe`, `FieldDisplayComponent` (`app-field-display`), `UserInfoComponent` (`app-user-info`).
+
 ### Character header — `src/app/components/character-sheet-header/character-sheet-header.custom.component.html`
 
 Overrides `character-sheet-header.component.html`. The template belongs to `CharacterSheetHeaderComponent` and has access to:
