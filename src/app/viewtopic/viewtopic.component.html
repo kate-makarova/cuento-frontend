@@ -193,7 +193,7 @@
           } @else {
             <app-character-profile [post]="post"></app-character-profile>
           }
-        } @else {
+        } @else if (!post.is_gm_post) {
           <app-character-profile [post]="post" (authorClicked)="onAuthorMention($event)"></app-character-profile>
         }
 

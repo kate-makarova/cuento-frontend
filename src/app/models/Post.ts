@@ -28,4 +28,5 @@ export interface Post {
   author_user_id: number;
   author_user_name: string;
   reactions?: PostReaction[];
+  is_gm_post?: boolean;
 }

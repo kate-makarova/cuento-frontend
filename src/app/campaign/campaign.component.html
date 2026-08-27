@@ -1,0 +1,138 @@
+<div id="pun-main" class="main">
+
+  <!-- Header: title, summary, status, dates -->
+  <div class="category campaign-header">
+    <div class="main-content">
+      <div class="campaign-meta">
+        <div class="campaign-title-row">
+          <h1 class="campaign-title">{{ campaign.title }}</h1>
+          @if (campaign.is_gm) {
+            <button class="btn-edit" (click)="editCampaign()">Edit</button>
+          }
+        </div>
+        <div class="campaign-badges">
+          <span class="campaign-status status-{{ campaign.status }}">{{ statusLabel(campaign.status) }}</span>
+          @if (campaign.game_masters.length > 0) {
+            <span class="campaign-gm">
+              GM: @for (gm of campaign.game_masters; track gm.id; let last = $last) {
+                <a [routerLink]="['/profile', gm.id]">{{ gm.username }}</a>@if (!last) {, }
+              }
+            </span>
+          }
+        </div>
+        <p class="campaign-summary">{{ campaign.summary }}</p>
+        <div class="campaign-dates">
+          <span><strong>Created:</strong> {{ campaign.date_created | date:'mediumDate' }}</span>
+          @if (campaign.start_date) {
+            <span><strong>Started:</strong> {{ campaign.start_date | date:'mediumDate' }}</span>
+          }
+          @if (campaign.end_date) {
+            <span><strong>Ended:</strong> {{ campaign.end_date | date:'mediumDate' }}</span>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NPC mini gallery -->
+  @if (campaign.npc_characters.length > 0 || campaign.is_gm) {
+    <div class="category">
+      <div class="maintitle">
+        <p>NPCs</p>
+        @if (campaign.is_gm) {
+          <button class="btn-add" (click)="addNpc()">+ Add NPC</button>
+        }
+      </div>
+      <div class="main-content">
+        <div class="npc-gallery">
+          @for (npc of campaign.npc_characters; track npc.id) {
+            <a class="npc-card" [routerLink]="['/npc', npc.id]">
+              <div class="npc-avatar">
+                @if (npc.avatar) {
+                  <img [src]="npc.avatar" [alt]="npc.name" />
+                } @else {
+                  <div class="npc-avatar-placeholder">{{ npc.name[0] }}</div>
+                }
+              </div>
+              <span class="npc-name">{{ npc.name }}</span>
+            </a>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Participating characters -->
+  @if (campaign.characters.length > 0 || campaign.is_gm) {
+    <div class="category">
+      <div class="maintitle">
+        <p>Characters</p>
+        @if (campaign.is_gm) {
+          <button class="btn-add" (click)="addCharacter()">+ Add Character</button>
+        }
+      </div>
+      <div class="main-content">
+        <ul class="character-list">
+          @for (char of campaign.characters; track char.id) {
+            <li class="character-item">
+              @if (char.avatar) {
+                <img class="character-avatar" [src]="char.avatar" [alt]="char.name" />
+              } @else {
+                <div class="character-avatar character-avatar-placeholder">{{ char.name[0] }}</div>
+              }
+              <a [routerLink]="['/character', char.id]">{{ char.name }}</a>
+              @if (campaign.is_gm) {
+                <button class="btn-remove" (click)="removeCharacter(char.id)" title="Remove character">×</button>
+              }
+            </li>
+          }
+        </ul>
+      </div>
+    </div>
+  }
+
+  <!-- Episodes table -->
+  <div class="category">
+    <div class="maintitle">
+      <p>Episodes</p>
+      @if (campaign.is_gm) {
+        <button class="btn-add" (click)="addEpisode()">+ Add Episode</button>
+      }
+    </div>
+    <div class="main-content">
+      <table cellspacing="0">
+        <thead>
+          <tr>
+            <th class="tcl" scope="col">#</th>
+            <th class="tc2" scope="col">Episode Name</th>
+            @if (campaign.is_gm) {
+              <th class="tcr" scope="col"></th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (episode of campaign.episodes; track episode.id; let i = $index; let isEven = $even) {
+            <tr [class.altstyle]="isEven">
+              <td class="tcl episode-num">{{ i + 1 }}</td>
+              <td class="tc2">
+                <a [routerLink]="['/viewtopic', episode.id]">{{ episode.name }}</a>
+              </td>
+              @if (campaign.is_gm) {
+                <td class="tcr episode-actions">
+                  <button class="btn-remove" (click)="removeEpisode(episode.id)" title="Remove episode">×</button>
+                </td>
+              }
+            </tr>
+          } @empty {
+            <tr>
+              <td [attr.colspan]="campaign.is_gm ? 3 : 2" class="tcl">
+                <div class="intd"><p>No episodes yet.</p></div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

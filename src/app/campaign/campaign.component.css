@@ -1,0 +1,214 @@
+.campaign-header .main-content {
+  padding: 16px 20px;
+}
+
+.campaign-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.campaign-title {
+  margin: 0;
+  font-size: 1.6em;
+}
+
+/* GM action buttons */
+.btn-edit {
+  padding: 4px 14px;
+  font-size: 0.8em;
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid var(--link-color, #5a7db5);
+  background: transparent;
+  color: var(--link-color, #5a7db5);
+  white-space: nowrap;
+}
+
+.btn-edit:hover {
+  background: var(--link-color, #5a7db5);
+  color: #fff;
+}
+
+.btn-add {
+  padding: 2px 10px;
+  font-size: 0.8em;
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid var(--link-color, #5a7db5);
+  background: transparent;
+  color: var(--link-color, #5a7db5);
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+.btn-add:hover {
+  background: var(--link-color, #5a7db5);
+  color: #fff;
+}
+
+.btn-remove {
+  background: transparent;
+  border: none;
+  color: var(--text-muted, #999);
+  cursor: pointer;
+  font-size: 1em;
+  line-height: 1;
+  padding: 0 2px;
+}
+
+.btn-remove:hover {
+  color: #c0392b;
+}
+
+
+
+.maintitle {
+  display: flex;
+  align-items: center;
+}
+
+.episode-actions {
+  width: 32px;
+  text-align: center;
+}
+
+.campaign-badges {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.campaign-status {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--link-color, #5a7db5);
+  color: #fff;
+}
+
+.campaign-status.status-2 { background: #6c757d; }
+.campaign-status.status-3 { background: #e0a030; }
+.campaign-status.status-4 { background: #4a9e6b; }
+
+.campaign-gm {
+  font-size: 0.9em;
+  color: var(--text-muted, #666);
+}
+
+.campaign-summary {
+  margin: 0 0 14px;
+  line-height: 1.6;
+}
+
+.campaign-dates {
+  display: flex;
+  gap: 20px;
+  font-size: 0.85em;
+  color: var(--text-muted, #666);
+  flex-wrap: wrap;
+}
+
+/* NPC gallery */
+.npc-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 12px 0;
+}
+
+.npc-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 80px;
+  text-align: center;
+}
+
+.npc-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.npc-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.npc-avatar-placeholder {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--link-color, #5a7db5);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.npc-name {
+  font-size: 0.78em;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+/* Characters list */
+.character-list {
+  list-style: none;
+  margin: 0;
+  padding: 8px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.character-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.character-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.character-avatar-placeholder {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--link-color, #5a7db5);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+/* Episodes table */
+.episode-num {
+  width: 40px;
+  text-align: center;
+  color: var(--text-muted, #888);
+  font-size: 0.85em;
+}

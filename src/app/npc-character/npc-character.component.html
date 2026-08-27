@@ -1,0 +1,63 @@
+<div id="pun-main" class="main">
+
+  <div class="category npc-header">
+    <div class="main-content">
+      <div class="npc-card">
+        <div class="npc-avatar">
+          @if (npc.avatar) {
+            <img [src]="npc.avatar" [alt]="npc.name" />
+          } @else {
+            <div class="npc-avatar-placeholder">{{ npc.name[0] }}</div>
+          }
+        </div>
+        <div class="npc-info">
+          <h1 class="npc-name">{{ npc.name }}</h1>
+          @if (npc.factions && npc.factions.length > 0) {
+            <ul class="npc-factions">
+              @for (faction of npc.factions; track faction.id) {
+                <li>{{ faction.name }}</li>
+              }
+            </ul>
+          }
+          @if (npc.campaign_id) {
+            <a class="npc-back" [routerLink]="['/campaign', npc.campaign_id]">← Back to campaign</a>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (npc.topics && npc.topics.length > 0) {
+    <div class="category">
+      <div class="maintitle"><p>Appearances</p></div>
+      <div class="main-content">
+        <ul class="topic-list">
+          @for (topic of npc.topics; track topic.topic_id) {
+            <li class="topic-item">
+              <button class="topic-toggle" (click)="toggleTopic(topic.topic_id)">
+                <i class="bi" [class.bi-chevron-right]="!openTopics.has(topic.topic_id)" [class.bi-chevron-down]="openTopics.has(topic.topic_id)"></i>
+                <a [routerLink]="['/viewtopic', topic.topic_id]" (click)="$event.stopPropagation()">{{ topic.topic_title }}</a>
+                <span class="topic-post-count">{{ topic.post_ids.length }} post{{ topic.post_ids.length === 1 ? '' : 's' }}</span>
+              </button>
+              @if (openTopics.has(topic.topic_id)) {
+                <ul class="post-list">
+                  @for (postId of topic.post_ids; track postId; let i = $index) {
+                    <li><a [routerLink]="['/post-page', postId]">Post #{{ i + 1 }}</a></li>
+                  }
+                </ul>
+              }
+            </li>
+          }
+        </ul>
+      </div>
+    </div>
+  }
+
+  @for (field of fields; track field.name) {
+    <div class="category">
+      <div class="maintitle"><p>{{ field.name }}</p></div>
+      <div class="main-content npc-field-content" [innerHTML]="field.html"></div>
+    </div>
+  }
+
+</div>

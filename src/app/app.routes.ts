@@ -85,6 +85,8 @@ import { AdminExternalAppEditComponent } from './admin/admin-external-app-edit/a
 import { MigrationListComponent } from './migration-list/migration-list.component';
 import { CreateUserDataMigrationComponent } from './create-user-data-migration/create-user-data-migration.component';
 import { UserDataMigrationComponent } from './user-data-migration/user-data-migration.component';
+import { CampaignComponent } from './campaign/campaign.component';
+import { NpcCharacterComponent } from './npc-character/npc-character.component';
 import { PuzzlesComponent } from './puzzles/puzzles.component';
 import { PuzzleViewComponent } from './puzzle-view/puzzle-view.component';
 import { PuzzleAchievementsComponent } from './puzzle-achievements/puzzle-achievements.component';
@@ -224,6 +226,18 @@ export const routes: Routes = [
     component: CharacterviewComponent,
     title: 'Character',
     data: { pageId: 'pun-character' }
+  },
+  {
+    path: 'campaign/:id',
+    component: CampaignComponent,
+    title: 'Campaign',
+    data: { pageId: 'pun-campaign' }
+  },
+  {
+    path: 'npc/:id',
+    component: NpcCharacterComponent,
+    title: 'NPC',
+    data: { pageId: 'pun-npc' }
   },
   {
     path: 'character-list',
