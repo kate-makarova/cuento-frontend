@@ -102,71 +102,16 @@
       @if (cardView()) {
         <div class="card-list">
           @for (wc of list(); track wc.id) {
-            <div class="wanted-card" [class.wanted-card--expanded]="isExpanded(wc.id)">
-              <div class="card-name">
-                <a [routerLink]="['/viewtopic', wc.topic_id]">{{ wc.name }}</a>
-                @if (wc.claim_record) {
-                  <span class="claim-badge">
-                    @if (wc.claim_record.claim_author_username) {
-                      <ng-container i18n="@@wantedCharacterList.claimedByUntil">Claimed by {{ wc.claim_record.claim_author_username }} until {{ wc.claim_record.claim_expiration_date | date:'yyyy-MM-dd' }}</ng-container>
-                    } @else {
-                      <ng-container i18n="@@wantedCharacterList.claimedByGuestUntil">Claimed by a guest until {{ wc.claim_record.claim_expiration_date | date:'yyyy-MM-dd' }}</ng-container>
-                    }
-                  </span>
-                }
-              </div>
-              @if (wc.factions && wc.factions.length > 0) {
-                <div class="card-factions">{{ factionsString(wc) }}</div>
-              }
-              @if (wc.relations && wc.relations.length > 0) {
-                <div class="card-relations">
-                  <div class="relation-chips">
-                    @for (rel of wc.relations; track rel.id) {
-                      <a [routerLink]="['/character', rel.id]" class="relation-chip">
-                        @if (rel.avatar) {
-                          <img [src]="rel.avatar" [alt]="rel.name" class="relation-chip-avatar" style="width:20px;height:20px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:4px;" />
-                        }
-                        {{ rel.name }}
-                      </a>
-                    }
-                  </div>
-                </div>
-              }
-              @if (getFields(wc).length > 0) {
-                <ul class="card-fields">
-                  @for (field of getFields(wc); track (field.fieldName || $index)) {
-                    @if (field.fieldValue) {
-                      <li>
-                        <app-field-display [type]="field.type" [fieldMachineName]="field.fieldMachineName" [fieldName]="field.fieldName" [fieldValue]="field.fieldValue"></app-field-display>
-                      </li>
-                    }
-                  }
-                </ul>
-              }
-              @if (!isExpanded(wc.id)) {
-                <div class="card-show-more" (click)="expandCard(wc.id)">
-                  <span>Show more</span>
-                </div>
-              } @else {
-                <div class="card-hide">
-                  <span (click)="collapseCard(wc.id)">Hide</span>
-                </div>
-              }
-              @if (canRevoke(wc)) {
-                <div class="card-actions">
-                  <button class="button" (click)="revokeClaimRecord(wc)" i18n="@@wantedCharacterList.revoke">Revoke claim</button>
-                </div>
-              } @else if (isAuthenticated() && !wc.claim_record) {
-                <div class="card-actions">
-                  <button class="button" (click)="claimWantedCharacter(wc)" i18n="@@wantedCharacterList.claim">Claim</button>
-                </div>
-              }
-              @if (wc.user_info) {
-                <div class="card-user-info">
-                  <app-user-info [userInfo]="wc.user_info" />
-                </div>
-              }
-            </div>
+            <app-wanted-character-card
+              [wantedCharacter]="wc"
+              [expanded]="isExpanded(wc.id)"
+              [canRevoke]="canRevoke(wc)"
+              [isAuthenticated]="isAuthenticated()"
+              (expand)="expandCard(wc.id)"
+              (collapse)="collapseCard(wc.id)"
+              (claim)="claimWantedCharacter(wc)"
+              (revoke)="revokeClaimRecord(wc)"
+            ></app-wanted-character-card>
           }
         </div>
       } @else {
