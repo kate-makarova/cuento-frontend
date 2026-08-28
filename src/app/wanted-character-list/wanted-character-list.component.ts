@@ -14,6 +14,7 @@ import { CharacterShort, CustomFieldsData, CustomFieldValue } from '../models/Ch
 import { FieldTemplate } from '../models/FieldTemplate';
 import { FieldDisplayComponent } from '../components/field-display/field-display.component';
 import { UserInfoComponent } from '../components/user-info/user-info.component';
+import { WantedCharacterCardComponent } from '../components/wanted-character-card/wanted-character-card.component';
 
 interface ProcessedField {
   fieldMachineName: string;
@@ -27,7 +28,7 @@ interface ProcessedField {
   selector: 'app-wanted-character-list',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [RouterLink, CommonModule, FormsModule, FieldDisplayComponent, UserInfoComponent],
+  imports: [RouterLink, CommonModule, FormsModule, FieldDisplayComponent, UserInfoComponent, WantedCharacterCardComponent],
   templateUrl: './wanted-character-list.component.html',
   styleUrl: './wanted-character-list.component.css',
 })

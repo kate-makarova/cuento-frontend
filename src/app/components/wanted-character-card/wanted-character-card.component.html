@@ -1,0 +1,65 @@
+<div class="wanted-card" [class.wanted-card--expanded]="expanded">
+  <div class="card-name">
+    <a [routerLink]="['/viewtopic', wantedCharacter.topic_id]">{{ wantedCharacter.name }}</a>
+    @if (wantedCharacter.claim_record) {
+      <span class="claim-badge">
+        @if (wantedCharacter.claim_record.claim_author_username) {
+          <ng-container i18n="@@wantedCharacterList.claimedByUntil">Claimed by {{ wantedCharacter.claim_record.claim_author_username }} until {{ wantedCharacter.claim_record.claim_expiration_date | date:'yyyy-MM-dd' }}</ng-container>
+        } @else {
+          <ng-container i18n="@@wantedCharacterList.claimedByGuestUntil">Claimed by a guest until {{ wantedCharacter.claim_record.claim_expiration_date | date:'yyyy-MM-dd' }}</ng-container>
+        }
+      </span>
+    }
+  </div>
+  @if (wantedCharacter.factions && wantedCharacter.factions.length > 0) {
+    <div class="card-factions">{{ factionsString }}</div>
+  }
+  @if (wantedCharacter.relations && wantedCharacter.relations.length > 0) {
+    <div class="card-relations">
+      <div class="relation-chips">
+        @for (rel of wantedCharacter.relations; track rel.id) {
+          <a [routerLink]="['/character', rel.id]" class="relation-chip">
+            @if (rel.avatar) {
+              <img [src]="rel.avatar" [alt]="rel.name" class="relation-chip-avatar" style="width:20px;height:20px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:4px;" />
+            }
+            {{ rel.name }}
+          </a>
+        }
+      </div>
+    </div>
+  }
+  @if (fields.length > 0) {
+    <ul class="card-fields">
+      @for (field of fields; track (field.fieldName || $index)) {
+        @if (field.fieldValue) {
+          <li>
+            <app-field-display [type]="field.type" [fieldMachineName]="field.fieldMachineName" [fieldName]="field.fieldName" [fieldValue]="field.fieldValue"></app-field-display>
+          </li>
+        }
+      }
+    </ul>
+  }
+  @if (!expanded) {
+    <div class="card-show-more" (click)="expand.emit()">
+      <span i18n="@@wantedCharacterList.showMore">Show more</span>
+    </div>
+  } @else {
+    <div class="card-hide">
+      <span (click)="collapse.emit()" i18n="@@wantedCharacterList.hide">Hide</span>
+    </div>
+  }
+  @if (canRevoke) {
+    <div class="card-actions">
+      <button class="button" (click)="revoke.emit()" i18n="@@wantedCharacterList.revoke">Revoke claim</button>
+    </div>
+  } @else if (isAuthenticated && !wantedCharacter.claim_record) {
+    <div class="card-actions">
+      <button class="button" (click)="claim.emit()" i18n="@@wantedCharacterList.claim">Claim</button>
+    </div>
+  }
+  @if (wantedCharacter.user_info) {
+    <div class="card-user-info">
+      <app-user-info [userInfo]="wantedCharacter.user_info" />
+    </div>
+  }
+</div>
