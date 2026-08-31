@@ -104,6 +104,10 @@ export class WantedCharacterCreateComponent implements OnInit {
 
     if (this.initialData) {
       this.characterName = this.initialData.name;
+      if (this.initialData.relations && this.initialData.relations.length > 0) {
+        this.relationInputValues = this.initialData.relations.map(r => r.name);
+        this.selectedRelationIds = this.initialData.relations.map(r => r.id);
+      }
     }
   }
 
