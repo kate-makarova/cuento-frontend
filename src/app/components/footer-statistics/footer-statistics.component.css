@@ -1,0 +1,11 @@
+#pun-statistics {
+  min-height: 150px;
+}
+
+#pun-active {
+  min-height: 40px;
+}
+
+#pun-recently-active {
+  min-height: 60px;
+}

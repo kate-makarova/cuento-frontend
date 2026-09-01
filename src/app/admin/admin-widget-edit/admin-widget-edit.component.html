@@ -73,12 +73,12 @@
                 }
               </select>
               @if (needsDimensions(field)) {
-                <div class="dimensions-row">
-                  <label i18n="@@admin.widgetEdit.width">W
-                    <input type="number" [(ngModel)]="getDimensions(field.key).width" min="1" />
+                <div class="dimensions-row" [class.dimensions-row--error]="dimensionError() && (!getDimensions(field.key).width || !getDimensions(field.key).height)">
+                  <label>W <span class="required-mark">*</span>
+                    <input type="number" [(ngModel)]="getDimensions(field.key).width" min="1" required />
                   </label>
-                  <label i18n="@@admin.widgetEdit.height">H
-                    <input type="number" [(ngModel)]="getDimensions(field.key).height" min="1" />
+                  <label>H <span class="required-mark">*</span>
+                    <input type="number" [(ngModel)]="getDimensions(field.key).height" min="1" required />
                   </label>
                 </div>
               }
@@ -126,6 +126,10 @@
         </div>
       }
     </fieldset>
+  }
+
+  @if (dimensionError()) {
+    <p class="dimension-error-msg" i18n="@@admin.widgetEdit.dimensionError">Image fields require width and height.</p>
   }
 
   <div class="form-actions">

@@ -68,6 +68,7 @@ export class AdminWidgetEditComponent implements OnInit {
   filterStatus = signal<string>('');
   filterIsClaimed = signal<string>('');
   fieldDimensions: Record<string, { width: string; height: string }> = {};
+  dimensionError = signal(false);
 
   entityType = computed(() => this.configFields().find(f => f.key === 'entity_type')?.value as string | undefined);
 
@@ -256,6 +257,16 @@ export class AdminWidgetEditComponent implements OnInit {
   }
 
   save() {
+    const missingDimensions = this.configFields().some(f => {
+      if (!this.needsDimensions(f)) return false;
+      const dims = this.fieldDimensions[f.key];
+      return !dims?.width || !dims?.height;
+    });
+    if (missingDimensions) {
+      this.dimensionError.set(true);
+      return;
+    }
+    this.dimensionError.set(false);
     this.saveState.set('loading');
 
     const config: Record<string, any> = {};

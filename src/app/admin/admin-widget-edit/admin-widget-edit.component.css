@@ -29,3 +29,17 @@
 .form-actions {
   margin-top: 8px;
 }
+
+.dimensions-row--error input {
+  border-color: red;
+}
+
+.required-mark {
+  color: red;
+}
+
+.dimension-error-msg {
+  color: red;
+  font-size: 0.9em;
+  margin-bottom: 8px;
+}
