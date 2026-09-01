@@ -9,7 +9,7 @@ import {EpisodeService} from '../services/episode.service';
 import {CharacterService} from '../services/character.service';
 import {FactionService} from '../services/faction.service';
 import {FactionSettingService} from '../services/faction-setting.service';
-import {CommonModule} from '@angular/common';
+import { DatePipe } from '@angular/common';
 import {debounceTime, distinctUntilChanged, forkJoin, Subject} from 'rxjs';
 import {Faction} from '../models/Faction';
 
@@ -24,7 +24,7 @@ const FIXED_COLUMNS = [
 @Component({
   selector: 'app-episode-list',
   host: { class: 'pun-page' },
-  imports: [RouterLink, FormsModule, CommonModule],
+  imports: [RouterLink, FormsModule, DatePipe],
   templateUrl: './episode-list.component.html',
   styleUrl: './episode-list.component.css',
   standalone: true,

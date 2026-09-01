@@ -1,12 +1,12 @@
 import { Component, Input } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { UserInfo } from '../../models/User';
 
 @Component({
   selector: 'app-user-info',
   standalone: true,
-  imports: [CommonModule, DatePipe, RouterLink],
+  imports: [ DatePipe, RouterLink],
   templateUrl: './user-info.component.html',
 })
 export class UserInfoComponent {

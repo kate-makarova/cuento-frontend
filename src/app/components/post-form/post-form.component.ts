@@ -7,7 +7,7 @@ import { ImageService } from '../../services/image.service';
 import { BoardService } from '../../services/board.service';
 import { ApiService } from '../../services/api.service';
 import { UserShort } from '../../models/UserShort';
-import { CommonModule } from '@angular/common';
+
 import { BbToolbarComponent } from '../bb-toolbar/bb-toolbar.component';
 import { WysiwygEditorComponent } from '../wysiwyg-editor/wysiwyg-editor.component';
 import { FormsModule } from '@angular/forms';
@@ -30,7 +30,7 @@ interface PostDraft {
 
 @Component({
   selector: 'app-post-form',
-  imports: [CommonModule, FormsModule, BbToolbarComponent, WysiwygEditorComponent],
+  imports: [ FormsModule, BbToolbarComponent, WysiwygEditorComponent],
   templateUrl: './post-form.component.html',
   styleUrl: './post-form.component.css',
   standalone: true,

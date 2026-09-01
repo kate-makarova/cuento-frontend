@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CharacterClaimService } from '../../services/character-claim.service';
 import { ApiService } from '../../services/api.service';
@@ -9,7 +9,7 @@ import { ErrorBannerComponent } from '../../components/error-banner/error-banner
   selector: 'app-character-claims',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [CommonModule, FormsModule, ErrorBannerComponent],
+  imports: [ FormsModule, ErrorBannerComponent, DatePipe],
   templateUrl: './character-claims.component.html',
   styleUrl: './character-claims.component.css'
 })

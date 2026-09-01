@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { FactionService } from '../../services/faction.service';
@@ -15,7 +15,7 @@ interface FreeFormatDateOption {
 @Component({
   selector: 'app-admin-factions',
   host: { class: 'pun-page' },
-  imports: [CommonModule, FormsModule, RouterLink, SaveButtonComponent],
+  imports: [ FormsModule, RouterLink, SaveButtonComponent],
   standalone: true,
   templateUrl: './admin-factions.component.html',
   styleUrl: './admin-factions.component.css'

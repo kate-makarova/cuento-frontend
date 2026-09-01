@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Episode } from '../../models/Episode';
 import { FieldDisplayComponent } from '../field-display/field-display.component';
 import { CustomFieldsData, CustomFieldValue } from '../../models/Character';
@@ -7,7 +7,7 @@ import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-episode-header',
-  imports: [CommonModule, RouterLink, FieldDisplayComponent],
+  imports: [ RouterLink, FieldDisplayComponent],
   templateUrl: './episode-header.component.html',
   standalone: true,
 })

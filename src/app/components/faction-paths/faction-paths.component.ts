@@ -1,5 +1,5 @@
 import { Component, inject, signal, Input, Output, EventEmitter, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { FactionService } from '../../services/faction.service';
 import { FactionSettingService } from '../../services/faction-setting.service';
@@ -15,7 +15,7 @@ interface FactionLevel {
 @Component({
   selector: 'app-faction-paths',
   standalone: true,
-  imports: [CommonModule, FormsModule, FactionCreateModalComponent],
+  imports: [ FormsModule, FactionCreateModalComponent],
   templateUrl: './faction-paths.component.html',
 })
 export class FactionPathsComponent implements OnInit {

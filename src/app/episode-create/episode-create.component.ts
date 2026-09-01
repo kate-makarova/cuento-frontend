@@ -1,6 +1,6 @@
 import { Component, computed, effect, inject, OnInit, Input, Output, EventEmitter, signal } from '@angular/core';
 import { FormArray, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { EpisodeService } from '../services/episode.service';
 import { CharacterService } from '../services/character.service';
 import { TopicService } from '../services/topic.service';
@@ -20,7 +20,7 @@ import { StandardWarning } from '../models/StandardWarning';
 @Component({
   selector: 'app-episode-create',
   host: { class: 'pun-page' },
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, FieldInputComponent, BreadcrumbsComponent],
+  imports: [ ReactiveFormsModule, FormsModule, FieldInputComponent, BreadcrumbsComponent],
   templateUrl: './episode-create.component.html',
 })
 export class EpisodeCreateComponent implements OnInit {

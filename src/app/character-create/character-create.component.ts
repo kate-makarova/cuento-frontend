@@ -10,7 +10,7 @@ import { CreateCharacterRequest, Character } from '../models/Character';
 import { ClaimAutocompleteItem, ClaimRecord } from '../models/CharacterClaim';
 import { Topic, TopicType, TopicStatus } from '../models/Topic';
 import { Faction } from '../models/Faction';
-import { CommonModule } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BoardService } from '../services/board.service';
 import { ImageService } from '../services/image.service';
@@ -21,7 +21,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 @Component({
   selector: 'app-character-create',
   host: { class: 'pun-page' },
-  imports: [FieldInputComponent, FactionPathsComponent, CommonModule, FormsModule, CroppedImageFieldComponent],
+  imports: [FieldInputComponent, FactionPathsComponent, FormsModule, CroppedImageFieldComponent, DatePipe],
   templateUrl: './character-create.component.html',
   standalone: true,
 })

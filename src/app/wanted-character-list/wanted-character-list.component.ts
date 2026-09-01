@@ -1,6 +1,6 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { take } from 'rxjs';
 import { WantedCharacterService } from '../services/wanted-character.service';
@@ -28,7 +28,7 @@ interface ProcessedField {
   selector: 'app-wanted-character-list',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [RouterLink, CommonModule, FormsModule, FieldDisplayComponent, UserInfoComponent, WantedCharacterCardComponent],
+  imports: [RouterLink, FormsModule, FieldDisplayComponent, UserInfoComponent, WantedCharacterCardComponent],
   templateUrl: './wanted-character-list.component.html',
   styleUrl: './wanted-character-list.component.css',
 })

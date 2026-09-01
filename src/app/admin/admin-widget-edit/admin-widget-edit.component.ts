@@ -1,6 +1,6 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { SaveButtonComponent } from '../save-button/save-button.component';
@@ -47,7 +47,7 @@ interface ConfigField {
 @Component({
   selector: 'app-admin-widget-edit',
   host: { class: 'pun-page' },
-  imports: [CommonModule, FormsModule, SaveButtonComponent],
+  imports: [ FormsModule, SaveButtonComponent],
   templateUrl: './admin-widget-edit.component.html',
   standalone: true,
   styleUrl: './admin-widget-edit.component.css'

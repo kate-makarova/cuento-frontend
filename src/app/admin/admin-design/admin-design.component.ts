@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { forkJoin, of } from 'rxjs';
 import { ApiService } from '../../services/api.service';
@@ -31,7 +31,7 @@ let tempId = -1;
 @Component({
   selector: 'app-admin-design',
   host: { class: 'pun-page' },
-  imports: [CommonModule, FormsModule, SaveButtonComponent],
+  imports: [ FormsModule, SaveButtonComponent, DatePipe],
   standalone: true,
   templateUrl: './admin-design.component.html',
   styleUrl: './admin-design.component.css'

@@ -3,7 +3,7 @@ import {Title} from '@angular/platform-browser';
 import {PostFormComponent} from '../components/post-form/post-form.component';
 import {TopicService} from '../services/topic.service';
 import {Router, RouterLink, ActivatedRoute} from '@angular/router';
-import {CommonModule} from '@angular/common';
+
 import {CharacterProfileComponent} from '../components/character-profile/character-profile.component';
 import {TopicType, TopicStatus} from '../models/Topic';
 import {EpisodeHeaderComponent} from '../components/episode-header/episode-header.component';
@@ -45,7 +45,6 @@ function coerceToPage(value: unknown): number {
   imports: [
     PostFormComponent,
     RouterLink,
-    CommonModule,
     CharacterProfileComponent,
     EpisodeHeaderComponent,
     BreadcrumbsComponent,
@@ -61,8 +60,7 @@ function coerceToPage(value: unknown): number {
     CodeCopyDirective,
     UserInfoComponent,
     FormsModule,
-    PostSidebarComponent,
-  ],
+    PostSidebarComponent],
   templateUrl: './viewtopic.component.html',
   standalone: true,
 })

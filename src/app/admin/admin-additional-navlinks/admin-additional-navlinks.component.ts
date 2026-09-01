@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { AdditionalNavlink, AdditionalNavlinkType } from '../../models/AdditionalNavlink';
@@ -8,7 +8,7 @@ import { AdditionalNavlink, AdditionalNavlinkType } from '../../models/Additiona
   selector: 'app-admin-additional-navlinks',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [ FormsModule],
   templateUrl: './admin-additional-navlinks.component.html',
   styleUrl: './admin-additional-navlinks.component.css'
 })

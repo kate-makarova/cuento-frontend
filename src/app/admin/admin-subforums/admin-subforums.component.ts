@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { Category } from '../../models/Category';
@@ -25,7 +25,7 @@ interface NewCategory {
 @Component({
   selector: 'app-admin-subforums',
   host: { class: 'pun-page' },
-  imports: [CommonModule, FormsModule, BbToolbarComponent],
+  imports: [ FormsModule, BbToolbarComponent],
   templateUrl: './admin-subforums.component.html',
   standalone: true,
   styleUrl: './admin-subforums.component.css'

@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { SaveButtonComponent } from '../save-button/save-button.component';
@@ -18,7 +18,7 @@ type SaveState = 'idle' | 'loading' | 'success' | 'error';
   selector: 'app-admin-frontend-templates',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [CommonModule, RouterLink, SaveButtonComponent],
+  imports: [ RouterLink, SaveButtonComponent],
   templateUrl: './admin-frontend-templates.component.html',
   styleUrl: './admin-frontend-templates.component.css',
 })
