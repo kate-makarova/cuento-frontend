@@ -1,5 +1,5 @@
 import { Component, EventEmitter, inject, Input, OnInit, Output, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Post } from '../../models/Post';
 import { ShortTextFieldDisplayComponent } from '../short-text-field-display/short-text-field-display.component';
 import { LongTextFieldDisplayComponent } from '../long-text-field-display/long-text-field-display.component';
@@ -15,7 +15,7 @@ import { CroppedImageFieldDisplayComponent } from '../cropped-image-field-displa
 
 @Component({
   selector: 'app-character-profile',
-  imports: [CommonModule, ShortTextFieldDisplayComponent, LongTextFieldDisplayComponent, NumberFieldDisplayComponent, ImageFieldDisplayComponent, CroppedImageFieldDisplayComponent, FormsModule],
+  imports: [ ShortTextFieldDisplayComponent, LongTextFieldDisplayComponent, NumberFieldDisplayComponent, ImageFieldDisplayComponent, CroppedImageFieldDisplayComponent, FormsModule],
   templateUrl: './character-profile.component.html',
   standalone: true,
 })

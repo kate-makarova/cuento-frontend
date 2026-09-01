@@ -1,5 +1,5 @@
 import { Component, inject, Input, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ImageUploadComponent } from '../image-upload/image-upload.component';
 import { GridBuilderComponent } from '../grid-builder/grid-builder.component';
 import { ApiService } from '../../services/api.service';
@@ -9,7 +9,7 @@ import { WysiwygEditorComponent } from '../wysiwyg-editor/wysiwyg-editor.compone
 @Component({
   selector: 'app-bb-toolbar',
   standalone: true,
-  imports: [CommonModule, ImageUploadComponent, GridBuilderComponent],
+  imports: [ ImageUploadComponent, GridBuilderComponent],
   templateUrl: './bb-toolbar.component.html',
 })
 export class BbToolbarComponent {

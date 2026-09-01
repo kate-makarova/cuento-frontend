@@ -1,13 +1,13 @@
 import { Component, inject, signal, OnInit, effect } from '@angular/core';
 import { EpisodeService } from '../../services/episode.service';
 import { FieldTemplateRowComponent, FieldTemplateForm } from '../field-template-row/field-template-row.component';
-import { CommonModule } from '@angular/common';
+
 import { SaveButtonComponent } from '../save-button/save-button.component';
 
 @Component({
   selector: 'app-episode-template-edit',
   host: { class: 'pun-page' },
-  imports: [FieldTemplateRowComponent, CommonModule, SaveButtonComponent],
+  imports: [FieldTemplateRowComponent, SaveButtonComponent],
   templateUrl: './episode-template-edit.component.html',
   standalone: true,
   styleUrl: './episode-template-edit.component.css'

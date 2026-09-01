@@ -1,6 +1,6 @@
 import { Component, inject, Input, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { CharacterProfile } from '../models/Character';
 import { EpisodeListItem } from '../models/Episode';
 import { MaskService } from '../services/mask.service';
@@ -10,7 +10,7 @@ import { TopicStatus } from '../models/Topic';
   selector: 'app-mask-page',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [ RouterLink],
   templateUrl: './mask-page.component.html',
 })
 export class MaskPageComponent implements OnInit {

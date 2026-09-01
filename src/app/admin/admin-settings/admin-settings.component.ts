@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { GlobalSettingsService } from '../../services/global-settings.service';
 import { Setting } from '../../models/Setting';
@@ -99,7 +99,7 @@ const SETTING_LABELS: Record<string, string> = {
 @Component({
   selector: 'app-admin-settings',
   host: { class: 'pun-page' },
-  imports: [CommonModule, FormsModule, SaveButtonComponent],
+  imports: [ FormsModule, SaveButtonComponent],
   standalone: true,
   templateUrl: './admin-settings.component.html',
   styleUrl: './admin-settings.component.css'

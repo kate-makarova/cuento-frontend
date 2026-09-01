@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -25,7 +25,7 @@ type SearchResults = Record<string, SearchResult[]>;
   selector: 'app-search',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [ RouterLink, FormsModule],
   templateUrl: './search.component.html',
 })
 export class SearchComponent implements OnInit {

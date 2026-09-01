@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MigrationService } from '../services/migration.service';
 import { MigrationStatus } from '../models/Migration';
@@ -8,7 +8,7 @@ import { MigrationStatus } from '../models/Migration';
   selector: 'app-migration-list',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [ RouterLink, DatePipe, NgClass],
   templateUrl: './migration-list.component.html',
   styleUrl: './migration-list.component.css'
 })

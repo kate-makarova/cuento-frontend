@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { WantedCharacter } from '../../models/WantedCharacter';
 import { CustomFieldsData, CustomFieldValue } from '../../models/Character';
@@ -9,7 +9,7 @@ import { FieldDisplayComponent } from '../field-display/field-display.component'
 @Component({
   selector: 'app-wanted-character-header',
   standalone: true,
-  imports: [CommonModule, DatePipe, RouterLink, FieldDisplayComponent],
+  imports: [ DatePipe, RouterLink, FieldDisplayComponent],
   templateUrl: './wanted-character-header.component.html',
 })
 export class WantedCharacterHeaderComponent implements OnInit, OnChanges {

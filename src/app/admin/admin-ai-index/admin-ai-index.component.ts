@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 
 export interface QdrantCursorItem {
@@ -13,7 +13,7 @@ export interface QdrantCursorItem {
   selector: 'app-admin-ai-index',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [CommonModule, DatePipe],
+  imports: [ DatePipe],
   templateUrl: './admin-ai-index.component.html',
 })
 export class AdminAiIndexComponent implements OnInit {

@@ -1,12 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-admin-wrapper',
   host: { class: 'pun-page' },
-  imports: [RouterOutlet, RouterLink, CommonModule],
+  imports: [RouterOutlet, RouterLink],
   templateUrl: './admin-wrapper.component.html',
   styleUrl: './admin-wrapper.component.css'
 })

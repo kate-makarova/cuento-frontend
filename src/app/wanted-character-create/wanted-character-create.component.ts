@@ -1,6 +1,6 @@
 import { Component, effect, inject, OnInit, Input, Output, EventEmitter, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { WantedCharacterService } from '../services/wanted-character.service';
 import { CharacterService } from '../services/character.service';
 import { FieldInputComponent } from '../components/field-input/field-input.component';
@@ -16,7 +16,7 @@ import { TopicService } from '../services/topic.service';
   selector: 'app-wanted-character-create',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [CommonModule, FieldInputComponent, FactionPathsComponent, BreadcrumbsComponent],
+  imports: [ FieldInputComponent, FactionPathsComponent, BreadcrumbsComponent],
   templateUrl: './wanted-character-create.component.html',
 })
 export class WantedCharacterCreateComponent implements OnInit {
@@ -104,6 +104,10 @@ export class WantedCharacterCreateComponent implements OnInit {
 
     if (this.initialData) {
       this.characterName = this.initialData.name;
+      if (this.initialData.relations && this.initialData.relations.length > 0) {
+        this.relationInputValues = this.initialData.relations.map(r => r.name);
+        this.selectedRelationIds = this.initialData.relations.map(r => r.id);
+      }
     }
   }
 

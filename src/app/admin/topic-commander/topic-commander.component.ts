@@ -1,5 +1,5 @@
 import { Component, effect, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { CategoryService } from '../../services/category.service';
 import { ApiService } from '../../services/api.service';
 import { Category } from '../../models/Category';
@@ -17,7 +17,7 @@ interface PanelState {
 @Component({
   selector: 'app-topic-commander',
   host: { class: 'pun-page' },
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './topic-commander.component.html',
   standalone: true,
   styleUrl: './topic-commander.component.css'
