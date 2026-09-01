@@ -17,14 +17,9 @@ import {AdminWrapperComponent} from './admin/admin-wrapper/admin-wrapper.compone
 import { AbsenceListComponent } from './absence-list/absence-list.component';
 import { AutoArchiveComponent } from './auto-archive/auto-archive.component';
 import { ShopComponent } from './shop/shop.component';
-import {TopicCreateComponent} from './topic-create/topic-create.component';
-import {EpisodeCreateComponent} from './episode-create/episode-create.component';
-import {CharacterCreateComponent} from './character-create/character-create.component';
 import {PostTopComponent} from './post-top/post-top.component';
-import {WantedCharacterCreateComponent} from './wanted-character-create/wanted-character-create.component';
 import {WantedCharacterListComponent} from './wanted-character-list/wanted-character-list.component';
 import {PreviewComponent} from './preview/preview.component';
-import {CharacterProfileEditComponent} from './character-profile-edit/character-profile-edit.component';
 import { UserListComponent } from './user-list/user-list.component';
 import { SettingsComponent } from './settings/settings.component';
 import { ActiveTopicsComponent } from './active-topics/active-topics.component';
@@ -45,12 +40,6 @@ import { LoreNavigationEditComponent } from './lore-navigation-edit/lore-navigat
 import { NotFoundComponent } from './error-pages/not-found/not-found.component';
 import { ForbiddenComponent } from './error-pages/forbidden/forbidden.component';
 import { ServerErrorComponent } from './error-pages/server-error/server-error.component';
-import { MigrationListComponent } from './migration-list/migration-list.component';
-import { CreateUserDataMigrationComponent } from './create-user-data-migration/create-user-data-migration.component';
-import { UserDataMigrationComponent } from './user-data-migration/user-data-migration.component';
-import { PuzzlesComponent } from './puzzles/puzzles.component';
-import { PuzzleViewComponent } from './puzzle-view/puzzle-view.component';
-import { PuzzleAchievementsComponent } from './puzzle-achievements/puzzle-achievements.component';
 
 
 export const routes: Routes = [
@@ -121,19 +110,19 @@ export const routes: Routes = [
   },
   {
     path: 'topic-create',
-    component: TopicCreateComponent,
+    loadComponent: () => import('./topic-create/topic-create.component').then(m => m.TopicCreateComponent),
     title: 'Create Topic',
     data: { pageId: 'pun-create-topic' }
   },
   {
     path: 'lore-topic-create',
-    component: TopicCreateComponent,
+    loadComponent: () => import('./topic-create/topic-create.component').then(m => m.TopicCreateComponent),
     title: 'Create Lore Topic',
     data: { pageId: 'pun-create-topic', createEndpoint: 'lore-topic/create' }
   },
   {
     path: 'episode-create',
-    component: EpisodeCreateComponent,
+    loadComponent: () => import('./episode-create/episode-create.component').then(m => m.EpisodeCreateComponent),
     title: 'Create Episode',
     data: { pageId: 'pun-create-episode' }
   },
@@ -145,13 +134,13 @@ export const routes: Routes = [
   },
   {
     path: 'character-create',
-    component: CharacterCreateComponent,
+    loadComponent: () => import('./character-create/character-create.component').then(m => m.CharacterCreateComponent),
     title: 'Create Character',
     data: { pageId: 'pun-create-character' }
   },
   {
     path: 'wanted-character-create',
-    component: WantedCharacterCreateComponent,
+    loadComponent: () => import('./wanted-character-create/wanted-character-create.component').then(m => m.WantedCharacterCreateComponent),
     title: 'Create Wanted Character',
     data: { pageId: 'pun-create-wanted-character' }
   },
@@ -246,7 +235,7 @@ export const routes: Routes = [
   },
   {
     path: 'character-profile-update/:id',
-    component: CharacterProfileEditComponent,
+    loadComponent: () => import('./character-profile-edit/character-profile-edit.component').then(m => m.CharacterProfileEditComponent),
     title: 'Update Character Profile',
     data: { pageId: 'pun-character-profile-update' }
   },
@@ -507,37 +496,37 @@ export const routes: Routes = [
   },
   {
     path: 'puzzles',
-    component: PuzzlesComponent,
+    loadComponent: () => import('./puzzles/puzzles.component').then(m => m.PuzzlesComponent),
     title: 'Puzzles',
     data: { pageId: 'pun-puzzles' }
   },
   {
     path: 'puzzle/:id',
-    component: PuzzleViewComponent,
+    loadComponent: () => import('./puzzle-view/puzzle-view.component').then(m => m.PuzzleViewComponent),
     title: 'Puzzle',
     data: { pageId: 'pun-puzzle' }
   },
   {
     path: 'user/:id/puzzle-achievements',
-    component: PuzzleAchievementsComponent,
+    loadComponent: () => import('./puzzle-achievements/puzzle-achievements.component').then(m => m.PuzzleAchievementsComponent),
     title: 'Puzzle Achievements',
     data: { pageId: 'pun-puzzle-achievements' }
   },
   {
     path: 'migration-list',
-    component: MigrationListComponent,
+    loadComponent: () => import('./migration-list/migration-list.component').then(m => m.MigrationListComponent),
     title: 'User Data Migrations',
     data: { pageId: 'pun-migration-list' }
   },
   {
     path: 'migration-create',
-    component: CreateUserDataMigrationComponent,
+    loadComponent: () => import('./create-user-data-migration/create-user-data-migration.component').then(m => m.CreateUserDataMigrationComponent),
     title: 'Create Migration',
     data: { pageId: 'pun-migration-create' }
   },
   {
     path: 'migration/:id',
-    component: UserDataMigrationComponent,
+    loadComponent: () => import('./user-data-migration/user-data-migration.component').then(m => m.UserDataMigrationComponent),
     title: 'User Data Migration',
     data: { pageId: 'pun-migration' }
   },
