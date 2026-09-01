@@ -14,40 +14,15 @@ import {EpisodeListComponent} from './episode-list/episode-list.component';
 import {LoginComponent} from './login/login.component';
 import {RegisterComponent} from './register/register.component';
 import {AdminWrapperComponent} from './admin/admin-wrapper/admin-wrapper.component';
-import {AdminDashboardComponent} from './admin/admin-dashboard/admin-dashboard.component';
 import { AbsenceListComponent } from './absence-list/absence-list.component';
 import { AutoArchiveComponent } from './auto-archive/auto-archive.component';
 import { ShopComponent } from './shop/shop.component';
-import {CharacterTemplateEditComponent} from './admin/character-template-edit/character-template-edit.component';
 import {TopicCreateComponent} from './topic-create/topic-create.component';
 import {EpisodeCreateComponent} from './episode-create/episode-create.component';
 import {CharacterCreateComponent} from './character-create/character-create.component';
-import {EpisodeTemplateEditComponent} from './admin/episode-template-edit/episode-template-edit.component';
-import {CharacterProfileTemplateEditComponent} from './admin/character-profile-template-edit/character-profile-template-edit.component';
-import {PermissionMatrixComponent} from './admin/permission-matrix/permission-matrix.component';
-import {AdminAiIndexComponent} from './admin/admin-ai-index/admin-ai-index.component';
-import {AdminAiIndexSettingsComponent} from './admin/admin-ai-index-settings/admin-ai-index-settings.component';
-import {AdminAiAgentsComponent} from './admin/admin-ai-agents/admin-ai-agents.component';
-import {AdminAiAgentComponent} from './admin/admin-ai-agent/admin-ai-agent.component';
-import {AdminAiAgentImplementationEditComponent} from './admin/admin-ai-agent-implementation-edit/admin-ai-agent-implementation-edit.component';
-import {AdminFactionsComponent} from './admin/admin-factions/admin-factions.component';
-import {AdminFactionSettingsComponent} from './admin/admin-faction-settings/admin-faction-settings.component';
-import {AdminFactionFreeFormatDateComponent} from './admin/admin-faction-free-format-date/admin-faction-free-format-date.component';
-import {AdminFeaturesComponent} from './admin/admin-features/admin-features.component';
-import {AdminCurrencyComponent} from './admin/admin-currency/admin-currency.component';
-import {AdminPostTopComponent} from './admin/admin-post-top/admin-post-top.component';
 import {PostTopComponent} from './post-top/post-top.component';
-import {CharacterClaimsComponent} from './admin/character-claims/character-claims.component';
-import {WantedCharacterTemplateEditComponent} from './admin/wanted-character-template-edit/wanted-character-template-edit.component';
 import {WantedCharacterCreateComponent} from './wanted-character-create/wanted-character-create.component';
 import {WantedCharacterListComponent} from './wanted-character-list/wanted-character-list.component';
-import {AdminSettingsComponent} from './admin/admin-settings/admin-settings.component';
-import {AdminSubforumsComponent} from './admin/admin-subforums/admin-subforums.component';
-import {TopicCommanderComponent} from './admin/topic-commander/topic-commander.component';
-import {AdminUsersComponent} from './admin/admin-users/admin-users.component';
-import {AdminCharactersComponent} from './admin/admin-characters/admin-characters.component';
-import {AdminCreateUserComponent} from './admin/admin-create-user/admin-create-user.component';
-import {AdminAdditionalNavlinksComponent} from './admin/admin-additional-navlinks/admin-additional-navlinks.component';
 import {PreviewComponent} from './preview/preview.component';
 import {CharacterProfileEditComponent} from './character-profile-edit/character-profile-edit.component';
 import { UserListComponent } from './user-list/user-list.component';
@@ -62,17 +37,7 @@ import { adminGuard } from './guards/admin.guard';
 import { privateKeyGuard } from './guards/private-key.guard';
 import { aiChatGuard } from './guards/ai-chat.guard';
 import { CharacterFieldListComponent } from './character-field-list/character-field-list.component';
-import { AdminWidgetPanelsComponent } from './admin/admin-widget-panels/admin-widget-panels.component';
-import { AdminWidgetPanelEditComponent } from './admin/admin-widget-panel-edit/admin-widget-panel-edit.component';
-import { AdminWidgetsComponent } from './admin/admin-widgets/admin-widgets.component';
-import { AdminWidgetEditComponent } from './admin/admin-widget-edit/admin-widget-edit.component';
 import { ActiveUsersComponent } from './active-users/active-users.component';
-import { AdminDesignComponent } from './admin/admin-design/admin-design.component';
-import { AdminReactionsComponent } from './admin/admin-reactions/admin-reactions.component';
-import { AdminSmilesComponent } from './admin/admin-smiles/admin-smiles.component';
-import { AdminSearchComponent } from './admin/admin-search/admin-search.component';
-import { AdminDesignDraftsComponent } from './admin/admin-design-drafts/admin-design-drafts.component';
-import { AdminFrontendTemplatesComponent } from './admin/admin-frontend-templates/admin-frontend-templates.component';
 import { SearchComponent } from './search/search.component';
 import { PostPageComponent } from './post-page/post-page.component';
 import { LorePageComponent } from './lore-page/lore-page.component';
@@ -80,17 +45,12 @@ import { LoreNavigationEditComponent } from './lore-navigation-edit/lore-navigat
 import { NotFoundComponent } from './error-pages/not-found/not-found.component';
 import { ForbiddenComponent } from './error-pages/forbidden/forbidden.component';
 import { ServerErrorComponent } from './error-pages/server-error/server-error.component';
-import { AdminExternalAppsComponent } from './admin/admin-external-apps/admin-external-apps.component';
-import { AdminExternalAppEditComponent } from './admin/admin-external-app-edit/admin-external-app-edit.component';
 import { MigrationListComponent } from './migration-list/migration-list.component';
 import { CreateUserDataMigrationComponent } from './create-user-data-migration/create-user-data-migration.component';
 import { UserDataMigrationComponent } from './user-data-migration/user-data-migration.component';
 import { PuzzlesComponent } from './puzzles/puzzles.component';
 import { PuzzleViewComponent } from './puzzle-view/puzzle-view.component';
 import { PuzzleAchievementsComponent } from './puzzle-achievements/puzzle-achievements.component';
-import { AdminPuzzlesComponent } from './admin/admin-puzzles/admin-puzzles.component';
-import { AdminPuzzleEditComponent } from './admin/admin-puzzle-edit/admin-puzzle-edit.component';
-import { AdminBackupComponent } from './admin/admin-backup/admin-backup.component';
 
 
 export const routes: Routes = [
@@ -173,7 +133,6 @@ export const routes: Routes = [
   },
   {
     path: 'episode-create',
-
     component: EpisodeCreateComponent,
     title: 'Create Episode',
     data: { pageId: 'pun-create-episode' }
@@ -310,42 +269,42 @@ export const routes: Routes = [
       },
       {
         path: 'dashboard',
-        component: AdminDashboardComponent,
+        loadComponent: () => import('./admin/admin-dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent),
         title: 'Admin - Dashboard'
       },
       {
         path: 'character-template',
-        component: CharacterTemplateEditComponent,
+        loadComponent: () => import('./admin/character-template-edit/character-template-edit.component').then(m => m.CharacterTemplateEditComponent),
         title: 'Admin - Character Template'
       },
       {
         path: 'episode-template',
-        component: EpisodeTemplateEditComponent,
+        loadComponent: () => import('./admin/episode-template-edit/episode-template-edit.component').then(m => m.EpisodeTemplateEditComponent),
         title: 'Admin - Episode Template'
       },
       {
         path: 'character-profile-template',
-        component: CharacterProfileTemplateEditComponent,
+        loadComponent: () => import('./admin/character-profile-template-edit/character-profile-template-edit.component').then(m => m.CharacterProfileTemplateEditComponent),
         title: 'Admin - Character Profile Template'
       },
       {
         path: 'settings',
-        component: AdminSettingsComponent,
+        loadComponent: () => import('./admin/admin-settings/admin-settings.component').then(m => m.AdminSettingsComponent),
         title: 'Admin - Settings'
       },
       {
         path: 'factions',
-        component: AdminFactionsComponent,
+        loadComponent: () => import('./admin/admin-factions/admin-factions.component').then(m => m.AdminFactionsComponent),
         title: 'Admin - Factions'
       },
       {
         path: 'faction-settings',
-        component: AdminFactionSettingsComponent,
+        loadComponent: () => import('./admin/admin-faction-settings/admin-faction-settings.component').then(m => m.AdminFactionSettingsComponent),
         title: 'Admin - Faction Settings'
       },
       {
         path: 'faction/:faction_id/free-format-date',
-        component: AdminFactionFreeFormatDateComponent,
+        loadComponent: () => import('./admin/admin-faction-free-format-date/admin-faction-free-format-date.component').then(m => m.AdminFactionFreeFormatDateComponent),
         title: 'Admin - Faction Date Fields'
       },
       {
@@ -360,77 +319,77 @@ export const routes: Routes = [
       },
       {
         path: 'permissions',
-        component: PermissionMatrixComponent,
+        loadComponent: () => import('./admin/permission-matrix/permission-matrix.component').then(m => m.PermissionMatrixComponent),
         title: 'Admin - Permissions'
       },
       {
         path: 'character-claims',
-        component: CharacterClaimsComponent,
+        loadComponent: () => import('./admin/character-claims/character-claims.component').then(m => m.CharacterClaimsComponent),
         title: 'Admin - Character Claims'
       },
       {
         path: 'wanted-character-template',
-        component: WantedCharacterTemplateEditComponent,
+        loadComponent: () => import('./admin/wanted-character-template-edit/wanted-character-template-edit.component').then(m => m.WantedCharacterTemplateEditComponent),
         title: 'Admin - Wanted Character Template'
       },
       {
         path: 'subforums',
-        component: AdminSubforumsComponent,
+        loadComponent: () => import('./admin/admin-subforums/admin-subforums.component').then(m => m.AdminSubforumsComponent),
         title: 'Admin - Subforums'
       },
       {
         path: 'topic-commander',
-        component: TopicCommanderComponent,
+        loadComponent: () => import('./admin/topic-commander/topic-commander.component').then(m => m.TopicCommanderComponent),
         title: 'Admin - Topic Commander'
       },
       {
         path: 'users',
-        component: AdminUsersComponent,
+        loadComponent: () => import('./admin/admin-users/admin-users.component').then(m => m.AdminUsersComponent),
         title: 'Admin - Users'
       },
       {
         path: 'characters',
-        component: AdminCharactersComponent,
+        loadComponent: () => import('./admin/admin-characters/admin-characters.component').then(m => m.AdminCharactersComponent),
         title: 'Admin - Characters'
       },
       {
         path: 'create-user',
-        component: AdminCreateUserComponent,
+        loadComponent: () => import('./admin/admin-create-user/admin-create-user.component').then(m => m.AdminCreateUserComponent),
         title: 'Admin - Create User'
       },
       {
         path: 'widget-panels',
-        component: AdminWidgetPanelsComponent,
+        loadComponent: () => import('./admin/admin-widget-panels/admin-widget-panels.component').then(m => m.AdminWidgetPanelsComponent),
         title: 'Admin - Widget Panels'
       },
       {
         path: 'widget-panels/:key',
-        component: AdminWidgetPanelEditComponent,
+        loadComponent: () => import('./admin/admin-widget-panel-edit/admin-widget-panel-edit.component').then(m => m.AdminWidgetPanelEditComponent),
         title: 'Admin - Edit Widget Panel'
       },
       {
         path: 'widgets',
-        component: AdminWidgetsComponent,
+        loadComponent: () => import('./admin/admin-widgets/admin-widgets.component').then(m => m.AdminWidgetsComponent),
         title: 'Admin - Widgets'
       },
       {
         path: 'widget/new',
-        component: AdminWidgetEditComponent,
+        loadComponent: () => import('./admin/admin-widget-edit/admin-widget-edit.component').then(m => m.AdminWidgetEditComponent),
         title: 'Admin - Create Widget'
       },
       {
         path: 'widget/:id',
-        component: AdminWidgetEditComponent,
+        loadComponent: () => import('./admin/admin-widget-edit/admin-widget-edit.component').then(m => m.AdminWidgetEditComponent),
         title: 'Admin - Edit Widget'
       },
       {
         path: 'design',
-        component: AdminDesignComponent,
+        loadComponent: () => import('./admin/admin-design/admin-design.component').then(m => m.AdminDesignComponent),
         title: 'Admin - Design'
       },
       {
         path: 'frontend-templates',
-        component: AdminFrontendTemplatesComponent,
+        loadComponent: () => import('./admin/admin-frontend-templates/admin-frontend-templates.component').then(m => m.AdminFrontendTemplatesComponent),
         title: 'Admin - Custom Templates'
       },
       {
@@ -446,37 +405,37 @@ export const routes: Routes = [
       },
       {
         path: 'additional-navlinks',
-        component: AdminAdditionalNavlinksComponent,
+        loadComponent: () => import('./admin/admin-additional-navlinks/admin-additional-navlinks.component').then(m => m.AdminAdditionalNavlinksComponent),
         title: 'Admin - Additional Navlinks'
       },
       {
         path: 'features',
-        component: AdminFeaturesComponent,
+        loadComponent: () => import('./admin/admin-features/admin-features.component').then(m => m.AdminFeaturesComponent),
         title: 'Admin - Features'
       },
       {
         path: 'features/currency',
-        component: AdminCurrencyComponent,
+        loadComponent: () => import('./admin/admin-currency/admin-currency.component').then(m => m.AdminCurrencyComponent),
         title: 'Admin - Currency'
       },
       {
         path: 'features/post_top',
-        component: AdminPostTopComponent,
+        loadComponent: () => import('./admin/admin-post-top/admin-post-top.component').then(m => m.AdminPostTopComponent),
         title: 'Admin - Post Top'
       },
       {
         path: 'features/puzzles',
-        component: AdminPuzzlesComponent,
+        loadComponent: () => import('./admin/admin-puzzles/admin-puzzles.component').then(m => m.AdminPuzzlesComponent),
         title: 'Admin - Puzzles'
       },
       {
         path: 'features/puzzle/:id',
-        component: AdminPuzzleEditComponent,
+        loadComponent: () => import('./admin/admin-puzzle-edit/admin-puzzle-edit.component').then(m => m.AdminPuzzleEditComponent),
         title: 'Admin - Edit Puzzle'
       },
       {
         path: 'backup',
-        component: AdminBackupComponent,
+        loadComponent: () => import('./admin/admin-backup/admin-backup.component').then(m => m.AdminBackupComponent),
         title: 'Admin - Backup',
         canActivate: [() => {
           const auth = inject(AuthService);
@@ -486,47 +445,47 @@ export const routes: Routes = [
       },
       {
         path: 'reactions',
-        component: AdminReactionsComponent,
+        loadComponent: () => import('./admin/admin-reactions/admin-reactions.component').then(m => m.AdminReactionsComponent),
         title: 'Admin - Reactions'
       },
       {
         path: 'smiles',
-        component: AdminSmilesComponent,
+        loadComponent: () => import('./admin/admin-smiles/admin-smiles.component').then(m => m.AdminSmilesComponent),
         title: 'Admin - Smiles'
       },
       {
         path: 'search',
-        component: AdminSearchComponent,
+        loadComponent: () => import('./admin/admin-search/admin-search.component').then(m => m.AdminSearchComponent),
         title: 'Admin - Search'
       },
       {
         path: 'ai-index',
-        component: AdminAiIndexComponent,
+        loadComponent: () => import('./admin/admin-ai-index/admin-ai-index.component').then(m => m.AdminAiIndexComponent),
         title: 'Admin - AI Index'
       },
       {
         path: 'ai-index-settings',
-        component: AdminAiIndexSettingsComponent,
+        loadComponent: () => import('./admin/admin-ai-index-settings/admin-ai-index-settings.component').then(m => m.AdminAiIndexSettingsComponent),
         title: 'Admin - AI Index Settings'
       },
       {
         path: 'ai-agents',
-        component: AdminAiAgentsComponent,
+        loadComponent: () => import('./admin/admin-ai-agents/admin-ai-agents.component').then(m => m.AdminAiAgentsComponent),
         title: 'Admin - AI Agents'
       },
       {
         path: 'ai-agents/:id',
-        component: AdminAiAgentComponent,
+        loadComponent: () => import('./admin/admin-ai-agent/admin-ai-agent.component').then(m => m.AdminAiAgentComponent),
         title: 'Admin - AI Agent'
       },
       {
         path: 'ai-agent-implementation/:id',
-        component: AdminAiAgentImplementationEditComponent,
+        loadComponent: () => import('./admin/admin-ai-agent-implementation-edit/admin-ai-agent-implementation-edit.component').then(m => m.AdminAiAgentImplementationEditComponent),
         title: 'Admin - AI Agent Implementation'
       },
       {
         path: 'design-drafts',
-        component: AdminDesignDraftsComponent,
+        loadComponent: () => import('./admin/admin-design-drafts/admin-design-drafts.component').then(m => m.AdminDesignDraftsComponent),
         title: 'Admin - Design Drafts'
       },
       {
@@ -536,12 +495,12 @@ export const routes: Routes = [
       },
       {
         path: 'external-apps',
-        component: AdminExternalAppsComponent,
+        loadComponent: () => import('./admin/admin-external-apps/admin-external-apps.component').then(m => m.AdminExternalAppsComponent),
         title: 'Admin - External Apps'
       },
       {
         path: 'external-app/:id',
-        component: AdminExternalAppEditComponent,
+        loadComponent: () => import('./admin/admin-external-app-edit/admin-external-app-edit.component').then(m => m.AdminExternalAppEditComponent),
         title: 'Admin - External App'
       }
     ]
