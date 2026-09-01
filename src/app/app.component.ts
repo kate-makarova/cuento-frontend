@@ -167,7 +167,8 @@ export class AppComponent implements OnInit {
   private loadFooterPanel() {
     this.apiService.getText('panel/footer/content').subscribe({
       next: html => {
-        this.footerPanelHtml.set(this.sanitizer.bypassSecurityTrustHtml(html));
+        const eager = html.replace(/\bloading=["']lazy["']/gi, '');
+        this.footerPanelHtml.set(this.sanitizer.bypassSecurityTrustHtml(eager));
         this.needsFooterProcessing = true;
       },
       error: () => {}
