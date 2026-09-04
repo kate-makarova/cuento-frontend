@@ -19,6 +19,7 @@ export class CharacterClaimsComponent implements OnInit {
 
   factions = this.claimService.factions;
   deleteError = signal<string | null>(null);
+  closeHoldError = signal<string | null>(null);
 
   modalFactionId: number | null = null;
   form = { name: '', description: '', can_change_name: false };
@@ -61,6 +62,23 @@ export class CharacterClaimsComponent implements OnInit {
       },
       error: (err) => {
         this.deleteError.set(err.error?.message ?? err.error ?? 'Failed to delete claim');
+      }
+    });
+  }
+
+  closeHold(claimRecordId: number, claimId: number, factionId: number) {
+    this.closeHoldError.set(null);
+    this.apiService.post(`admin/claim-record/${claimRecordId}/close`, {}).subscribe({
+      next: () => {
+        this.claimService.factions.update(factions =>
+          factions.map(f => f.id === factionId
+            ? { ...f, claims: f.claims.map(c => c.id === claimId ? { ...c, is_claimed: false, claim_record_id: null } : c) }
+            : f
+          )
+        );
+      },
+      error: (err) => {
+        this.closeHoldError.set(err.error?.message ?? err.error ?? 'Failed to remove hold');
       }
     });
   }
