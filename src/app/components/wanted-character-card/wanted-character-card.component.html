@@ -1,6 +1,6 @@
 <div class="wanted-card" [class.wanted-card--expanded]="expanded">
   <div class="card-name">
-    <a [routerLink]="['/viewtopic', wantedCharacter.topic_id]">{{ wantedCharacter.name }}</a>
+    <a [routerLink]="['/viewtopic', wantedCharacter.topic_id ?? wantedCharacter.id]">{{ wantedCharacter.name }}</a>
     @if (wantedCharacter.claim_record) {
       <span class="claim-badge">
         @if (wantedCharacter.claim_record.claim_author_username) {

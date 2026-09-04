@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, Input, Output, EventEmitter, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, Input, Output, EventEmitter, signal, computed, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CharacterService } from '../services/character.service';
 import { TopicService } from '../services/topic.service';
@@ -17,6 +17,7 @@ import { ImageService } from '../services/image.service';
 import { PreviewService } from '../services/preview.service';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { EntityDraftService } from '../services/entity-draft.service';
 
 @Component({
   selector: 'app-character-create',
@@ -29,6 +30,9 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
   characterService = inject(CharacterService);
   private boardService = inject(BoardService);
   private imageService = inject(ImageService);
+  private entityDraftService = inject(EntityDraftService);
+
+  @ViewChild('formEl') formEl?: ElementRef<HTMLFormElement>;
 
   readonly characterAvatarUploadFn = (file: File) => {
     const id = this.initialData?.id;
@@ -55,6 +59,12 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
 
   statusActive = signal(false);
   isPending = false;
+
+  draftId = signal<number | null>(null);
+  hasDraft = signal(false);
+  autosaveStatus = signal<'idle' | 'saving' | 'saved'>('idle');
+  private autosaveSubject = new Subject<void>();
+  private autosaveSub?: Subscription;
   showConfirmModal = signal(false);
 
   claimType = signal<'no' | 'wanted' | 'direct'>('no');
@@ -127,6 +137,7 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.claimSubscription?.unsubscribe();
+    this.autosaveSub?.unsubscribe();
   }
 
   ngOnInit() {
@@ -167,7 +178,69 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
       this.isEditMode.set(true);
       this.hasExistingClaim.set(!!this.initialData.claim_record);
       this.claimBlockLocked.set(true);
+    } else {
+      this.autosaveSub = this.autosaveSubject.pipe(debounceTime(3000)).subscribe(() => this.performAutosave());
+      this.entityDraftService.loadLatest('character').subscribe({
+        next: draft => { this.draftId.set(draft.id); this.hasDraft.set(true); },
+        error: () => {}
+      });
     }
+  }
+
+  scheduleAutosave() {
+    if (this.initialData) return;
+    this.autosaveSubject.next();
+  }
+
+  private collectFormState(): any {
+    const formData = this.formEl ? new FormData(this.formEl.nativeElement) : null;
+    const customFields: Record<string, any> = {};
+    if (formData) {
+      for (const [key, value] of formData.entries()) {
+        if (!['req_name', 'req_avatar'].includes(key)) customFields[key] = value;
+      }
+    }
+    return {
+      name: formData ? (formData.get('req_name') as string) : this.characterName,
+      avatar: formData ? (formData.get('req_avatar') as string) : this.characterAvatar,
+      factionPaths: this.factionPaths,
+      claimType: this.claimType(),
+      claimItem: this.selectedClaimItem(),
+      customFields,
+    };
+  }
+
+  private performAutosave() {
+    this.autosaveStatus.set('saving');
+    this.entityDraftService.save('character', this.collectFormState(), this.draftId()).subscribe({
+      next: meta => {
+        this.draftId.set(meta.id);
+        this.autosaveStatus.set('saved');
+        setTimeout(() => this.autosaveStatus.set('idle'), 3000);
+      },
+      error: () => this.autosaveStatus.set('idle'),
+    });
+  }
+
+  restoreDraft() {
+    this.entityDraftService.loadLatest('character').subscribe({
+      next: draft => {
+        const c = draft.content;
+        if (c.name) this.characterName = c.name;
+        if (c.avatar) this.characterAvatar = c.avatar;
+        if (c.claimType) this.claimType.set(c.claimType);
+        if (c.claimItem) { this.selectedClaimItem.set(c.claimItem); this.claimQuery.set(c.claimItem.name); }
+        this.hasDraft.set(false);
+      },
+      error: () => {}
+    });
+  }
+
+  dismissDraft() {
+    const id = this.draftId();
+    if (id) this.entityDraftService.delete(id).subscribe({ error: () => {} });
+    this.hasDraft.set(false);
+    this.draftId.set(null);
   }
 
   activate() {
@@ -305,11 +378,18 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const deleteDraft = () => {
+      const id = this.draftId();
+      if (id) this.entityDraftService.delete(id).subscribe({ error: () => {} });
+    };
+
     if (this.formSubmit.observed) {
+      deleteDraft();
       this.formSubmit.emit(request);
     } else {
       this.characterService.createCharacter(request as CreateCharacterRequest).subscribe({
         next: (response) => {
+          deleteDraft();
           console.log('Character created successfully', response);
           this.router.navigate(['/viewforum', this.subforumId]);
         },

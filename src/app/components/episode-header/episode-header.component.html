@@ -6,12 +6,17 @@
       @if (episode.episode_status === 0) {
         <span class="status-badge status-active" i18n="@@common.statusActive">Active</span>
       } @else if (episode.episode_status === 1) {
-        <span class="status-badge status-inactive" i18n="@@common.statusClosed">Inactive</span>
+        <span class="status-badge status-inactive" i18n="@@common.statusInactive">Inactive</span>
+      } @else if (episode.episode_status === 2) {
+        <span class="status-badge status-finished" i18n="@@episode.statusFinished">Finished</span>
       }
       @if (ratingBadge) {
         <span class="status-badge episode-rating-badge">{{ ratingBadge }}</span>
       }
     </h2>
+    @if (showActionsButton) {
+      <button type="button" class="button episode-actions-btn" (click)="openActionsModal()" i18n="@@episode.actionsButton">Episode actions</button>
+    }
     @if (episode.open_to_everyone) {
       <div class="episode-open-badge" i18n="@@episode.openToEveryone">Open to everyone</div>
     }
@@ -51,4 +56,79 @@
     }
   </div>
 </div>
+
+@if (showActionsModal()) {
+  <div class="modal-overlay" (click)="closeActionsModal()">
+    <div class="modal-content episode-actions-modal" (click)="$event.stopPropagation()">
+      <h2 i18n="@@episode.actionsTitle">Episode actions</h2>
+
+      @if (canChangeStatus) {
+        <div class="episode-actions-section">
+          <h3 i18n="@@episode.actionsStateTitle">Episode state</h3>
+          <p class="episode-status-options">
+            <label class="radio-label">
+              <input type="radio" name="ep_status" [value]="0" [checked]="pendingStatus() === 0" (change)="pendingStatus.set(0)" />
+              <ng-container i18n="@@common.statusActive">Active</ng-container>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="ep_status" [value]="1" [checked]="pendingStatus() === 1" (change)="pendingStatus.set(1)" />
+              <ng-container i18n="@@common.statusInactive">Inactive</ng-container>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="ep_status" [value]="2" [checked]="pendingStatus() === 2" (change)="pendingStatus.set(2)" />
+              <ng-container i18n="@@episode.statusFinished">Finished</ng-container>
+            </label>
+          </p>
+          @if (pendingStatus() !== episode.episode_status) {
+            <p class="status-change-warning" i18n="@@episode.actionsStateConfirm">This will change the episode status. Are you sure?</p>
+          }
+          @if (stateChangeError()) {
+            <p class="error-msg" i18n="@@episode.actionsStateError">Failed to change episode state. Please try again.</p>
+          }
+          <button type="button" class="button" [disabled]="stateChangePending() || pendingStatus() === episode.episode_status" (click)="changeEpisodeStatus()" i18n="@@common.save">Save</button>
+        </div>
+      }
+
+      @if (userCharacterProfiles().length > 0) {
+        <div class="episode-actions-section">
+          <h3 i18n="@@episode.actionsAvatarTitle">Character avatars</h3>
+          @if (avatarsLoading()) {
+            <p i18n="@@episode.actionsAvatarUploading">Loading…</p>
+          } @else {
+            @for (entry of customAvatars(); track entry.character_id) {
+              <div class="episode-avatar-row">
+                <strong>{{ entry.character_name }}</strong>
+                @if (canUploadImages()) {
+                  <app-cropped-image-field
+                    [showFieldName]="false"
+                    [fieldValue]="entry.custom_avatar ?? ''"
+                    [width]="avatarWidth()"
+                    [height]="avatarHeight()"
+                    [uploadFn]="getUploadFn(entry.character_id)">
+                  </app-cropped-image-field>
+                } @else {
+                  @if (entry.custom_avatar) {
+                    <img [src]="entry.custom_avatar" alt="" class="episode-avatar-preview" />
+                  }
+                  <input type="text" class="episode-avatar-url-input" [value]="entry.urlInput" (input)="setUrlInput(entry.character_id, $any($event.target).value)" placeholder="https://" />
+                  <button type="button" class="button" [disabled]="!entry.urlInput.trim()" (click)="applyCustomAvatarFromUrl(entry.character_id)" i18n="@@common.save">Save</button>
+                }
+                @if (entry.removeError) {
+                  <span class="error-msg" i18n="@@episode.actionsAvatarError">Failed. Please try again.</span>
+                }
+                @if (entry.custom_avatar) {
+                  <button type="button" class="button btn-deactivate" [disabled]="entry.removing" (click)="removeCustomAvatar(entry.character_id)" i18n="@@episode.actionsAvatarRemove">Remove</button>
+                }
+              </div>
+            }
+          }
+        </div>
+      }
+
+      <div class="buttons">
+        <button type="button" class="button" (click)="closeActionsModal()" i18n="@@common.close">Close</button>
+      </div>
+    </div>
+  </div>
+}
 }

@@ -1,6 +1,7 @@
-import { Component, effect, inject, OnInit, Input, Output, EventEmitter, signal } from '@angular/core';
+import { Component, effect, inject, OnInit, OnDestroy, Input, Output, EventEmitter, signal, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 import { WantedCharacterService } from '../services/wanted-character.service';
 import { CharacterService } from '../services/character.service';
 import { FieldInputComponent } from '../components/field-input/field-input.component';
@@ -11,6 +12,7 @@ import { Faction } from '../models/Faction';
 import { CharacterShort } from '../models/Character';
 import { WantedCharacter } from '../models/WantedCharacter';
 import { TopicService } from '../services/topic.service';
+import { EntityDraftService } from '../services/entity-draft.service';
 
 @Component({
   selector: 'app-wanted-character-create',
@@ -19,13 +21,16 @@ import { TopicService } from '../services/topic.service';
   imports: [ FieldInputComponent, FactionPathsComponent, BreadcrumbsComponent],
   templateUrl: './wanted-character-create.component.html',
 })
-export class WantedCharacterCreateComponent implements OnInit {
+export class WantedCharacterCreateComponent implements OnInit, OnDestroy {
   private wantedCharacterService = inject(WantedCharacterService);
   private characterService = inject(CharacterService);
   private topicService = inject(TopicService);
   private forumService = inject(ForumService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private entityDraftService = inject(EntityDraftService);
+
+  @ViewChild('formEl') formEl?: ElementRef<HTMLFormElement>;
 
   template = this.wantedCharacterService.template;
   characterSuggestions = this.characterService.shortCharacterList;
@@ -58,6 +63,12 @@ export class WantedCharacterCreateComponent implements OnInit {
 
   statusActive = signal(false);
   showConfirmModal = signal(false);
+
+  draftId = signal<number | null>(null);
+  hasDraft = signal(false);
+  autosaveStatus = signal<'idle' | 'saving' | 'saved'>('idle');
+  private autosaveSubject = new Subject<void>();
+  private autosaveSub?: Subscription;
 
   activate() {
     if (!this.initialData) return;
@@ -108,7 +119,79 @@ export class WantedCharacterCreateComponent implements OnInit {
         this.relationInputValues = this.initialData.relations.map(r => r.name);
         this.selectedRelationIds = this.initialData.relations.map(r => r.id);
       }
+    } else {
+      this.autosaveSub = this.autosaveSubject.pipe(debounceTime(3000)).subscribe(() => this.performAutosave());
+      this.entityDraftService.loadLatest('wanted_character').subscribe({
+        next: draft => {
+          this.draftId.set(draft.id);
+          this.hasDraft.set(true);
+        },
+        error: () => {}
+      });
     }
+  }
+
+  ngOnDestroy() {
+    this.autosaveSub?.unsubscribe();
+  }
+
+  scheduleAutosave() {
+    if (this.initialData) return;
+    this.autosaveSubject.next();
+  }
+
+  private collectFormState(): any {
+    const formData = this.formEl ? new FormData(this.formEl.nativeElement) : null;
+    const customFields: Record<string, any> = {};
+    if (formData) {
+      for (const [key, value] of formData.entries()) {
+        if (key !== 'req_name') customFields[key] = value;
+      }
+    }
+    return {
+      name: formData ? (formData.get('req_name') as string) : this.characterName,
+      factionPaths: this.factionPaths,
+      relations: this.selectedRelationIds
+        .map((id, i) => id !== null ? { id, name: this.relationInputValues[i] } : null)
+        .filter(Boolean),
+      customFields,
+    };
+  }
+
+  private performAutosave() {
+    this.autosaveStatus.set('saving');
+    this.entityDraftService.save('wanted_character', this.collectFormState(), this.draftId()).subscribe({
+      next: meta => {
+        this.draftId.set(meta.id);
+        this.autosaveStatus.set('saved');
+        setTimeout(() => this.autosaveStatus.set('idle'), 3000);
+      },
+      error: () => this.autosaveStatus.set('idle'),
+    });
+  }
+
+  restoreDraft() {
+    const id = this.draftId();
+    if (!id) return;
+    this.entityDraftService.loadLatest('wanted_character').subscribe({
+      next: draft => {
+        const c = draft.content;
+        if (c.name) this.characterName = c.name;
+        if (c.relations?.length) {
+          this.relationInputValues = c.relations.map((r: any) => r.name);
+          this.selectedRelationIds = c.relations.map((r: any) => r.id);
+        }
+        this.hasDraft.set(false);
+      },
+      error: () => {}
+    });
+  }
+
+  dismissDraft() {
+    const id = this.draftId();
+    if (id) this.entityDraftService.delete(id).subscribe({ error: () => {} });
+    this.hasDraft.set(false);
+    this.draftId.set(null);
   }
 
   getFieldValue(machineName: string): any {
@@ -208,11 +291,18 @@ export class WantedCharacterCreateComponent implements OnInit {
       relations
     };
 
+    const deleteDraft = () => {
+      const id = this.draftId();
+      if (id) this.entityDraftService.delete(id).subscribe({ error: () => {} });
+    };
+
     if (this.formSubmit.observed) {
+      deleteDraft();
       this.formSubmit.emit(request);
     } else {
       this.wantedCharacterService.save(request).subscribe({
         next: (response: any) => {
+          deleteDraft();
           if (response?.id) {
             this.router.navigate(['/viewtopic', response.id]);
           } else {
