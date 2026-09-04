@@ -171,6 +171,12 @@ export class CharacterService {
     return this.apiService.post(`character-profile/update/${id}`, data);
   }
 
+  updateLocalProfileAvatar(profileId: number, avatar: string) {
+    this.userCharacterProfilesSignal.update(profiles =>
+      profiles.map(p => p.id === profileId ? { ...p, avatar } : p)
+    );
+  }
+
   acceptCharacter(id: number) {
     return this.apiService.post(`character/accept/${id}`, {});
   }

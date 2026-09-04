@@ -145,9 +145,14 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   blurAcknowledged = signal(false);
   doNotBlurChecked = false;
 
+  readonly isEpisodeParticipant = computed(() =>
+    (this.topic().can_edit ?? false) || this.userCharacterProfiles().length > 0
+  );
+
   get shouldBlur(): boolean {
     if (this.blurAcknowledged()) return false;
     if (this.showPostForm()) return false;
+    if (this.isEpisodeParticipant()) return false;
     const user = this.authService.currentUser();
     if (user && user.do_not_blur) return false;
     const raw = this.boardService.board().blur_content_starting_from_rate;
@@ -700,6 +705,11 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       },
       error: (err: any) => console.error('Failed to update wanted character', err)
     });
+  }
+
+  onEpisodeStatusChanged(result: { episode_status: number; topic_status: number }) {
+    this.topicService.updateEpisodeStatus(result.episode_status);
+    this.topicService.updateTopicStatus(result.topic_status);
   }
 
   onUpdateEpisode(payload: any) {
