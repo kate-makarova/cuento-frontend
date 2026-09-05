@@ -102,72 +102,7 @@
 </div>
 
 @if (showActionsModal()) {
-  <div class="modal-overlay" (click)="closeActionsModal()">
-    <div class="modal-content episode-actions-modal" (click)="$event.stopPropagation()">
-      <h2 i18n="@@episode.actionsTitle">Episode actions</h2>
-
-      @if (canChangeStatus) {
-        <div class="episode-actions-section">
-          <h3 i18n="@@episode.actionsStateTitle">Episode state</h3>
-          <p class="episode-status-options">
-            
-              
-              <ng-container i18n="@@common.statusActive">Active</ng-container>
-            
-            
-              
-              <ng-container i18n="@@common.statusInactive">Inactive</ng-container>
-            
-            
-              
-              <ng-container i18n="@@episode.statusFinished">Finished</ng-container>
-            
-          </p>
-          @if (pendingStatus() !== episode.episode_status) {
-            <p class="status-change-warning" i18n="@@episode.actionsStateConfirm">This will change the episode status. Are you sure?</p>
-          }
-          @if (stateChangeError()) {
-            <p class="error-msg" i18n="@@episode.actionsStateError">Failed to change episode state. Please try again.</p>
-          }
-          <button type="button" class="button" (click)="changeEpisodeStatus()" i18n="@@common.save">Save</button>
-        </div>
-      }
-
-      @if (userCharacterProfiles().length > 0) {
-        <div class="episode-actions-section">
-          <h3 i18n="@@episode.actionsAvatarTitle">Character avatars</h3>
-          @if (avatarsLoading()) {
-            <p i18n="@@episode.actionsAvatarUploading">Loading…</p>
-          } @else {
-            @for (entry of customAvatars(); track entry.character_id) {
-              <div class="episode-avatar-row">
-                <strong>{{ entry.character_name }}</strong>
-                @if (canUploadImages()) {
-                  
-                  
-                } @else {
-                  @if (entry.custom_avatar) {
-                    <img alt="" class="episode-avatar-preview"/>
-                  }
-                  
-                  <button type="button" class="button" (click)="applyCustomAvatarFromUrl(entry.character_id)" i18n="@@common.save">Save</button>
-                }
-                @if (entry.removeError) {
-                  <span class="error-msg" i18n="@@episode.actionsAvatarError">Failed. Please try again.</span>
-                }
-                @if (entry.custom_avatar) {
-                  <button type="button" class="button btn-deactivate" (click)="removeCustomAvatar(entry.character_id)" i18n="@@episode.actionsAvatarRemove">Remove</button>
-                }
-              </div>
-            }
-          }
-        </div>
-      }
-
-      <div class="buttons">
-        <button type="button" class="button" (click)="closeActionsModal()" i18n="@@common.close">Close</button>
-      </div>
-    </div>
-  </div>
+  
+  
 }
 }
