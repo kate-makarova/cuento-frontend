@@ -22,7 +22,7 @@ export class EpisodeActionsModalComponent {
   @Input() canUploadImages: boolean = false;
   @Input() avatarWidth: number | undefined;
   @Input() avatarHeight: number | undefined;
-  @Input() getUploadFn!: (characterId: number) => Observable<{ url: string }>;
+  @Input() getUploadFn!: (characterId: number) => (file: File) => Observable<{ url: string }>;
 
   @Output() close = new EventEmitter<void>();
   @Output() pendingStatusChange = new EventEmitter<number>();
