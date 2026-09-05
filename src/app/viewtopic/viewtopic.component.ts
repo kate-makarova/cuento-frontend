@@ -214,6 +214,16 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       });
     });
 
+    // Clear stale character profiles as soon as the route ID changes, before new topic data arrives
+    effect(() => {
+      const id = this.id();
+      untracked(() => {
+        if (this.lastLoadedProfilesForTopicId !== null && this.lastLoadedProfilesForTopicId !== id) {
+          this.characterService.clearUserCharacterProfiles();
+        }
+      });
+    });
+
     // Effect for breadcrumbs and profile loading
     effect(() => {
       const t = this.topic();

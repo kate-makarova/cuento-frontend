@@ -21,6 +21,10 @@ export class CharacterService {
   readonly userCharacters = this.userCharactersSignal.asReadonly();
   private userCharacterProfilesSignal = signal<CharacterProfile[]>([]);
   readonly userCharacterProfiles = this.userCharacterProfilesSignal.asReadonly();
+
+  clearUserCharacterProfiles() {
+    this.userCharacterProfilesSignal.set([]);
+  }
   private characterProfileTemplateSignal = signal<FieldTemplate[]>([]);
   readonly characterProfileTemplate = this.characterProfileTemplateSignal.asReadonly();
 
