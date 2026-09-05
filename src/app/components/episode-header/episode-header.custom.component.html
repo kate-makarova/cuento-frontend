@@ -1,6 +1,8 @@
 @if (episode != null) {
 <div class="episode-header-wrapper">
-  
+     @if (showActionsButton) {
+      <button type="button" class="button episode-actions-btn" (click)="openActionsModal()" i18n="@@episode.actionsButton">Episode actions</button>
+    }
   
   <div class="episode-block-media">
     @if (getField('image'); as field) {
