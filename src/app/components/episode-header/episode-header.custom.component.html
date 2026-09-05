@@ -1,8 +1,4 @@
 @if (episode != null) {
-   @if (showActionsButton) {
-      <button type="button" id="episode-actions-btn" class="button episode-actions-btn" (click)="openActionsModal()" i18n="@@episode.actionsButton">Episode actions</button>
-    }
-
 <div class="episode-header-wrapper">
   <div class="episode-block-media">
     @if (getField('image'); as field) {
@@ -33,6 +29,9 @@
       @if (ratingBadge) {
         <span class="status-badge episode-rating-badge">{{ ratingBadge }}</span>
       }
+         @if (showActionsButton) {
+      <button type="button" id="episode-actions-btn" class="button episode-actions-btn" (click)="openActionsModal()" i18n="@@episode.actionsButton">Episode actions</button>
+    }
     </div>
 
     
