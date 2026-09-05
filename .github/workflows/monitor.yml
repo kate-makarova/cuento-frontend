@@ -1,8 +1,8 @@
-name: Deploy Cuento Frontend
+name: Deploy Cuento Frontend (Monitor)
 
 on:
   push:
-    branches: [release]
+    branches: [monitor]
     paths-ignore:
       - 'deployments/**'
   workflow_dispatch:
@@ -24,7 +24,13 @@ jobs:
         run: npm ci
 
       - name: Build Angular app
-        run: npm run build
+        env:
+          NR_LICENSE_KEY: NRJS-eaf1ced05e840d0e77f
+          NR_APP_ID: "1103511252"
+          NR_ACCOUNT_ID: "8128948"
+        run: |
+          npm run build
+          node custom-templates.plugin.mjs --configuration production
 
       - name: Clear old files (preserving custom styles and uploads)
         uses: appleboy/ssh-action@v1.0.3
