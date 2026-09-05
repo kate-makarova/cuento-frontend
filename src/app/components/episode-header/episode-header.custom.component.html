@@ -102,7 +102,25 @@
 </div>
 
 @if (showActionsModal()) {
-  
-  
+  <app-episode-actions-modal
+    [episode]="episode"
+    [canChangeStatus]="canChangeStatus"
+    [hasCharacters]="userCharacterProfiles().length > 0"
+    [stateChangePending]="stateChangePending()"
+    [stateChangeError]="stateChangeError()"
+    [pendingStatus]="pendingStatus()"
+    [customAvatars]="customAvatars()"
+    [avatarsLoading]="avatarsLoading()"
+    [canUploadImages]="canUploadImages()"
+    [avatarWidth]="avatarWidth()"
+    [avatarHeight]="avatarHeight()"
+    [getUploadFn]="getUploadFnBound"
+    (close)="closeActionsModal()"
+    (pendingStatusChange)="pendingStatus.set($event)"
+    (saveStatus)="changeEpisodeStatus()"
+    (removeAvatar)="removeCustomAvatar($event)"
+    (urlInputChange)="setUrlInput($event.characterId, $event.value)"
+    (applyFromUrl)="applyCustomAvatarFromUrl($event)">
+  </app-episode-actions-modal>
 }
 }
