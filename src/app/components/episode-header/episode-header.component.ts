@@ -11,6 +11,7 @@ import { ImageService } from '../../services/image.service';
 import { CharacterService } from '../../services/character.service';
 import { BoardService } from '../../services/board.service';
 import { CroppedImageFieldComponent } from '../cropped-image-field/cropped-image-field.component';
+import { EpisodeActionsModalComponent } from '../episode-actions-modal/episode-actions-modal.component';
 
 export interface EpisodeCustomAvatarState {
   character_id: number;
@@ -23,7 +24,7 @@ export interface EpisodeCustomAvatarState {
 
 @Component({
   selector: 'app-episode-header',
-  imports: [RouterLink, FieldDisplayComponent, CroppedImageFieldComponent],
+  imports: [RouterLink, FieldDisplayComponent, CroppedImageFieldComponent, EpisodeActionsModalComponent],
   templateUrl: './episode-header.component.html',
   standalone: true,
 })
@@ -49,6 +50,7 @@ export class EpisodeHeaderComponent implements OnInit, OnChanges {
   avatarsLoading = signal(false);
 
   private uploadFns = new Map<number, (file: File) => Observable<{ url: string }>>();
+  readonly getUploadFnBound = (characterId: number) => this.getUploadFn(characterId);
 
   readonly canUploadImages = computed(() => this.boardService.board().use_image_uploading === 'y');
   readonly avatarWidth = computed(() => this.boardService.board().user_avatar_width);
