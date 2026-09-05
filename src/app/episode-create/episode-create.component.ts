@@ -43,8 +43,6 @@ export class EpisodeCreateComponent implements OnInit {
   @Output() formSubmit = new EventEmitter<any>();
   @Output() cancel = new EventEmitter<void>();
 
-  statusActive = signal(false);
-  showConfirmModal = signal(false);
   showRatingHelp = signal(false);
   showRatingWarning = signal(false);
   ratingWarnings = signal<{ language: boolean; violence: boolean; sex: boolean }>({ language: false, violence: false, sex: false });
@@ -107,39 +105,6 @@ export class EpisodeCreateComponent implements OnInit {
     });
   }
 
-  activate() {
-    if (!this.initialData) return;
-    this.episodeService.activateEpisode(this.initialData.id).subscribe({
-      next: (res) => {
-        this.statusActive.set(res.episode_status === 0);
-        this.topicService.updateTopicStatus(res.topic_status);
-        this.topicService.updateEpisodeStatus(res.episode_status);
-      },
-      error: (err) => console.error('Failed to activate episode', err)
-    });
-  }
-
-  requestDeactivate() {
-    this.showConfirmModal.set(true);
-  }
-
-  confirmDeactivate() {
-    if (!this.initialData) return;
-    this.episodeService.deactivateEpisode(this.initialData.id).subscribe({
-      next: (res) => {
-        this.statusActive.set(res.episode_status === 0);
-        this.topicService.updateTopicStatus(res.topic_status);
-        this.topicService.updateEpisodeStatus(res.episode_status);
-        this.showConfirmModal.set(false);
-      },
-      error: (err) => console.error('Failed to deactivate episode', err)
-    });
-  }
-
-  cancelDeactivate() {
-    this.showConfirmModal.set(false);
-  }
-
   ngOnInit() {
     const previewState = this.previewService.state();
     if (previewState?.formType === 'episode') {
@@ -189,7 +154,6 @@ export class EpisodeCreateComponent implements OnInit {
       this.previewService.clear();
     }
 
-    this.statusActive.set((this.initialData?.episode_status ?? 1) === 0);
     this.episodeService.loadEpisodeTemplate();
     this.episodeService.getStandardWarnings().subscribe({
       next: (warnings) => this.availableWarnings.set(warnings),

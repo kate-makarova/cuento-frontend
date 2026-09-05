@@ -142,7 +142,7 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
     this.apiService.get<UnreadNotificationsResponse>('notifications/unread').subscribe({
       next: (response) => {
         this.systemNotificationsSignal.set(response.system || []);
-        this.gameNotificationsSignal.set(response.game || []);
+        this.gameNotificationsSignal.set([...(response.game || []), ...(response.episode_status_change || [])]);
         this.mentionNotificationsSignal.set(response.mention || []);
         this.directMessageNotificationsSignal.set(response.direct_message || []);
         this.reactionNotificationsSignal.set(response.reaction || []);
@@ -408,7 +408,7 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
 
         if (notificationData.type === 'system') {
           this.systemNotificationsSignal.update(current => [notificationData, ...current]);
-        } else if (notificationData.type === 'game') {
+        } else if (notificationData.type === 'game' || notificationData.type === 'episode_status_change') {
           this.gameNotificationsSignal.update(current => [notificationData, ...current]);
         } else if (notificationData.type === 'mention') {
           this.mentionNotificationsSignal.update(current => [notificationData, ...current]);

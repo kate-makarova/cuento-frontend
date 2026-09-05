@@ -64,8 +64,8 @@
         (formSubmit)="onUpdateEpisode($event)"
         (cancel)="cancelEditTopic()">
       </app-episode-create>
-    } @else if (showPostForm() || !topic().episode?.has_warnings || topic().episode?.warnings_consent || warningsAcknowledged()) {
-      <app-episode-header [episode]="topic().episode" ></app-episode-header>
+    } @else if (showPostForm() || isEpisodeParticipant() || !topic().episode?.has_warnings || topic().episode?.warnings_consent || warningsAcknowledged()) {
+      <app-episode-header [episode]="topic().episode" [canEdit]="topic().can_edit ?? false" (statusChanged)="onEpisodeStatusChanged($event)"></app-episode-header>
     }
   }
 
@@ -89,7 +89,7 @@
     </div>
   }
 
-  @if (topic().episode?.has_warnings && !topic().episode?.warnings_consent && !showPostForm() && !warningsAcknowledged() && episodeWarnings().length > 0) {
+  @if (topic().episode?.has_warnings && !topic().episode?.warnings_consent && !showPostForm() && !isEpisodeParticipant() && !warningsAcknowledged() && episodeWarnings().length > 0) {
     <div class="modal-overlay episode-warning-overlay">
       <div class="modal-content episode-warning-modal">
         <h2 i18n="@@episode.warningTitle">Content Warning</h2>

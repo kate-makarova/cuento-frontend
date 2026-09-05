@@ -85,19 +85,43 @@
           </thead>
           <tbody>
             @for (item of gameNotifications(); track item.id) {
-              @let game = $any(item.game ?? item.data);
-              <tr>
-                <td>
-                  @if (game?.topic_id) {
-                    <a [routerLink]="['/viewtopic', game.topic_id]" (click)="onNotificationClick(item)">{{ game.topic_name }}</a>
-                  } @else {
-                    {{ game?.topic_name }}
-                  }
-                </td>
-                <td>{{ game?.character_name }}</td>
-                <td>{{ item.date_created | date:'yyyy-MM-dd HH:mm' }}</td>
-                <td><button class="dismiss-button" (click)="dismissNotification(item, $event)">&times;</button></td>
-              </tr>
+              @if (item.type === 'episode_status_change') {
+                @let sc = $any(item.data);
+                <tr>
+                  <td>
+                    @if (sc?.episode_id) {
+                      <a [routerLink]="['/viewtopic', sc.episode_id]" (click)="onNotificationClick(item)">{{ sc.episode_name }}</a>
+                    } @else {
+                      {{ sc?.episode_name }}
+                    }
+                  </td>
+                  <td>
+                    <ng-container i18n="@@notifications.episodeStatusChangedBy">Status changed by</ng-container>
+                    {{ sc?.initiator_name }} →
+                    @switch (sc?.new_status) {
+                      @case (0) { <ng-container i18n="@@common.statusActive">Active</ng-container> }
+                      @case (1) { <ng-container i18n="@@common.statusInactive">Inactive</ng-container> }
+                      @case (2) { <ng-container i18n="@@episode.statusFinished">Finished</ng-container> }
+                    }
+                  </td>
+                  <td>{{ item.date_created | date:'yyyy-MM-dd HH:mm' }}</td>
+                  <td><button class="dismiss-button" (click)="dismissNotification(item, $event)">&times;</button></td>
+                </tr>
+              } @else {
+                @let game = $any(item.game ?? item.data);
+                <tr>
+                  <td>
+                    @if (game?.topic_id) {
+                      <a [routerLink]="['/viewtopic', game.topic_id]" (click)="onNotificationClick(item)">{{ game.topic_name }}</a>
+                    } @else {
+                      {{ game?.topic_name }}
+                    }
+                  </td>
+                  <td>{{ game?.character_name }}</td>
+                  <td>{{ item.date_created | date:'yyyy-MM-dd HH:mm' }}</td>
+                  <td><button class="dismiss-button" (click)="dismissNotification(item, $event)">&times;</button></td>
+                </tr>
+              }
             }
           </tbody>
         </table>
