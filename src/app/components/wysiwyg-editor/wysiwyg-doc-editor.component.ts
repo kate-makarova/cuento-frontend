@@ -304,15 +304,15 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
 
       case 'deleteContentBackward': {
         if (!isCollapsed(range)) {
-          this.commitOp(modelDeleteRange(this.doc, range));
+          this.commitOp(modelDeleteRange(this.doc, range), 'other', true);
         } else if (cursor.offset > 0) {
           const delRange: DocRange = {
             anchor: { path: cursor.path, offset: cursor.offset - 1 },
             focus: cursor,
           };
-          this.commitOp(modelDeleteRange(this.doc, delRange), 'delete');
+          this.commitOp(modelDeleteRange(this.doc, delRange), 'delete', true);
         } else {
-          this.commitOp(modelMergePrevious(this.doc, cursor));
+          this.commitOp(modelMergePrevious(this.doc, cursor), 'other', true);
         }
         this.pendingMarks = null;
         this.onInput();
@@ -321,13 +321,13 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
 
       case 'deleteContentForward': {
         if (!isCollapsed(range)) {
-          this.commitOp(modelDeleteRange(this.doc, range));
+          this.commitOp(modelDeleteRange(this.doc, range), 'other', true);
         } else {
           const delRange: DocRange = {
             anchor: cursor,
             focus: { path: cursor.path, offset: cursor.offset + 1 },
           };
-          this.commitOp(modelDeleteRange(this.doc, delRange), 'delete');
+          this.commitOp(modelDeleteRange(this.doc, delRange), 'delete', true);
         }
         this.pendingMarks = null;
         this.onInput();
@@ -364,7 +364,7 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
           const tr = targetRanges[0];
           const anchor = domPositionToDocPoint(tr.startContainer, tr.startOffset, this.editorEl.nativeElement);
           const focus  = domPositionToDocPoint(tr.endContainer,   tr.endOffset,   this.editorEl.nativeElement);
-          if (anchor && focus) this.commitOp(modelDeleteRange(this.doc, { anchor, focus }));
+          if (anchor && focus) this.commitOp(modelDeleteRange(this.doc, { anchor, focus }), 'other', true);
         }
         this.pendingMarks = null;
         this.onInput();
@@ -430,13 +430,22 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
     this.lastOpTime = now;
   }
 
-  private commitOp(result: OpResult, group: 'insert' | 'delete' | 'other' = 'other'): void {
+  private commitOp(result: OpResult, group: 'insert' | 'delete' | 'other' = 'other', fullRender = false): void {
     this.pushHistory(group);
     const prevDoc = this.doc;
     this.doc = result.doc;
     this.cursor = { anchor: result.cursor, focus: result.cursor };
-    const cursorHandled = patchDoc(this.editorEl.nativeElement, prevDoc, this.doc, result.cursor);
-    if (!cursorHandled) applyDocRange(this.cursor, this.editorEl.nativeElement);
+    if (fullRender) {
+      // Full innerHTML replacement after delete ops resets GBoard's internal
+      // text-node references, forcing it to re-read the DOM on the next
+      // composition cycle rather than replaying its stale buffer.
+      this.preCompositionState = null;
+      this.render();
+      applyDocRange(this.cursor, this.editorEl.nativeElement);
+    } else {
+      const cursorHandled = patchDoc(this.editorEl.nativeElement, prevDoc, this.doc, result.cursor);
+      if (!cursorHandled) applyDocRange(this.cursor, this.editorEl.nativeElement);
+    }
     this.updateActiveState();
   }
 
