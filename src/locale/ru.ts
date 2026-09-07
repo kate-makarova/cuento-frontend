@@ -364,7 +364,6 @@ export const TRANSLATIONS_RU = {
   "admin.group.extra": "Дополнительные функции",
   "admin.aiIndex": "AI-индекс",
   "admin.aiIndexSettings": "Настройки AI-индекса",
-  "admin.features": "Функции",
   "admin.currency": "Настройки валюты",
   "adminAiIndex.colBucket": "Бакет",
   "adminAiIndex.colLastId": "Последний ID",
