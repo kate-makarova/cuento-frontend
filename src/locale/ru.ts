@@ -52,6 +52,7 @@ export const TRANSLATIONS_RU = {
   "postform.link": "Ссылка",
   "postform.urlTextPlaceholder": "Текст ссылки",
   "postform.urlInsert": "Вставить",
+  "postform.videoInsert": "Вставить",
   "postform.quote": "Цитата",
   "postform.code": "Код",
   "postform.color": "Цвет",
