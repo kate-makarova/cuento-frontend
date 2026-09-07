@@ -148,12 +148,15 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
       const result = modelInsertText(base, pt, text, marks);
 
       this.composedRange = { anchor: pt, focus: result.cursor };
+      const prevDoc = this.doc;
       this.doc = result.doc;
       this.cursor = { anchor: result.cursor, focus: result.cursor };
-      // Full re-render (not patchDoc) so Android's IME loses its reference to
-      // the composing span and cannot re-insert the text on the next cycle.
-      this.render();
-      applyDocRange(this.cursor, this.editorEl.nativeElement);
+      // Use patchDoc (in-place text-node mutation) rather than a full re-render.
+      // A full innerHTML replacement orphans the DOM nodes that Android's autocorrect
+      // holds in getTargetRanges(), causing insertReplacementText to silently fail
+      // and GBoard to re-insert the word via a new composition — doubling it.
+      const cursorHandled = patchDoc(this.editorEl.nativeElement, prevDoc, this.doc, result.cursor);
+      if (!cursorHandled) applyDocRange(this.cursor, this.editorEl.nativeElement);
       this.updateActiveState();
       this.onInput();
     } else {
