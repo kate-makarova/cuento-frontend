@@ -15,7 +15,7 @@ interface SettingGroup {
 const GENERAL_SETTING_GROUPS: SettingGroup[] = [
   {
     legend: $localize`:@@adminSettings.groupGeneral:General`,
-    names: ['site_name', 'domain', 'posts_per_page', 'visual_navlinks_after_header_panel', 'user_avatar_width', 'user_avatar_height', 'character_avatar_width', 'character_avatar_height'],
+    names: ['site_name', 'domain', 'posts_per_page', 'visual_navlinks_after_header_panel', 'global_free_format_date_id', 'user_avatar_width', 'user_avatar_height', 'character_avatar_width', 'character_avatar_height'],
   },
   {
     legend: $localize`:@@adminSettings.groupGithub:GitHub`,
@@ -41,6 +41,10 @@ const GENERAL_SETTING_GROUPS: SettingGroup[] = [
     ],
   },
   {
+    legend: $localize`:@@adminSettings.groupAbsences:Absences`,
+    names: ['absence_max_days', 'absence_cooldown_days'],
+  },
+  {
     legend: $localize`:@@adminSettings.groupRating:Rating`,
     names: ['use_rating_system', 'site_max_rating', 'blur_content_starting_from_rate', 'show_content_warnings'],
   },
@@ -56,6 +60,9 @@ const IMAGE_UPLOAD_SETTING_NAMES = new Set([
 ]);
 
 const SETTING_LABELS: Record<string, string> = {
+  global_free_format_date_id: $localize`:@@adminSettings.global_free_format_date_id:Global free-format date`,
+  absence_max_days: $localize`:@@adminSettings.absence_max_days:Maximum absence days`,
+  absence_cooldown_days: $localize`:@@adminSettings.absence_cooldown_days:Absence cooldown days`,
   site_name: $localize`:@@adminSettings.site_name:Site name`,
   domain: $localize`:@@adminSettings.domain:Domain`,
   posts_per_page: $localize`:@@adminSettings.posts_per_page:Posts per page`,
