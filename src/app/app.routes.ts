@@ -399,6 +399,12 @@ export const routes: Routes = [
         title: 'Admin - New Component Template Version'
       },
       {
+        path: 'frontend-templates/component-edit',
+        loadComponent: () => import('./admin/admin-component-template/admin-component-template.component').then(m => m.AdminComponentTemplateComponent),
+        data: { edit: true },
+        title: 'Admin - Edit Component Template Version'
+      },
+      {
         path: 'frontend-templates/versions',
         loadComponent: () => import('./admin/admin-component-template-versions/admin-component-template-versions.component').then(m => m.AdminComponentTemplateVersionsComponent),
         title: 'Admin - Component Template Versions'

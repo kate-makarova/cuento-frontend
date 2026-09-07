@@ -57,6 +57,18 @@
   vertical-align: middle;
 }
 
+.badge-edit {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #5a3d00;
+  background: #fff3cd;
+  border-radius: 4px;
+  padding: 0.15rem 0.5rem;
+  vertical-align: middle;
+}
+
 .version-name-row {
   display: flex;
   align-items: center;
