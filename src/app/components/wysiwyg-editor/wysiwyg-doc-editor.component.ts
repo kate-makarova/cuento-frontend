@@ -166,16 +166,32 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    // Diff the actual DOM text against the pre-composition snapshot.
-    // This makes event.data irrelevant: we trust what the browser committed to
-    // the DOM rather than what the keyboard reports (GBoard's internal buffer
-    // can be stale after user edits, causing event.data to differ from DOM).
-    const change = WysiwygDocEditorComponent.diffText(state.blockText, domText);
+    // Diff the actual DOM text against the original pre-composition snapshot.
+    // The snapshot is intentionally NOT advanced after each cycle — keeping the
+    // original blockText as the baseline lets the GBoard append-bug heuristic
+    // below see the full composition range, and keeps re-cycles idempotent.
+    let change = WysiwygDocEditorComponent.diffText(state.blockText, domText);
 
     if (!change) {
-      // DOM is unchanged — GBoard re-cycle with no new content; keep the
-      // snapshot in place for the next compositionend in the same chain.
+      // DOM is unchanged — GBoard re-cycle with no new content. Keep state.
       return;
+    }
+
+    // GBoard append-without-replace bug: on autocorrect GBoard sometimes appends
+    // the corrected word after the old one rather than replacing it, yielding
+    // e.g. "htethe" in the DOM instead of "the". We detect this when:
+    //   • the diff is a pure insertion (nothing deleted from the pre-comp text)
+    //   • the inserted text is longer than event.data
+    //   • the inserted text ends with event.data
+    // In that case the prefix is the stale old-composition word; we discard it
+    // and treat only event.data as the intended composition result.
+    if (
+      change.deleteFrom === change.deleteTo &&
+      event.data.length > 0 &&
+      change.insert.length > event.data.length &&
+      change.insert.endsWith(event.data)
+    ) {
+      change = { deleteFrom: change.deleteFrom, deleteTo: change.deleteTo, insert: event.data };
     }
 
     if (!state.historyPushed) {
@@ -183,9 +199,9 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
       state.historyPushed = true;
     }
 
-    // Apply the diff to the pre-composition snapshot, not to this.doc.
-    // Working from the snapshot makes every cycle idempotent: the same DOM
-    // state always produces the same model state regardless of prior cycles.
+    // Always apply from the pre-composition snapshot (state.doc / state.blockText),
+    // not from this.doc. This is what keeps every cycle idempotent regardless of
+    // how many times GBoard re-cycles through the same composed word.
     let base = state.doc;
     let pt: DocPoint = { path: state.path, offset: change.deleteFrom };
 
@@ -209,23 +225,13 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
     this.doc = result.doc;
     this.cursor = { anchor: result.cursor, focus: result.cursor };
 
-    // patchDoc (in-place text-node mutation) keeps DOM nodes stable so that
-    // any pending insertReplacementText event's getTargetRanges() references
-    // remain valid. A full re-render would orphan those nodes.
+    // patchDoc keeps DOM nodes stable so any pending insertReplacementText
+    // event's getTargetRanges() references remain valid.
     const cursorHandled = patchDoc(this.editorEl.nativeElement, prevDoc, this.doc, result.cursor);
     if (!cursorHandled) applyDocRange(this.cursor, this.editorEl.nativeElement);
     this.updateActiveState();
     this.onInput();
-
-    // Advance the snapshot to the just-committed DOM state so the next cycle
-    // computes an incremental diff rather than re-applying the full composition.
-    this.preCompositionState = {
-      doc: this.doc,
-      cursor: this.cursor,
-      path: state.path,
-      blockText: domText,
-      historyPushed: true,
-    };
+    // state.historyPushed is mutated above; no other state update needed.
   }
 
   // Finds the minimal edit that transforms pre into post.
