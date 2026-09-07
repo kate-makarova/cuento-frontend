@@ -25,6 +25,14 @@ import {
 
 const ORIGIN: DocRange = { anchor: { path: [0], offset: 0 }, focus: { path: [0], offset: 0 } };
 
+// GBoard on Android maintains an internal IME buffer that is independent of
+// the DOM. After our editor handles a deletion (with preventDefault), GBoard
+// never receives the native InputMethod onUpdateSelection callback that would
+// flush its cache. The only reliable way to force a sync is to blur/focus,
+// which ends the IME session (GBoard discards its buffer) and restarts it
+// from the current DOM. ProseMirror and Lexical use the same technique.
+const IS_ANDROID = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent);
+
 @Component({
   selector: 'app-wysiwyg-doc-editor',
   standalone: true,
@@ -436,17 +444,31 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
     this.doc = result.doc;
     this.cursor = { anchor: result.cursor, focus: result.cursor };
     if (fullRender) {
-      // Full innerHTML replacement after delete ops resets GBoard's internal
-      // text-node references, forcing it to re-read the DOM on the next
-      // composition cycle rather than replaying its stale buffer.
       this.preCompositionState = null;
       this.render();
       applyDocRange(this.cursor, this.editorEl.nativeElement);
+      if (IS_ANDROID) this.resetAndroidIME();
     } else {
       const cursorHandled = patchDoc(this.editorEl.nativeElement, prevDoc, this.doc, result.cursor);
       if (!cursorHandled) applyDocRange(this.cursor, this.editorEl.nativeElement);
     }
     this.updateActiveState();
+  }
+
+  // Ends the Android IME session and immediately restarts it so GBoard
+  // re-reads the DOM instead of replaying its stale internal buffer.
+  // blur() causes Android to tear down the InputMethod connection; focus()
+  // starts a fresh one. The rAF gives the OS one frame to process the blur
+  // before we re-attach. The cursor is re-applied after focus so Android
+  // reports the correct anchor offset to the keyboard on reconnect.
+  private resetAndroidIME(): void {
+    const savedCursor = this.cursor;
+    const el = this.editorEl.nativeElement;
+    el.blur();
+    requestAnimationFrame(() => {
+      el.focus();
+      applyDocRange(savedCursor, el);
+    });
   }
 
   private undo(): void {
