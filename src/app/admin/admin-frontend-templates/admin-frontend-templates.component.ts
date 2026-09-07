@@ -2,7 +2,6 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
-import { SaveButtonComponent } from '../save-button/save-button.component';
 
 export interface FrontendComponent {
   name: string;
@@ -11,8 +10,6 @@ export interface FrontendComponent {
   description: string;
   active: boolean;
 }
-
-type SaveState = 'idle' | 'loading' | 'success' | 'error';
 
 const DESCRIPTIONS: Record<string, string> = {
   'src/app/components/category': $localize`:@@frontend_component.src_app_components_category.description:Category page listing topics with filtering and navigation`,
@@ -26,7 +23,7 @@ const DESCRIPTIONS: Record<string, string> = {
   selector: 'app-admin-frontend-templates',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [RouterLink, SaveButtonComponent],
+  imports: [RouterLink],
   templateUrl: './admin-frontend-templates.component.html',
   styleUrl: './admin-frontend-templates.component.css',
 })
@@ -34,7 +31,6 @@ export class AdminFrontendTemplatesComponent implements OnInit {
   private apiService = inject(ApiService);
 
   components = signal<FrontendComponent[]>([]);
-  saveState = signal<SaveState>('idle');
 
   ngOnInit() {
     this.apiService.get<FrontendComponent[]>('admin/frontend-templates/components').subscribe({
@@ -45,33 +41,5 @@ export class AdminFrontendTemplatesComponent implements OnInit {
 
   getDescription(name: string, fallback: string): string {
     return DESCRIPTIONS[name] ?? fallback;
-  }
-
-  toggle(comp: FrontendComponent) {
-    this.components.update((list) =>
-      list.map((c) => (c.name === comp.name ? { ...c, active: !c.active } : c))
-    );
-  }
-
-  save() {
-    this.saveState.set('loading');
-    const activeComponents = this.components()
-      .filter((c) => c.active)
-      .map((c) => c.name);
-
-    this.apiService
-      .post('admin/frontend-templates/env/update', { active_components: activeComponents })
-      .subscribe({
-        next: () => this.flash('success'),
-        error: (err) => {
-          console.error('Failed to update frontend templates', err);
-          this.flash('error');
-        },
-      });
-  }
-
-  private flash(state: 'success' | 'error') {
-    this.saveState.set(state);
-    setTimeout(() => this.saveState.set('idle'), 3000);
   }
 }

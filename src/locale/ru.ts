@@ -1108,6 +1108,7 @@ export const TRANSLATIONS_RU = {
   "admin.frontendTemplates.col.defaultTemplatePath": "Шаблон по умолчанию",
   "admin.frontendTemplates.col.active": "Активен",
   "admin.frontendTemplates.versions": "Версии",
+  "admin.frontendTemplates.overriddenTitle": "Активен пользовательский шаблон",
   "admin.componentTemplate.readonlyBadge": "по умолчанию",
 
   "frontend_component.src_app_components_category.description": "Страница категории со списком тем, фильтрацией и навигацией",

@@ -16,18 +16,16 @@
     } @else {
       <ul class="component-list">
         @for (comp of components(); track comp.name) {
-          <li class="component-item" [class.item--active]="comp.active">
-            <label class="item-toggle" [title]="comp.active ? 'Deactivate' : 'Activate'">
-              <input
-                type="checkbox"
-                class="toggle-input"
-                [checked]="comp.active"
-                (change)="toggle(comp)"
-              />
-            </label>
-
+          <li class="component-item">
             <div class="item-body">
-              <div class="item-name">{{ comp.name }}</div>
+              <div class="item-name">
+                {{ comp.name }}
+                @if (comp.active) {
+                  <span class="override-badge" i18n-title="@@admin.frontendTemplates.overriddenTitle" title="Custom template active">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm17.71-10.21a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                  </span>
+                }
+              </div>
               @if (getDescription(comp.name, comp.description); as desc) {
                 <div class="item-description">{{ desc }}</div>
               }
@@ -51,11 +49,6 @@
         }
       </ul>
 
-      <div class="actions">
-        <app-save-button [state]="saveState()" (clicked)="save()">
-          <span i18n="@@common.update">Update</span>
-        </app-save-button>
-      </div>
-    }
+}
   </section>
 </div>
