@@ -14,11 +14,19 @@ export interface FrontendComponent {
 
 type SaveState = 'idle' | 'loading' | 'success' | 'error';
 
+const DESCRIPTIONS: Record<string, string> = {
+  'src/app/components/category': $localize`:@@frontend_component.src_app_components_category.description:Category page listing topics with filtering and navigation`,
+  'src/app/components/footer_statistics': $localize`:@@frontend_component.src_app_components_footer_statistics.description:Footer statistics bar showing site-wide post and user counts`,
+  'src/app/components/episode_header': $localize`:@@frontend_component.src_app_components_episode_header.description:Episode header displaying title, participants and episode metadata`,
+  'src/app/components/character_sheet_header': $localize`:@@frontend_component.src_app_components_character_sheet_header.description:Character sheet header with avatar, name and key character details`,
+  'src/app/components/wanted_character_header': $localize`:@@frontend_component.src_app_components_wanted_character_header.description:Wanted character ad header with role description and requirements`,
+};
+
 @Component({
   selector: 'app-admin-frontend-templates',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [ RouterLink, SaveButtonComponent],
+  imports: [RouterLink, SaveButtonComponent],
   templateUrl: './admin-frontend-templates.component.html',
   styleUrl: './admin-frontend-templates.component.css',
 })
@@ -33,6 +41,10 @@ export class AdminFrontendTemplatesComponent implements OnInit {
       next: (data) => this.components.set(data),
       error: (err) => console.error('Failed to load frontend components', err),
     });
+  }
+
+  getDescription(name: string, fallback: string): string {
+    return DESCRIPTIONS[name] ?? fallback;
   }
 
   toggle(comp: FrontendComponent) {
