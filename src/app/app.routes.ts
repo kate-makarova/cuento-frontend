@@ -393,6 +393,17 @@ export const routes: Routes = [
         title: 'Admin - Component Template (Default)'
       },
       {
+        path: 'frontend-templates/component-create',
+        loadComponent: () => import('./admin/admin-component-template/admin-component-template.component').then(m => m.AdminComponentTemplateComponent),
+        data: { create: true },
+        title: 'Admin - New Component Template Version'
+      },
+      {
+        path: 'frontend-templates/versions',
+        loadComponent: () => import('./admin/admin-component-template-versions/admin-component-template-versions.component').then(m => m.AdminComponentTemplateVersionsComponent),
+        title: 'Admin - Component Template Versions'
+      },
+      {
         path: 'additional-navlinks',
         loadComponent: () => import('./admin/admin-additional-navlinks/admin-additional-navlinks.component').then(m => m.AdminAdditionalNavlinksComponent),
         title: 'Admin - Additional Navlinks'
@@ -441,6 +452,11 @@ export const routes: Routes = [
         path: 'smiles',
         loadComponent: () => import('./admin/admin-smiles/admin-smiles.component').then(m => m.AdminSmilesComponent),
         title: 'Admin - Smiles'
+      },
+      {
+        path: 'locales',
+        loadComponent: () => import('./admin/admin-locales/admin-locales.component').then(m => m.AdminLocalesComponent),
+        title: 'Admin - Locales'
       },
       {
         path: 'search',
