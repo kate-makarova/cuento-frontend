@@ -23,24 +23,37 @@ export class AdminComponentTemplateComponent implements OnInit {
   filePath = signal('');
   content = signal('');
   versionName = signal('');
+  versionId = signal<number | null>(null);
   readonly = signal(false);
   isCreate = signal(false);
+  isEdit = signal(false);
   saveState = signal<SaveState>('idle');
 
   ngOnInit() {
     const name = this.route.snapshot.queryParamMap.get('name') ?? '';
     const filePath = this.route.snapshot.queryParamMap.get('path') ?? '';
+    const id = this.route.snapshot.queryParamMap.get('id');
+    const versionName = this.route.snapshot.queryParamMap.get('versionName') ?? '';
     const isDefault = !!this.route.snapshot.data['readonly'];
     const isCreate = !!this.route.snapshot.data['create'];
+    const isEdit = !!this.route.snapshot.data['edit'];
 
     this.name.set(name);
     this.filePath.set(filePath);
+    this.versionName.set(versionName);
     this.readonly.set(isDefault);
     this.isCreate.set(isCreate);
+    this.isEdit.set(isEdit);
+    if (id) this.versionId.set(Number(id));
 
-    const endpoint = isDefault || isCreate
-      ? `admin/frontend-templates/components-default/${name}`
-      : `admin/frontend-templates/components/${name}`;
+    let endpoint: string;
+    if (isEdit && id) {
+      endpoint = `admin/frontend-templates/component/${id}`;
+    } else if (isDefault || isCreate) {
+      endpoint = `admin/frontend-templates/components-default/${name}`;
+    } else {
+      endpoint = `admin/frontend-templates/components/${name}`;
+    }
 
     this.apiService.getText(endpoint).subscribe({
       next: (text) => this.content.set(text),
@@ -54,12 +67,16 @@ export class AdminComponentTemplateComponent implements OnInit {
 
   save() {
     this.saveState.set('loading');
+    const body: Record<string, unknown> = {
+      component_name: this.name(),
+      name: this.versionName(),
+      content: this.content(),
+    };
+    if (this.versionId() !== null) {
+      body['id'] = this.versionId();
+    }
     this.apiService
-      .post('admin/frontend-templates/component/save', {
-        component_name: this.name(),
-        name: this.versionName(),
-        content: this.content(),
-      })
+      .post('admin/frontend-templates/component/save', body)
       .subscribe({
         next: () => this.flash('success'),
         error: (err) => {

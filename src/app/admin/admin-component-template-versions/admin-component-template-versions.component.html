@@ -57,10 +57,10 @@
             <td class="cell-actions">
               <a
                 class="action-link"
-                [routerLink]="['/admin/frontend-templates/component-version']"
-                [queryParams]="{ name: componentName(), id: version.id }"
-                i18n="@@common.view"
-              >View</a>
+                [routerLink]="['/admin/frontend-templates/component-edit']"
+                [queryParams]="{ name: componentName(), id: version.id, versionName: version.name }"
+                i18n="@@common.edit"
+              >Edit</a>
               @if (!version.is_active) {
                 <button
                   class="button button--publish"
