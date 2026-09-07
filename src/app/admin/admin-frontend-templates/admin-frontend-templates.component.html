@@ -14,43 +14,42 @@
     @if (components().length === 0) {
       <p class="empty-message" i18n="@@admin.frontendTemplates.empty">No components found.</p>
     } @else {
-      <table class="templates-table">
-        <thead>
-          <tr>
-            <th i18n="@@admin.frontendTemplates.col.name">Name</th>
-            <th i18n="@@admin.frontendTemplates.col.description">Description</th>
-            <th i18n="@@admin.frontendTemplates.col.templatePath">Custom template</th>
-            <th i18n="@@admin.frontendTemplates.col.defaultTemplatePath">Default template</th>
-            <th i18n="@@admin.frontendTemplates.col.versions">Versions</th>
-            <th i18n="@@admin.frontendTemplates.col.active">Active</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (comp of components(); track comp.name) {
-            <tr [class.row--active]="comp.active">
-              <td class="cell-name">{{ comp.name }}</td>
-              <td class="cell-description">{{ comp.description }}</td>
-              <td class="cell-path">
-                <a class="edit-link" [routerLink]="['/admin/frontend-templates/component']" [queryParams]="{ name: comp.name, path: comp.template_path }" i18n="@@common.edit">Edit</a>
-              </td>
-              <td class="cell-path">
-                <a class="edit-link" [routerLink]="['/admin/frontend-templates/component-default']" [queryParams]="{ name: comp.name, path: comp.default_template_path }" i18n="@@common.view">View</a>
-              </td>
-              <td class="cell-path">
-                <a class="edit-link" [routerLink]="['/admin/frontend-templates/versions']" [queryParams]="{ name: comp.name }" i18n="@@admin.frontendTemplates.col.versions">Versions</a>
-              </td>
-              <td class="cell-active">
-                <input
-                  type="checkbox"
-                  class="toggle-input"
-                  [checked]="comp.active"
-                  (change)="toggle(comp)"
-                />
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+      <ul class="component-list">
+        @for (comp of components(); track comp.name) {
+          <li class="component-item" [class.item--active]="comp.active">
+            <label class="item-toggle" [title]="comp.active ? 'Deactivate' : 'Activate'">
+              <input
+                type="checkbox"
+                class="toggle-input"
+                [checked]="comp.active"
+                (change)="toggle(comp)"
+              />
+            </label>
+
+            <div class="item-body">
+              <div class="item-name">{{ comp.name }}</div>
+              @if (getDescription(comp.name, comp.description); as desc) {
+                <div class="item-description">{{ desc }}</div>
+              }
+            </div>
+
+            <div class="item-links">
+              <a
+                class="item-link item-link--primary"
+                [routerLink]="['/admin/frontend-templates/versions']"
+                [queryParams]="{ name: comp.name }"
+                i18n="@@admin.frontendTemplates.versions"
+              >Versions</a>
+              <a
+                class="item-link"
+                [routerLink]="['/admin/frontend-templates/component-default']"
+                [queryParams]="{ name: comp.name, path: comp.default_template_path }"
+                i18n="@@common.view"
+              >Default</a>
+            </div>
+          </li>
+        }
+      </ul>
 
       <div class="actions">
         <app-save-button [state]="saveState()" (clicked)="save()">

@@ -1107,7 +1107,14 @@ export const TRANSLATIONS_RU = {
   "admin.frontendTemplates.col.templatePath": "Пользовательский шаблон",
   "admin.frontendTemplates.col.defaultTemplatePath": "Шаблон по умолчанию",
   "admin.frontendTemplates.col.active": "Активен",
+  "admin.frontendTemplates.versions": "Версии",
   "admin.componentTemplate.readonlyBadge": "по умолчанию",
+
+  "frontend_component.src_app_components_category.description": "Страница категории со списком тем, фильтрацией и навигацией",
+  "frontend_component.src_app_components_footer_statistics.description": "Строка статистики в подвале с общим количеством постов и пользователей",
+  "frontend_component.src_app_components_episode_header.description": "Заголовок эпизода с названием, участниками и метаданными",
+  "frontend_component.src_app_components_character_sheet_header.description": "Заголовок анкеты персонажа с аватаром, именем и основными данными",
+  "frontend_component.src_app_components_wanted_character_header.description": "Заголовок объявления о розыске персонажа с описанием роли и требованиями",
 
   "factionSetting.new": "Новая настройка фракции",
   "factionSetting.humanName": "Название",
