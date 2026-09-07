@@ -50,7 +50,7 @@ export class AdminComponentTemplateComponent implements OnInit {
   save() {
     this.saveState.set('loading');
     this.apiService
-      .post('admin/frontend-templates/component/update', {
+      .post('admin/frontend-templates/component/save', {
         name: this.name(),
         content: this.content(),
       })

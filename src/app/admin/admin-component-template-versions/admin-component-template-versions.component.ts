@@ -10,6 +10,8 @@ export interface ComponentTemplateVersion {
   is_active: boolean;
 }
 
+type PublishState = 'idle' | 'loading' | 'success' | 'error';
+
 @Component({
   selector: 'app-admin-component-template-versions',
   host: { class: 'pun-page' },
@@ -27,6 +29,9 @@ export class AdminComponentTemplateVersionsComponent implements OnInit {
   loading = signal(true);
   error = signal(false);
 
+  publishingVersion = signal<ComponentTemplateVersion | null>(null);
+  publishState = signal<PublishState>('idle');
+
   ngOnInit() {
     const name = this.route.snapshot.queryParamMap.get('name') ?? '';
     this.componentName.set(name);
@@ -40,6 +45,40 @@ export class AdminComponentTemplateVersionsComponent implements OnInit {
         console.error('Failed to load component versions', err);
         this.loading.set(false);
         this.error.set(true);
+      },
+    });
+  }
+
+  confirmPublish(version: ComponentTemplateVersion) {
+    this.publishingVersion.set(version);
+    this.publishState.set('idle');
+  }
+
+  cancelPublish() {
+    this.publishingVersion.set(null);
+    this.publishState.set('idle');
+  }
+
+  publish() {
+    const version = this.publishingVersion();
+    if (!version) return;
+
+    this.publishState.set('loading');
+    this.apiService.post(`admin/frontend-templates/component/${version.id}/publish`, {}).subscribe({
+      next: () => {
+        this.publishState.set('success');
+        this.versions.update(list =>
+          list.map(v => ({ ...v, is_active: v.id === version.id }))
+        );
+        setTimeout(() => {
+          this.publishingVersion.set(null);
+          this.publishState.set('idle');
+        }, 1500);
+      },
+      error: (err) => {
+        console.error('Failed to publish version', err);
+        this.publishState.set('error');
+        setTimeout(() => this.publishState.set('idle'), 3000);
       },
     });
   }

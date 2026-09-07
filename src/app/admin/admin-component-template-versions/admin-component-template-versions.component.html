@@ -30,9 +30,7 @@
       <tbody>
         @for (version of versions(); track version.id) {
           <tr [class.row--active]="version.is_active">
-            <td class="cell-name">
-              {{ version.name }}
-            </td>
+            <td class="cell-name">{{ version.name }}</td>
             <td class="cell-status">
               @if (version.is_active) {
                 <span class="badge badge--active" i18n="@@admin.componentVersions.active">Active</span>
@@ -47,6 +45,13 @@
                 [queryParams]="{ name: componentName(), id: version.id }"
                 i18n="@@common.view"
               >View</a>
+              @if (!version.is_active) {
+                <button
+                  class="button button--publish"
+                  (click)="confirmPublish(version)"
+                  i18n="@@admin.componentVersions.publish"
+                >Publish</button>
+              }
             </td>
           </tr>
         }
@@ -54,3 +59,32 @@
     </table>
   }
 </div>
+
+@if (publishingVersion(); as version) {
+  <div class="modal-overlay" (click)="cancelPublish()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h2 i18n="@@admin.componentVersions.publishTitle">Publish «{{ version.name }}»?</h2>
+      <p i18n="@@admin.componentVersions.publishWarning">This will make this version active. The frontend will be rebuilt with the new template.</p>
+      <div class="modal-actions">
+        <button
+          class="button button--confirm"
+          (click)="publish()"
+          [disabled]="publishState() === 'loading' || publishState() === 'success'"
+        >
+          @switch (publishState()) {
+            @case ('loading') { <span i18n="@@common.loading">Loading…</span> }
+            @case ('success') { <span i18n="@@admin.componentVersions.publishSuccess">Published!</span> }
+            @case ('error') { <span i18n="@@admin.componentVersions.publishError">Failed</span> }
+            @default { <span i18n="@@admin.componentVersions.publish">Publish</span> }
+          }
+        </button>
+        <button
+          class="button"
+          (click)="cancelPublish()"
+          [disabled]="publishState() === 'loading'"
+          i18n="@@common.cancel"
+        >Cancel</button>
+      </div>
+    </div>
+  </div>
+}
