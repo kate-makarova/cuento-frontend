@@ -1,0 +1,40 @@
+<h2 i18n="@@admin.locales">Locales</h2>
+
+<table class="data-table">
+  <thead>
+    <tr>
+      <th i18n="@@admin.locales.name">Language</th>
+      <th i18n="@@admin.locales.frontend">Frontend file</th>
+      <th i18n="@@admin.locales.backend">Backend file</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (locale of locales(); track locale.id) {
+      <tr>
+        <td>{{ locale.human_name }}</td>
+        <td>
+          <button type="button" (click)="downloadFrontend(locale)" [disabled]="getState('frontend_' + locale.id) === 'loading'">
+            {{ locale.front_end_file_name }}
+            @if (getState('frontend_' + locale.id) === 'loading') {
+              <span i18n="@@admin.locales.downloading">…</span>
+            }
+          </button>
+          @if (getState('frontend_' + locale.id) === 'error') {
+            <span class="error-text" i18n="@@admin.locales.downloadError">Download failed</span>
+          }
+        </td>
+        <td>
+          <button type="button" (click)="downloadBackend(locale)" [disabled]="getState('backend_' + locale.id) === 'loading'">
+            {{ locale.back_end_file_name }}
+            @if (getState('backend_' + locale.id) === 'loading') {
+              <span i18n="@@admin.locales.downloading">…</span>
+            }
+          </button>
+          @if (getState('backend_' + locale.id) === 'error') {
+            <span class="error-text" i18n="@@admin.locales.downloadError">Download failed</span>
+          }
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>

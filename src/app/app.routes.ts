@@ -443,6 +443,11 @@ export const routes: Routes = [
         title: 'Admin - Smiles'
       },
       {
+        path: 'locales',
+        loadComponent: () => import('./admin/admin-locales/admin-locales.component').then(m => m.AdminLocalesComponent),
+        title: 'Admin - Locales'
+      },
+      {
         path: 'search',
         loadComponent: () => import('./admin/admin-search/admin-search.component').then(m => m.AdminSearchComponent),
         title: 'Admin - Search'
