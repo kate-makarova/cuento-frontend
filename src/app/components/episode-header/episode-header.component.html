@@ -6,12 +6,17 @@
       @if (episode.episode_status === 0) {
         <span class="status-badge status-active" i18n="@@common.statusActive">Active</span>
       } @else if (episode.episode_status === 1) {
-        <span class="status-badge status-inactive" i18n="@@common.statusClosed">Inactive</span>
+        <span class="status-badge status-inactive" i18n="@@common.statusInactive">Inactive</span>
+      } @else if (episode.episode_status === 2) {
+        <span class="status-badge status-finished" i18n="@@episode.statusFinished">Finished</span>
       }
       @if (ratingBadge) {
         <span class="status-badge episode-rating-badge">{{ ratingBadge }}</span>
       }
     </h2>
+    @if (showActionsButton) {
+      <button type="button" class="button episode-actions-btn" (click)="openActionsModal()" i18n="@@episode.actionsButton">Episode actions</button>
+    }
     @if (episode.open_to_everyone) {
       <div class="episode-open-badge" i18n="@@episode.openToEveryone">Open to everyone</div>
     }
@@ -51,4 +56,27 @@
     }
   </div>
 </div>
+
+@if (showActionsModal()) {
+  <app-episode-actions-modal
+    [episode]="episode"
+    [canChangeStatus]="canChangeStatus"
+    [hasCharacters]="userCharacterProfiles().length > 0"
+    [stateChangePending]="stateChangePending()"
+    [stateChangeError]="stateChangeError()"
+    [pendingStatus]="pendingStatus()"
+    [customAvatars]="customAvatars()"
+    [avatarsLoading]="avatarsLoading()"
+    [canUploadImages]="canUploadImages()"
+    [avatarWidth]="avatarWidth()"
+    [avatarHeight]="avatarHeight()"
+    [getUploadFn]="getUploadFnBound"
+    (close)="closeActionsModal()"
+    (pendingStatusChange)="pendingStatus.set($event)"
+    (saveStatus)="changeEpisodeStatus()"
+    (removeAvatar)="removeCustomAvatar($event)"
+    (urlInputChange)="setUrlInput($event.characterId, $event.value)"
+    (applyFromUrl)="applyCustomAvatarFromUrl($event)">
+  </app-episode-actions-modal>
+}
 }

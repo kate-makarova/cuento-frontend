@@ -1,13 +1,13 @@
 import { Component, inject, OnInit, effect, signal } from '@angular/core';
 import { CharacterService } from '../../services/character.service';
 import { FieldTemplateRowComponent, FieldTemplateForm } from '../field-template-row/field-template-row.component';
-import { CommonModule } from '@angular/common';
+
 import { SaveButtonComponent } from '../save-button/save-button.component';
 
 @Component({
   selector: 'app-character-profile-template-edit',
   host: { class: 'pun-page' },
-  imports: [FieldTemplateRowComponent, CommonModule, SaveButtonComponent],
+  imports: [FieldTemplateRowComponent, SaveButtonComponent],
   templateUrl: './character-profile-template-edit.component.html',
   standalone: true,
   styleUrl: './character-profile-template-edit.component.css'

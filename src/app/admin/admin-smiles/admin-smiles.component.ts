@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { Smile, SmileCategory } from '../../models/Smile';
@@ -10,7 +10,7 @@ type UploadState = 'idle' | 'loading' | 'success' | 'error';
   selector: 'app-admin-smiles',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [ FormsModule],
   templateUrl: './admin-smiles.component.html',
 })
 export class AdminSmilesComponent implements OnInit {

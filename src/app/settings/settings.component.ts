@@ -1,5 +1,5 @@
 import { Component, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth.service';
@@ -79,7 +79,7 @@ const IANA_TIMEZONES = [
   selector: 'app-settings',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, CroppedImageFieldComponent, BbToolbarComponent],
+  imports: [ FormsModule, RouterLink, CroppedImageFieldComponent, BbToolbarComponent],
   templateUrl: './settings.component.html',
 })
 export class SettingsComponent implements OnInit {

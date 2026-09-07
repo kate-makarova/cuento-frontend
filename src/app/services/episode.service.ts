@@ -105,6 +105,22 @@ export class EpisodeService {
     return this.apiService.post<{ episode_status: number, topic_status: number }>(`episode/deactivate/${id}`, null);
   }
 
+  setEpisodeStatus(id: number, status: number) {
+    return this.apiService.post<{ episode_status: number, topic_status: number }>(`episode/${id}/status`, { status });
+  }
+
+  getMyCustomAvatars(episodeId: number) {
+    return this.apiService.get<{ character_id: number; character_name: string; custom_avatar: string | null }[]>(`episode/${episodeId}/my-custom-avatars`);
+  }
+
+  setCustomAvatar(episodeId: number, characterId: number, avatarUrl: string) {
+    return this.apiService.post<{ custom_avatar: string }>(`episode/${episodeId}/character/${characterId}/custom-avatar`, { avatar: avatarUrl });
+  }
+
+  removeCustomAvatar(episodeId: number, characterId: number) {
+    return this.apiService.post<void>(`episode/${episodeId}/character/${characterId}/custom-avatar/remove`, null);
+  }
+
   getStandardWarnings() {
     return this.apiService.get<StandardWarning[]>('standard-warnings');
   }

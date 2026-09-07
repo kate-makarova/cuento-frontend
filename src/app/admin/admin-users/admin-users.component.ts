@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
@@ -24,7 +24,7 @@ export interface Role {
   selector: 'app-admin-users',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [CommonModule, DatePipe, RouterLink, FormsModule, ErrorBannerComponent],
+  imports: [ DatePipe, RouterLink, FormsModule, ErrorBannerComponent],
   templateUrl: './admin-users.component.html',
   styleUrl: './admin-users.component.css'
 })

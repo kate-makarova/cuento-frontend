@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ApiService } from '../../services/api.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
@@ -12,7 +12,7 @@ type RestoreState = 'idle' | 'loading' | 'success' | 'error';
   selector: 'app-admin-backup',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './admin-backup.component.html',
 })
 export class AdminBackupComponent {

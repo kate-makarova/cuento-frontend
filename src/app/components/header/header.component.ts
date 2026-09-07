@@ -11,11 +11,19 @@ import { NavlinksComponent } from '../navlinks/navlinks.component';
 import { UlinksComponent } from '../ulinks/ulinks.component';
 import { RouterLinksDirective } from '../../directives/router-links.directive';
 
+interface WidgetField {
+  field_name: string;
+  value: string;
+  render_type: string;
+  width?: number;
+  height?: number;
+}
+
 interface WidgetEntity {
   id: number;
   type: string;
   name: string;
-  custom_fields?: { field_name: string; value: string; render_type: string }[];
+  custom_fields?: WidgetField[];
 }
 
 interface WidgetData {
@@ -110,13 +118,26 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     const widgetData = this.parseWidgetComments(panel);
 
+    let firstImagePreloaded = false;
     panel.querySelectorAll<HTMLElement>('[data-widget-id][widget-type="random_entity"]').forEach(widget => {
       const widgetId = widget.getAttribute('data-widget-id')!;
       const data = widgetData[widgetId];
       if (!data || data.sets.length === 0) return;
 
+      if (!firstImagePreloaded) {
+        const firstImage = data.sets[0].flatMap(e => e.custom_fields ?? []).find(f => (f.render_type === 'image' || f.render_type === 'cropped_image') && f.value);
+        if (firstImage) {
+          const link = document.createElement('link');
+          link.rel = 'preload';
+          link.as = 'image';
+          link.href = firstImage.value;
+          document.head.appendChild(link);
+          firstImagePreloaded = true;
+        }
+      }
+
       widget.style.display = 'flex';
-      widget.innerHTML = this.buildEntityHtml(data.sets[0]);
+      widget.innerHTML = this.buildEntityHtml(data.sets[0], true);
 
       if (data.sets.length < 2 || !data.interval) return;
 
@@ -153,12 +174,22 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return result;
   }
 
-  private buildEntityHtml(entities: WidgetEntity[]): string {
+  private buildEntityHtml(entities: WidgetEntity[], priority = false): string {
+    let firstImg = priority;
     return entities.map(e => {
       const path = this.entityPath(e.type, e.id);
       const fields = (e.custom_fields ?? []).map(f => {
         if (f.render_type === 'image' || f.render_type === 'cropped_image') {
-          return f.value ? `<img src="${this.escapeHtml(f.value)}" alt="" style="max-width:100%" />` : '';
+          const w = f.width ?? 0;
+          const h = f.height ?? 0;
+          if (!f.value) {
+            return w && h ? `<div style="width:${w}px;height:${h}px"></div>` : '';
+          }
+          const wAttr = w ? ` width="${w}"` : '';
+          const hAttr = h ? ` height="${h}"` : '';
+          const fp = firstImg ? ' fetchpriority="high"' : '';
+          firstImg = false;
+          return `<img src="${this.escapeHtml(f.value)}" alt=""${wAttr}${hAttr}${fp} style="max-width:100%" />`;
         }
         return `<span>${this.escapeHtml(f.value)}</span>`;
       }).join('');

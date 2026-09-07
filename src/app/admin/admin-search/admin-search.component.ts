@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 
 export interface SonicCursorItem {
@@ -13,7 +13,7 @@ export interface SonicCursorItem {
   selector: 'app-admin-search',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [CommonModule, DatePipe],
+  imports: [ DatePipe],
   templateUrl: './admin-search.component.html',
 })
 export class AdminSearchComponent implements OnInit {

@@ -54,6 +54,7 @@ export class TopicService {
   private pendingOwnPostTimeout: ReturnType<typeof setTimeout> | null = null;
   private pendingScrollAfterFallback = false;
   private ownPostReceivedEarly = false;
+  private skipNextPostsLoad = false;
 
   private loadPostsSubject = new Subject<{topicId: number, page: number, postId?: number}>();
 
@@ -163,6 +164,10 @@ export class TopicService {
   }
 
   loadPosts(topicId: number, page: number, postId?: number) {
+    if (this.skipNextPostsLoad && !postId) {
+      this.skipNextPostsLoad = false;
+      return;
+    }
     this.loadPostsSubject.next({ topicId, page, postId });
   }
 
@@ -293,6 +298,10 @@ export class TopicService {
       this.clearOwnPostTimeout();
       this.ownPostAddedSubject.next(post.id);
       if (newLastPage > prevLastPage) {
+        // Keep only the new post for the next page; skip the loadPosts triggered
+        // by the route change to avoid a race where the server hasn't committed yet.
+        this.postsSignal.update(posts => posts.filter(p => p.id === post.id));
+        this.skipNextPostsLoad = true;
         this.router.navigate(['/viewtopic', this.topic().id], { queryParams: { page: newLastPage } });
       }
     }

@@ -1,22 +1,22 @@
 import { Component, inject, Input, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ImageUploadComponent } from '../image-upload/image-upload.component';
 import { GridBuilderComponent } from '../grid-builder/grid-builder.component';
 import { ApiService } from '../../services/api.service';
 import { SmileCategoryWithSmiles } from '../../models/Smile';
-import { WysiwygEditorComponent } from '../wysiwyg-editor/wysiwyg-editor.component';
+import { WysiwygDocEditorComponent } from '../wysiwyg-editor/wysiwyg-doc-editor.component';
 
 @Component({
   selector: 'app-bb-toolbar',
   standalone: true,
-  imports: [CommonModule, ImageUploadComponent, GridBuilderComponent],
+  imports: [ ImageUploadComponent, GridBuilderComponent],
   templateUrl: './bb-toolbar.component.html',
 })
 export class BbToolbarComponent {
   private apiService = inject(ApiService);
 
   @Input() textarea: HTMLTextAreaElement | null = null;
-  @Input() editor: WysiwygEditorComponent | null = null;
+  @Input() editor: WysiwygDocEditorComponent | null = null;
   @Input() showSpoiler = true;
   @Input() showImageUpload = true;
 
@@ -27,6 +27,7 @@ export class BbToolbarComponent {
   private spoilerSelEnd = 0;
   private urlSelStart = 0;
   private urlSelEnd = 0;
+  private videoInsertPos = 0;
 
   smileCategories = signal<SmileCategoryWithSmiles[]>([]);
   private smilesLoaded = false;
@@ -38,7 +39,6 @@ export class BbToolbarComponent {
     this.activeArea = this.activeArea === area ? null : area;
     if (this.activeArea === 'url') {
       if (this.editor) {
-        this.editor.saveSelection();
         const sel = window.getSelection();
         this.hasUrlSelection = !!sel && !sel.isCollapsed;
       } else if (this.textarea) {
@@ -46,6 +46,9 @@ export class BbToolbarComponent {
         this.urlSelEnd = this.textarea.selectionEnd;
         this.hasUrlSelection = this.urlSelStart !== this.urlSelEnd;
       }
+    }
+    if (this.activeArea === 'video' && !this.editor && this.textarea) {
+      this.videoInsertPos = this.textarea.selectionStart;
     }
     if (area === 'smile' && this.activeArea === 'smile' && !this.smilesLoaded) {
       this.smilesLoaded = true;
@@ -79,6 +82,22 @@ export class BbToolbarComponent {
     this.textarea.setSelectionRange(this.urlSelStart + tag.length, this.urlSelStart + tag.length);
   }
 
+  insertVideo(url: string) {
+    if (!url) { this.activeArea = null; return; }
+    if (this.editor) {
+      this.editor.insertTextAtCursor(`[video]${url}[/video]`);
+      this.activeArea = null;
+      return;
+    }
+    if (!this.textarea) return;
+    const text = this.textarea.value;
+    const tag = `[video]${url}[/video]`;
+    this.textarea.value = text.substring(0, this.videoInsertPos) + tag + text.substring(this.videoInsertPos);
+    this.activeArea = null;
+    this.textarea.focus();
+    this.textarea.setSelectionRange(this.videoInsertPos + tag.length, this.videoInsertPos + tag.length);
+  }
+
   isFormatActive(tag: string): boolean {
     return this.editor?.activeFormats().has(tag) ?? false;
   }
@@ -99,7 +118,9 @@ export class BbToolbarComponent {
 
   isColorActive(color: string): boolean {
     const active = this.editor?.activeColor();
-    return !!active && this.normalizeColor(color) === active;
+    if (!active) return false;
+    // Normalize both sides so named colors ('red') match stored rgb() values.
+    return this.normalizeColor(color) === this.normalizeColor(active);
   }
 
   isSizeActive(size: number): boolean {
@@ -121,55 +142,6 @@ export class BbToolbarComponent {
 
   getActiveFont(): string | null {
     return this.editor?.activeFontFamily() ?? null;
-  }
-
-  private applyInlineSpan(ed: WysiwygEditorComponent, configure: (el: HTMLSpanElement) => void): void {
-    const sel = window.getSelection();
-    const span = document.createElement('span');
-    configure(span);
-    if (sel && sel.rangeCount > 0 && !sel.getRangeAt(0).collapsed) {
-      const range = sel.getRangeAt(0);
-      try {
-        range.surroundContents(span);
-      } catch {
-        span.appendChild(range.extractContents());
-        range.insertNode(span);
-      }
-      // Collapse cursor to end of span content using sel.collapse (not removeAllRanges)
-      // so the editor keeps focus and updateInlineStyles() detects the new format
-      let target: Node = span;
-      while (target.lastChild) target = target.lastChild;
-      sel.collapse(target, target.nodeType === Node.TEXT_NODE ? (target as Text).length : 0);
-    } else {
-      span.innerHTML = '&#8203;';
-      ed.insertHtmlAtCursor(span.outerHTML);
-    }
-  }
-
-  private clearStyleInSelection(property: 'color' | 'fontSize' | 'fontFamily'): void {
-    const ed = this.editor;
-    if (!ed) return;
-    const sel = window.getSelection();
-    if (!sel || !sel.rangeCount) return;
-    const range = sel.getRangeAt(0);
-
-    const walker = document.createTreeWalker(ed.nativeElement, NodeFilter.SHOW_ELEMENT);
-    let node = walker.nextNode();
-    while (node) {
-      if (range.intersectsNode(node)) {
-        const el = node as HTMLElement;
-        el.style[property] = '';
-        if (el.tagName === 'FONT') {
-          if (property === 'color') el.removeAttribute('color');
-          if (property === 'fontFamily') el.removeAttribute('face');
-        }
-      }
-      node = walker.nextNode();
-    }
-
-    if (property === 'color') ed.setActiveColor(null);
-    if (property === 'fontSize') ed.setActiveFontSize(null);
-    if (property === 'fontFamily') ed.setActiveFontFamily(null);
   }
 
   insertTag(tag: string) {
@@ -236,39 +208,23 @@ export class BbToolbarComponent {
           ed.focus();
         }
         break;
-      case 'video':
       case 'audio':
         ed.insertTextAtCursor(`[${tag}][/${tag}]`);
         break;
       default: {
         if (tag.startsWith('font=')) {
           const font = tag.slice(5);
-          if (this.isFontActive(font)) {
-            this.clearStyleInSelection('fontFamily');
-          } else {
-            this.applyInlineSpan(ed, el => { el.style.fontFamily = font; });
-            ed.setActiveFontFamily(font.toLowerCase());
-          }
+          ed.exec('fontName', this.isFontActive(font) ? '' : font);
           break;
         }
         if (tag.startsWith('color=')) {
           const color = tag.slice(6);
-          if (this.isColorActive(color)) {
-            this.clearStyleInSelection('color');
-          } else {
-            this.applyInlineSpan(ed, el => { el.style.color = color; });
-            ed.setActiveColor(this.normalizeColor(color));
-          }
+          ed.exec('foreColor', this.isColorActive(color) ? '' : color);
           break;
         }
         if (tag.startsWith('size=')) {
           const sizePx = tag.slice(5);
-          if (this.isSizeActive(parseInt(sizePx))) {
-            this.clearStyleInSelection('fontSize');
-          } else {
-            this.applyInlineSpan(ed, el => { el.style.fontSize = `${sizePx}px`; });
-            ed.setActiveFontSize(parseInt(sizePx));
-          }
+          ed.exec('fontSize', this.isSizeActive(parseInt(sizePx)) ? '' : sizePx);
           break;
         }
         ed.insertTextAtCursor(`[${tag}][/${tag.split('=')[0]}]`);

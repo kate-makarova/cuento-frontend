@@ -1,10 +1,9 @@
 import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-select-field',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './select-field.component.html'
 })
 export class SelectFieldComponent {

@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../services/api.service';
 import { LorePage, LorePageInfo, LoreTopicPostRow } from '../models/LorePage';
@@ -16,7 +16,7 @@ interface EditState {
   selector: 'app-lore-navigation-edit',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [CommonModule, DatePipe, FormsModule],
+  imports: [ DatePipe, FormsModule],
   templateUrl: './lore-navigation-edit.component.html',
 })
 export class LoreNavigationEditComponent implements OnInit, OnDestroy {

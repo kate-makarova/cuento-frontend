@@ -1,6 +1,6 @@
 import { Component, computed, effect, inject, OnInit, signal, untracked } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { MigrationService } from '../services/migration.service';
@@ -12,7 +12,7 @@ import { CharacterShort } from '../models/Character';
   selector: 'app-user-data-migration',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [ FormsModule, DatePipe],
   templateUrl: './user-data-migration.component.html',
   styleUrl: './user-data-migration.component.css'
 })

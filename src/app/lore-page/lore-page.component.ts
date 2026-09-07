@@ -6,13 +6,12 @@ import { ApiService } from '../services/api.service';
 import { SafeHtmlPipe } from '../pipes/safe-html.pipe';
 import { RouterLinksDirective } from '../directives/router-links.directive';
 import { LorePage } from '../models/LorePage';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-lore-page',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [CommonModule, RouterLink, SafeHtmlPipe, RouterLinksDirective],
+  imports: [ RouterLink, SafeHtmlPipe, RouterLinksDirective],
   templateUrl: './lore-page.component.html',
 })
 export class LorePageComponent implements OnInit, OnDestroy {

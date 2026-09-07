@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { UserService } from '../services/user.service';
 import { RouterLink } from '@angular/router';
 
@@ -7,7 +7,7 @@ import { RouterLink } from '@angular/router';
   selector: 'app-user-list',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [ RouterLink],
   templateUrl: './user-list.component.html',
 })
 export class UserListComponent implements OnInit {

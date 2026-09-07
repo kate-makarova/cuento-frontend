@@ -1,5 +1,5 @@
 import {Component, inject, Input, OnInit, numberAttribute, computed} from '@angular/core';
-import {CommonModule} from '@angular/common';
+
 import {RouterLink, ActivatedRoute} from '@angular/router';
 import {ForumService} from '../services/forum.service';
 import {BoardService} from '../services/board.service';
@@ -13,7 +13,7 @@ function coerceToPage(value: unknown): number {
 @Component({
   selector: 'app-active-topics',
   host: { class: 'pun-page' },
-  imports: [CommonModule, RouterLink, BreadcrumbsComponent],
+  imports: [ RouterLink, BreadcrumbsComponent],
   templateUrl: './active-topics.component.html',
   standalone: true,
 })

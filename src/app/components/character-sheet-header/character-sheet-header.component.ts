@@ -1,5 +1,5 @@
 import { Component, inject, Input, OnInit, OnChanges, SimpleChanges, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Character, CustomFieldsData, CustomFieldValue } from '../../models/Character';
 import { FieldDisplayComponent } from '../field-display/field-display.component';
 import { AuthService } from '../../services/auth.service';
@@ -7,7 +7,7 @@ import { CharacterService } from '../../services/character.service';
 
 @Component({
   selector: 'app-character-sheet-header',
-  imports: [CommonModule, FieldDisplayComponent],
+  imports: [ FieldDisplayComponent],
   templateUrl: './character-sheet-header.component.html',
   standalone: true,
 })

@@ -1,5 +1,5 @@
 import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { NotificationService } from '../../services/notification.service';
 import { NotificationData } from '../../models/event';
 import { Router, RouterLink } from '@angular/router';
@@ -8,7 +8,7 @@ import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-notifications',
-  imports: [CommonModule, DatePipe, RouterLink],
+  imports: [ DatePipe, RouterLink],
   templateUrl: './notifications.component.html',
   standalone: true,
 })

@@ -1,6 +1,7 @@
 <h2 i18n="@@characterClaims.title">Character Claims</h2>
 
 <app-error-banner [message]="deleteError()"></app-error-banner>
+<app-error-banner [message]="closeHoldError()"></app-error-banner>
 
 <div class="claims-tree">
   @for (faction of factions(); track faction.id) {
@@ -42,7 +43,12 @@
                 </td>
                 <td>{{ claim.last_claim_date ? (claim.last_claim_date | date:'yyyy-MM-dd HH:mm') : '—' }}</td>
                 <td>{{ claim.is_claimed ? claim.user_id : '—' }}</td>
-                <td><button type="button" class="button" (click)="deleteClaim(claim.id, faction.id)" i18n="@@characterClaims.delete">Delete</button></td>
+                <td>
+                  @if (claim.is_claimed && claim.claim_record_id) {
+                    <button type="button" class="button" (click)="closeHold(claim.claim_record_id, claim.id, faction.id)" i18n="@@characterClaims.closeHold">Remove active hold</button>
+                  }
+                  <button type="button" class="button" (click)="deleteClaim(claim.id, faction.id)" i18n="@@characterClaims.delete">Delete</button>
+                </td>
               </tr>
             }
           </tbody>

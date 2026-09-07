@@ -1,12 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-recovery-codes',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './recovery-codes.component.html',
 })
 export class RecoveryCodesComponent implements OnInit {

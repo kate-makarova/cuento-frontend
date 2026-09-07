@@ -76,10 +76,18 @@ export interface NotificationAutoArchiving {
   days_left?: number;
 }
 
+export interface NotificationEpisodeStatusChange {
+  episode_id: number;
+  episode_name: string;
+  new_status: number;
+  initiator_id: number;
+  initiator_name: string;
+}
+
 export interface NotificationData {
   id: number;
   user_id: number;
-  type: 'system' | 'game' | 'mention' | 'direct_message' | 'account_update' | 'reaction' | 'auto_archiving';
+  type: 'system' | 'game' | 'mention' | 'direct_message' | 'account_update' | 'reaction' | 'auto_archiving' | 'episode_status_change';
   title: string;
   message: string;
   date_created: string;
@@ -87,7 +95,7 @@ export interface NotificationData {
   mention: NotificationMention | null;
   game: NotificationGame | null;
   direct_message: NotificationDirectMessage | null;
-  data: NotificationMention | NotificationGame | NotificationDirectMessage | NotificationAccountUpdate | NotificationReaction | NotificationAutoArchiving | null;
+  data: NotificationMention | NotificationGame | NotificationDirectMessage | NotificationAccountUpdate | NotificationReaction | NotificationAutoArchiving | NotificationEpisodeStatusChange | null;
 }
 
 export interface NotificationEvent {
@@ -104,6 +112,7 @@ export interface UnreadNotificationsResponse {
   reaction: NotificationData[];
   auto_archiving: NotificationData[];
   account_update: NotificationData[];
+  episode_status_change: NotificationData[];
 }
 
 export interface TopicViewersUpdateEvent {

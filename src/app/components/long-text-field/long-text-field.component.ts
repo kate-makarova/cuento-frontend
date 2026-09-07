@@ -1,10 +1,10 @@
 import { Component, ElementRef, Input, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { BbToolbarComponent } from '../bb-toolbar/bb-toolbar.component';
 
 @Component({
   selector: 'app-long-text-field',
-  imports: [CommonModule, BbToolbarComponent],
+  imports: [ BbToolbarComponent],
   templateUrl: './long-text-field.component.html',
   standalone: true,
 })

@@ -3,7 +3,7 @@ import {Title} from '@angular/platform-browser';
 import {PostFormComponent} from '../components/post-form/post-form.component';
 import {TopicService} from '../services/topic.service';
 import {Router, RouterLink, ActivatedRoute} from '@angular/router';
-import {CommonModule} from '@angular/common';
+
 import {CharacterProfileComponent} from '../components/character-profile/character-profile.component';
 import {TopicType, TopicStatus} from '../models/Topic';
 import {EpisodeHeaderComponent} from '../components/episode-header/episode-header.component';
@@ -45,7 +45,6 @@ function coerceToPage(value: unknown): number {
   imports: [
     PostFormComponent,
     RouterLink,
-    CommonModule,
     CharacterProfileComponent,
     EpisodeHeaderComponent,
     BreadcrumbsComponent,
@@ -61,8 +60,7 @@ function coerceToPage(value: unknown): number {
     CodeCopyDirective,
     UserInfoComponent,
     FormsModule,
-    PostSidebarComponent,
-  ],
+    PostSidebarComponent],
   templateUrl: './viewtopic.component.html',
   standalone: true,
 })
@@ -147,9 +145,14 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   blurAcknowledged = signal(false);
   doNotBlurChecked = false;
 
+  readonly isEpisodeParticipant = computed(() =>
+    (this.topic().can_edit ?? false) || this.userCharacterProfiles().length > 0
+  );
+
   get shouldBlur(): boolean {
     if (this.blurAcknowledged()) return false;
     if (this.showPostForm()) return false;
+    if (this.isEpisodeParticipant()) return false;
     const user = this.authService.currentUser();
     if (user && user.do_not_blur) return false;
     const raw = this.boardService.board().blur_content_starting_from_rate;
@@ -208,6 +211,16 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       this.episodeService.getEpisodeWarnings(episode.id, locale).subscribe({
         next: (warnings) => this.episodeWarnings.set(warnings),
         error: () => this.warningsAcknowledged.set(true)
+      });
+    });
+
+    // Clear stale character profiles as soon as the route ID changes, before new topic data arrives
+    effect(() => {
+      const id = this.id();
+      untracked(() => {
+        if (this.lastLoadedProfilesForTopicId !== null && this.lastLoadedProfilesForTopicId !== id) {
+          this.characterService.clearUserCharacterProfiles();
+        }
       });
     });
 
@@ -702,6 +715,11 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       },
       error: (err: any) => console.error('Failed to update wanted character', err)
     });
+  }
+
+  onEpisodeStatusChanged(result: { episode_status: number; topic_status: number }) {
+    this.topicService.updateEpisodeStatus(result.episode_status);
+    this.topicService.updateTopicStatus(result.topic_status);
   }
 
   onUpdateEpisode(payload: any) {

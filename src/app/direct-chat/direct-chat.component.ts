@@ -5,7 +5,7 @@ import {DirectChatService} from '../services/direct-chat.service';
 import {NotificationService} from '../services/notification.service';
 import {UserService} from '../services/user.service';
 import {UserShort} from '../models/UserShort';
-import {CommonModule} from '@angular/common';
+
 import {FormsModule} from '@angular/forms';
 import {Subject, Subscription} from 'rxjs';
 import {debounceTime, distinctUntilChanged, switchMap} from 'rxjs/operators';
@@ -14,7 +14,7 @@ import {ActivatedRoute} from '@angular/router';
 @Component({
   selector: 'app-direct-chat',
   host: { class: 'pun-page' },
-  imports: [CommonModule, FormsModule],
+  imports: [ FormsModule],
   templateUrl: './direct-chat.component.html',
   standalone: true,
 })

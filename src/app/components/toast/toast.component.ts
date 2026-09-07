@@ -2,7 +2,7 @@ import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { NotificationService } from '../../services/notification.service';
 import { CurrencyService } from '../../services/currency.service';
 import { RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { NotificationData } from '../../models/event';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -10,7 +10,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-toast',
-  imports: [CommonModule, RouterLink],
+  imports: [ RouterLink],
   templateUrl: './toast.component.html',
   standalone: true,
   animations: [

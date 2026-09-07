@@ -30,6 +30,7 @@ export interface CharacterClaim {
   guest_hash: string;
   can_change_name: boolean;
   last_claim_date: string | null;
+  claim_record_id?: number | null;
 }
 
 export interface ClaimFactionResponse {

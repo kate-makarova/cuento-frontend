@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { SaveButtonComponent } from '../save-button/save-button.component';
@@ -13,7 +13,7 @@ export interface SubforumBucketRow {
 @Component({
   selector: 'app-admin-ai-index-settings',
   host: { class: 'pun-page' },
-  imports: [CommonModule, FormsModule, SaveButtonComponent],
+  imports: [ FormsModule, SaveButtonComponent],
   templateUrl: './admin-ai-index-settings.component.html',
   standalone: true,
   styleUrl: './admin-ai-index-settings.component.css'

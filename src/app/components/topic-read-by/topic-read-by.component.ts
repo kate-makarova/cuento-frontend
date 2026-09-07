@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterLink } from '@angular/router';
 import { NotificationService } from '../../services/notification.service';
 import { UserShort } from '../../models/UserShort';
@@ -8,7 +8,7 @@ import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-topic-read-by',
-  imports: [CommonModule, RouterLink],
+  imports: [ RouterLink],
   templateUrl: './topic-read-by.component.html',
   standalone: true,
 })

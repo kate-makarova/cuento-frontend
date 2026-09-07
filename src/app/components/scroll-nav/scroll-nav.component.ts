@@ -3,7 +3,9 @@ import { Component, HostListener, signal } from '@angular/core';
 @Component({
   selector: 'app-scroll-nav',
   templateUrl: './scroll-nav.component.html',
+  styleUrl: './scroll-nav.component.css',
   standalone: true,
+  host: { style: 'position:fixed;bottom:24px;right:16px;display:flex;flex-direction:column;gap:6px;z-index:100;pointer-events:none' },
 })
 export class ScrollNavComponent {
   showUp = signal(false);

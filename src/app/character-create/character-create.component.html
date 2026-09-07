@@ -2,7 +2,14 @@
   <h1><span i18n="@@charactercreate.title">Start a new character</span></h1>
 }
 <div id="character-form" class="formal entity-form">
-  <form class="container" (submit)="onSubmit($event)">
+  @if (hasDraft()) {
+    <div class="draft-banner">
+      <span i18n="@@entityDraft.found">You have an unsaved draft.</span>
+      <button type="button" class="button" (click)="restoreDraft()" i18n="@@entityDraft.restore">Restore</button>
+      <button type="button" class="button" (click)="dismissDraft()" i18n="@@entityDraft.dismiss">Dismiss</button>
+    </div>
+  }
+  <form #formEl class="container" (submit)="onSubmit($event)" (input)="scheduleAutosave()">
     <fieldset>
       <legend style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
 @if (cancel.observed) {
@@ -30,7 +37,7 @@
       <div class="fs-box hashelp">
         <app-faction-paths
           [initialFactions]="initialData?.factions ?? []"
-          (factionsChange)="onFactionsChanged($event)">
+          (factionsChange)="onFactionsChanged($event); scheduleAutosave()">
         </app-faction-paths>
       </div>
     </fieldset>
@@ -124,6 +131,11 @@
         <button type="button" class="button" (click)="onCancel()" i18n="@@topiccreate.cancel">Cancel</button>
       } @else {
         <input type="submit" class="button preview" name="preview" value="Preview" i18n-value="@@topiccreate.preview" accesskey="p" />
+      }
+      @if (autosaveStatus() === 'saving') {
+        <span class="autosave-status" i18n="@@entityDraft.saving">Saving draft…</span>
+      } @else if (autosaveStatus() === 'saved') {
+        <span class="autosave-status" i18n="@@entityDraft.saved">Draft saved</span>
       }
     </p>
   </form>

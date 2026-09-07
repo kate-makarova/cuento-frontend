@@ -23,6 +23,7 @@ interface RecentCharacter {
   standalone: true,
   imports: [RouterLink],
   templateUrl: './footer-statistics.component.html',
+  styleUrl: './footer-statistics.component.css',
 })
 export class FooterStatisticsComponent implements OnInit, OnDestroy {
   private boardService = inject(BoardService);

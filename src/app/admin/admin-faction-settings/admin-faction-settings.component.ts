@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { FactionSettingService } from '../../services/faction-setting.service';
 import { FactionService } from '../../services/faction.service';
@@ -10,7 +10,7 @@ import { SaveButtonComponent, SaveState } from '../save-button/save-button.compo
 @Component({
   selector: 'app-admin-faction-settings',
   host: { class: 'pun-page' },
-  imports: [CommonModule, FormsModule, SaveButtonComponent],
+  imports: [ FormsModule, SaveButtonComponent],
   standalone: true,
   templateUrl: './admin-faction-settings.component.html',
   styleUrl: './admin-faction-settings.component.css'

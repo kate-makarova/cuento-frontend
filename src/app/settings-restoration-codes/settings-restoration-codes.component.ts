@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
@@ -12,7 +12,7 @@ type Mode = 'initial_setup' | 'regenerate';
   selector: 'app-settings-restoration-codes',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [ FormsModule],
   templateUrl: './settings-restoration-codes.component.html',
 })
 export class SettingsRestorationCodesComponent {

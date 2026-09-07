@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { PreviewService } from '../services/preview.service';
 import { TopicType } from '../models/Topic';
@@ -13,7 +13,7 @@ import { RouterLinksDirective } from '../directives/router-links.directive';
 @Component({
   selector: 'app-preview',
   host: { class: 'pun-page' },
-  imports: [CommonModule, CharacterProfileComponent, EpisodeHeaderComponent, CharacterSheetHeaderComponent, SafeHtmlPipe, RouterLinksDirective],
+  imports: [ CharacterProfileComponent, EpisodeHeaderComponent, CharacterSheetHeaderComponent, SafeHtmlPipe, RouterLinksDirective],
   standalone: true,
   templateUrl: './preview.component.html',
 })
