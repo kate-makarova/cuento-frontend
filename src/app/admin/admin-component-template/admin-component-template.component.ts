@@ -22,18 +22,23 @@ export class AdminComponentTemplateComponent implements OnInit {
   name = signal('');
   filePath = signal('');
   content = signal('');
+  versionName = signal('');
   readonly = signal(false);
+  isCreate = signal(false);
   saveState = signal<SaveState>('idle');
 
   ngOnInit() {
     const name = this.route.snapshot.queryParamMap.get('name') ?? '';
     const filePath = this.route.snapshot.queryParamMap.get('path') ?? '';
     const isDefault = !!this.route.snapshot.data['readonly'];
+    const isCreate = !!this.route.snapshot.data['create'];
+
     this.name.set(name);
     this.filePath.set(filePath);
     this.readonly.set(isDefault);
+    this.isCreate.set(isCreate);
 
-    const endpoint = isDefault
+    const endpoint = isDefault || isCreate
       ? `admin/frontend-templates/components-default/${name}`
       : `admin/frontend-templates/components/${name}`;
 
@@ -51,7 +56,8 @@ export class AdminComponentTemplateComponent implements OnInit {
     this.saveState.set('loading');
     this.apiService
       .post('admin/frontend-templates/component/save', {
-        name: this.name(),
+        component_name: this.name(),
+        name: this.versionName(),
         content: this.content(),
       })
       .subscribe({

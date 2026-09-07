@@ -6,10 +6,26 @@
 
 <div class="versions-container">
   <div class="versions-header">
-    <h2>{{ componentName() }}</h2>
-    @if (versions().length > 0) {
-      <code class="file-path">{{ versions()[0].template_file_name }}</code>
-    }
+    <div class="versions-title">
+      <h2>{{ componentName() }}</h2>
+      @if (versions().length > 0) {
+        <code class="file-path">{{ versions()[0].template_file_name }}</code>
+      }
+    </div>
+
+    <div class="versions-actions">
+      @if (hasActiveVersion) {
+        <button class="button button--unpublish" (click)="confirmUnpublish()" i18n="@@admin.componentVersions.unpublish">
+          Unpublish
+        </button>
+      }
+      <a
+        class="button button--create"
+        [routerLink]="['/admin/frontend-templates/component-create']"
+        [queryParams]="{ name: componentName() }"
+        i18n="@@admin.componentVersions.createVersion"
+      >New version</a>
+    </div>
   </div>
 
   @if (loading()) {
@@ -82,6 +98,35 @@
           class="button"
           (click)="cancelPublish()"
           [disabled]="publishState() === 'loading'"
+          i18n="@@common.cancel"
+        >Cancel</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showUnpublishModal()) {
+  <div class="modal-overlay" (click)="cancelUnpublish()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h2 i18n="@@admin.componentVersions.unpublishTitle">Unpublish {{ componentName() }}?</h2>
+      <p i18n="@@admin.componentVersions.unpublishWarning">This will deactivate the custom template and revert to the default. The frontend will be rebuilt.</p>
+      <div class="modal-actions">
+        <button
+          class="button button--confirm button--confirm-danger"
+          (click)="unpublish()"
+          [disabled]="unpublishState() === 'loading' || unpublishState() === 'success'"
+        >
+          @switch (unpublishState()) {
+            @case ('loading') { <span i18n="@@common.loading">Loading…</span> }
+            @case ('success') { <span i18n="@@admin.componentVersions.unpublishSuccess">Unpublished!</span> }
+            @case ('error') { <span i18n="@@admin.componentVersions.unpublishError">Failed</span> }
+            @default { <span i18n="@@admin.componentVersions.unpublish">Unpublish</span> }
+          }
+        </button>
+        <button
+          class="button"
+          (click)="cancelUnpublish()"
+          [disabled]="unpublishState() === 'loading'"
           i18n="@@common.cancel"
         >Cancel</button>
       </div>

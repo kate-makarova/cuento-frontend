@@ -10,7 +10,7 @@ export interface ComponentTemplateVersion {
   is_active: boolean;
 }
 
-type PublishState = 'idle' | 'loading' | 'success' | 'error';
+type ActionState = 'idle' | 'loading' | 'success' | 'error';
 
 @Component({
   selector: 'app-admin-component-template-versions',
@@ -30,7 +30,14 @@ export class AdminComponentTemplateVersionsComponent implements OnInit {
   error = signal(false);
 
   publishingVersion = signal<ComponentTemplateVersion | null>(null);
-  publishState = signal<PublishState>('idle');
+  publishState = signal<ActionState>('idle');
+
+  showUnpublishModal = signal(false);
+  unpublishState = signal<ActionState>('idle');
+
+  get hasActiveVersion(): boolean {
+    return this.versions().some(v => v.is_active);
+  }
 
   ngOnInit() {
     const name = this.route.snapshot.queryParamMap.get('name') ?? '';
@@ -48,6 +55,8 @@ export class AdminComponentTemplateVersionsComponent implements OnInit {
       },
     });
   }
+
+  // ── Publish ──────────────────────────────────────────────────────────────────
 
   confirmPublish(version: ComponentTemplateVersion) {
     this.publishingVersion.set(version);
@@ -79,6 +88,37 @@ export class AdminComponentTemplateVersionsComponent implements OnInit {
         console.error('Failed to publish version', err);
         this.publishState.set('error');
         setTimeout(() => this.publishState.set('idle'), 3000);
+      },
+    });
+  }
+
+  // ── Unpublish ────────────────────────────────────────────────────────────────
+
+  confirmUnpublish() {
+    this.showUnpublishModal.set(true);
+    this.unpublishState.set('idle');
+  }
+
+  cancelUnpublish() {
+    this.showUnpublishModal.set(false);
+    this.unpublishState.set('idle');
+  }
+
+  unpublish() {
+    this.unpublishState.set('loading');
+    this.apiService.post(`admin/frontend-templates/component/unpublish/${this.componentName()}`, {}).subscribe({
+      next: () => {
+        this.unpublishState.set('success');
+        this.versions.update(list => list.map(v => ({ ...v, is_active: false })));
+        setTimeout(() => {
+          this.showUnpublishModal.set(false);
+          this.unpublishState.set('idle');
+        }, 1500);
+      },
+      error: (err) => {
+        console.error('Failed to unpublish component', err);
+        this.unpublishState.set('error');
+        setTimeout(() => this.unpublishState.set('idle'), 3000);
       },
     });
   }

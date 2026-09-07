@@ -5,13 +5,28 @@
 
 .versions-header {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
   margin-bottom: 1.5rem;
+  flex-wrap: wrap;
 }
 
-.versions-header h2 {
+.versions-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.versions-title h2 {
   margin: 0;
+}
+
+.versions-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .file-path {
@@ -128,6 +143,28 @@
   background-color: #e8f0fe;
 }
 
+.button--unpublish {
+  border-color: #dc3545;
+  color: #dc3545;
+}
+
+.button--unpublish:hover:not(:disabled) {
+  background-color: #fdf0f1;
+}
+
+.button--create {
+  background-color: #007bff;
+  color: #fff;
+  border-color: #007bff;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.button--create:hover {
+  background-color: #0069d9;
+}
+
 /* Modal */
 .modal-overlay {
   position: fixed;
@@ -176,4 +213,13 @@
 
 .button--confirm:hover:not(:disabled) {
   background-color: #0069d9;
+}
+
+.button--confirm-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.button--confirm-danger:hover:not(:disabled) {
+  background-color: #c82333;
 }
