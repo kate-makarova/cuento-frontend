@@ -221,14 +221,16 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
       ? modelInsertText(base, pt, change.insert, marks)
       : { doc: base, cursor: pt };
 
-    const prevDoc = this.doc;
     this.doc = result.doc;
     this.cursor = { anchor: result.cursor, focus: result.cursor };
 
-    // patchDoc keeps DOM nodes stable so any pending insertReplacementText
-    // event's getTargetRanges() references remain valid.
-    const cursorHandled = patchDoc(this.editorEl.nativeElement, prevDoc, this.doc, result.cursor);
-    if (!cursorHandled) applyDocRange(this.cursor, this.editorEl.nativeElement);
+    // Full re-render (mirrors ProseMirror's endComposition → updateState).
+    // This destroys GBoard's composition span so autocorrect is subsequently
+    // delivered as insertReplacementText rather than a raw DOM mutation.
+    // We no longer rely on getTargetRanges() node references, so the re-render
+    // doesn't break autocorrect handling.
+    this.render();
+    applyDocRange(this.cursor, this.editorEl.nativeElement);
     this.updateActiveState();
     this.onInput();
     // state.historyPushed is mutated above; no other state update needed.
@@ -276,6 +278,49 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
   // ─── beforeinput ─────────────────────────────────────────────────────────────
 
   onBeforeInput(event: InputEvent): void {
+    // insertReplacementText (Android autocorrect) must be intercepted before the
+    // isComposing guard. GBoard fires it with isComposing=true; falling through
+    // to the guard would cause us to skip it, letting the browser apply a raw DOM
+    // mutation (the "append-without-replace" we were seeing) instead.
+    if (event.inputType === 'insertReplacementText') {
+      event.preventDefault();
+      const text = event.data ?? (event as InputEvent & { dataTransfer?: DataTransfer }).dataTransfer?.getData('text/plain') ?? '';
+      if (text) {
+        const state = this.preCompositionState;
+        this.preCompositionState = null;
+        if (state) {
+          // Lexical's approach: model composition range + event.data, no getTargetRanges().
+          // anchor = where composition started; focus = end of the committed composed word.
+          const compositionRange: DocRange = { anchor: state.cursor.anchor, focus: this.cursor.anchor };
+          if (!isCollapsed(compositionRange)) {
+            const del = modelDeleteRange(this.doc, compositionRange);
+            const marks = getMarksAtPoint(del.doc, del.cursor);
+            this.commitOp(modelInsertText(del.doc, del.cursor, text, marks), 'other', true);
+            this.pendingMarks = null;
+            this.onInput();
+            return;
+          }
+        }
+        // Fallback for non-composition autocorrect: use getTargetRanges().
+        const targetRanges = (event as InputEvent & { getTargetRanges?(): StaticRange[] }).getTargetRanges?.();
+        if (targetRanges?.length) {
+          const tr = targetRanges[0];
+          const anchor = domPositionToDocPoint(tr.startContainer, tr.startOffset, this.editorEl.nativeElement);
+          const focus  = domPositionToDocPoint(tr.endContainer,   tr.endOffset,   this.editorEl.nativeElement);
+          if (anchor && focus) {
+            const del = modelDeleteRange(this.doc, { anchor, focus });
+            const marks = getMarksAtPoint(del.doc, del.cursor);
+            this.commitOp(modelInsertText(del.doc, del.cursor, text, marks), 'other', true);
+            this.pendingMarks = null;
+            this.onInput();
+          }
+        }
+      } else {
+        this.preCompositionState = null;
+      }
+      return;
+    }
+
     // During IME composition the browser manages candidate text in the DOM.
     // Preventing default here would break that; compositionend handles the commit.
     if (event.isComposing) return;
@@ -345,25 +390,6 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
         }
         this.pendingMarks = null;
         this.onInput();
-        break;
-      }
-
-      case 'insertReplacementText': {
-        // Mobile autocorrect: replace the target range with the suggested text.
-        const targetRanges = (event as InputEvent & { getTargetRanges?(): StaticRange[] }).getTargetRanges?.();
-        const text = event.data ?? event.dataTransfer?.getData('text/plain') ?? '';
-        if (text && targetRanges?.length) {
-          const tr = targetRanges[0];
-          const anchor = domPositionToDocPoint(tr.startContainer, tr.startOffset, this.editorEl.nativeElement);
-          const focus  = domPositionToDocPoint(tr.endContainer,   tr.endOffset,   this.editorEl.nativeElement);
-          if (anchor && focus) {
-            const del = modelDeleteRange(this.doc, { anchor, focus });
-            const marks = getMarksAtPoint(del.doc, del.cursor);
-            this.commitOp(modelInsertText(del.doc, del.cursor, text, marks));
-            this.pendingMarks = null;
-            this.onInput();
-          }
-        }
         break;
       }
 
