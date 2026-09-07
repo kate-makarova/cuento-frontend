@@ -393,6 +393,11 @@ export const routes: Routes = [
         title: 'Admin - Component Template (Default)'
       },
       {
+        path: 'frontend-templates/versions',
+        loadComponent: () => import('./admin/admin-component-template-versions/admin-component-template-versions.component').then(m => m.AdminComponentTemplateVersionsComponent),
+        title: 'Admin - Component Template Versions'
+      },
+      {
         path: 'additional-navlinks',
         loadComponent: () => import('./admin/admin-additional-navlinks/admin-additional-navlinks.component').then(m => m.AdminAdditionalNavlinksComponent),
         title: 'Admin - Additional Navlinks'

@@ -1,0 +1,95 @@
+.versions-container {
+  padding: 1rem;
+  max-width: 800px;
+}
+
+.versions-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.versions-header h2 {
+  margin: 0;
+}
+
+.file-path {
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.status-message {
+  color: #777;
+  font-size: 0.9rem;
+}
+
+.status-message--error {
+  color: #dc3545;
+}
+
+.versions-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.versions-table th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.versions-table td {
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: middle;
+}
+
+.versions-table tr:last-child td {
+  border-bottom: none;
+}
+
+.row--active td {
+  background-color: #f0faf3;
+}
+
+.cell-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+  letter-spacing: 0.02em;
+}
+
+.badge--active {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.badge--inactive {
+  background-color: #e9ecef;
+  color: #6c757d;
+}
+
+.action-link {
+  font-size: 0.85rem;
+  color: #007bff;
+  text-decoration: none;
+}
+
+.action-link:hover {
+  text-decoration: underline;
+}

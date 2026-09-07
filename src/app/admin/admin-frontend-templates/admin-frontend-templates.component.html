@@ -21,6 +21,7 @@
             <th i18n="@@admin.frontendTemplates.col.description">Description</th>
             <th i18n="@@admin.frontendTemplates.col.templatePath">Custom template</th>
             <th i18n="@@admin.frontendTemplates.col.defaultTemplatePath">Default template</th>
+            <th i18n="@@admin.frontendTemplates.col.versions">Versions</th>
             <th i18n="@@admin.frontendTemplates.col.active">Active</th>
           </tr>
         </thead>
@@ -34,6 +35,9 @@
               </td>
               <td class="cell-path">
                 <a class="edit-link" [routerLink]="['/admin/frontend-templates/component-default']" [queryParams]="{ name: comp.name, path: comp.default_template_path }" i18n="@@common.view">View</a>
+              </td>
+              <td class="cell-path">
+                <a class="edit-link" [routerLink]="['/admin/frontend-templates/versions']" [queryParams]="{ name: comp.name }" i18n="@@admin.frontendTemplates.col.versions">Versions</a>
               </td>
               <td class="cell-active">
                 <input
