@@ -48,7 +48,7 @@ export class AdminComponentTemplateComponent implements OnInit {
 
     let endpoint: string;
     if (isEdit && id) {
-      endpoint = `admin/frontend-templates/component/${id}`;
+      endpoint = `admin/frontend-templates/component/version/${id}`;
     } else if (isDefault || isCreate) {
       endpoint = `admin/frontend-templates/components-default/${name}`;
     } else {
