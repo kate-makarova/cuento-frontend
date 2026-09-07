@@ -1,0 +1,135 @@
+<app-breadcrumbs [items]="[
+  { label: 'Admin', link: '/admin' },
+  { label: 'Custom Templates', link: '/admin/frontend-templates' },
+  { label: componentName() + ' versions' }
+]" />
+
+<div class="versions-container">
+  <div class="versions-header">
+    <div class="versions-title">
+      <h2>{{ componentName() }}</h2>
+      @if (versions().length > 0) {
+        <code class="file-path">{{ versions()[0].template_file_name }}</code>
+      }
+    </div>
+
+    <div class="versions-actions">
+      @if (hasActiveVersion) {
+        <button class="button button--unpublish" (click)="confirmUnpublish()" i18n="@@admin.componentVersions.unpublish">
+          Unpublish
+        </button>
+      }
+      <a
+        class="button button--create"
+        [routerLink]="['/admin/frontend-templates/component-create']"
+        [queryParams]="{ name: componentName() }"
+        i18n="@@admin.componentVersions.createVersion"
+      >New version</a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <p class="status-message" i18n="@@common.loading">Loading…</p>
+  } @else if (error()) {
+    <p class="status-message status-message--error" i18n="@@admin.componentVersions.loadError">Failed to load versions.</p>
+  } @else if (versions().length === 0) {
+    <p class="status-message" i18n="@@admin.componentVersions.empty">No versions found for this component.</p>
+  } @else {
+    <table class="versions-table">
+      <thead>
+        <tr>
+          <th i18n="@@admin.componentVersions.col.name">Version name</th>
+          <th i18n="@@admin.componentVersions.col.status">Status</th>
+          <th i18n="@@admin.componentVersions.col.actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (version of versions(); track version.id) {
+          <tr [class.row--active]="version.is_active">
+            <td class="cell-name">{{ version.name }}</td>
+            <td class="cell-status">
+              @if (version.is_active) {
+                <span class="badge badge--active" i18n="@@admin.componentVersions.active">Active</span>
+              } @else {
+                <span class="badge badge--inactive" i18n="@@admin.componentVersions.inactive">Inactive</span>
+              }
+            </td>
+            <td class="cell-actions">
+              <a
+                class="action-link"
+                [routerLink]="['/admin/frontend-templates/component-version']"
+                [queryParams]="{ name: componentName(), id: version.id }"
+                i18n="@@common.view"
+              >View</a>
+              @if (!version.is_active) {
+                <button
+                  class="button button--publish"
+                  (click)="confirmPublish(version)"
+                  i18n="@@admin.componentVersions.publish"
+                >Publish</button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>
+
+@if (publishingVersion(); as version) {
+  <div class="modal-overlay" (click)="cancelPublish()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h2 i18n="@@admin.componentVersions.publishTitle">Publish «{{ version.name }}»?</h2>
+      <p i18n="@@admin.componentVersions.publishWarning">This will make this version active. The frontend will be rebuilt with the new template.</p>
+      <div class="modal-actions">
+        <button
+          class="button button--confirm"
+          (click)="publish()"
+          [disabled]="publishState() === 'loading' || publishState() === 'success'"
+        >
+          @switch (publishState()) {
+            @case ('loading') { <span i18n="@@common.loading">Loading…</span> }
+            @case ('success') { <span i18n="@@admin.componentVersions.publishSuccess">Published!</span> }
+            @case ('error') { <span i18n="@@admin.componentVersions.publishError">Failed</span> }
+            @default { <span i18n="@@admin.componentVersions.publish">Publish</span> }
+          }
+        </button>
+        <button
+          class="button"
+          (click)="cancelPublish()"
+          [disabled]="publishState() === 'loading'"
+          i18n="@@common.cancel"
+        >Cancel</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showUnpublishModal()) {
+  <div class="modal-overlay" (click)="cancelUnpublish()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h2 i18n="@@admin.componentVersions.unpublishTitle">Unpublish {{ componentName() }}?</h2>
+      <p i18n="@@admin.componentVersions.unpublishWarning">This will deactivate the custom template and revert to the default. The frontend will be rebuilt.</p>
+      <div class="modal-actions">
+        <button
+          class="button button--confirm button--confirm-danger"
+          (click)="unpublish()"
+          [disabled]="unpublishState() === 'loading' || unpublishState() === 'success'"
+        >
+          @switch (unpublishState()) {
+            @case ('loading') { <span i18n="@@common.loading">Loading…</span> }
+            @case ('success') { <span i18n="@@admin.componentVersions.unpublishSuccess">Unpublished!</span> }
+            @case ('error') { <span i18n="@@admin.componentVersions.unpublishError">Failed</span> }
+            @default { <span i18n="@@admin.componentVersions.unpublish">Unpublish</span> }
+          }
+        </button>
+        <button
+          class="button"
+          (click)="cancelUnpublish()"
+          [disabled]="unpublishState() === 'loading'"
+          i18n="@@common.cancel"
+        >Cancel</button>
+      </div>
+    </div>
+  </div>
+}
