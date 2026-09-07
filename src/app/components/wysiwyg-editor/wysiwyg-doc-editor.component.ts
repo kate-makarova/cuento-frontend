@@ -285,22 +285,52 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
     if (event.inputType === 'insertReplacementText') {
       event.preventDefault();
       const text = event.data ?? (event as InputEvent & { dataTransfer?: DataTransfer }).dataTransfer?.getData('text/plain') ?? '';
+      const state = this.preCompositionState;
+      this.preCompositionState = null;
+
       if (text) {
-        const state = this.preCompositionState;
-        this.preCompositionState = null;
         if (state) {
-          // Lexical's approach: model composition range + event.data, no getTargetRanges().
-          // anchor = where composition started; focus = end of the committed composed word.
-          const compositionRange: DocRange = { anchor: state.cursor.anchor, focus: this.cursor.anchor };
-          if (!isCollapsed(compositionRange)) {
-            const del = modelDeleteRange(this.doc, compositionRange);
-            const marks = getMarksAtPoint(del.doc, del.cursor);
-            this.commitOp(modelInsertText(del.doc, del.cursor, text, marks), 'other', true);
-            this.pendingMarks = null;
-            this.onInput();
-            return;
+          // Diff the current DOM text against the pre-composition snapshot — the same
+          // strategy used in onCompositionEnd. This is reliable regardless of whether
+          // compositionEnd already ran and re-rendered (in which case paraEl shows the
+          // composed word) or insertReplacementText fires first while isComposing=true
+          // (in which case paraEl shows the raw GBoard composition text). Either way,
+          // we get the right "what GBoard composed" range from state.blockText.
+          // Using this.cursor for the composition range is unreliable because GBoard
+          // composition keystrokes never trigger selectionchange, so this.cursor stays
+          // at the pre-composition anchor throughout.
+          const paraEl = this.editorEl.nativeElement
+            .querySelector(`[data-doc-path="${state.path.join(',')}"]`) as HTMLElement | null;
+          const domText = paraEl?.textContent ?? '';
+          const composed = WysiwygDocEditorComponent.diffText(state.blockText, domText);
+
+          let base = state.doc;
+          let pt: DocPoint = { path: state.path, offset: composed?.deleteFrom ?? state.cursor.anchor.offset };
+
+          if (composed && composed.deleteFrom < composed.deleteTo) {
+            const del = modelDeleteRange(base, {
+              anchor: { path: state.path, offset: composed.deleteFrom },
+              focus:  { path: state.path, offset: composed.deleteTo },
+            });
+            base = del.doc;
+            pt = del.cursor;
           }
+          // Don't re-insert composed.insert — replace the composed region with text.
+
+          if (!state.historyPushed) this.pushHistory('other');
+          const marks = this.pendingMarks ?? getMarksAtPoint(base, pt);
+          this.pendingMarks = null;
+          const result = modelInsertText(base, pt, text, marks);
+          this.doc = result.doc;
+          this.cursor = { anchor: result.cursor, focus: result.cursor };
+          this.render();
+          applyDocRange(this.cursor, this.editorEl.nativeElement);
+          if (IS_ANDROID) this.resetAndroidIME();
+          this.updateActiveState();
+          this.onInput();
+          return;
         }
+
         // Fallback for non-composition autocorrect: use getTargetRanges().
         const targetRanges = (event as InputEvent & { getTargetRanges?(): StaticRange[] }).getTargetRanges?.();
         if (targetRanges?.length) {
@@ -315,8 +345,6 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
             this.onInput();
           }
         }
-      } else {
-        this.preCompositionState = null;
       }
       return;
     }
@@ -362,16 +390,33 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
       }
 
       case 'deleteContentBackward': {
-        if (!isCollapsed(range)) {
-          this.commitOp(modelDeleteRange(this.doc, range), 'other', true);
-        } else if (cursor.offset > 0) {
-          const delRange: DocRange = {
-            anchor: { path: cursor.path, offset: cursor.offset - 1 },
-            focus: cursor,
-          };
-          this.commitOp(modelDeleteRange(this.doc, delRange), 'delete', true);
-        } else {
-          this.commitOp(modelMergePrevious(this.doc, cursor), 'other', true);
+        // GBoard autocorrect fires deleteContentBackward with targetRanges covering
+        // the full composed word (non-collapsed), then insertText with the correction.
+        // this.cursor lags behind (selectionchange hasn't fired yet), so we must
+        // read targetRanges to get the actual range the browser intends to delete.
+        const targetRanges = (event as InputEvent & { getTargetRanges?(): StaticRange[] }).getTargetRanges?.();
+        let handledViaTargetRanges = false;
+        if (targetRanges?.length) {
+          const tr = targetRanges[0];
+          const anchor = domPositionToDocPoint(tr.startContainer, tr.startOffset, this.editorEl.nativeElement);
+          const focus  = domPositionToDocPoint(tr.endContainer,   tr.endOffset,   this.editorEl.nativeElement);
+          if (anchor && focus) {
+            this.commitOp(modelDeleteRange(this.doc, { anchor, focus }), 'delete', true);
+            handledViaTargetRanges = true;
+          }
+        }
+        if (!handledViaTargetRanges) {
+          if (!isCollapsed(range)) {
+            this.commitOp(modelDeleteRange(this.doc, range), 'other', true);
+          } else if (cursor.offset > 0) {
+            const delRange: DocRange = {
+              anchor: { path: cursor.path, offset: cursor.offset - 1 },
+              focus: cursor,
+            };
+            this.commitOp(modelDeleteRange(this.doc, delRange), 'delete', true);
+          } else {
+            this.commitOp(modelMergePrevious(this.doc, cursor), 'other', true);
+          }
         }
         this.pendingMarks = null;
         this.onInput();
