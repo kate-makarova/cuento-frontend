@@ -524,7 +524,6 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
       this.preCompositionState = null;
       this.render();
       applyDocRange(this.cursor, this.editorEl.nativeElement);
-      if (IS_ANDROID) this.resetAndroidIME();
     } else {
       const cursorHandled = patchDoc(this.editorEl.nativeElement, prevDoc, this.doc, result.cursor);
       if (!cursorHandled) applyDocRange(this.cursor, this.editorEl.nativeElement);
