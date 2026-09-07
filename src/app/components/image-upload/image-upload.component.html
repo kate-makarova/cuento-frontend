@@ -16,7 +16,7 @@
 
   @if (mode === 'link') {
     <div class="link-mode">
-      <input type="url" [(ngModel)]="directLink" placeholder="https://..." />
+      <input type="url" [(ngModel)]="directLink" placeholder="https://..." (mousedown)="$event.stopPropagation()" />
       <button type="button" class="button btn-primary" (click)="insertDirectLink()" i18n="@@imageUpload.insertLink">Insert</button>
     </div>
   }
