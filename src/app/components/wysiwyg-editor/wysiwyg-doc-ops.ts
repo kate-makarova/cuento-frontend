@@ -113,13 +113,13 @@ export function splitParagraph(doc: DocModel, point: DocPoint): OpResult {
 
   if (path.length === 2) {
     const container = doc.children[path[0]] as ContainerBlock;
-    const para = container.children[path[1]];
+    const para = cItems(container)[path[1]] as ParagraphNode;
     const [before, after] = splitAt(para.children, point.offset);
     const a: ParagraphNode = { type: 'paragraph', children: normalize(before) };
     const b: ParagraphNode = { type: 'paragraph', children: normalize(after) };
-    const newParas = spliceBlocks(container.children, path[1], 1, a, b);
+    const newChildren = spliceBlocks(cItems(container), path[1], 1, a, b);
     return {
-      doc: { children: replaceBlock(doc, path[0], { ...container, children: newParas }) },
+      doc: { children: replaceBlock(doc, path[0], withChildren(container, newChildren)) },
       cursor: { path: [path[0], path[1] + 1], offset: 0 },
     };
   }
@@ -155,17 +155,18 @@ export function mergeParagraphWithPrevious(doc: DocModel, point: DocPoint): OpRe
   if (path.length === 2) {
     if (path[1] === 0) return { doc, cursor: point };
     const container = doc.children[path[0]] as ContainerBlock;
-    const prev = container.children[path[1] - 1];
-    const curr = container.children[path[1]];
+    const items = cItems(container);
+    const prev = items[path[1] - 1] as ParagraphNode;
+    const curr = items[path[1]] as ParagraphNode;
 
     const joinOffset = inlineLen(prev.children);
     const merged: ParagraphNode = {
       type: 'paragraph',
       children: normalize([...prev.children, ...curr.children]),
     };
-    const newParas = spliceBlocks(container.children, path[1] - 1, 2, merged);
+    const newChildren = spliceBlocks(items, path[1] - 1, 2, merged);
     return {
-      doc: { children: replaceBlock(doc, path[0], { ...container, children: newParas }) },
+      doc: { children: replaceBlock(doc, path[0], withChildren(container, newChildren)) },
       cursor: { path: [path[0], path[1] - 1], offset: joinOffset },
     };
   }
@@ -316,6 +317,12 @@ function normalize(nodes: InlineNode[]): InlineNode[] {
 
 type ContainerBlock = AlignBlock | QuoteNode | SpoilerNode;
 
+// Cursor-based ops only reach ParagraphNode children (cursor can't enter
+// non-paragraph children of a quote).  These helpers centralise the casts.
+const cItems = (c: ContainerBlock): BlockNode[] => c.children as BlockNode[];
+const withChildren = (c: ContainerBlock, ch: BlockNode[]): ContainerBlock =>
+  ({ ...c, children: ch }) as unknown as ContainerBlock;
+
 /** Apply a transform to the inline nodes inside a range (single paragraph only). */
 function markOp(
   doc: DocModel,
@@ -344,20 +351,21 @@ function crossParaDelete(doc: DocModel, anchor: DocPoint, focus: DocPoint): OpRe
   // Same depth, both in containers of the same block
   if (anchor.path.length === 2 && focus.path.length === 2 && anchor.path[0] === focus.path[0]) {
     const container = doc.children[anchor.path[0]] as ContainerBlock;
-    const firstPara = container.children[anchor.path[1]];
-    const lastPara  = container.children[focus.path[1]];
+    const items     = cItems(container);
+    const firstPara = items[anchor.path[1]] as ParagraphNode;
+    const lastPara  = items[focus.path[1]]  as ParagraphNode;
 
-    const [before] = splitAt(firstPara.children, anchor.offset);
+    const [before]   = splitAt(firstPara.children, anchor.offset);
     const [, after]  = splitAt(lastPara.children,  focus.offset);
     const merged: ParagraphNode = { type: 'paragraph', children: normalize([...before, ...after]) };
 
-    const newParas = [
-      ...container.children.slice(0, anchor.path[1]),
+    const newChildren: BlockNode[] = [
+      ...items.slice(0, anchor.path[1]),
       merged,
-      ...container.children.slice(focus.path[1] + 1),
+      ...items.slice(focus.path[1] + 1),
     ];
     return {
-      doc: { children: replaceBlock(doc, anchor.path[0], { ...container, children: newParas }) },
+      doc: { children: replaceBlock(doc, anchor.path[0], withChildren(container, newChildren)) },
       cursor: anchor,
     };
   }
@@ -436,10 +444,9 @@ function updatePara(
 
   if (path.length === 2) {
     const container = doc.children[path[0]] as ContainerBlock;
-    const { para, cursor } = fn(container.children[path[1]], point.offset);
-    const newParas    = replaceAt(container.children, path[1], para);
-    const newContainer = { ...container, children: newParas };
-    return { doc: { children: replaceBlock(doc, path[0], newContainer) }, cursor };
+    const { para, cursor } = fn(cItems(container)[path[1]] as ParagraphNode, point.offset);
+    const newChildren = replaceAt(cItems(container), path[1], para);
+    return { doc: { children: replaceBlock(doc, path[0], withChildren(container, newChildren)) }, cursor };
   }
 
   return { doc, cursor: point };

@@ -925,11 +925,13 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
       } else if (block.type === 'paragraph') {
         result += isLast ? this.paraTextTo(block, cursor.offset) : this.paraText(block) + '\n';
       } else if (block.type === 'align' || block.type === 'quote' || block.type === 'spoiler') {
-        const paras = block.children;
-        const paraIdx = isLast ? (cursor.path[1] ?? 0) : paras.length - 1;
+        const allChildren = block.children;
+        const paraIdx = isLast ? (cursor.path[1] ?? 0) : allChildren.length - 1;
         for (let pi = 0; pi <= paraIdx; pi++) {
+          const child = allChildren[pi];
+          if (child.type !== 'paragraph') continue;
           const isLastPara = isLast && pi === paraIdx;
-          result += isLastPara ? this.paraTextTo(paras[pi], cursor.offset) : this.paraText(paras[pi]) + '\n';
+          result += isLastPara ? this.paraTextTo(child, cursor.offset) : this.paraText(child) + '\n';
         }
       }
     }
@@ -959,7 +961,7 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
     const blockIdx = this.cursor.anchor.path[0];
     const block = this.doc.children[blockIdx];
 
-    let children: ParagraphNode[] | null = null;
+    let children: BlockNode[] | null = null;
     if (containerSelector.includes('wysiwyg-code') && block.type === 'code') {
       children = [{ type: 'paragraph', children: block.text ? [{ type: 'text', text: block.text, marks: [] }] : [] }];
     } else if (containerSelector.includes('blockquote') || containerSelector === 'blockquote') {

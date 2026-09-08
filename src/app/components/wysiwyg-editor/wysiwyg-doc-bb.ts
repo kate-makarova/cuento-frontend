@@ -16,6 +16,41 @@ export function parseBbCode(bb: string): DocModel {
   return { children: children.length > 0 ? children : [{ type: 'paragraph', children: [] }] };
 }
 
+// Find the closing tag that balances the opening already consumed, handling
+// same-tag nesting (e.g. [quote] inside [quote]).  Returns the index of the
+// matching [/tag] or -1 if unbalanced.
+function findMatchingClose(text: string, tag: string, from: number): number {
+  const lower      = text.toLowerCase();
+  const openPrefix = `[${tag}`;
+  const closeTag   = `[/${tag}]`;
+  let depth = 1;
+  let pos   = from;
+
+  while (pos < lower.length) {
+    const nextOpen  = lower.indexOf(openPrefix, pos);
+    const nextClose = lower.indexOf(closeTag, pos);
+
+    if (nextClose === -1) return -1;
+
+    const isValidOpen =
+      nextOpen !== -1 &&
+      nextOpen < nextClose &&
+      (lower[nextOpen + openPrefix.length] === ']' ||
+       lower[nextOpen + openPrefix.length] === '=');
+
+    if (isValidOpen) {
+      depth++;
+      pos = nextOpen + openPrefix.length;
+    } else {
+      depth--;
+      if (depth === 0) return nextClose;
+      pos = nextClose + closeTag.length;
+    }
+  }
+
+  return -1;
+}
+
 function parseBlocks(text: string): BlockNode[] {
   const result: BlockNode[] = [];
   // Matches the opening tag of every block-level construct.
@@ -38,7 +73,7 @@ function parseBlocks(text: string): BlockNode[] {
     const attr  = (m[0].match(/\[(?:\w+)=([^\]]*)\]/) ?? [])[1];
     const close = `[/${tag}]`;
     const after = m.index + m[0].length;
-    const ci    = text.toLowerCase().indexOf(close, after);
+    const ci    = findMatchingClose(text, tag, after);
 
     if (ci === -1) {
       // Unclosed tag — skip it
@@ -61,7 +96,7 @@ function parseBlocks(text: string): BlockNode[] {
         result.push({ type: 'code', text: content });
         break;
       case 'quote':
-        result.push({ type: 'quote', author: attr, children: paraLines(content) });
+        result.push({ type: 'quote', author: attr, children: parseBlocks(content) });
         break;
       case 'spoiler':
         result.push({ type: 'spoiler', title: attr, children: paraLines(content) });
@@ -172,7 +207,11 @@ function serializeBlock(block: BlockNode): string {
     case 'code':
       return `[code]${block.text}[/code]\n`;
     case 'quote': {
-      const inner = block.children.map(serializeParaContent).join('\n');
+      const inner = block.children.map(child =>
+        child.type === 'paragraph'
+          ? serializeParaContent(child)
+          : serializeBlock(child).replace(/\n$/, '')
+      ).join('\n');
       return block.author
         ? `[quote=${block.author}]${inner}[/quote]\n`
         : `[quote]${inner}[/quote]\n`;
