@@ -29,7 +29,7 @@ export type AlignBlock = {
 export type QuoteNode = {
   type: 'quote';
   author?: string;
-  children: ParagraphNode[];
+  children: BlockNode[];
 };
 
 // Code content is opaque — no inline marks inside.
