@@ -35,6 +35,7 @@ export function renderBlock(block: BlockNode, blockIdx: number): string {
 
     case 'quote': {
       const authorAttr = block.author ? ` data-author="${esc(block.author)}"` : '';
+      const userAttr   = block.userId !== undefined ? ` data-user-id="${block.userId}"` : '';
       const inner = block.children
         .map((child, pi) =>
           child.type === 'paragraph'
@@ -42,7 +43,7 @@ export function renderBlock(block: BlockNode, blockIdx: number): string {
             : renderBlockStatic(child)
         )
         .join('');
-      return `<blockquote${authorAttr} data-doc-path="${blockIdx}">${inner}</blockquote>`;
+      return `<blockquote${authorAttr}${userAttr} data-doc-path="${blockIdx}">${inner}</blockquote>`;
     }
 
     case 'spoiler': {
@@ -85,10 +86,11 @@ function renderBlockStatic(block: BlockNode): string {
       return renderParaStatic(block);
     case 'quote': {
       const authorAttr = block.author ? ` data-author="${esc(block.author)}"` : '';
+      const userAttr   = block.userId !== undefined ? ` data-user-id="${block.userId}"` : '';
       const inner = block.children.map(c =>
         c.type === 'paragraph' ? renderParaStatic(c) : renderBlockStatic(c)
       ).join('');
-      return `<blockquote${authorAttr}>${inner}</blockquote>`;
+      return `<blockquote${authorAttr}${userAttr}>${inner}</blockquote>`;
     }
     case 'code':
       return `<div class="wysiwyg-code"><pre>${escCode(block.text)}</pre></div>`;

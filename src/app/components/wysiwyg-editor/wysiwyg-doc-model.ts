@@ -29,6 +29,7 @@ export type AlignBlock = {
 export type QuoteNode = {
   type: 'quote';
   author?: string;
+  userId?: number;
   children: BlockNode[];
 };
 
