@@ -459,7 +459,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       ? post.character_profile.character_name
       : post.user_profile?.user_name || 'Unknown';
 
-    const formattedQuote = `[quote=${authorName}]${quoteContent}[/quote]\n`;
+    const formattedQuote = `[quote=${authorName} user-id=${post.author_user_id}]${quoteContent}[/quote]\n`;
 
     if (this.postForm) {
       this.postForm.appendBbCode(formattedQuote);

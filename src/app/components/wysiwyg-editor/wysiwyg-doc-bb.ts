@@ -95,9 +95,16 @@ function parseBlocks(text: string): BlockNode[] {
       case 'code':
         result.push({ type: 'code', text: content });
         break;
-      case 'quote':
-        result.push({ type: 'quote', author: attr, children: parseBlocks(content) });
+      case 'quote': {
+        let author = attr;
+        let userId: number | undefined;
+        if (attr) {
+          const m2 = attr.match(/^(.*?)\s+user-id=(\d+)$/);
+          if (m2) { author = m2[1]; userId = parseInt(m2[2], 10); }
+        }
+        result.push({ type: 'quote', author, userId, children: parseBlocks(content) });
         break;
+      }
       case 'spoiler':
         result.push({ type: 'spoiler', title: attr, children: paraLines(content) });
         break;
@@ -212,8 +219,11 @@ function serializeBlock(block: BlockNode): string {
           ? serializeParaContent(child)
           : serializeBlock(child).replace(/\n$/, '')
       ).join('\n');
-      return block.author
-        ? `[quote=${block.author}]${inner}[/quote]\n`
+      const attrVal = block.author
+        ? (block.userId !== undefined ? `${block.author} user-id=${block.userId}` : block.author)
+        : null;
+      return attrVal
+        ? `[quote=${attrVal}]${inner}[/quote]\n`
         : `[quote]${inner}[/quote]\n`;
     }
     case 'spoiler': {
