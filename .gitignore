@@ -55,3 +55,4 @@ browserstackSetupConfig.json
 
 # Site-specific build config
 src/environments/custom_templates.json
+src/**/*.custom.component.html
