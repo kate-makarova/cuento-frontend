@@ -49,11 +49,11 @@
       <div class="wanted-character-custom-fields">
         
         
-        <div class="character-main-info flex-row">
+        <div class="custom-fields-top flex-row">
           
           
           @if (getField('avatar'); as avatarField) {
-            <div class="character-image">
+            <div class="field-avatar-col">
               <app-field-display 
                 [type]="avatarField.type" 
                 [fieldMachineName]="avatarField.fieldMachineName" 
@@ -64,7 +64,7 @@
           }
 
           
-          <div class="character-meta-fields">
+          <div class="field-meta-col">
             @if (getField('face_claim'); as field) {
               <app-field-display 
                 [type]="field.type" 
@@ -92,10 +92,11 @@
               </app-field-display>
             }
           </div>
+
         </div>
 
         
-        <ul class="remaining-fields">
+        <ul class="remaining-custom-fields">
           @for (field of customFields; track field.fieldMachineName) {
             @if (!['avatar', 'face_claim', 'place', 'plot'].includes(field.fieldMachineName)) {
               <li>
