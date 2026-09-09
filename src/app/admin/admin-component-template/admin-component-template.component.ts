@@ -46,19 +46,24 @@ export class AdminComponentTemplateComponent implements OnInit {
     this.isEdit.set(isEdit);
     if (id) this.versionId.set(Number(id));
 
-    let endpoint: string;
     if (isEdit && id) {
-      endpoint = `admin/frontend-templates/component/version/${id}`;
-    } else if (isDefault || isCreate) {
-      endpoint = `admin/frontend-templates/components-default/${name}`;
+      this.apiService.get<{ template_text: string; name: string }>(`admin/frontend-templates/component/version/${id}`).subscribe({
+        next: (data) => {
+          this.content.set(data.template_text);
+          if (!versionName) this.versionName.set(data.name);
+        },
+        error: (err) => console.error('Failed to load component template version', err),
+      });
     } else {
-      endpoint = `admin/frontend-templates/components/${name}`;
-    }
+      const endpoint = isDefault || isCreate
+        ? `admin/frontend-templates/components-default/${name}`
+        : `admin/frontend-templates/components/${name}`;
 
-    this.apiService.getText(endpoint).subscribe({
-      next: (text) => this.content.set(text),
-      error: (err) => console.error('Failed to load component template', err),
-    });
+      this.apiService.getText(endpoint).subscribe({
+        next: (text) => this.content.set(text),
+        error: (err) => console.error('Failed to load component template', err),
+      });
+    }
   }
 
   updateContent(value: string) {
