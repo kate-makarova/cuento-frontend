@@ -35,10 +35,15 @@ export function renderBlock(block: BlockNode, blockIdx: number): string {
 
     case 'quote': {
       const authorAttr = block.author ? ` data-author="${esc(block.author)}"` : '';
+      const userAttr   = block.userId !== undefined ? ` data-user-id="${block.userId}"` : '';
       const inner = block.children
-        .map((p, pi) => renderPara(p, [blockIdx, pi]))
+        .map((child, pi) =>
+          child.type === 'paragraph'
+            ? renderPara(child, [blockIdx, pi])
+            : renderBlockStatic(child)
+        )
         .join('');
-      return `<blockquote${authorAttr} data-doc-path="${blockIdx}">${inner}</blockquote>`;
+      return `<blockquote${authorAttr}${userAttr} data-doc-path="${blockIdx}">${inner}</blockquote>`;
     }
 
     case 'spoiler': {
@@ -67,6 +72,42 @@ function renderPara(para: ParagraphNode, path: number[], align?: string): string
     ? para.children.map(renderInline).join('')
     : '<br>';
   return `<div${pathAttr}${styleAttr}>${content}</div>`;
+}
+
+// Render a block without data-doc-path attributes so the cursor system cannot
+// enter it.  Used for nested quote/spoiler/code blocks inside an outer quote.
+function renderBlockStatic(block: BlockNode): string {
+  const renderParaStatic = (p: ParagraphNode) => {
+    const content = p.children.length > 0 ? p.children.map(renderInline).join('') : '<br>';
+    return `<div>${content}</div>`;
+  };
+  switch (block.type) {
+    case 'paragraph':
+      return renderParaStatic(block);
+    case 'quote': {
+      const authorAttr = block.author ? ` data-author="${esc(block.author)}"` : '';
+      const userAttr   = block.userId !== undefined ? ` data-user-id="${block.userId}"` : '';
+      const inner = block.children.map(c =>
+        c.type === 'paragraph' ? renderParaStatic(c) : renderBlockStatic(c)
+      ).join('');
+      return `<blockquote${authorAttr}${userAttr}>${inner}</blockquote>`;
+    }
+    case 'code':
+      return `<div class="wysiwyg-code"><pre>${escCode(block.text)}</pre></div>`;
+    case 'spoiler': {
+      const title = esc(block.title ?? 'Spoiler');
+      const inner = block.children.map(c =>
+        c.type === 'paragraph' ? renderParaStatic(c) : renderBlockStatic(c)
+      ).join('');
+      return `<div class="wysiwyg-spoiler"><div class="wysiwyg-spoiler-header">${title}</div><div class="wysiwyg-spoiler-content">${inner}</div></div>`;
+    }
+    case 'align': {
+      return block.children.map(p => {
+        const content = p.children.length > 0 ? p.children.map(renderInline).join('') : '<br>';
+        return `<div style="text-align:${block.align}">${content}</div>`;
+      }).join('');
+    }
+  }
 }
 
 // ─── Inline rendering ────────────────────────────────────────────────────────

@@ -14,45 +14,41 @@
     @if (components().length === 0) {
       <p class="empty-message" i18n="@@admin.frontendTemplates.empty">No components found.</p>
     } @else {
-      <table class="templates-table">
-        <thead>
-          <tr>
-            <th i18n="@@admin.frontendTemplates.col.name">Name</th>
-            <th i18n="@@admin.frontendTemplates.col.description">Description</th>
-            <th i18n="@@admin.frontendTemplates.col.templatePath">Custom template</th>
-            <th i18n="@@admin.frontendTemplates.col.defaultTemplatePath">Default template</th>
-            <th i18n="@@admin.frontendTemplates.col.active">Active</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (comp of components(); track comp.name) {
-            <tr [class.row--active]="comp.active">
-              <td class="cell-name">{{ comp.name }}</td>
-              <td class="cell-description">{{ comp.description }}</td>
-              <td class="cell-path">
-                <a class="edit-link" [routerLink]="['/admin/frontend-templates/component']" [queryParams]="{ name: comp.name, path: comp.template_path }" i18n="@@common.edit">Edit</a>
-              </td>
-              <td class="cell-path">
-                <a class="edit-link" [routerLink]="['/admin/frontend-templates/component-default']" [queryParams]="{ name: comp.name, path: comp.default_template_path }" i18n="@@common.view">View</a>
-              </td>
-              <td class="cell-active">
-                <input
-                  type="checkbox"
-                  class="toggle-input"
-                  [checked]="comp.active"
-                  (change)="toggle(comp)"
-                />
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+      <ul class="component-list">
+        @for (comp of components(); track comp.name) {
+          <li class="component-item">
+            <div class="item-body">
+              <div class="item-name">
+                {{ comp.name }}
+                @if (comp.active) {
+                  <span class="override-badge" i18n-title="@@admin.frontendTemplates.overriddenTitle" title="Custom template active">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm17.71-10.21a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                  </span>
+                }
+              </div>
+              @if (getDescription(comp.name, comp.description); as desc) {
+                <div class="item-description">{{ desc }}</div>
+              }
+            </div>
 
-      <div class="actions">
-        <app-save-button [state]="saveState()" (clicked)="save()">
-          <span i18n="@@common.update">Update</span>
-        </app-save-button>
-      </div>
-    }
+            <div class="item-links">
+              <a
+                class="item-link item-link--primary"
+                [routerLink]="['/admin/frontend-templates/versions']"
+                [queryParams]="{ name: comp.name }"
+                i18n="@@admin.frontendTemplates.versions"
+              >Versions</a>
+              <a
+                class="item-link"
+                [routerLink]="['/admin/frontend-templates/component-default']"
+                [queryParams]="{ name: comp.name, path: comp.default_template_path }"
+                i18n="@@common.view"
+              >Default</a>
+            </div>
+          </li>
+        }
+      </ul>
+
+}
   </section>
 </div>

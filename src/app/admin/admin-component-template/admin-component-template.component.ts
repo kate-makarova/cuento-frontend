@@ -22,25 +22,48 @@ export class AdminComponentTemplateComponent implements OnInit {
   name = signal('');
   filePath = signal('');
   content = signal('');
+  versionName = signal('');
+  versionId = signal<number | null>(null);
   readonly = signal(false);
+  isCreate = signal(false);
+  isEdit = signal(false);
   saveState = signal<SaveState>('idle');
 
   ngOnInit() {
     const name = this.route.snapshot.queryParamMap.get('name') ?? '';
     const filePath = this.route.snapshot.queryParamMap.get('path') ?? '';
+    const id = this.route.snapshot.queryParamMap.get('id');
+    const versionName = this.route.snapshot.queryParamMap.get('versionName') ?? '';
     const isDefault = !!this.route.snapshot.data['readonly'];
+    const isCreate = !!this.route.snapshot.data['create'];
+    const isEdit = !!this.route.snapshot.data['edit'];
+
     this.name.set(name);
     this.filePath.set(filePath);
+    this.versionName.set(versionName);
     this.readonly.set(isDefault);
+    this.isCreate.set(isCreate);
+    this.isEdit.set(isEdit);
+    if (id) this.versionId.set(Number(id));
 
-    const endpoint = isDefault
-      ? `admin/frontend-templates/components-default/${name}`
-      : `admin/frontend-templates/components/${name}`;
+    if (isEdit && id) {
+      this.apiService.get<{ template_text: string; name: string }>(`admin/frontend-templates/component/version/${id}`).subscribe({
+        next: (data) => {
+          this.content.set(data.template_text);
+          if (!versionName) this.versionName.set(data.name);
+        },
+        error: (err) => console.error('Failed to load component template version', err),
+      });
+    } else {
+      const endpoint = isDefault || isCreate
+        ? `admin/frontend-templates/components-default/${name}`
+        : `admin/frontend-templates/components/${name}`;
 
-    this.apiService.getText(endpoint).subscribe({
-      next: (text) => this.content.set(text),
-      error: (err) => console.error('Failed to load component template', err),
-    });
+      this.apiService.getText(endpoint).subscribe({
+        next: (text) => this.content.set(text),
+        error: (err) => console.error('Failed to load component template', err),
+      });
+    }
   }
 
   updateContent(value: string) {
@@ -49,11 +72,16 @@ export class AdminComponentTemplateComponent implements OnInit {
 
   save() {
     this.saveState.set('loading');
+    const body: Record<string, unknown> = {
+      component_name: this.name(),
+      name: this.versionName(),
+      content: this.content(),
+    };
+    if (this.versionId() !== null) {
+      body['id'] = this.versionId();
+    }
     this.apiService
-      .post('admin/frontend-templates/component/update', {
-        name: this.name(),
-        content: this.content(),
-      })
+      .post('admin/frontend-templates/component/save', body)
       .subscribe({
         next: () => this.flash('success'),
         error: (err) => {

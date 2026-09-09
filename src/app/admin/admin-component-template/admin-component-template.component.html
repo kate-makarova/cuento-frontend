@@ -12,6 +12,12 @@
         @if (readonly()) {
           <span class="badge-readonly" i18n="@@admin.componentTemplate.readonlyBadge">default</span>
         }
+        @if (isCreate()) {
+          <span class="badge-create" i18n="@@admin.componentTemplate.createBadge">new version</span>
+        }
+        @if (isEdit()) {
+          <span class="badge-edit" i18n="@@admin.componentTemplate.editBadge">edit version</span>
+        }
       </h2>
       @if (filePath()) {
         <code class="file-path">{{ filePath() }}</code>
@@ -23,6 +29,21 @@
       </app-save-button>
     }
   </div>
+
+  @if (isCreate() || isEdit()) {
+    <div class="version-name-row">
+      <label class="version-name-label" for="version-name" i18n="@@admin.componentTemplate.versionName">Version name</label>
+      <input
+        id="version-name"
+        class="version-name-input"
+        type="text"
+        [value]="versionName()"
+        (input)="versionName.set($any($event.target).value)"
+        i18n-placeholder="@@admin.componentTemplate.versionNamePlaceholder"
+        placeholder="e.g. Christmas theme"
+      />
+    </div>
+  }
 
   <div class="editor-wrap" [class.editor-wrap--readonly]="readonly()">
     <app-html-editor

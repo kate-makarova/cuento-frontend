@@ -17,6 +17,7 @@
             @if (hasPermission('show_admin_backup')) {
               <li><a routerLink="/admin/backup" routerLinkActive="active" i18n="@@admin.backup">Backup</a></li>
             }
+            <li><a routerLink="/admin/locales" routerLinkActive="active" i18n="@@admin.locales">Locales</a></li>
           </ul>
         }
       </div>
@@ -95,6 +96,7 @@
         </button>
         @if (isOpen('extra')) {
           <ul>
+            <li><a routerLink="/admin/features" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" i18n="@@admin.features">Features</a></li>
             <li><a routerLink="/admin/features/currency" routerLinkActive="active" i18n="@@admin.currency">Currency Settings</a></li>
             <li><a routerLink="/admin/features/puzzles" routerLinkActive="active" i18n="@@admin.puzzles">Puzzles</a></li>
           </ul>

@@ -29,7 +29,8 @@ export type AlignBlock = {
 export type QuoteNode = {
   type: 'quote';
   author?: string;
-  children: ParagraphNode[];
+  userId?: number;
+  children: BlockNode[];
 };
 
 // Code content is opaque — no inline marks inside.
