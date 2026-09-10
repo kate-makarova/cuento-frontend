@@ -16,6 +16,7 @@ interface UserNotificationSetting {
   notification_type: string;
   disable_toast: boolean;
   disable_sound: boolean;
+  disable_push: boolean;
   disable_all: boolean;
 }
 

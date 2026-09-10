@@ -140,6 +140,14 @@
                   </th>
                   <th>
                     <div class="notif-col-header">
+                      <span i18n="@@settings.notif.disablePush">Disable push</span>
+                      <label class="option-label"><input type="checkbox"
+                             [checked]="isColumnAll('disable_push')"
+                             (change)="toggleColumn('disable_push', $any($event.target).checked)" /></label>
+                    </div>
+                  </th>
+                  <th>
+                    <div class="notif-col-header">
                       <span i18n="@@settings.notif.disableAll">Disable all</span>
                       <label class="option-label"><input type="checkbox"
                              [checked]="isColumnAll('disable_all')"
@@ -161,6 +169,11 @@
                       <label class="option-label"><input type="checkbox"
                              [checked]="setting.disable_sound"
                              (change)="toggleSetting(setting.notification_type, 'disable_sound', $any($event.target).checked)" /></label>
+                    </td>
+                    <td class="notif-check-cell">
+                      <label class="option-label"><input type="checkbox"
+                             [checked]="setting.disable_push"
+                             (change)="toggleSetting(setting.notification_type, 'disable_push', $any($event.target).checked)" /></label>
                     </td>
                     <td class="notif-check-cell">
                       <label class="option-label"><input type="checkbox"
