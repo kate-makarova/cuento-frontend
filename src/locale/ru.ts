@@ -1116,6 +1116,7 @@ export const TRANSLATIONS_RU = {
   "frontend_component.src_app_components_episode_header.description": "Заголовок эпизода с названием, участниками и метаданными",
   "frontend_component.src_app_components_character_sheet_header.description": "Заголовок анкеты персонажа с аватаром, именем и основными данными",
   "frontend_component.src_app_components_wanted_character_header.description": "Заголовок объявления о розыске персонажа с описанием роли и требованиями",
+  "frontend_component.src_app_components_wanted_character_card.description": "Карточка нужного персонажа в списке разыскиваемых персонажей",
 
   "factionSetting.new": "Новая настройка фракции",
   "factionSetting.humanName": "Название",
