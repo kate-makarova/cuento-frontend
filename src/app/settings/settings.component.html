@@ -188,6 +188,24 @@
         </div>
       </fieldset>
     </div>
+    @if (pushService.supported) {
+      <div class="container">
+        <fieldset>
+          <legend i18n="@@settings.pushNotifications">Push Notifications</legend>
+          <div class="fs-box">
+            @if (pushService.permissionDenied()) {
+              <p i18n="@@settings.push.denied">Push notifications are blocked in your browser. To enable them, update your browser's site permissions and reload.</p>
+            } @else if (pushService.pushEnabled()) {
+              <p i18n="@@settings.push.enabled">Push notifications are enabled. You will receive notifications even when the app is closed.</p>
+              <button type="button" class="button" [disabled]="pushService.busy()" (click)="pushService.unsubscribe()" i18n="@@settings.push.disable">Disable push notifications</button>
+            } @else {
+              <p i18n="@@settings.push.disabled">Enable push notifications to receive alerts even when the app is closed.</p>
+              <button type="button" class="button" [disabled]="pushService.busy()" (click)="pushService.subscribe()" i18n="@@settings.push.enable">Enable push notifications</button>
+            }
+          </div>
+        </fieldset>
+      </div>
+    }
     <div class="container">
       <fieldset>
         <legend i18n="@@settings.recoveryCodes">Recovery Codes</legend>

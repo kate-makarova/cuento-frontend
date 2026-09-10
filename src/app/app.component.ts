@@ -11,6 +11,7 @@ import {FeatureService} from './services/feature.service';
 import {CurrencyService} from './services/currency.service';
 import {UserService} from './services/user.service';
 import {NotificationService} from './services/notification.service';
+import {PushService} from './services/push.service';
 import {ApiService} from './services/api.service';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import { RouterLinksDirective } from './directives/router-links.directive';
@@ -90,6 +91,7 @@ export class AppComponent implements OnInit {
   currentUser = this.authService.currentUser;
   currentDate = new Date();
   private notificationService = inject(NotificationService);
+  private pushService = inject(PushService);
   private featureService = inject(FeatureService);
   private currencyService = inject(CurrencyService);
   private document = inject<Document>(DOCUMENT);
@@ -105,14 +107,16 @@ export class AppComponent implements OnInit {
     this.listenForAuthChanges();
     this.setupRouteListener();
 
-    // Effect to connect/disconnect notification service based on auth state
+    // Effect to connect/disconnect notification service and manage push subscriptions based on auth state
     effect(() => {
       const user = this.currentUser();
       const token = this.authService.authToken();
       if (user && user.id !== 0 && token) {
         this.notificationService.connect(token);
+        this.pushService.subscribeOnLogin();
       } else {
         this.notificationService.disconnect();
+        this.pushService.unsubscribeOnLogout();
       }
     });
 
@@ -129,6 +133,7 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.pushService.init();
     this.boardService.loadBoard();
     this.featureService.loadFeatures().subscribe(() => {
       if (this.featureService.isFeatureActive('currency')) {

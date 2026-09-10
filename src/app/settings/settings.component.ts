@@ -10,6 +10,7 @@ import { CroppedImageFieldComponent } from '../components/cropped-image-field/cr
 import { BbToolbarComponent } from '../components/bb-toolbar/bb-toolbar.component';
 import { BoardService } from '../services/board.service';
 import { ImageService } from '../services/image.service';
+import { PushService } from '../services/push.service';
 
 interface UserNotificationSetting {
   notification_type: string;
@@ -91,6 +92,7 @@ export class SettingsComponent implements OnInit {
   private boardService = inject(BoardService);
 
   private imageService = inject(ImageService);
+  readonly pushService = inject(PushService);
 
   readonly userAvatarUploadFn = (file: File) => this.imageService.uploadUserAvatar(file);
 
