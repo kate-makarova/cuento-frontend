@@ -108,7 +108,7 @@ export class TopicService {
     this.notificationService.postCreated$.subscribe(event => {
       const currentTopicId = this.topic().id;
       if (event.data.topic_id == currentTopicId) {
-        this.handleNewPost(event.data);
+        this.handleNewPost(event.data, event.total_posts);
       }
     });
 
@@ -252,6 +252,8 @@ export class TopicService {
       return;
     }
     const postsPerPage = this.boardService.board().posts_per_page || 15;
+    // post_number hasn't been updated by WS yet (that's why we're in the fallback path),
+    // so +1 is still the correct estimate for the page this new post will land on.
     const lastPage = Math.max(1, Math.ceil((this.topic().post_number + 1) / postsPerPage));
     this.pendingOwnPostTimeout = setTimeout(() => {
       this.pendingOwnPostTimeout = null;
@@ -267,18 +269,17 @@ export class TopicService {
     }
   }
 
-  private handleNewPost(post: Post) {
+  private handleNewPost(post: Post, totalPosts: number) {
     if (this.postsSignal().some(p => p.id === post.id)) return;
     this.postsSignal.update(posts => [...posts, this.normalizePost(post)]);
 
     const postsPerPage = this.boardService.board().posts_per_page || 15;
-    const prevTotal = this.topic().post_number;
-    const prevLastPage = Math.ceil(prevTotal / postsPerPage) || 1;
-    const newLastPage = Math.ceil((prevTotal + 1) / postsPerPage);
+    const prevLastPage = Math.ceil((totalPosts - 1) / postsPerPage) || 1;
+    const newLastPage  = Math.ceil(totalPosts / postsPerPage);
 
     this.topicSignal.update(topic => {
       if (topic) {
-        return { ...topic, post_number: topic.post_number + 1 };
+        return { ...topic, post_number: totalPosts };
       }
       return topic;
     });

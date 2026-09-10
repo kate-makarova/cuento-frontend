@@ -16,6 +16,7 @@ export interface TopicCreatedEvent {
 export interface PostCreatedEvent {
   type: 'post_created';
   msg_id?: number;
+  total_posts: number;
   data: Post;
 }
 
