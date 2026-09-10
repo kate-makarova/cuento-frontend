@@ -1,7 +1,1 @@
-[
-  {
-    "component": "src/app/components/wanted-character-header",
-    "default_template": "src/app/components/wanted-character-header/wanted-character-header.component.html",
-    "template": "src/app/components/wanted-character-header/wanted-character-header.custom.component.html"
-  }
-]
+[]
