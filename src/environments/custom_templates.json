@@ -3,5 +3,10 @@
     "component": "src/app/components/wanted-character-header",
     "default_template": "src/app/components/wanted-character-header/wanted-character-header.component.html",
     "template": "src/app/components/wanted-character-header/wanted-character-header.custom.component.html"
+  },
+  {
+    "component": "src/app/components/wanted-character-card",
+    "default_template": "src/app/components/wanted-character-card/wanted-character-card.component.html",
+    "template": "src/app/components/wanted-character-card/wanted-character-card.custom.component.html"
   }
 ]
