@@ -269,7 +269,12 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
     const cmd: Record<string, string> = {
       b: 'bold', i: 'italic', u: 'underline', s: 'strikeThrough',
     };
-    const command = cmd[event.key.toLowerCase()];
+    // event.code ('KeyB', 'KeyI', …) is layout-independent — always the physical key.
+    // event.key on Windows + non-Latin layout gives the Cyrillic character instead of 'b'/'i'/…
+    const keyChar = event.code?.startsWith('Key')
+      ? event.code.slice(3).toLowerCase()
+      : event.key.toLowerCase();
+    const command = cmd[keyChar];
     if (!command) return;
     event.preventDefault();
     this.exec(command);
