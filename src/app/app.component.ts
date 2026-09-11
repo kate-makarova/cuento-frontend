@@ -411,12 +411,13 @@ export class AppComponent implements OnInit {
   private manifestBlobUrl: string | null = null;
 
   private updateManifest(siteName: string): void {
+    const origin = window.location.origin;
     const manifest = {
       name: siteName,
       short_name: siteName,
-      start_url: '/',
+      start_url: origin + '/',
       display: 'standalone',
-      icons: [{ src: '/favicon.ico', sizes: 'any', type: 'image/x-icon' }],
+      icons: [{ src: origin + '/favicon.ico', sizes: 'any', type: 'image/x-icon' }],
     };
     if (this.manifestBlobUrl) URL.revokeObjectURL(this.manifestBlobUrl);
     this.manifestBlobUrl = URL.createObjectURL(
