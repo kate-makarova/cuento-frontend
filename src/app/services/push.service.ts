@@ -27,6 +27,8 @@ export class PushService {
   readonly permissionDenied = signal<boolean>(false);
   readonly busy = signal<boolean>(false);
 
+  private lastPostedEndpoint: string | null = null;
+
   async init(): Promise<void> {
     if (!this.supported) return;
     try {
@@ -47,7 +49,10 @@ export class PushService {
       const reg = await navigator.serviceWorker.ready;
       const existing = await reg.pushManager.getSubscription();
       if (existing) {
-        await this.postSubscription(existing);
+        if (existing.endpoint !== this.lastPostedEndpoint) {
+          await this.postSubscription(existing);
+          this.lastPostedEndpoint = existing.endpoint;
+        }
         this.pushEnabled.set(true);
       } else if (localStorage.getItem('push_subscribed') === '1') {
         await this.subscribe();
@@ -74,6 +79,7 @@ export class PushService {
         applicationServerKey: urlBase64ToUint8Array(pub.public_key)
       });
       await this.postSubscription(sub);
+      this.lastPostedEndpoint = sub.endpoint;
       localStorage.setItem('push_subscribed', '1');
       this.pushEnabled.set(true);
       this.permissionDenied.set(false);
@@ -112,6 +118,7 @@ export class PushService {
     } catch (err) {
       console.error('PushService: unsubscribe failed', err);
     } finally {
+      this.lastPostedEndpoint = null;
       this.pushEnabled.set(false);
     }
   }
