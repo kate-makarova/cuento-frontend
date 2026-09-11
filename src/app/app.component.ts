@@ -120,6 +120,14 @@ export class AppComponent implements OnInit {
       }
     });
 
+    // Effect to set document title and PWA manifest name from the board's site_name
+    effect(() => {
+      const name = this.boardService.board().site_name;
+      if (!name) return;
+      document.title = name;
+      this.updateManifest(name);
+    });
+
     // Effect to apply font size
     effect(() => {
       const user = this.currentUser();
@@ -398,6 +406,29 @@ export class AppComponent implements OnInit {
       case 'user': return ['/profile', entityId];
       default: return null;
     }
+  }
+
+  private manifestBlobUrl: string | null = null;
+
+  private updateManifest(siteName: string): void {
+    const manifest = {
+      name: siteName,
+      short_name: siteName,
+      start_url: '/',
+      display: 'standalone',
+      icons: [{ src: '/favicon.ico', sizes: 'any', type: 'image/x-icon' }],
+    };
+    if (this.manifestBlobUrl) URL.revokeObjectURL(this.manifestBlobUrl);
+    this.manifestBlobUrl = URL.createObjectURL(
+      new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' })
+    );
+    let link = this.document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
+    if (!link) {
+      link = this.document.createElement('link');
+      link.rel = 'manifest';
+      this.document.head.appendChild(link);
+    }
+    link.href = this.manifestBlobUrl;
   }
 
   protected readonly Date = Date;
