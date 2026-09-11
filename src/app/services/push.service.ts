@@ -27,7 +27,7 @@ export class PushService {
   readonly permissionDenied = signal<boolean>(false);
   readonly busy = signal<boolean>(false);
 
-  private lastPostedEndpoint: string | null = null;
+  private lastPostedEndpoint: string | null = localStorage.getItem('push_endpoint');
   private vapidKey: string | null = null;
 
   async init(): Promise<void> {
@@ -70,6 +70,7 @@ export class PushService {
         if (existing.endpoint !== this.lastPostedEndpoint) {
           await this.postSubscription(existing);
           this.lastPostedEndpoint = existing.endpoint;
+          localStorage.setItem('push_endpoint', existing.endpoint);
         }
         this.pushEnabled.set(true);
       } else if (localStorage.getItem('push_subscribed') === '1') {
@@ -102,6 +103,7 @@ export class PushService {
       await this.postSubscription(sub);
       this.lastPostedEndpoint = sub.endpoint;
       localStorage.setItem('push_subscribed', '1');
+      localStorage.setItem('push_endpoint', sub.endpoint);
       this.pushEnabled.set(true);
       this.permissionDenied.set(false);
     } catch (err) {
@@ -140,6 +142,7 @@ export class PushService {
       console.error('PushService: unsubscribe failed', err);
     } finally {
       this.lastPostedEndpoint = null;
+      localStorage.removeItem('push_endpoint');
       this.pushEnabled.set(false);
     }
   }
