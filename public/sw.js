@@ -1,10 +1,23 @@
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', event => event.waitUntil(clients.claim()));
+
 self.addEventListener('push', event => {
-  const data = event.data.json();
+  let title = 'Notification';
+  let body = '';
+  let url = null;
+  try {
+    const data = event.data.json();
+    title = data.title ?? title;
+    body  = data.message ?? data.body ?? body;
+    url   = data.url ?? null;
+  } catch (e) {
+    console.error('[sw] push parse error', e);
+  }
   event.waitUntil(
-    self.registration.showNotification(data.title, {
-      body: data.message,
+    self.registration.showNotification(title, {
+      body,
       icon: '/favicon.ico',
-      data: { url: data.url ?? null }
+      data: { url }
     })
   );
 });
