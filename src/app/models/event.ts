@@ -240,4 +240,8 @@ export interface PageChangedEvent {
   };
 }
 
-export type WebSocketEvent = TopicCreatedEvent | PostCreatedEvent | PostUpdatedEvent | NotificationEvent | TopicViewersUpdateEvent | DirectMessageCreatedEvent | ActiveUsersUpdateEvent | ActiveUsersActivityUpdateEvent | PanelReloadEvent | ReactionCreatedEvent | HealthUpdateEvent | UserRefreshRequiredEvent | DraftUpdatedEvent | AiMessageEvent | AiTaskDoneEvent | AiQueuePositionEvent | AiErrorEvent | PageChangedEvent;
+export interface PongEvent {
+  type: 'pong';
+}
+
+export type WebSocketEvent = TopicCreatedEvent | PostCreatedEvent | PostUpdatedEvent | NotificationEvent | TopicViewersUpdateEvent | DirectMessageCreatedEvent | ActiveUsersUpdateEvent | ActiveUsersActivityUpdateEvent | PanelReloadEvent | ReactionCreatedEvent | HealthUpdateEvent | UserRefreshRequiredEvent | DraftUpdatedEvent | AiMessageEvent | AiTaskDoneEvent | AiQueuePositionEvent | AiErrorEvent | PageChangedEvent | PongEvent;
