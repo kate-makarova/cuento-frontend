@@ -28,6 +28,7 @@ export class PushService {
   readonly busy = signal<boolean>(false);
 
   private lastPostedEndpoint: string | null = null;
+  private vapidKey: string | null = null;
 
   async init(): Promise<void> {
     if (!this.supported) return;
@@ -41,6 +42,23 @@ export class PushService {
     const sub = await reg.pushManager.getSubscription();
     this.pushEnabled.set(!!sub);
     this.permissionDenied.set(Notification.permission === 'denied');
+  }
+
+  // Call this when the "Enable" button becomes visible so the VAPID key is ready
+  // before the user clicks, keeping pushManager.subscribe() inside the gesture window.
+  async prefetchVapidKey(): Promise<void> {
+    if (!this.supported || this.vapidKey || this.pushEnabled() || this.permissionDenied()) return;
+    this.busy.set(true);
+    try {
+      const pub = await firstValueFrom(
+        this.apiService.get<{ public_key: string }>('push/vapid-public-key')
+      );
+      this.vapidKey = pub.public_key;
+    } catch (err) {
+      console.error('PushService: prefetchVapidKey failed', err);
+    } finally {
+      this.busy.set(false);
+    }
   }
 
   async subscribeOnLogin(): Promise<void> {
@@ -70,13 +88,16 @@ export class PushService {
     }
     this.busy.set(true);
     try {
-      const pub = await firstValueFrom(
-        this.apiService.get<{ public_key: string }>('push/vapid-public-key')
-      );
+      if (!this.vapidKey) {
+        const pub = await firstValueFrom(
+          this.apiService.get<{ public_key: string }>('push/vapid-public-key')
+        );
+        this.vapidKey = pub.public_key;
+      }
       const reg = await navigator.serviceWorker.ready;
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(pub.public_key)
+        applicationServerKey: urlBase64ToUint8Array(this.vapidKey)
       });
       await this.postSubscription(sub);
       this.lastPostedEndpoint = sub.endpoint;

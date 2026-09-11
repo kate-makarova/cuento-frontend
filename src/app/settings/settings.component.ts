@@ -158,6 +158,7 @@ export class SettingsComponent implements OnInit {
       next: (list) => this.notificationSettings.set(list),
       error: (err) => console.error('Failed to load notification settings', err)
     });
+    this.pushService.prefetchVapidKey();
   }
 
   isColumnAll(col: keyof UserNotificationSetting): boolean {
