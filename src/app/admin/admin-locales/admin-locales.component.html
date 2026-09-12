@@ -46,6 +46,9 @@
         <td>
           @if (!locale.is_installed) {
             <button type="button" (click)="confirmInstall(locale)" i18n="@@admin.locales.install">Install</button>
+            @if (!isProtected(locale)) {
+              <button type="button" (click)="confirmDelete(locale)" i18n="@@admin.locales.delete">Delete</button>
+            }
           }
           @if (locale.is_installed && !isProtected(locale)) {
             <button type="button" (click)="confirmUninstall(locale)" i18n="@@admin.locales.uninstall">Uninstall</button>
@@ -92,14 +95,17 @@
       @if (pending.action === 'install') {
         <h2 i18n="@@admin.locales.installTitle">Install {{ pending.locale.human_name }}?</h2>
         <p i18n="@@admin.locales.installWarning">This will commit the locale file to the repository and update the locale config. The frontend will be rebuilt, which may take several minutes.</p>
-      } @else {
+      } @else if (pending.action === 'uninstall') {
         <h2 i18n="@@admin.locales.uninstallTitle">Uninstall {{ pending.locale.human_name }}?</h2>
         <p i18n="@@admin.locales.uninstallWarning">This will remove the locale file from the repository and update the locale config. The frontend will be rebuilt, which may take several minutes.</p>
+      } @else {
+        <h2 i18n="@@admin.locales.deleteTitle">Delete {{ pending.locale.human_name }}?</h2>
+        <p i18n="@@admin.locales.deleteWarning">This will permanently delete the locale files from the server. This cannot be undone.</p>
       }
       <div class="modal-actions">
         <button
           class="button button--confirm"
-          [class.button--confirm-danger]="pending.action === 'uninstall'"
+          [class.button--confirm-danger]="pending.action === 'uninstall' || pending.action === 'delete'"
           (click)="confirmAction()"
           [disabled]="actionState() === 'loading' || actionState() === 'success'"
         >
@@ -110,8 +116,10 @@
             @default {
               @if (pending.action === 'install') {
                 <span i18n="@@admin.locales.install">Install</span>
-              } @else {
+              } @else if (pending.action === 'uninstall') {
                 <span i18n="@@admin.locales.uninstall">Uninstall</span>
+              } @else {
+                <span i18n="@@admin.locales.delete">Delete</span>
               }
             }
           }

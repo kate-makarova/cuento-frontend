@@ -26,7 +26,7 @@ export class AdminLocalesComponent implements OnInit {
   locales = signal<Locale[]>([]);
   downloadStates = signal<Record<string, DownloadState>>({});
 
-  pendingLocale = signal<{ locale: Locale; action: 'install' | 'uninstall' } | null>(null);
+  pendingLocale = signal<{ locale: Locale; action: 'install' | 'uninstall' | 'delete' } | null>(null);
   actionState = signal<ActionState>('idle');
 
   uploadName = signal('');
@@ -63,9 +63,21 @@ export class AdminLocalesComponent implements OnInit {
     formData.append('frontend_file', frontend);
     formData.append('backend_file', backend);
 
+    const name = this.uploadName();
+    const code = this.uploadCode();
+
     this.uploadState.set('loading');
-    this.apiService.postForm<Locale>('admin/locale/upload', formData).subscribe({
-      next: (locale) => {
+    this.apiService.postForm<Partial<Locale>>('admin/locale/upload', formData).subscribe({
+      next: (partial) => {
+        const locale: Locale = {
+          id: 0,
+          human_name: name,
+          code,
+          is_installed: false,
+          front_end_file_name: frontend.name,
+          back_end_file_name: backend.name,
+          ...partial,
+        } as Locale;
         this.locales.update(list => [...list, locale]);
         this.uploadName.set('');
         this.uploadCode.set('');
@@ -87,6 +99,11 @@ export class AdminLocalesComponent implements OnInit {
     this.actionState.set('idle');
   }
 
+  confirmDelete(locale: Locale) {
+    this.pendingLocale.set({ locale, action: 'delete' });
+    this.actionState.set('idle');
+  }
+
   cancelAction() {
     this.pendingLocale.set(null);
     this.actionState.set('idle');
@@ -101,10 +118,14 @@ export class AdminLocalesComponent implements OnInit {
 
     this.apiService.post<void>(endpoint, {}).subscribe({
       next: () => {
-        const installed = pending.action === 'install';
-        this.locales.update(list =>
-          list.map(l => l.id === pending.locale.id ? { ...l, is_installed: installed } : l)
-        );
+        if (pending.action === 'delete') {
+          this.locales.update(list => list.filter(l => l.id !== pending.locale.id));
+        } else {
+          const installed = pending.action === 'install';
+          this.locales.update(list =>
+            list.map(l => l.id === pending.locale.id ? { ...l, is_installed: installed } : l)
+          );
+        }
         this.actionState.set('success');
         setTimeout(() => {
           this.pendingLocale.set(null);
