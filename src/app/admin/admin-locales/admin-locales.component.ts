@@ -9,7 +9,7 @@ import { Locale } from '../../models/Locale';
 type DownloadState = 'idle' | 'loading' | 'error';
 type ActionState = 'idle' | 'loading' | 'error' | 'success';
 
-const PROTECTED_LOCALES = ['en-CA', 'ru-RU'];
+const PROTECTED_LOCALES = ['en-CA'];
 
 @Component({
   selector: 'app-admin-locales',
