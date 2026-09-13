@@ -6,6 +6,12 @@ export interface LocaleDefinition {
 }
 
 export const LOCALES: LocaleDefinition[] = [
+  {
+    code: 'ru-RU',
+    langPrefixes: ['ru'],
+    translations: () => import('./locale/ru-dominion').then(m => m.TRANSLATIONS_RU_DOMINION),
+  angularLocale: 'ru',
+  },
 ];
 
 export const DEFAULT_LOCALE = 'en-CA';
