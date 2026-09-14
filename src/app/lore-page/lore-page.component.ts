@@ -5,7 +5,7 @@ import { TopicService } from '../services/topic.service';
 import { ApiService } from '../services/api.service';
 import { SafeHtmlPipe } from '../pipes/safe-html.pipe';
 import { RouterLinksDirective } from '../directives/router-links.directive';
-import { LorePage } from '../models/LorePage';
+import { LorePageInfo } from '../models/LorePage';
 
 @Component({
   selector: 'app-lore-page',
@@ -21,7 +21,7 @@ export class LorePageComponent implements OnInit, OnDestroy {
   private apiService = inject(ApiService);
 
   post = this.topicService.singlePost;
-  pages = signal<LorePage[]>([]);
+  pages = signal<LorePageInfo[]>([]);
   topicId = signal<number>(0);
 
   private destroy$ = new Subject<void>();
@@ -33,7 +33,7 @@ export class LorePageComponent implements OnInit, OnDestroy {
 
       if (topicId) {
         this.topicId.set(topicId);
-        this.apiService.get<LorePage[]>(`lore-topic/${topicId}/pages`).subscribe({
+        this.apiService.get<LorePageInfo[]>(`lore-topic/${topicId}/pages`).subscribe({
           next: (data) => this.pages.set(data),
           error: (err) => console.error('Failed to load lore pages', err)
         });
