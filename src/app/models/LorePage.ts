@@ -1,16 +1,21 @@
 export interface LorePage {
   topic_id: number;
-  post_id: number;
+  post_id?: number | null;
   name: string;
   is_hidden: boolean;
   order: number;
+  is_external_link: boolean;
+  external_link: string | null;
 }
 
 export interface LorePageInfo {
-  post_id: number;
+  id: number;
+  post_id: number | null;
   name: string;
   is_hidden: boolean;
   order: number;
+  is_external_link: boolean;
+  external_link: string | null;
 }
 
 export interface LoreTopicPostRow {
