@@ -93,6 +93,15 @@ export class TopicService {
       error: (err) => console.error('Failed to load posts', err)
     });
 
+    this.notificationService.wsConnected$.subscribe(() => {
+      const topicId = this.topic().id;
+      const posts = this.postsSignal();
+      if (topicId && posts.length > 0) {
+        const maxPostId = Math.max(...posts.map(p => p.id));
+        this.notificationService.sendMessage({ type: 'topic_view', topic_id: topicId, post_id: maxPostId });
+      }
+    });
+
     this.notificationService.postCreated$.subscribe(event => {
       const currentTopicId = this.topic().id;
       if (event.data.topic_id == currentTopicId) {
