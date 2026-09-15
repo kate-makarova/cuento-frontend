@@ -174,6 +174,14 @@ export class TopicService {
     this.loadPostsSubject.next({ topicId, page, postId });
   }
 
+  requestCatchup(): void {
+    const topicId = this.topic().id;
+    const posts = this.postsSignal();
+    if (!topicId || !posts.length) return;
+    const maxPostId = Math.max(...posts.map(p => p.id));
+    this.notificationService.sendMessage({ type: 'topic_view', topic_id: topicId, post_id: maxPostId });
+  }
+
   createPost(data: any) {
     return this.apiService.post('post/create', data);
   }

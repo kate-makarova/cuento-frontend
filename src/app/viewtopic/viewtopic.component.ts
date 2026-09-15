@@ -545,14 +545,19 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
           window.location.reload();
         }
         // isSubmitting stays true — placeholder remains until the WS post_created event arrives.
-        // Fallback: if the WS event is missed (e.g. reconnect lost topic_view registration),
-        // reset after 8 s and reload so the post becomes visible.
+        // Fallback: after 8 s request a catch-up (re-sends topic_view so the server replays
+        // any missed post_created events). If the post still hasn't arrived after 3 more
+        // seconds, give up and reload the page via loadPosts.
         setTimeout(() => {
-          if (this.isSubmitting()) {
-            this.isSubmitting.set(false);
-            const topicId = this.id();
-            if (topicId) this.topicService.loadPosts(topicId, this.pageNumber());
-          }
+          if (!this.isSubmitting()) return;
+          this.topicService.requestCatchup();
+          setTimeout(() => {
+            if (this.isSubmitting()) {
+              this.isSubmitting.set(false);
+              const topicId = this.id();
+              if (topicId) this.topicService.loadPosts(topicId, this.pageNumber());
+            }
+          }, 3000);
         }, 8000);
       },
       error: (err: any) => {
