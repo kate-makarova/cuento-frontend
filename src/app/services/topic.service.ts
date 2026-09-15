@@ -52,6 +52,9 @@ export class TopicService {
   private ownPostAddedSubject = new Subject<number>();
   public ownPostAdded$ = this.ownPostAddedSubject.asObservable();
 
+  private hasNewPostsOnAnotherPageSignal = signal(false);
+  public readonly hasNewPostsOnAnotherPage = this.hasNewPostsOnAnotherPageSignal.asReadonly();
+
   private loadPostsSubject = new Subject<{topicId: number, page: number, postId?: number}>();
 
   readonly singlePostSignal = signal<Post | null>(null);
@@ -72,6 +75,7 @@ export class TopicService {
       next: ({ data, topicId }) => {
         if (data && data.posts) {
           this.postsSignal.set(data.posts);
+          this.hasNewPostsOnAnotherPageSignal.set(false);
           this.pageLoadedSubject.next({ page: data.page, topicId });
           if (data.posts.length > 0) {
             const postIds = data.posts.map((p: Post) => p.id);
@@ -150,6 +154,7 @@ export class TopicService {
   clear(): void {
     this.postsSignal.set([]);
     this.topicSignal.update(t => ({ ...t, id: 0 }));
+    this.hasNewPostsOnAnotherPageSignal.set(false);
   }
 
   loadPost(id: number) {
@@ -245,18 +250,23 @@ export class TopicService {
 
   private handleNewPost(post: Post, totalPosts: number) {
     if (this.postsSignal().some(p => p.id === post.id)) return;
-    this.postsSignal.update(posts => [...posts, this.normalizePost(post)]);
 
     const postsPerPage = this.boardService.board().posts_per_page || 15;
     const prevLastPage = Math.ceil((totalPosts - 1) / postsPerPage) || 1;
     const newLastPage  = Math.ceil(totalPosts / postsPerPage);
+    const overflows = newLastPage > prevLastPage;
 
-    this.topicSignal.update(topic => {
-      if (topic) {
-        return { ...topic, post_number: totalPosts };
-      }
-      return topic;
-    });
+    this.topicSignal.update(topic => ({ ...topic, post_number: totalPosts }));
+
+    const currentUser = this.authService.currentUser();
+    const isOwnPost = !!(currentUser && post.user_profile && currentUser.id === post.user_profile.user_id);
+
+    if (overflows && !isOwnPost) {
+      this.hasNewPostsOnAnotherPageSignal.set(true);
+      return;
+    }
+
+    this.postsSignal.update(posts => [...posts, this.normalizePost(post)]);
 
     this.notificationService.sendMessage({
       type: 'topic_view',
@@ -265,10 +275,9 @@ export class TopicService {
     });
     this.notificationService.checkPostIds([post.id]);
 
-    const currentUser = this.authService.currentUser();
-    if (currentUser && post.user_profile && currentUser.id === post.user_profile.user_id) {
+    if (isOwnPost) {
       this.ownPostAddedSubject.next(post.id);
-      if (newLastPage > prevLastPage) {
+      if (overflows) {
         this.postsSignal.update(posts => posts.filter(p => p.id === post.id));
         this.router.navigate(['/viewtopic', this.topic().id], { queryParams: { page: newLastPage } });
       }

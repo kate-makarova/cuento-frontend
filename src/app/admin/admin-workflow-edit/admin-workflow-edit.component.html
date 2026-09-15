@@ -19,6 +19,17 @@
       </select>
     </div>
 
+    @if (event_name() === 'TopicStatusChanged') {
+      <div class="form-row">
+        <label i18n="@@admin.workflows.newStatus">New Status</label>
+        <select [ngModel]="newStatus()" (ngModelChange)="newStatus.set($event)" name="new_status" required>
+          @for (opt of topicStatusOptions; track opt.value) {
+            <option [ngValue]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+    }
+
     <div class="form-row">
       <label i18n="@@admin.workflows.subforumIds">Subforum IDs</label>
       <input type="text" [ngModel]="subforum_ids()" (ngModelChange)="subforum_ids.set($event)" name="subforum_ids" placeholder="3,7,12" required />

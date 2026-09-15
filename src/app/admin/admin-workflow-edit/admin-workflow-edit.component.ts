@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { Workflow } from '../../models/Workflow';
-import { EVENT_OPTIONS, HANDLER_OPTIONS } from '../admin-workflows/workflow-options';
+import { EVENT_OPTIONS, HANDLER_OPTIONS, TOPIC_STATUS_OPTIONS } from '../admin-workflows/workflow-options';
 
 type SaveState = 'idle' | 'loading' | 'success' | 'error';
 
@@ -22,13 +22,19 @@ export class AdminWorkflowEditComponent implements OnInit {
 
   readonly eventOptions = EVENT_OPTIONS;
   readonly handlerOptions = HANDLER_OPTIONS;
+  readonly topicStatusOptions = TOPIC_STATUS_OPTIONS;
 
   workflowId = signal<number | null>(null);
 
   event_name = signal<string>(EVENT_OPTIONS[0].value);
   subforum_ids = signal('');
   handler_function = signal<string>(HANDLER_OPTIONS[0].value);
+
+  // handler config fields
   targetSubforumId = signal<number | null>(null);
+
+  // event config fields
+  newStatus = signal<number | null>(null);
 
   saveState = signal<SaveState>('idle');
   saveError = signal('');
@@ -54,6 +60,9 @@ export class AdminWorkflowEditComponent implements OnInit {
         if (workflow.handler_function === 'MoveTopic') {
           this.targetSubforumId.set((workflow.config['target_subforum_id'] as number) ?? null);
         }
+        if (workflow.event_name === 'TopicStatusChanged' && workflow.event_config) {
+          this.newStatus.set((workflow.event_config['new_status'] as number) ?? null);
+        }
       },
       error: () => this.loadError.set(true),
     });
@@ -66,6 +75,13 @@ export class AdminWorkflowEditComponent implements OnInit {
     return {};
   }
 
+  private buildEventConfig(): Record<string, unknown> | null {
+    if (this.event_name() === 'TopicStatusChanged') {
+      return { new_status: this.newStatus() };
+    }
+    return null;
+  }
+
   save(): void {
     this.saveState.set('loading');
     this.saveError.set('');
@@ -74,6 +90,7 @@ export class AdminWorkflowEditComponent implements OnInit {
       subforum_ids: this.subforum_ids(),
       handler_function: this.handler_function(),
       config: this.buildConfig(),
+      event_config: this.buildEventConfig(),
     };
     const request = this.isNew
       ? this.apiService.post<Workflow>('admin/workflow/create', body)

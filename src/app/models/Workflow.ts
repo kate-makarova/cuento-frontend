@@ -4,4 +4,5 @@ export interface Workflow {
   subforum_ids: string;
   handler_function: string;
   config: Record<string, unknown>;
+  event_config: Record<string, unknown> | null;
 }
