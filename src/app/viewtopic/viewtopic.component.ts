@@ -544,7 +544,16 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
         if (!this.authService.isAuthenticated()) {
           window.location.reload();
         }
-        // isSubmitting stays true — placeholder remains until the WS post_created event arrives
+        // isSubmitting stays true — placeholder remains until the WS post_created event arrives.
+        // Fallback: if the WS event is missed (e.g. reconnect lost topic_view registration),
+        // reset after 8 s and reload so the post becomes visible.
+        setTimeout(() => {
+          if (this.isSubmitting()) {
+            this.isSubmitting.set(false);
+            const topicId = this.id();
+            if (topicId) this.topicService.loadPosts(topicId, this.pageNumber());
+          }
+        }, 8000);
       },
       error: (err: any) => {
         this.isSubmitting.set(false);
