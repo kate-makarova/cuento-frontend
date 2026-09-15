@@ -513,6 +513,21 @@ export const routes: Routes = [
         path: 'external-app/:id',
         loadComponent: () => import('./admin/admin-external-app-edit/admin-external-app-edit.component').then(m => m.AdminExternalAppEditComponent),
         title: 'Admin - External App'
+      },
+      {
+        path: 'workflows',
+        loadComponent: () => import('./admin/admin-workflows/admin-workflows.component').then(m => m.AdminWorkflowsComponent),
+        title: 'Admin - Workflows'
+      },
+      {
+        path: 'workflow/new',
+        loadComponent: () => import('./admin/admin-workflow-edit/admin-workflow-edit.component').then(m => m.AdminWorkflowEditComponent),
+        title: 'Admin - Create Workflow'
+      },
+      {
+        path: 'workflow/:id',
+        loadComponent: () => import('./admin/admin-workflow-edit/admin-workflow-edit.component').then(m => m.AdminWorkflowEditComponent),
+        title: 'Admin - Edit Workflow'
       }
     ]
   },

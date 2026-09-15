@@ -1,0 +1,66 @@
+<h2 i18n="@@admin.workflows.title">Workflows</h2>
+
+<table class="data-table">
+  <thead>
+    <tr>
+      <th i18n="@@admin.workflows.id">ID</th>
+      <th i18n="@@admin.workflows.eventName">Event</th>
+      <th i18n="@@admin.workflows.subforumIds">Subforum IDs</th>
+      <th i18n="@@admin.workflows.handlerFunction">Handler</th>
+      <th i18n="@@admin.workflows.config">Config</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (workflow of workflows(); track workflow.id) {
+      <tr>
+        <td>{{ workflow.id }}</td>
+        <td>{{ workflow.event_name }}</td>
+        <td>{{ workflow.subforum_ids }}</td>
+        <td>{{ workflow.handler_function }}</td>
+        <td><code>{{ configJson(workflow.config) }}</code></td>
+        <td>
+          <div class="row-actions">
+            <a [routerLink]="['/admin/workflow', workflow.id]" i18n="@@common.edit">Edit</a>
+            <button type="button" (click)="confirmDelete(workflow)" i18n="@@common.delete">Delete</button>
+          </div>
+        </td>
+      </tr>
+    }
+    @if (workflows().length === 0) {
+      <tr>
+        <td colspan="6" class="empty" i18n="@@admin.workflows.empty">No workflows yet.</td>
+      </tr>
+    }
+  </tbody>
+</table>
+
+<div class="list-actions">
+  <a routerLink="/admin/workflow/new" class="btn-secondary" i18n="@@admin.workflows.createNew">Create New</a>
+</div>
+
+@if (deleteTarget(); as target) {
+  <div class="modal-overlay" (click)="cancelDelete()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h2 i18n="@@admin.workflows.deleteTitle">Delete workflow #{{ target.id }}?</h2>
+      <p i18n="@@admin.workflows.deleteWarning">This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button
+          class="button button--confirm button--confirm-danger"
+          (click)="doDelete()"
+          [disabled]="deleteState() === 'loading'"
+          i18n="@@common.delete"
+        >Delete</button>
+        <button
+          class="button"
+          (click)="cancelDelete()"
+          [disabled]="deleteState() === 'loading'"
+          i18n="@@common.cancel"
+        >Cancel</button>
+      </div>
+      @if (deleteState() === 'error') {
+        <span class="error-text" i18n="@@admin.workflows.deleteError">Failed to delete workflow</span>
+      }
+    </div>
+  </div>
+}

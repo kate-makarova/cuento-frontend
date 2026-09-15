@@ -1,0 +1,58 @@
+<h2>
+  @if (isNew) {
+    <ng-container i18n="@@admin.workflowEdit.createTitle">Create Workflow</ng-container>
+  } @else {
+    <ng-container i18n="@@admin.workflowEdit.editTitle">Edit Workflow #{{ workflowId() }}</ng-container>
+  }
+</h2>
+
+@if (loadError()) {
+  <p class="error-text" i18n="@@admin.workflowEdit.loadError">Failed to load workflow.</p>
+} @else {
+  <form (ngSubmit)="save()" class="form-section">
+    <div class="form-row">
+      <label i18n="@@admin.workflows.eventName">Event name</label>
+      <select [ngModel]="event_name()" (ngModelChange)="event_name.set($event)" name="event_name" required>
+        @for (opt of eventOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label i18n="@@admin.workflows.subforumIds">Subforum IDs</label>
+      <input type="text" [ngModel]="subforum_ids()" (ngModelChange)="subforum_ids.set($event)" name="subforum_ids" placeholder="3,7,12" required />
+    </div>
+
+    <div class="form-row">
+      <label i18n="@@admin.workflows.handlerFunction">Handler function</label>
+      <select [ngModel]="handler_function()" (ngModelChange)="handler_function.set($event)" name="handler_function" required>
+        @for (opt of handlerOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+    </div>
+
+    @if (handler_function() === 'MoveTopic') {
+      <div class="form-row">
+        <label i18n="@@admin.workflows.targetSubforumId">Target Subforum ID</label>
+        <input type="number" [ngModel]="targetSubforumId()" (ngModelChange)="targetSubforumId.set($event)" name="target_subforum_id" required />
+      </div>
+    }
+
+    <div class="form-actions">
+      <button type="submit" [disabled]="saveState() === 'loading' || saveState() === 'success'">
+        @switch (saveState()) {
+          @case ('loading') { <span i18n="@@common.saving">Saving…</span> }
+          @case ('success') { <span i18n="@@common.saved">Saved!</span> }
+          @default { <span i18n="@@common.save">Save</span> }
+        }
+      </button>
+      <button type="button" (click)="cancel()" [disabled]="saveState() === 'loading'" i18n="@@common.cancel">Cancel</button>
+    </div>
+
+    @if (saveError()) {
+      <span class="error-text">{{ saveError() }}</span>
+    }
+  </form>
+}
