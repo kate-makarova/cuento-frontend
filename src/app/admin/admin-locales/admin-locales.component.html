@@ -51,11 +51,17 @@
             @if (locale.is_installed && !isProtected(locale)) {
               <button type="button" (click)="confirmUninstall(locale)" i18n="@@admin.locales.uninstall">Uninstall</button>
             }
+            @if (needsReinstall(locale)) {
+              <button type="button" (click)="confirmReinstall(locale)" i18n="@@admin.locales.reinstall">Reinstall</button>
+            }
             @if (!locale.is_installed && !isProtected(locale)) {
               <button type="button" (click)="confirmDelete(locale)" i18n="@@admin.locales.delete">Delete</button>
             }
             @if (isProtected(locale)) {
               <span class="muted" i18n="@@admin.locales.defaultLocale">Default</span>
+            }
+            @if (canReupload(locale)) {
+              <button type="button" (click)="openReupload(locale)" i18n="@@admin.locales.reupload">Reupload files</button>
             }
           </div>
         </td>
@@ -100,6 +106,9 @@
       @if (pending.action === 'install') {
         <h2 i18n="@@admin.locales.installTitle">Install {{ pending.locale.human_name }}?</h2>
         <p i18n="@@admin.locales.installWarning">This will commit the locale file to the repository and update the locale config. The frontend will be rebuilt, which may take several minutes.</p>
+      } @else if (pending.action === 'reinstall') {
+        <h2 i18n="@@admin.locales.reinstallTitle">Reinstall {{ pending.locale.human_name }}?</h2>
+        <p i18n="@@admin.locales.reinstallWarning">The locale file has changed since it was last installed. This will re-commit the current version and trigger a frontend rebuild.</p>
       } @else if (pending.action === 'uninstall') {
         <h2 i18n="@@admin.locales.uninstallTitle">Uninstall {{ pending.locale.human_name }}?</h2>
         <p i18n="@@admin.locales.uninstallWarning">This will remove the locale file from the repository and update the locale config. The frontend will be rebuilt, which may take several minutes.</p>
@@ -111,6 +120,7 @@
         <button
           class="button button--confirm"
           [class.button--confirm-danger]="pending.action === 'uninstall' || pending.action === 'delete'"
+          [class.button--confirm-warning]="pending.action === 'reinstall'"
           (click)="confirmAction()"
           [disabled]="actionState() === 'loading' || actionState() === 'success'"
         >
@@ -121,6 +131,8 @@
             @default {
               @if (pending.action === 'install') {
                 <span i18n="@@admin.locales.install">Install</span>
+              } @else if (pending.action === 'reinstall') {
+                <span i18n="@@admin.locales.reinstall">Reinstall</span>
               } @else if (pending.action === 'uninstall') {
                 <span i18n="@@admin.locales.uninstall">Uninstall</span>
               } @else {
@@ -133,6 +145,43 @@
           class="button"
           (click)="cancelAction()"
           [disabled]="actionState() === 'loading'"
+          i18n="@@common.cancel"
+        >Cancel</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (reuploadTarget(); as target) {
+  <div class="modal-overlay" (click)="cancelReupload()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h2 i18n="@@admin.locales.reuploadTitle">Reupload files for {{ target.human_name }}</h2>
+      <p i18n="@@admin.locales.reuploadHint">Select at least one file to replace. Files not selected will remain unchanged.</p>
+      <div class="form-row">
+        <label i18n="@@admin.locales.uploadFrontend">Frontend file (.ts)</label>
+        <input type="file" accept=".ts" (change)="onReuploadFrontendFileChange($event)" />
+      </div>
+      <div class="form-row">
+        <label i18n="@@admin.locales.uploadBackend">Backend file (.json)</label>
+        <input type="file" accept=".json" (change)="onReuploadBackendFileChange($event)" />
+      </div>
+      <div class="modal-actions">
+        <button
+          class="button button--confirm"
+          (click)="reupload()"
+          [disabled]="reuploadState() === 'loading' || reuploadState() === 'success' || (!reuploadFrontendFile() && !reuploadBackendFile())"
+        >
+          @switch (reuploadState()) {
+            @case ('loading') { <span i18n="@@common.loading">Loading…</span> }
+            @case ('success') { <span i18n="@@admin.locales.actionSuccess">Done!</span> }
+            @case ('error') { <span i18n="@@admin.locales.actionError">Failed</span> }
+            @default { <span i18n="@@admin.locales.reupload">Reupload files</span> }
+          }
+        </button>
+        <button
+          class="button"
+          (click)="cancelReupload()"
+          [disabled]="reuploadState() === 'loading'"
           i18n="@@common.cancel"
         >Cancel</button>
       </div>
