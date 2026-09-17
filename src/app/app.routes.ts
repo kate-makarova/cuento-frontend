@@ -234,6 +234,12 @@ export const routes: Routes = [
     data: { pageId: 'pun-shop' }
   },
   {
+    path: 'game-stats',
+    loadComponent: () => import('./game-stats/game-stats.component').then(m => m.GameStatsComponent),
+    title: 'Game Stats',
+    data: { pageId: 'pun-game-stats' }
+  },
+  {
     path: 'character-profile-update/:id',
     loadComponent: () => import('./character-profile-edit/character-profile-edit.component').then(m => m.CharacterProfileEditComponent),
     title: 'Update Character Profile',

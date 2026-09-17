@@ -1,0 +1,66 @@
+<h2 i18n="@@gameStats.title">Game Stats</h2>
+
+<section class="gs-summary">
+  <div class="gs-card gs-card--open">
+    <span class="gs-card-number">{{ totalOpen }}</span>
+    <span class="gs-card-label" i18n="@@gameStats.openEpisodes">Open Episodes</span>
+  </div>
+  <div class="gs-card gs-card--finished">
+    <span class="gs-card-number">{{ totalFinished }}</span>
+    <span class="gs-card-label" i18n="@@gameStats.finishedEpisodes">Finished Episodes</span>
+  </div>
+  <div class="gs-card gs-card--abandoned">
+    <span class="gs-card-number">{{ totalAbandoned }}</span>
+    <span class="gs-card-label" i18n="@@gameStats.abandonedEpisodes">Abandoned Episodes</span>
+  </div>
+  <div class="gs-card">
+    <span class="gs-card-number">{{ totalPosts | number }}</span>
+    <span class="gs-card-label" i18n="@@gameStats.totalPosts">Total Posts</span>
+  </div>
+  <div class="gs-card">
+    <span class="gs-card-number">{{ totalPlayers }}</span>
+    <span class="gs-card-label" i18n="@@gameStats.activePlayers">Active Players</span>
+  </div>
+  <div class="gs-card">
+    <span class="gs-card-number">{{ totalChars }}</span>
+    <span class="gs-card-label" i18n="@@gameStats.characters">Characters</span>
+  </div>
+</section>
+
+<section class="gs-row">
+  <div class="gs-chart-block gs-chart-block--small">
+    <h3 i18n="@@gameStats.episodeStatus">Episode Status</h3>
+    <canvas #statusCanvas></canvas>
+  </div>
+  <div class="gs-chart-block">
+    <h3 i18n="@@gameStats.writingActivity">Writing Activity (2025)</h3>
+    <canvas #activityCanvas></canvas>
+  </div>
+</section>
+
+<section class="gs-row">
+  <div class="gs-chart-block">
+    <h3 i18n="@@gameStats.episodesBySubforum">Episodes by Subforum</h3>
+    <canvas #subforumEpCanvas></canvas>
+  </div>
+  <div class="gs-chart-block">
+    <h3 i18n="@@gameStats.postsBySubforum">Posts by Subforum</h3>
+    <canvas #subforumPostsCanvas></canvas>
+  </div>
+</section>
+
+<section class="gs-row">
+  <div class="gs-chart-block">
+    <h3 i18n="@@gameStats.topWriters">Top Writers</h3>
+    <canvas #topWritersCanvas></canvas>
+  </div>
+  <div class="gs-chart-block">
+    <h3 i18n="@@gameStats.topCharacters">Top Characters</h3>
+    <canvas #topCharsCanvas></canvas>
+  </div>
+</section>
+
+<section class="gs-chart-block gs-chart-block--full">
+  <h3 i18n="@@gameStats.episodesByFaction">Episodes by Faction</h3>
+  <canvas #factionEpCanvas></canvas>
+</section>
