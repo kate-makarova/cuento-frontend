@@ -619,9 +619,13 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
     return !!(el?.closest('.wysiwyg-spoiler-header'));
   }
 
-  onEditorInput(event: Event): void {
-    const target = event.target as Element;
-    const header = target.closest?.('.wysiwyg-spoiler-header') as HTMLElement | null;
+  onEditorInput(_event: Event): void {
+    const sel = window.getSelection();
+    if (!sel?.anchorNode) return;
+    const el = sel.anchorNode.nodeType === Node.TEXT_NODE
+      ? sel.anchorNode.parentElement
+      : sel.anchorNode as Element;
+    const header = el?.closest('.wysiwyg-spoiler-header') as HTMLElement | null;
     if (!header) return;
     const spoilerEl = header.closest<HTMLElement>('[data-doc-path]');
     if (!spoilerEl) return;
@@ -634,6 +638,7 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
           i === idx && b.type === 'spoiler' ? { ...b, title: header.textContent ?? '' } : b
         ),
       };
+      this.onInput();
     }
   }
 
