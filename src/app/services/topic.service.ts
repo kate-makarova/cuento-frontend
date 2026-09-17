@@ -267,7 +267,7 @@ export class TopicService {
     this.topicSignal.update(topic => ({ ...topic, post_number: totalPosts }));
 
     const currentUser = this.authService.currentUser();
-    const isOwnPost = !!(currentUser && post.user_profile && currentUser.id === post.user_profile.user_id);
+    const isOwnPost = !!(currentUser && currentUser.id === post.author_user_id);
 
     if (overflows && !isOwnPost) {
       this.hasNewPostsOnAnotherPageSignal.set(true);
