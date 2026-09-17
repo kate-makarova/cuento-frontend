@@ -12,11 +12,6 @@ export const LOCALES: LocaleDefinition[] = [
     translations: () => import('./locale/ru').then(m => m.TRANSLATIONS_RU),
     angularLocale: 'ru',
   },
-  {
-    code: 'ch-CH',
-    langPrefixes: ['ch'],
-    translations: () => import('./locale/ch').then(m => m.TRANSLATIONS_CH),
-  },
 ];
 
 export const DEFAULT_LOCALE = 'en-CA';
