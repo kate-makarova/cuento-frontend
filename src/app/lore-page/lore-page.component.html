@@ -1,10 +1,18 @@
+<app-breadcrumbs [items]="breadcrumbs()"></app-breadcrumbs>
+
 <div id="pun-main" class="main lore-page">
   <div class="lore-layout">
     <nav class="lore-nav">
       <ul>
-        @for (page of pages(); track page.post_id) {
+        @for (page of pages(); track page.id) {
           @if (!page.is_hidden) {
-            <li><a [routerLink]="['/lore', topicId(), 'page', page.post_id]">{{ page.name }}</a></li>
+            <li>
+              @if (page.is_external_link) {
+                <a [id]="'lore-nav-link-' + page.id" class="lore-nav-link external-link" [href]="page.external_link" target="_blank" rel="noopener noreferrer">{{ page.name }}</a>
+              } @else {
+                <a [id]="'lore-nav-link-' + page.id" class="lore-nav-link post-link" [routerLink]="['/lore', topicId(), 'page', page.post_id]">{{ page.name }}</a>
+              }
+            </li>
           }
         }
       </ul>
@@ -17,3 +25,5 @@
     </div>
   </div>
 </div>
+
+<app-breadcrumbs [items]="breadcrumbs()"></app-breadcrumbs>

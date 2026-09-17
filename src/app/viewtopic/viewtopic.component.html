@@ -290,6 +290,12 @@
   </div>
   }
 
+  @if (topicService.hasNewPostsOnAnotherPage()) {
+    <div class="new-posts-notice">
+      <a [routerLink]="['/viewtopic', id()]" [queryParams]="{ page: totalPages() }" i18n="@@viewtopic.newPostsOnAnotherPage">There are new posts on another page</a>
+    </div>
+  }
+
   @if (isSubmitting()) {
     <div id="post-pending" class="post post-pending" aria-busy="true">
       <h3>

@@ -58,6 +58,7 @@ const IS_ANDROID = typeof navigator !== 'undefined' && /Android/i.test(navigator
       (paste)="onPaste($event)"
       (dragover)="onDragOver($event)"
       (drop)="onDrop($event)"
+      (input)="onEditorInput($event)"
     ></div>
   `,
 })
@@ -125,6 +126,7 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
   // ─── IME composition ──────────────────────────────────────────────────────────
 
   onCompositionStart(): void {
+    if (this.isInSpoilerHeader()) return;
     // GBoard fires compositionend → compositionstart → compositionend in rapid
     // succession when cycling through autocorrect candidates. Returning here
     // when a snapshot already exists keeps the original baseline intact so the
@@ -145,6 +147,7 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   onCompositionEnd(event: CompositionEvent): void {
+    if (this.isInSpoilerHeader()) return;
     const state = this.preCompositionState;
     if (!state) return;
 
@@ -265,6 +268,7 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
   // ─── Keyboard shortcuts ───────────────────────────────────────────────────────
 
   onKeyDown(event: KeyboardEvent): void {
+    if (this.isInSpoilerHeader()) return;
     if (!event.ctrlKey && !event.metaKey) return;
     // event.code ('KeyB', 'KeyI', …) is layout-independent — always the physical key.
     // event.key on Windows + non-Latin layout gives the Cyrillic character instead of 'b'/'i'/…
@@ -297,6 +301,21 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
   // ─── beforeinput ─────────────────────────────────────────────────────────────
 
   onBeforeInput(event: InputEvent): void {
+    if (this.isInSpoilerHeader()) {
+      if (event.inputType === 'insertParagraph' || event.inputType === 'insertLineBreak') {
+        event.preventDefault();
+        const spoilerEl = (window.getSelection()?.anchorNode?.parentElement)
+          ?.closest<HTMLElement>('[data-doc-path]');
+        if (spoilerEl) {
+          const idx = parseInt(spoilerEl.dataset['docPath']!);
+          const target: DocRange = { anchor: { path: [idx, 0], offset: 0 }, focus: { path: [idx, 0], offset: 0 } };
+          applyDocRange(target, this.editorEl.nativeElement);
+          this.cursor = target;
+        }
+      }
+      return;
+    }
+
     // insertReplacementText (Android autocorrect) must be intercepted before the
     // isComposing guard. GBoard fires it with isComposing=true; falling through
     // to the guard would cause us to skip it, letting the browser apply a raw DOM
@@ -481,6 +500,7 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
   // holds the full selected text. We write it to the clipboard ourselves and
   // delete the range from the model.
   onCut(event: ClipboardEvent): void {
+    if (this.isInSpoilerHeader()) return;
     const range = this.cursor;
     if (isCollapsed(range)) return;
 
@@ -588,6 +608,38 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
     this.render();
     applyDocRange(this.cursor, this.editorEl.nativeElement);
     this.updateActiveState();
+  }
+
+  private isInSpoilerHeader(): boolean {
+    const sel = window.getSelection();
+    if (!sel?.anchorNode) return false;
+    const el = sel.anchorNode.nodeType === Node.TEXT_NODE
+      ? sel.anchorNode.parentElement
+      : sel.anchorNode as Element;
+    return !!(el?.closest('.wysiwyg-spoiler-header'));
+  }
+
+  onEditorInput(_event: Event): void {
+    const sel = window.getSelection();
+    if (!sel?.anchorNode) return;
+    const el = sel.anchorNode.nodeType === Node.TEXT_NODE
+      ? sel.anchorNode.parentElement
+      : sel.anchorNode as Element;
+    const header = el?.closest('.wysiwyg-spoiler-header') as HTMLElement | null;
+    if (!header) return;
+    const spoilerEl = header.closest<HTMLElement>('[data-doc-path]');
+    if (!spoilerEl) return;
+    const idx = parseInt(spoilerEl.dataset['docPath']!);
+    const block = this.doc.children[idx];
+    if (block?.type === 'spoiler') {
+      this.doc = {
+        ...this.doc,
+        children: this.doc.children.map((b, i) =>
+          i === idx && b.type === 'spoiler' ? { ...b, title: header.textContent ?? '' } : b
+        ),
+      };
+      this.onInput();
+    }
   }
 
   private render(): void {
@@ -1008,6 +1060,7 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
   // ─── Paste / drop ─────────────────────────────────────────────────────────────
 
   onPaste(event: ClipboardEvent): void {
+    if (this.isInSpoilerHeader()) return;
     event.preventDefault();
     this.preCompositionState = null;
 
