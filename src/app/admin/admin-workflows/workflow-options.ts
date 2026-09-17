@@ -1,5 +1,5 @@
 export const EVENT_OPTIONS = [
-  { value: 'topic_full', label: 'Topic Full' },
+  { value: 'TopicFull', label: 'Topic Full' },
   { value: 'TopicStatusChanged', label: 'Topic Status Changed' },
 ] as const;
 
