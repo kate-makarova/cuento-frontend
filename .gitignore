@@ -3,6 +3,9 @@
 # Per-installation locale override (bootstrapped from locale_config_default.ts on first build)
 /src/locale_config.ts
 
+# RU locale lives in the backend repo
+/src/locale/ru.ts
+
 # Compiled output
 /dist
 /tmp
