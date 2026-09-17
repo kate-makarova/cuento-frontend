@@ -100,6 +100,7 @@ export class CharacterProfileComponent implements OnInit {
       this.displayName = this.authService.isAuthenticated() ? this.accountName : this.guestName;
       this.displayAvatar = this.authService.currentUser()?.avatar ?? '';
       this.selectedCharacterId = 'account';
+      this.characterSelected.emit(null);
     } else {
       // If account is hidden, we wait for characters to load (handled by effect)
       // or if already loaded, select first
