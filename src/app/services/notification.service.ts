@@ -142,13 +142,16 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
   public loadUnreadNotifications(): void {
     this.apiService.get<UnreadNotificationsResponse>('notifications/unread').subscribe({
       next: (response) => {
-        this.systemNotificationsSignal.set(response.system || []);
-        this.gameNotificationsSignal.set([...(response.game || []), ...(response.episode_status_change || [])]);
-        this.mentionNotificationsSignal.set(response.mention || []);
-        this.directMessageNotificationsSignal.set(response.direct_message || []);
-        this.reactionNotificationsSignal.set(response.reaction || []);
-        this.autoArchivingNotificationsSignal.set(response.auto_archiving || []);
-        this.accountUpdateNotificationsSignal.set(response.account_update || []);
+        this.systemNotificationsSignal.set((response.system || []).map(n => ({ ...n, type: 'system' as const })));
+        this.gameNotificationsSignal.set([
+          ...(response.game || []).map(n => ({ ...n, type: 'game' as const })),
+          ...(response.episode_status_change || []).map(n => ({ ...n, type: 'episode_status_change' as const })),
+        ]);
+        this.mentionNotificationsSignal.set((response.mention || []).map(n => ({ ...n, type: 'mention' as const })));
+        this.directMessageNotificationsSignal.set((response.direct_message || []).map(n => ({ ...n, type: 'direct_message' as const })));
+        this.reactionNotificationsSignal.set((response.reaction || []).map(n => ({ ...n, type: 'reaction' as const })));
+        this.autoArchivingNotificationsSignal.set((response.auto_archiving || []).map(n => ({ ...n, type: 'auto_archiving' as const })));
+        this.accountUpdateNotificationsSignal.set((response.account_update || []).map(n => ({ ...n, type: 'account_update' as const })));
         this.rebuildTriggers(response);
       },
       error: (err) => console.error('Failed to load unread notifications', err)
@@ -231,26 +234,28 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
   public dismissNotification(notification: NotificationData): void {
     this.removeTrigger(notification);
     this.apiService.post(`notifications/dismiss/${notification.id}`, {}).subscribe({
-      next: () => {
-        // On success, remove the notification from the corresponding list
-        if (notification.type === 'system') {
-          this.systemNotificationsSignal.update(current => current.filter(n => n.id !== notification.id));
-        } else if (notification.type === 'game') {
-          this.gameNotificationsSignal.update(current => current.filter(n => n.id !== notification.id));
-        } else if (notification.type === 'mention') {
-          this.mentionNotificationsSignal.update(current => current.filter(n => n.id !== notification.id));
-        } else if (notification.type === 'direct_message') {
-          this.directMessageNotificationsSignal.update(current => current.filter(n => n.id !== notification.id));
-        } else if (notification.type === 'reaction') {
-          this.reactionNotificationsSignal.update(current => current.filter(n => n.id !== notification.id));
-        } else if (notification.type === 'auto_archiving') {
-          this.autoArchivingNotificationsSignal.update(current => current.filter(n => n.id !== notification.id));
-        } else if (notification.type === 'account_update') {
-          this.accountUpdateNotificationsSignal.update(current => current.filter(n => n.id !== notification.id));
-        }
-      },
+      next: () => this.removeFromSignal(notification),
       error: (err) => console.error('Failed to dismiss notification', err)
     });
+  }
+
+  private removeFromSignal(notification: NotificationData): void {
+    const id = notification.id;
+    if (notification.type === 'system') {
+      this.systemNotificationsSignal.update(current => current.filter(n => n.id !== id));
+    } else if (notification.type === 'game' || notification.type === 'episode_status_change') {
+      this.gameNotificationsSignal.update(current => current.filter(n => n.id !== id));
+    } else if (notification.type === 'mention') {
+      this.mentionNotificationsSignal.update(current => current.filter(n => n.id !== id));
+    } else if (notification.type === 'direct_message') {
+      this.directMessageNotificationsSignal.update(current => current.filter(n => n.id !== id));
+    } else if (notification.type === 'reaction') {
+      this.reactionNotificationsSignal.update(current => current.filter(n => n.id !== id));
+    } else if (notification.type === 'auto_archiving') {
+      this.autoArchivingNotificationsSignal.update(current => current.filter(n => n.id !== id));
+    } else if (notification.type === 'account_update') {
+      this.accountUpdateNotificationsSignal.update(current => current.filter(n => n.id !== id));
+    }
   }
 
   public connect(authToken: string): void {
