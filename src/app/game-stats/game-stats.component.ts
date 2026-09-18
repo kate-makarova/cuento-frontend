@@ -1,5 +1,7 @@
-import { Component, ElementRef, AfterViewInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, computed, ElementRef, AfterViewInit, OnDestroy, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ApiService } from '../services/api.service';
 import {
   Chart,
   CategoryScale,
@@ -9,8 +11,6 @@ import {
   LineController,
   LineElement,
   PointElement,
-  DoughnutController,
-  ArcElement,
   Filler,
   Legend,
   Tooltip,
@@ -20,88 +20,320 @@ Chart.register(
   CategoryScale, LinearScale,
   BarController, BarElement,
   LineController, LineElement, PointElement,
-  DoughnutController, ArcElement,
   Filler, Legend, Tooltip,
 );
+
+type Period = 'week_to_date' | 'month_to_date' | 'last_week' | 'last_month' | 'custom';
+
+export interface PeriodOption { value: Period; label: string; }
+export const PERIOD_OPTIONS: PeriodOption[] = [
+  { value: 'week_to_date',  label: 'Week to date' },
+  { value: 'month_to_date', label: 'Month to date' },
+  { value: 'last_week',     label: 'Last week' },
+  { value: 'last_month',    label: 'Last month' },
+  { value: 'custom',        label: 'Custom' },
+];
 
 const OPEN_COLOR      = '#52c97e';
 const FINISHED_COLOR  = '#5289c9';
 const ABANDONED_COLOR = '#c95252';
 
-const SUBFORUMS = ['Northlands', 'The Capital', 'Sea of Stars', 'Ancient Ruins', 'Merchant Roads'];
-const FACTIONS  = ["Crown & Court", "Mage's Circle", 'Shadowmere Guild', 'Free Merchants', 'Wanderers', 'Unaligned'];
+interface WritingActivityPoint {
+  date: string;
+  count: number;
+}
+
+interface TopWriter {
+  user_id: number;
+  username: string;
+  post_count: number;
+}
+
+interface TopCharacter {
+  character_id: number | null;
+  name: string;
+  is_mask: boolean;
+  post_count: number;
+}
+
+interface FactionEpisodes {
+  faction_id: number;
+  name: string;
+  created: number;
+  finished: number;
+  archived: number;
+}
+
+interface FactionPosts {
+  faction_id: number;
+  name: string;
+  post_count: number;
+}
+
+interface OverallStats {
+  created_episodes: number;
+  finished_episodes: number;
+  inactivated_episodes: number;
+  total_posts: number;
+  created_wanted_characters: number;
+  accepted_characters: number;
+}
+
+function fmtDate(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
+function subDays(d: Date, n: number): Date {
+  const r = new Date(d);
+  r.setDate(r.getDate() - n);
+  return r;
+}
+
+function startOfMonth(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), 1);
+}
+
+function endOfMonth(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59);
+}
+
+function startOfMonday(d: Date): Date {
+  const r = new Date(d);
+  r.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  r.setHours(0, 0, 0, 0);
+  return r;
+}
 
 @Component({
   selector: 'app-game-stats',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, FormsModule],
   templateUrl: './game-stats.component.html',
   styleUrl: './game-stats.component.css',
 })
-export class GameStatsComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('statusCanvas')        statusCanvas!:        ElementRef<HTMLCanvasElement>;
-  @ViewChild('activityCanvas')      activityCanvas!:      ElementRef<HTMLCanvasElement>;
-  @ViewChild('subforumEpCanvas')    subforumEpCanvas!:    ElementRef<HTMLCanvasElement>;
-  @ViewChild('subforumPostsCanvas') subforumPostsCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('topWritersCanvas')    topWritersCanvas!:    ElementRef<HTMLCanvasElement>;
+export class GameStatsComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('activityCanvas')   activityCanvas!:   ElementRef<HTMLCanvasElement>;
+  @ViewChild('topWritersCanvas') topWritersCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('topCharsCanvas')      topCharsCanvas!:      ElementRef<HTMLCanvasElement>;
   @ViewChild('factionEpCanvas')     factionEpCanvas!:     ElementRef<HTMLCanvasElement>;
+  @ViewChild('factionPostsCanvas')  factionPostsCanvas!:  ElementRef<HTMLCanvasElement>;
 
-  private charts: Chart[] = [];
+  private apiService = inject(ApiService);
 
-  readonly totalOpen      = 22;
-  readonly totalFinished  = 39;
-  readonly totalAbandoned = 13;
-  readonly totalPosts     = 4550;
-  readonly totalPlayers   = 47;
-  readonly totalChars     = 84;
+  readonly overallStats = signal<OverallStats | null>(null);
+
+  private activityChart:   Chart | null = null;
+  private topWritersChart: Chart | null = null;
+  private topCharsChart:      Chart | null = null;
+  private factionEpChart:     Chart | null = null;
+  private factionPostsChart:  Chart | null = null;
+
+  readonly periodOptions = PERIOD_OPTIONS;
+  readonly period    = signal<Period>('month_to_date');
+  readonly customFrom = signal<string>(fmtDate(subDays(new Date(), 30)));
+  readonly customTo   = signal<string>(fmtDate(new Date()));
+
+  readonly config = computed(() =>
+    this.getDateRange(this.period(), this.customFrom(), this.customTo())
+  );
+
+  readonly periodRangeLabel = computed(() => {
+    const { from, to } = this.config();
+    const opts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' };
+    return `${from.toLocaleDateString(undefined, opts)} – ${to.toLocaleDateString(undefined, opts)}`;
+  });
+
+  ngOnInit() {
+    this.loadOverallStats();
+  }
 
   ngAfterViewInit() {
-    this.charts = [
-      this.buildStatusChart(),
-      this.buildActivityChart(),
-      this.buildSubforumEpChart(),
-      this.buildSubforumPostsChart(),
-      this.buildTopWritersChart(),
-      this.buildTopCharsChart(),
-      this.buildFactionEpChart(),
-    ];
+    this.activityChart    = this.buildActivityChart();
+    this.topWritersChart  = this.buildTopWritersChart();
+    this.topCharsChart    = this.buildTopCharsChart();
+    this.factionEpChart   = this.buildFactionEpChart();
+    this.factionPostsChart = this.buildFactionPostsChart();
+    this.loadActivityData();
+    this.loadTopWriters();
+    this.loadTopChars();
+    this.loadFactionEpisodes();
+    this.loadFactionPosts();
   }
 
   ngOnDestroy() {
-    this.charts.forEach(c => c.destroy());
+    [this.activityChart, this.topWritersChart, this.topCharsChart,
+     this.factionEpChart, this.factionPostsChart].forEach(c => c?.destroy());
   }
 
-  private buildStatusChart(): Chart {
-    return new Chart(this.statusCanvas.nativeElement, {
-      type: 'doughnut',
-      data: {
-        labels: ['Open', 'Finished', 'Abandoned'],
-        datasets: [{
-          data: [this.totalOpen, this.totalFinished, this.totalAbandoned],
-          backgroundColor: [OPEN_COLOR, FINISHED_COLOR, ABANDONED_COLOR],
-          borderWidth: 2,
-          hoverOffset: 6,
-        }],
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { position: 'bottom' } },
-      },
+  setPeriod(p: Period) {
+    this.period.set(p === 'custom' && this.period() === 'custom' ? 'month_to_date' : p);
+    this.loadAll();
+  }
+
+  onCustomFromChange(val: string) {
+    this.customFrom.set(val);
+    if (this.period() === 'custom') this.loadAll();
+  }
+
+  onCustomToChange(val: string) {
+    this.customTo.set(val);
+    if (this.period() === 'custom') this.loadAll();
+  }
+
+  private loadAll() {
+    this.loadOverallStats();
+    this.loadActivityData();
+    this.loadTopWriters();
+    this.loadTopChars();
+    this.loadFactionEpisodes();
+    this.loadFactionPosts();
+  }
+
+  private loadOverallStats() {
+    const { from, to } = this.config();
+    this.overallStats.set(null);
+    this.apiService.get<OverallStats>(
+      `stats/overall?date_from=${fmtDate(from)}&date_to=${fmtDate(to)}`
+    ).subscribe({
+      next: data => this.overallStats.set(data),
+      error: err => console.error('Failed to load overall stats', err),
     });
   }
 
+  private loadActivityData() {
+    const { from, to } = this.config();
+    const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    this.activityChart!.data.labels = [];
+    this.activityChart!.data.datasets[0].data = [];
+    this.activityChart!.update('none');
+    this.apiService.get<WritingActivityPoint[]>(
+      `stats/writing-activity?date_from=${fmtDate(from)}&date_to=${fmtDate(to)}`
+    ).subscribe({
+      next: points => {
+        this.activityChart!.data.labels = points.map(p => {
+          const d = new Date(p.date + 'T00:00:00');
+          const day = d.getDate();
+          return day === 1 ? `${day} ${MONTH_NAMES[d.getMonth()]}` : String(day);
+        });
+        this.activityChart!.data.datasets[0].data = points.map(p => p.count);
+        this.activityChart!.update('none');
+      },
+      error: err => console.error('Failed to load writing activity', err),
+    });
+  }
+
+  private loadTopWriters() {
+    const { from, to } = this.config();
+    this.topWritersChart!.data.labels = [];
+    this.topWritersChart!.data.datasets[0].data = [];
+    this.topWritersChart!.update('none');
+    this.apiService.get<TopWriter[]>(
+      `stats/top-writers?date_from=${fmtDate(from)}&date_to=${fmtDate(to)}`
+    ).subscribe({
+      next: rows => {
+        this.topWritersChart!.data.labels = rows.map(r => r.username);
+        this.topWritersChart!.data.datasets[0].data = rows.map(r => r.post_count);
+        this.topWritersChart!.update('none');
+      },
+      error: err => console.error('Failed to load top writers', err),
+    });
+  }
+
+  private loadTopChars() {
+    const { from, to } = this.config();
+    this.topCharsChart!.data.labels = [];
+    this.topCharsChart!.data.datasets[0].data = [];
+    this.topCharsChart!.update('none');
+    this.apiService.get<TopCharacter[]>(
+      `stats/top-characters?date_from=${fmtDate(from)}&date_to=${fmtDate(to)}`
+    ).subscribe({
+      next: rows => {
+        this.topCharsChart!.data.labels = rows.map(r => r.name);
+        this.topCharsChart!.data.datasets[0].data = rows.map(r => r.post_count);
+        this.topCharsChart!.update('none');
+      },
+      error: err => console.error('Failed to load top characters', err),
+    });
+  }
+
+  private loadFactionEpisodes() {
+    const { from, to } = this.config();
+    this.factionEpChart!.data.labels = [];
+    this.factionEpChart!.data.datasets.forEach(ds => ds.data = []);
+    this.factionEpChart!.update('none');
+    this.apiService.get<FactionEpisodes[]>(
+      `stats/episodes-by-faction?date_from=${fmtDate(from)}&date_to=${fmtDate(to)}`
+    ).subscribe({
+      next: rows => {
+        this.factionEpChart!.data.labels = rows.map(r => r.name);
+        this.factionEpChart!.data.datasets[0].data = rows.map(r => r.created);
+        this.factionEpChart!.data.datasets[1].data = rows.map(r => r.finished);
+        this.factionEpChart!.data.datasets[2].data = rows.map(r => r.archived);
+        this.factionEpChart!.update('none');
+      },
+      error: err => console.error('Failed to load faction episodes', err),
+    });
+  }
+
+  private loadFactionPosts() {
+    const { from, to } = this.config();
+    this.factionPostsChart!.data.labels = [];
+    this.factionPostsChart!.data.datasets[0].data = [];
+    this.factionPostsChart!.update('none');
+    this.apiService.get<FactionPosts[]>(
+      `stats/posts-by-faction?date_from=${fmtDate(from)}&date_to=${fmtDate(to)}`
+    ).subscribe({
+      next: rows => {
+        this.factionPostsChart!.data.labels = rows.map(r => r.name);
+        this.factionPostsChart!.data.datasets[0].data = rows.map(r => r.post_count);
+        this.factionPostsChart!.update('none');
+      },
+      error: err => console.error('Failed to load faction posts', err),
+    });
+  }
+
+  // --- Date range ---
+
+  private getDateRange(period: Period, customFrom: string, customTo: string): { from: Date; to: Date } {
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+
+    switch (period) {
+      case 'week_to_date':
+        return { from: startOfMonday(today), to: today };
+      case 'month_to_date':
+        return { from: startOfMonth(today), to: today };
+      case 'last_week': {
+        const thisMonday = startOfMonday(today);
+        const lastMon = subDays(thisMonday, 7);
+        const lastSun = subDays(thisMonday, 1);
+        lastSun.setHours(23, 59, 59, 999);
+        return { from: lastMon, to: lastSun };
+      }
+      case 'last_month': {
+        const prevMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0, 23, 59, 59);
+        return { from: startOfMonth(prevMonthEnd), to: endOfMonth(prevMonthEnd) };
+      }
+      case 'custom': {
+        const from = new Date(customFrom + 'T00:00:00');
+        const to   = new Date(customTo   + 'T23:59:59');
+        return { from: isNaN(from.getTime()) ? subDays(today, 30) : from,
+                 to:   isNaN(to.getTime())   ? today              : to  };
+      }
+    }
+  }
+
+  // --- Chart builders (initial render) ---
+
   private buildActivityChart(): Chart {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const posts   = [342, 289, 315, 378, 425, 512, 498, 467, 389, 356, 301, 278];
     return new Chart(this.activityCanvas.nativeElement, {
       type: 'line',
       data: {
-        labels: months,
+        labels: [],
         datasets: [{
           label: 'Posts',
-          data: posts,
+          data: [],
           borderColor: '#7c52e0',
           backgroundColor: 'rgba(124,82,224,0.12)',
           fill: true,
@@ -117,59 +349,14 @@ export class GameStatsComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  private buildSubforumEpChart(): Chart {
-    return new Chart(this.subforumEpCanvas.nativeElement, {
-      type: 'bar',
-      data: {
-        labels: SUBFORUMS,
-        datasets: [
-          { label: 'Open',      data: [5, 8, 4, 2, 3], backgroundColor: OPEN_COLOR,      stack: 'ep' },
-          { label: 'Finished',  data: [9, 12, 7, 5, 6], backgroundColor: FINISHED_COLOR,  stack: 'ep' },
-          { label: 'Abandoned', data: [3, 4, 2, 2, 2], backgroundColor: ABANDONED_COLOR, stack: 'ep' },
-        ],
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { position: 'top' } },
-        scales: {
-          x: { stacked: true },
-          y: { stacked: true, beginAtZero: true, title: { display: true, text: 'Episodes' } },
-        },
-      },
-    });
-  }
-
-  private buildSubforumPostsChart(): Chart {
-    return new Chart(this.subforumPostsCanvas.nativeElement, {
-      type: 'bar',
-      data: {
-        labels: SUBFORUMS,
-        datasets: [{
-          label: 'Posts',
-          data: [890, 1250, 720, 580, 610],
-          backgroundColor: 'rgba(82,137,201,0.75)',
-          borderColor: FINISHED_COLOR,
-          borderWidth: 1,
-        }],
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, title: { display: true, text: 'Posts' } } },
-      },
-    });
-  }
-
   private buildTopWritersChart(): Chart {
-    const users = ['Aelindra', 'ThornKnight', 'SilverMoon', 'DesertWalker', 'FrostBorn',
-                   'Nightshade', 'GoldenQuill', 'IronVeil', 'StormSeer', 'WillowDancer'];
     return new Chart(this.topWritersCanvas.nativeElement, {
       type: 'bar',
       data: {
-        labels: users,
+        labels: [],
         datasets: [{
           label: 'Posts',
-          data: [892, 756, 634, 589, 512, 487, 445, 398, 367, 334],
+          data: [],
           backgroundColor: 'rgba(124,82,224,0.75)',
           borderColor: '#7c52e0',
           borderWidth: 1,
@@ -179,22 +366,19 @@ export class GameStatsComponent implements AfterViewInit, OnDestroy {
         indexAxis: 'y',
         responsive: true,
         plugins: { legend: { display: false } },
-        scales: { x: { beginAtZero: true, title: { display: true, text: 'Posts' } } },
+        scales: { x: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'Posts' } } },
       },
     });
   }
 
   private buildTopCharsChart(): Chart {
-    const chars = ['Lady Seraphine', 'Sir Dorian', 'Kira the Swift', 'The Wanderer',
-                   'Frost Mage Elara', 'Shadow', 'Archmage Valdris', 'Cmdr. Ashra',
-                   'Oracle Mira', 'Livia of the Wood'];
     return new Chart(this.topCharsCanvas.nativeElement, {
       type: 'bar',
       data: {
-        labels: chars,
+        labels: [],
         datasets: [{
           label: 'Posts',
-          data: [645, 589, 478, 412, 389, 356, 334, 298, 267, 245],
+          data: [],
           backgroundColor: 'rgba(82,201,168,0.75)',
           borderColor: '#52c9a8',
           borderWidth: 1,
@@ -204,7 +388,7 @@ export class GameStatsComponent implements AfterViewInit, OnDestroy {
         indexAxis: 'y',
         responsive: true,
         plugins: { legend: { display: false } },
-        scales: { x: { beginAtZero: true, title: { display: true, text: 'Posts' } } },
+        scales: { x: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'Posts' } } },
       },
     });
   }
@@ -213,11 +397,11 @@ export class GameStatsComponent implements AfterViewInit, OnDestroy {
     return new Chart(this.factionEpCanvas.nativeElement, {
       type: 'bar',
       data: {
-        labels: FACTIONS,
+        labels: [],
         datasets: [
-          { label: 'Open',      data: [8, 4, 3, 2, 2, 3], backgroundColor: OPEN_COLOR,      stack: 'ep' },
-          { label: 'Finished',  data: [8, 8, 6, 6, 4, 7], backgroundColor: FINISHED_COLOR,  stack: 'ep' },
-          { label: 'Abandoned', data: [2, 2, 2, 1, 2, 4], backgroundColor: ABANDONED_COLOR, stack: 'ep' },
+          { label: 'Created',  data: [], backgroundColor: OPEN_COLOR,      stack: 'ep' },
+          { label: 'Finished', data: [], backgroundColor: FINISHED_COLOR,  stack: 'ep' },
+          { label: 'Archived', data: [], backgroundColor: ABANDONED_COLOR, stack: 'ep' },
         ],
       },
       options: {
@@ -225,9 +409,31 @@ export class GameStatsComponent implements AfterViewInit, OnDestroy {
         plugins: { legend: { position: 'top' } },
         scales: {
           x: { stacked: true },
-          y: { stacked: true, beginAtZero: true, title: { display: true, text: 'Episodes' } },
+          y: { stacked: true, beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'Episodes' } },
         },
       },
     });
   }
+
+  private buildFactionPostsChart(): Chart {
+    return new Chart(this.factionPostsCanvas.nativeElement, {
+      type: 'bar',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Posts',
+          data: [],
+          backgroundColor: 'rgba(224,140,82,0.75)',
+          borderColor: '#e08c52',
+          borderWidth: 1,
+        }],
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'Posts' } } },
+      },
+    });
+  }
+
 }

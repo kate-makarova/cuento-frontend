@@ -1,3 +1,61 @@
+.gs-period-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.gs-period-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.gs-pill {
+  padding: 5px 14px;
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: 20px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.gs-pill:hover {
+  border-color: #7c52e0;
+  color: #7c52e0;
+}
+
+.gs-pill--active {
+  background: #7c52e0;
+  border-color: #7c52e0;
+  color: #fff;
+}
+
+.gs-custom-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gs-date-input {
+  padding: 4px 8px;
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.gs-range-sep {
+  color: var(--text-muted, #888);
+}
+
+.gs-period-label {
+  font-size: 0.82rem;
+  color: var(--text-muted, #888);
+  margin-left: auto;
+}
+
 .gs-summary {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
