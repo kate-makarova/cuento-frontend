@@ -1,0 +1,135 @@
+.gs-period-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.gs-period-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.gs-pill {
+  padding: 5px 14px;
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: 20px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.gs-pill:hover {
+  border-color: #7c52e0;
+  color: #7c52e0;
+}
+
+.gs-pill--active {
+  background: #7c52e0;
+  border-color: #7c52e0;
+  color: #fff;
+}
+
+.gs-custom-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gs-date-input {
+  padding: 4px 8px;
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.gs-range-sep {
+  color: var(--text-muted, #888);
+}
+
+.gs-period-label {
+  font-size: 0.82rem;
+  color: var(--text-muted, #888);
+  margin-left: auto;
+}
+
+.gs-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.gs-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 18px 12px;
+  background: var(--block-bg, #fff);
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 6px;
+  border-top: 4px solid var(--border-color, #aaa);
+  text-align: center;
+}
+
+.gs-card--open      { border-top-color: #52c97e; }
+.gs-card--finished  { border-top-color: #5289c9; }
+.gs-card--abandoned { border-top-color: #c95252; }
+
+.gs-card-number {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.gs-card-label {
+  font-size: 0.8rem;
+  color: var(--text-muted, #666);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.gs-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.gs-chart-block {
+  background: var(--block-bg, #fff);
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 6px;
+  padding: 16px 18px 20px;
+}
+
+.gs-chart-block h3 {
+  margin: 0 0 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted, #555);
+}
+
+.gs-chart-block--small {
+  max-width: 300px;
+}
+
+.gs-chart-block--full {
+  margin-bottom: 20px;
+}
+
+@media (max-width: 700px) {
+  .gs-row {
+    grid-template-columns: 1fr;
+  }
+
+  .gs-chart-block--small {
+    max-width: 100%;
+  }
+}
