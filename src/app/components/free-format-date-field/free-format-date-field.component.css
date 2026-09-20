@@ -4,16 +4,11 @@
   gap: 0.5rem;
 }
 
-.ffd-empty-row {
+.ffd-custom-row {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-.ffd-top-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .ffd-faction-row select {
@@ -62,6 +57,13 @@
   white-space: nowrap;
 }
 
-.ffd-btn-custom:hover {
+.ffd-btn-custom:hover:not(:disabled) {
   background: #e8e8e8;
+}
+
+.ffd-btn-custom--active {
+  background: #e0f0ff;
+  border-color: #6aabde;
+  color: #1a5f8a;
+  cursor: default;
 }
