@@ -3,21 +3,29 @@
 }
 
 @if (dateTemplates.length === 0) {
-  <p class="ffd-hint" i18n="@@freeFormatDate.hint">The format will be shown once the first character is selected.</p>
+  <div class="ffd-empty-row">
+    <p class="ffd-hint" i18n="@@freeFormatDate.hint">The format will be shown once the first character is selected.</p>
+    @if (!isCustom) {
+      <button type="button" class="ffd-btn-custom" (click)="switchToCustom()" i18n="@@freeFormatDate.custom">Custom</button>
+    }
+  </div>
 }
 
 @if (dateTemplates.length > 0) {
   <div class="ffd-field">
 
-    @if (dateTemplates.length > 1) {
-      <div class="ffd-template-row">
+    <div class="ffd-top-row">
+      @if (dateTemplates.length > 1) {
         <select [(ngModel)]="selectedTemplate" (ngModelChange)="onTemplateChange()" [name]="(name ?? 'ffd') + '-template'">
           @for (template of dateTemplates; track template.id) {
             <option [ngValue]="template">{{ template.name }}</option>
           }
         </select>
-      </div>
-    }
+      }
+      @if (!isCustom) {
+        <button type="button" class="ffd-btn-custom" (click)="switchToCustom()" i18n="@@freeFormatDate.custom">Custom</button>
+      }
+    </div>
 
     @if (selectedTemplate) {
       @let formats = selectedTemplate.free_format_date.format_strings;

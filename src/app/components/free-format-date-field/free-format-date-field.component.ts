@@ -45,16 +45,28 @@ export class FreeFormatDateFieldComponent implements OnChanges {
   selectedTemplate: FreeFormatDateTemplate | null = null;
   selectedFormatIndex = 0;
   values: Record<number, string | number | null> = {};
+  isCustom = false;
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['characterIds']) {
-      this.load();
+      if (this.isCustom) return;
+      if (this.fieldValue?.is_custom) {
+        this.isCustom = true;
+        this.loadCustom();
+      } else {
+        this.load();
+      }
     }
   }
 
   onTemplateChange() {
     this.selectedFormatIndex = 0;
     this.resetValues();
+  }
+
+  switchToCustom() {
+    this.isCustom = true;
+    this.loadCustom();
   }
 
   get serializedValue(): string {
@@ -71,7 +83,13 @@ export class FreeFormatDateFieldComponent implements OnChanges {
       placeholders[p.name] = this.values[p.position] ?? null;
     }
 
-    return JSON.stringify({ free_format_date_id: this.selectedTemplate.id, format_string: formatString, placeholders });
+    const result: Record<string, unknown> = {
+      free_format_date_id: this.selectedTemplate.id,
+      format_string: formatString,
+      placeholders,
+    };
+    if (this.isCustom) result['is_custom'] = true;
+    return JSON.stringify(result);
   }
 
   segments(formatString: string): Segment[] {
@@ -100,6 +118,16 @@ export class FreeFormatDateFieldComponent implements OnChanges {
         this.populateFromValue(data);
       },
       error: (err) => console.error('Failed to load free format date templates', err),
+    });
+  }
+
+  private loadCustom() {
+    this.apiService.post<FreeFormatDateTemplate[]>('factions/free-format-date', { character_ids: [0] }).subscribe({
+      next: (data) => {
+        this.dateTemplates = data;
+        this.populateFromValue(data);
+      },
+      error: (err) => console.error('Failed to load custom free format date templates', err),
     });
   }
 
