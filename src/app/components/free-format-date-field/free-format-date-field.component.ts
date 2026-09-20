@@ -48,6 +48,11 @@ export class FreeFormatDateFieldComponent implements OnChanges {
   isCustom = false;
 
   ngOnChanges(changes: SimpleChanges) {
+    if (changes['fieldValue'] && this.fieldValue?.is_custom && !this.isCustom) {
+      this.isCustom = true;
+      this.loadCustom();
+      return;
+    }
     if (changes['characterIds']) {
       if (this.isCustom) return;
       if (this.fieldValue?.is_custom) {
