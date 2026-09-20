@@ -1,0 +1,43 @@
+<h2 i18n="@@adminAiModels.title">AI Models</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th i18n="@@adminAiModels.colName">Name</th>
+      <th i18n="@@adminAiModels.colMachineName">Machine name</th>
+      <th i18n="@@adminAiModels.colProtocol">Protocol</th>
+      <th i18n="@@adminAiModels.colSize">Size</th>
+      <th i18n="@@adminAiModels.colActive">Active</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (model of models(); track model.id) {
+      <tr>
+        <td>{{ model.name }}</td>
+        <td><code>{{ model.machine_name }}</code></td>
+        <td>{{ protocolNames[model.protocol_type] ?? model.protocol_type }}</td>
+        <td>{{ sizeNames[model.size] ?? model.size }}</td>
+        <td>
+          @if (model.is_active) {
+            <span class="badge badge--active" i18n="@@common.yes">Yes</span>
+          } @else {
+            <span class="badge badge--inactive" i18n="@@common.no">No</span>
+          }
+        </td>
+        <td class="actions">
+          <a [routerLink]="['/admin/ai-model', model.id]" i18n="@@common.edit">Edit</a>
+          <button class="btn-delete" (click)="deleteModel(model.id)" i18n="@@common.delete">Delete</button>
+        </td>
+      </tr>
+    } @empty {
+      <tr>
+        <td colspan="6" i18n="@@adminAiModels.empty">No AI models configured.</td>
+      </tr>
+    }
+  </tbody>
+</table>
+
+<div class="list-actions">
+  <a routerLink="/admin/ai-model/new" class="btn-secondary" i18n="@@adminAiModels.addModel">Add Model</a>
+</div>

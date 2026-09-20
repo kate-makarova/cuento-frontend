@@ -26,10 +26,6 @@ const GENERAL_SETTING_GROUPS: SettingGroup[] = [
     names: ['auto_archiving_enabled', 'auto_archiving_days', 'auto_archiving_show_page_link'],
   },
   {
-    legend: $localize`:@@adminSettings.groupAi:AI`,
-    names: ['ai_name', 'ai_model', 'ai_api_key'],
-  },
-  {
     legend: $localize`:@@adminSettings.groupClaimsFactions:Claims and factions`,
     names: [
       'allow_guests_create_claims',
@@ -80,10 +76,6 @@ const SETTING_LABELS: Record<string, string> = {
   auto_archiving_enabled: $localize`:@@adminSettings.auto_archiving_enabled:Enabled`,
   auto_archiving_days: $localize`:@@adminSettings.auto_archiving_days:Days until archiving`,
   auto_archiving_show_page_link: $localize`:@@adminSettings.auto_archiving_show_page_link:Show page link`,
-
-  ai_name: $localize`:@@adminSettings.ai_name:Name`,
-  ai_model: $localize`:@@adminSettings.ai_model:Model`,
-  ai_api_key: $localize`:@@adminSettings.ai_api_key:API key`,
 
   allow_guests_create_claims: $localize`:@@adminSettings.allow_guests_create_claims:Allow guests to create claims`,
   allow_users_create_claims: $localize`:@@adminSettings.allow_users_create_claims:Allow users to create claims`,

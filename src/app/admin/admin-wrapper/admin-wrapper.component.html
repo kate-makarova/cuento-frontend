@@ -68,6 +68,9 @@
             <li><a routerLink="/admin/ai-index" routerLinkActive="active" i18n="@@admin.aiIndex">AI Index</a></li>
             <li><a routerLink="/admin/ai-index-settings" routerLinkActive="active" i18n="@@admin.aiIndexSettings">AI Index Settings</a></li>
             <li><a routerLink="/admin/ai-agents" routerLinkActive="active" i18n="@@admin.aiAgents">AI Agents</a></li>
+            @if (hasPermission('show_admin_ai_models')) {
+              <li><a routerLink="/admin/ai-models" routerLinkActive="active" i18n="@@admin.aiModels">AI Models</a></li>
+            }
           </ul>
         }
       </div>

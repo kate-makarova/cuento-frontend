@@ -456,6 +456,26 @@ export const routes: Routes = [
         }]
       },
       {
+        path: 'ai-models',
+        loadComponent: () => import('./admin/admin-ai-models/admin-ai-models.component').then(m => m.AdminAiModelsComponent),
+        title: 'Admin - AI Models',
+        canActivate: [() => {
+          const auth = inject(AuthService);
+          const router = inject(Router);
+          return auth.hasPermission('show_admin_ai_models') || router.createUrlTree(['/403']);
+        }]
+      },
+      {
+        path: 'ai-model/:id',
+        loadComponent: () => import('./admin/admin-ai-model-edit/admin-ai-model-edit.component').then(m => m.AdminAiModelEditComponent),
+        title: 'Admin - AI Model',
+        canActivate: [() => {
+          const auth = inject(AuthService);
+          const router = inject(Router);
+          return auth.hasPermission('show_admin_ai_models') || router.createUrlTree(['/403']);
+        }]
+      },
+      {
         path: 'reactions',
         loadComponent: () => import('./admin/admin-reactions/admin-reactions.component').then(m => m.AdminReactionsComponent),
         title: 'Admin - Reactions'
