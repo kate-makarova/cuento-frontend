@@ -21,6 +21,8 @@ import {
   getMarksAtPoint,
   isCollapsed, pointEq,
   inlineLen,
+  wrapRangeAsQuote,
+  wrapRangeAsCode,
 } from './wysiwyg-doc-ops';
 
 const ORIGIN: DocRange = { anchor: { path: [0], offset: 0 }, focus: { path: [0], offset: 0 } };
@@ -874,11 +876,27 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
   insertBlockAtCursor(html: string, _cursorSelector?: string): void {
     this.pushHistory('other');
     this.editorEl.nativeElement.focus();
-    const blockIdx = this.cursor.anchor.path[0];
 
     const newBlocks: BlockNode[] = this.parseHtmlToBlocks(html);
     if (newBlocks.length === 0) return;
 
+    // When there's a selection, wrap the selected content into the new block
+    if (!isCollapsed(this.cursor)) {
+      const firstType = newBlocks[0].type;
+      let result: ReturnType<typeof wrapRangeAsQuote> = null;
+      if (firstType === 'quote') result = wrapRangeAsQuote(this.doc, this.cursor);
+      else if (firstType === 'code') result = wrapRangeAsCode(this.doc, this.cursor);
+      if (result) {
+        this.doc = result.doc;
+        this.render();
+        this.cursor = { anchor: result.cursor, focus: result.cursor };
+        applyDocRange(this.cursor, this.editorEl.nativeElement);
+        this.updateActiveState();
+        return;
+      }
+    }
+
+    const blockIdx = this.cursor.anchor.path[0];
     const current = this.doc.children[blockIdx];
     const isEmpty = current?.type === 'paragraph' && current.children.length === 0;
     const insertAt = isEmpty ? blockIdx : blockIdx + 1;

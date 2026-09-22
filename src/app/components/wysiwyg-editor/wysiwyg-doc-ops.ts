@@ -250,6 +250,172 @@ export function isRangeAllMark(doc: DocModel, range: DocRange, mark: Mark): bool
   return textNodes.length > 0 && textNodes.every(n => hasMark(n.marks, mark));
 }
 
+// ─── Block-wrapping operations ────────────────────────────────────────────────
+
+/**
+ * Wrap the selected range in a new quote block.
+ * Works for same-paragraph and cross-paragraph top-level selections.
+ * Returns null for collapsed selections or selections inside container blocks.
+ */
+export function wrapRangeAsQuote(doc: DocModel, range: DocRange): OpResult | null {
+  if (isCollapsed(range)) return null;
+  const { anchor, focus } = ordered(range);
+  if (anchor.path.length > 1 || focus.path.length > 1) return null;
+
+  const startIdx = anchor.path[0];
+  const endIdx   = focus.path[0];
+
+  if (startIdx === endIdx) {
+    const block = doc.children[startIdx];
+    if (block.type !== 'paragraph') return null;
+
+    const [beforeNodes, rest]   = splitAt(block.children, anchor.offset);
+    const [middleNodes, afterNodes] = splitAt(rest, focus.offset - anchor.offset);
+
+    const quoteNode: QuoteNode = {
+      type: 'quote',
+      children: [{ type: 'paragraph', children: normalize(middleNodes) }],
+    };
+    const replacement: BlockNode[] = [];
+    const normBefore = normalize(beforeNodes);
+    if (normBefore.length > 0) replacement.push({ type: 'paragraph', children: normBefore });
+    replacement.push(quoteNode);
+    const normAfter = normalize(afterNodes);
+    if (normAfter.length > 0) replacement.push({ type: 'paragraph', children: normAfter });
+
+    const newChildren = spliceBlocks(doc.children, startIdx, 1, ...replacement);
+    const quoteIdx = startIdx + (normBefore.length > 0 ? 1 : 0);
+    return { doc: { children: newChildren }, cursor: { path: [quoteIdx, 0], offset: 0 } };
+  }
+
+  // Cross-paragraph
+  const startBlock = doc.children[startIdx];
+  const endBlock   = doc.children[endIdx];
+
+  const quoteParagraphs: ParagraphNode[] = [];
+  if (startBlock.type === 'paragraph') {
+    const [, tail] = splitAt(startBlock.children, anchor.offset);
+    quoteParagraphs.push({ type: 'paragraph', children: normalize(tail) });
+  }
+  for (let i = startIdx + 1; i < endIdx; i++) {
+    const b = doc.children[i];
+    if (b.type === 'paragraph') quoteParagraphs.push(b);
+  }
+  if (endBlock.type === 'paragraph') {
+    const [head] = splitAt(endBlock.children, focus.offset);
+    quoteParagraphs.push({ type: 'paragraph', children: normalize(head) });
+  }
+  if (quoteParagraphs.length === 0) {
+    quoteParagraphs.push({ type: 'paragraph', children: [] });
+  }
+
+  const quoteNode: QuoteNode = { type: 'quote', children: quoteParagraphs };
+
+  const beforeChildren = startBlock.type === 'paragraph' ? normalize(splitAt(startBlock.children, anchor.offset)[0]) : [];
+  const afterChildren  = endBlock.type === 'paragraph'   ? normalize(splitAt(endBlock.children, focus.offset)[1])   : [];
+
+  const replacement: BlockNode[] = [];
+  if (beforeChildren.length > 0) replacement.push({ type: 'paragraph', children: beforeChildren });
+  replacement.push(quoteNode);
+  if (afterChildren.length > 0) replacement.push({ type: 'paragraph', children: afterChildren });
+
+  const newChildren = spliceBlocks(doc.children, startIdx, endIdx - startIdx + 1, ...replacement);
+  const quoteIdx = startIdx + (beforeChildren.length > 0 ? 1 : 0);
+  return { doc: { children: newChildren }, cursor: { path: [quoteIdx, 0], offset: 0 } };
+}
+
+/**
+ * Wrap the selected range in a new code block.
+ * The plain text of the selection becomes the code content.
+ * Returns null for collapsed selections or selections inside container blocks.
+ */
+export function wrapRangeAsCode(doc: DocModel, range: DocRange): OpResult | null {
+  if (isCollapsed(range)) return null;
+  const { anchor, focus } = ordered(range);
+  if (anchor.path.length > 1 || focus.path.length > 1) return null;
+
+  const startIdx = anchor.path[0];
+  const endIdx   = focus.path[0];
+
+  const inlinesToText = (nodes: InlineNode[]) =>
+    nodes.map(n => n.type === 'text' ? n.text : '').join('');
+
+  let text: string;
+  if (startIdx === endIdx) {
+    const block = doc.children[startIdx];
+    if (block.type === 'code') {
+      text = block.text.slice(anchor.offset, focus.offset);
+    } else if (block.type === 'paragraph') {
+      const [, rest] = splitAt(block.children, anchor.offset);
+      const [middle] = splitAt(rest, focus.offset - anchor.offset);
+      text = inlinesToText(middle);
+    } else {
+      return null;
+    }
+  } else {
+    const lines: string[] = [];
+    const startBlock = doc.children[startIdx];
+    if (startBlock.type === 'paragraph') {
+      lines.push(inlinesToText(splitAt(startBlock.children, anchor.offset)[1]));
+    }
+    for (let i = startIdx + 1; i < endIdx; i++) {
+      const b = doc.children[i];
+      if (b.type === 'paragraph') lines.push(inlinesToText(b.children));
+      else if (b.type === 'code') lines.push(b.text);
+    }
+    const endBlock = doc.children[endIdx];
+    if (endBlock.type === 'paragraph') {
+      lines.push(inlinesToText(splitAt(endBlock.children, focus.offset)[0]));
+    }
+    text = lines.join('\n');
+  }
+
+  const codeNode: CodeNode = { type: 'code', text };
+
+  if (startIdx === endIdx) {
+    const block = doc.children[startIdx];
+    if (block.type !== 'paragraph') return null;
+
+    const [beforeNodes, rest] = splitAt(block.children, anchor.offset);
+    const [, afterNodes]      = splitAt(rest, focus.offset - anchor.offset);
+
+    const replacement: BlockNode[] = [];
+    const normBefore = normalize(beforeNodes);
+    if (normBefore.length > 0) replacement.push({ type: 'paragraph', children: normBefore });
+    replacement.push(codeNode);
+    const normAfter = normalize(afterNodes);
+    if (normAfter.length > 0) replacement.push({ type: 'paragraph', children: normAfter });
+
+    const newChildren = spliceBlocks(doc.children, startIdx, 1, ...replacement);
+    const codeIdx = startIdx + (normBefore.length > 0 ? 1 : 0);
+    return { doc: { children: newChildren }, cursor: { path: [codeIdx], offset: 0 } };
+  }
+
+  // Cross-paragraph: delete the range, then split the resulting paragraph and insert code
+  const delResult = deleteRange(doc, range);
+  const cursor = delResult.cursor;
+  const blockIdx = cursor.path[0];
+  const block = delResult.doc.children[blockIdx];
+
+  if (!block || block.type !== 'paragraph') {
+    const insertAt = blockIdx + 1;
+    const newChildren = spliceBlocks(delResult.doc.children, insertAt, 0, codeNode);
+    return { doc: { children: newChildren }, cursor: { path: [insertAt], offset: 0 } };
+  }
+
+  const [beforeInline, afterInline] = splitAt(block.children, cursor.offset);
+  const replacement: BlockNode[] = [];
+  const normBefore = normalize(beforeInline);
+  if (normBefore.length > 0) replacement.push({ type: 'paragraph', children: normBefore });
+  replacement.push(codeNode);
+  const normAfter = normalize(afterInline);
+  if (normAfter.length > 0) replacement.push({ type: 'paragraph', children: normAfter });
+
+  const newChildren = spliceBlocks(delResult.doc.children, blockIdx, 1, ...replacement);
+  const codeIdx = blockIdx + (normBefore.length > 0 ? 1 : 0);
+  return { doc: { children: newChildren }, cursor: { path: [codeIdx], offset: 0 } };
+}
+
 // ─── Inline primitives ────────────────────────────────────────────────────────
 
 /** Total model-character count for an inline sequence. */
