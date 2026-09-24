@@ -32,6 +32,7 @@ export class AiChatComponent implements OnInit, OnDestroy {
 
   private currentUser = this.authService.currentUser;
   private messageIdCounter = 0;
+  private sessionId = crypto.randomUUID();
 
   private isProgrammaticScroll = false;
 
@@ -152,7 +153,7 @@ export class AiChatComponent implements OnInit, OnDestroy {
     textarea.value = '';
     this.isLoading.set(true);
 
-    this.apiService.post<{ queue_position: number }>('ai-chat/message', { content }).subscribe({
+    this.apiService.post<{ queue_position: number }>('ai-chat/message', { content, session_id: this.sessionId }).subscribe({
       next: (res) => {
         if (res.queue_position > 0) {
           this.queuePosition.set(res.queue_position);
