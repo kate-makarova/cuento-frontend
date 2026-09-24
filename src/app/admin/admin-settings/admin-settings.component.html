@@ -21,7 +21,7 @@
     </form>
   }
 
-  @if (isSuperuser()) {
+  @if (superadminSettings.length > 0) {
     <form (submit)="saveSuperadmin(); $event.preventDefault()">
       <fieldset>
         <legend i18n="@@adminSettings.superadminSettings">Superadmin: AI Model Pool</legend>
