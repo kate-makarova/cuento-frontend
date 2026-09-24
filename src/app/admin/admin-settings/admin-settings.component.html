@@ -21,6 +21,26 @@
     </form>
   }
 
+  @if (isSuperuser()) {
+    <form (submit)="saveSuperadmin(); $event.preventDefault()">
+      <fieldset>
+        <legend i18n="@@adminSettings.superadminSettings">Superadmin: AI Model Pool</legend>
+        @for (setting of superadminSettings; track setting.setting_name) {
+          <div class="field-row">
+            <label [for]="'sa-' + setting.setting_name">{{ settingLabels[setting.setting_name] ?? setting.setting_name }}</label>
+            <input [id]="'sa-' + setting.setting_name" type="text" [(ngModel)]="setting.setting_value" [name]="setting.setting_name" />
+          </div>
+        }
+      </fieldset>
+
+      <div class="form-actions">
+        <app-save-button type="submit" [state]="superadminSaveState()">
+          <span i18n="@@common.save">Save</span>
+        </app-save-button>
+      </div>
+    </form>
+  }
+
   <form (submit)="saveImageUpload(); $event.preventDefault()">
     <fieldset>
       <legend i18n="@@adminSettings.imageUploadSettings">Image upload settings</legend>

@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { GlobalSettingsService } from '../../services/global-settings.service';
+import { AuthService } from '../../services/auth.service';
 import { Setting } from '../../models/Setting';
 import { SaveButtonComponent } from '../save-button/save-button.component';
 
@@ -55,6 +56,8 @@ const IMAGE_UPLOAD_SETTING_NAMES = new Set([
   'use_image_proxy',
 ]);
 
+const SUPERADMIN_SETTING_NAMES = ['model_pool_source', 'openrouter_api_key', 'openrouter_use_free_only'];
+
 const SETTING_LABELS: Record<string, string> = {
   global_free_format_date_id: $localize`:@@adminSettings.global_free_format_date_id:Global free-format date`,
   absence_max_days: $localize`:@@adminSettings.absence_max_days:Maximum absence days`,
@@ -93,6 +96,10 @@ const SETTING_LABELS: Record<string, string> = {
   image_hosting: $localize`:@@adminSettings.image_hosting:Image hosting`,
   imgbb_api_key: $localize`:@@adminSettings.imgbb_api_key:ImgBB API key`,
   use_image_proxy: $localize`:@@adminSettings.use_image_proxy:Use image proxy`,
+
+  model_pool_source: $localize`:@@adminSettings.model_pool_source:Model pool source ("db" or "openrouter")`,
+  openrouter_api_key: $localize`:@@adminSettings.openrouter_api_key:OpenRouter API key`,
+  openrouter_use_free_only: $localize`:@@adminSettings.openrouter_use_free_only:Use free models only ("y" or "n")`,
 };
 
 @Component({
@@ -105,12 +112,15 @@ const SETTING_LABELS: Record<string, string> = {
 })
 export class AdminSettingsComponent implements OnInit {
   private globalSettingsService = inject(GlobalSettingsService);
+  private authService = inject(AuthService);
 
   settings = this.globalSettingsService.settings;
   settingLabels = SETTING_LABELS;
+  isSuperuser = this.authService.isSuperuser;
 
   groupSaveStates = GENERAL_SETTING_GROUPS.map(() => signal<SaveState>('idle'));
   imageUploadSaveState = signal<SaveState>('idle');
+  superadminSaveState = signal<SaveState>('idle');
 
   get generalSettingGroups(): Array<{ legend: string; settings: Setting[]; saveState: ReturnType<typeof signal<SaveState>> }> {
     const all = this.settings();
@@ -123,6 +133,12 @@ export class AdminSettingsComponent implements OnInit {
           .filter((s): s is Setting => s != null),
       }))
       .filter(g => g.settings.length > 0);
+  }
+
+  get superadminSettings(): Setting[] {
+    return this.settings()
+      .filter(s => SUPERADMIN_SETTING_NAMES.includes(s.setting_name))
+      .sort((a, b) => SUPERADMIN_SETTING_NAMES.indexOf(a.setting_name) - SUPERADMIN_SETTING_NAMES.indexOf(b.setting_name));
   }
 
   get imageUploadSettings(): Setting[] {
@@ -144,6 +160,17 @@ export class AdminSettingsComponent implements OnInit {
       error: (err) => {
         console.error('Failed to save settings', err);
         this.flash(saveState, 'error');
+      }
+    });
+  }
+
+  saveSuperadmin() {
+    this.superadminSaveState.set('loading');
+    this.globalSettingsService.updateSettings(this.superadminSettings).subscribe({
+      next: () => this.flash(this.superadminSaveState, 'success'),
+      error: (err) => {
+        console.error('Failed to save superadmin settings', err);
+        this.flash(this.superadminSaveState, 'error');
       }
     });
   }
