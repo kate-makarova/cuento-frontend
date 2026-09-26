@@ -21,6 +21,7 @@ export class AdminSmilesComponent implements OnInit {
   uploadState = signal<UploadState>('idle');
 
   newCategoryName = '';
+  newCategoryPosition = 0;
   editingCategory: SmileCategory | null = null;
 
   newSmileTextForm = '';
@@ -57,10 +58,11 @@ export class AdminSmilesComponent implements OnInit {
 
   createCategory() {
     if (!this.newCategoryName.trim()) return;
-    this.apiService.post<SmileCategory>('admin/smile-category/create', { name: this.newCategoryName.trim() }).subscribe({
+    this.apiService.post<SmileCategory>('admin/smile-category/create', { name: this.newCategoryName.trim(), position: this.newCategoryPosition }).subscribe({
       next: (created) => {
         this.categories.update(list => [...list, created]);
         this.newCategoryName = '';
+        this.newCategoryPosition = 0;
       },
       error: (err) => console.error('Failed to create category', err)
     });
@@ -72,7 +74,7 @@ export class AdminSmilesComponent implements OnInit {
 
   saveCategory() {
     if (!this.editingCategory) return;
-    this.apiService.post<SmileCategory>(`admin/smile-category/update/${this.editingCategory.id}`, { name: this.editingCategory.name }).subscribe({
+    this.apiService.post<SmileCategory>(`admin/smile-category/update/${this.editingCategory.id}`, { name: this.editingCategory.name, position: this.editingCategory.position }).subscribe({
       next: (updated) => {
         this.categories.update(list => list.map(c => c.id === updated.id ? updated : c));
         this.editingCategory = null;

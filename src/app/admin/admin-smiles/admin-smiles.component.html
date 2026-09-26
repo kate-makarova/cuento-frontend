@@ -8,6 +8,7 @@
       <thead>
         <tr>
           <th i18n="@@admin.smiles.categoryName">Name</th>
+          <th i18n="@@admin.smiles.categoryPosition">Position</th>
           <th></th>
         </tr>
       </thead>
@@ -19,6 +20,13 @@
                 <input type="text" [(ngModel)]="editingCategory!.name" />
               } @else {
                 {{ category.name }}
+              }
+            </td>
+            <td>
+              @if (editingCategory?.id === category.id) {
+                <input type="number" [(ngModel)]="editingCategory!.position" style="width: 5em;" />
+              } @else {
+                {{ category.position }}
               }
             </td>
             <td class="actions-cell">
@@ -37,6 +45,7 @@
 
     <div class="upload-row" style="margin-top: 12px;">
       <input type="text" [(ngModel)]="newCategoryName" placeholder="New category name" i18n-placeholder="@@admin.smiles.newCategoryPlaceholder" />
+      <input type="number" [(ngModel)]="newCategoryPosition" placeholder="Position" i18n-placeholder="@@admin.smiles.positionPlaceholder" style="width: 5em;" />
       <button type="button" class="btn-primary" (click)="createCategory()" i18n="@@admin.smiles.addCategory">Add Category</button>
     </div>
   </section>
