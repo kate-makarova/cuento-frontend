@@ -1,6 +1,7 @@
 export interface SmileCategory {
   id: number;
   name: string;
+  position: number;
 }
 
 export interface Smile {

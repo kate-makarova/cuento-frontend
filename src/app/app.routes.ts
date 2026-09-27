@@ -338,6 +338,11 @@ export const routes: Routes = [
         title: 'Admin - Topic Commander'
       },
       {
+        path: 'move-posts',
+        loadComponent: () => import('./admin/admin-move-posts/admin-move-posts.component').then(m => m.AdminMovePostsComponent),
+        title: 'Admin - Move Posts'
+      },
+      {
         path: 'users',
         loadComponent: () => import('./admin/admin-users/admin-users.component').then(m => m.AdminUsersComponent),
         title: 'Admin - Users'
