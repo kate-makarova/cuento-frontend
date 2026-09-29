@@ -64,7 +64,20 @@
             <div class="feed-item">
               <div class="feed-item-content">
                 <span class="date">{{ item.date_created | date:'yyyy-MM-dd HH:mm' }}</span>
-                <p>{{ item.message }}</p>
+                @if (item.type === 'absence_started') {
+                  @let absence = $any(item.data);
+                  <p>
+                    <a [routerLink]="['/profile', absence?.user_id]">{{ absence?.username }}</a>
+                    <ng-container i18n="@@notifications.absenceStarted.message"> has started an absence until </ng-container>{{ absence?.absence_end_date }}.
+                  </p>
+                  @if (absence?.characters?.length) {
+                    <p class="absence-characters">
+                      <ng-container i18n="@@notifications.absenceCharacters">Characters: </ng-container>{{ absence.characters.join(', ') }}
+                    </p>
+                  }
+                } @else {
+                  <p>{{ item.message }}</p>
+                }
               </div>
               <button class="dismiss-button" (click)="dismissNotification(item, $event)">&times;</button>
             </div>
