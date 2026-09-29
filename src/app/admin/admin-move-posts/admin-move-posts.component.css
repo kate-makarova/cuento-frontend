@@ -1,0 +1,250 @@
+.nc-shell {
+  font-family: monospace;
+  font-size: 0.875rem;
+  border: 1px solid #888;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.nc-titlebar {
+  text-align: center;
+  padding: 2px 8px;
+  border-bottom: 1px solid #888;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+.nc-toolbar {
+  border-bottom: 1px solid #888;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+}
+
+.nc-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nc-btn {
+  font-family: monospace;
+  font-size: 0.875rem;
+  padding: 1px 10px;
+  border: 1px solid #888;
+  background: none;
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.nc-btn--active {
+  cursor: pointer;
+  opacity: 1;
+}
+
+.nc-btn--active:hover {
+  background-color: #f0f0f0;
+}
+
+.nc-btn--page {
+  padding: 1px 6px;
+}
+
+.nc-status {
+  font-size: 0.8rem;
+  color: #4caf50;
+}
+
+.nc-status--error {
+  color: #c00;
+}
+
+.nc-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.nc-panel {
+  border-right: 1px solid #888;
+  display: flex;
+  flex-direction: column;
+  min-height: 500px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.nc-panel:last-child {
+  border-right: none;
+}
+
+.nc-panel-header {
+  padding: 2px 6px;
+  border-bottom: 1px solid #888;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nc-breadcrumb {
+  opacity: 0.6;
+}
+
+.nc-sep {
+  margin: 0 4px;
+  opacity: 0.4;
+}
+
+.nc-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.nc-loading,
+.nc-empty {
+  padding: 4px 6px;
+  opacity: 0.6;
+}
+
+.nc-category {
+  padding: 3px 6px;
+  font-weight: bold;
+  border-top: 1px solid #ddd;
+  margin-top: 2px;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  opacity: 0.7;
+}
+
+.nc-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 2px 6px;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.nc-row:hover {
+  background-color: #f0f0f0;
+}
+
+.nc-row--back .nc-back {
+  opacity: 0.7;
+}
+
+.nc-arrow {
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+.nc-checkbox {
+  flex-shrink: 0;
+  width: 3ch;
+}
+
+.nc-subforum-name,
+.nc-topic-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nc-subforum-meta,
+.nc-topic-meta {
+  opacity: 0.5;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+/* Post rows */
+.nc-post-row {
+  padding: 4px 6px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  user-select: none;
+}
+
+.nc-post-row:hover {
+  background-color: #f0f0f0;
+}
+
+.nc-post-row--selected {
+  background-color: #e8f4e8;
+  font-weight: bold;
+}
+
+.nc-post-row--incoming {
+  background-color: #fff8e1;
+  border-left: 3px solid #f0a500;
+  cursor: default;
+}
+
+.nc-post-row--incoming:hover {
+  background-color: #fff3cc;
+}
+
+.nc-incoming-arrow {
+  flex-shrink: 0;
+  color: #f0a500;
+  font-weight: bold;
+}
+
+.nc-post-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.nc-post-num {
+  opacity: 0.5;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.nc-post-author {
+  flex-shrink: 0;
+  font-weight: bold;
+}
+
+.nc-post-date {
+  opacity: 0.6;
+  font-size: 0.8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nc-post-preview {
+  margin-top: 2px;
+  font-size: 0.8rem;
+  opacity: 0.75;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 3ch;
+}
+
+/* Pagination */
+.nc-pagination {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border-top: 1px solid #ddd;
+  margin-top: auto;
+}
+
+.nc-page-info {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}

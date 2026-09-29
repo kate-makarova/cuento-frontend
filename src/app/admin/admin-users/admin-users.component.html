@@ -17,6 +17,7 @@
       <th i18n="@@adminUsers.colEdit">Edit</th>
       <th i18n="@@adminUsers.colAbsence">Absence</th>
       <th i18n="@@adminUsers.colBan">Ban</th>
+      <th i18n="@@adminUsers.colWipeOut">Wipe Out</th>
     </tr>
   </thead>
   <tbody>
@@ -46,10 +47,13 @@
             <button (click)="openBanModal(user)" i18n="@@adminUsers.ban">Ban</button>
           }
         </td>
+        <td>
+          <button (click)="openWipeOutModal(user)" class="button btn-wipe" i18n="@@adminUsers.wipeOut">Wipe Out</button>
+        </td>
       </tr>
     } @empty {
       <tr>
-        <td colspan="10" i18n="@@adminUsers.empty">No users found.</td>
+        <td colspan="11" i18n="@@adminUsers.empty">No users found.</td>
       </tr>
     }
   </tbody>
@@ -117,6 +121,25 @@
       <div class="buttons" style="margin-top: 15px; text-align: right;">
         <button class="button" (click)="submitBan()" i18n="@@adminUsers.banConfirm">Ban</button>
         <button class="button" (click)="closeBanModal()" i18n="@@common.cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (wipeOutModalUser(); as user) {
+  <div class="modal-overlay" (click)="closeWipeOutModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h2 i18n="@@adminUsers.wipeOutModalTitle">Wipe Out — {{ user.username }}</h2>
+      <fieldset class="wipe-warning-box">
+        <legend i18n="@@adminUsers.wipeOutWarningTitle">Warning: Irreversible Action</legend>
+        <p i18n="@@adminUsers.wipeOutWarning">
+          This action is irreversible. All non-game posts by this user will be permanently deleted.
+          All in-game posts will be anonymized.
+        </p>
+      </fieldset>
+      <div class="buttons" style="margin-top: 15px; text-align: right;">
+        <button class="button btn-wipe" (click)="submitWipeOut()" i18n="@@adminUsers.wipeOutConfirm">Wipe Out</button>
+        <button class="button" (click)="closeWipeOutModal()" i18n="@@common.cancel">Cancel</button>
       </div>
     </div>
   </div>

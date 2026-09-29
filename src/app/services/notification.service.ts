@@ -142,7 +142,10 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
   public loadUnreadNotifications(): void {
     this.apiService.get<UnreadNotificationsResponse>('notifications/unread').subscribe({
       next: (response) => {
-        this.systemNotificationsSignal.set((response.system || []).map(n => ({ ...n, type: 'system' as const })));
+        this.systemNotificationsSignal.set([
+          ...(response.system || []).map(n => ({ ...n, type: 'system' as const })),
+          ...(response.absence_started || []).map(n => ({ ...n, type: 'absence_started' as const })),
+        ]);
         this.gameNotificationsSignal.set([
           ...(response.game || []).map(n => ({ ...n, type: 'game' as const })),
           ...(response.episode_status_change || []).map(n => ({ ...n, type: 'episode_status_change' as const })),
@@ -241,7 +244,7 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
 
   private removeFromSignal(notification: NotificationData): void {
     const id = notification.id;
-    if (notification.type === 'system') {
+    if (notification.type === 'system' || notification.type === 'absence_started') {
       this.systemNotificationsSignal.update(current => current.filter(n => n.id !== id));
     } else if (notification.type === 'game' || notification.type === 'episode_status_change') {
       this.gameNotificationsSignal.update(current => current.filter(n => n.id !== id));
@@ -415,7 +418,7 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
 
         this.addTrigger(notificationData);
 
-        if (notificationData.type === 'system') {
+        if (notificationData.type === 'system' || notificationData.type === 'absence_started') {
           this.systemNotificationsSignal.update(current => [notificationData, ...current]);
         } else if (notificationData.type === 'game' || notificationData.type === 'episode_status_change') {
           this.gameNotificationsSignal.update(current => [notificationData, ...current]);
