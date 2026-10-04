@@ -214,7 +214,7 @@
         <div class="feed-list">
           @for (item of directMessageNotifications(); track item.id) {
             <div class="feed-item">
-              <a class="feed-item-content" [routerLink]="['/direct-chat']" (click)="onNotificationClick(item)">
+              <a class="feed-item-content" [routerLink]="['/direct-chat']" [queryParams]="{ chat_id: item.direct_message?.chat_id }" (click)="onNotificationClick(item)">
                 <span class="date">{{ item.date_created | date:'yyyy-MM-dd HH:mm' }}</span>
                 <p>{{ item.message }}</p>
               </a>
@@ -229,7 +229,7 @@
         <div class="feed-list">
           @for (item of dmNotifications(); track item.chat_id) {
             <div class="feed-item">
-              <a class="feed-item-content dm-entry" [routerLink]="['/direct-chat']" (click)="closeModal()">
+              <a class="feed-item-content dm-entry" [routerLink]="['/direct-chat']" [queryParams]="{ chat_id: item.chat_id }" (click)="closeModal()">
                 <span class="dm-chat-label">
                   <span i18n="@@notifications.chatWith">Chat with</span>
                   <strong>{{ item.username }}</strong>
