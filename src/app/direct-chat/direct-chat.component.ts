@@ -175,7 +175,10 @@ export class DirectChatComponent implements OnInit, OnDestroy {
     if (!content) return;
 
     this.directChatService.sendMessage(content).subscribe({
-      next: () => { textarea.value = ''; },
+      next: (response) => {
+        textarea.value = '';
+        this.directChatService.appendNewMessage(response);
+      },
       error: (err) => console.error('Failed to send message', err)
     });
   }
