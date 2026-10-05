@@ -4,7 +4,6 @@ import { Component, AfterViewInit, ElementRef, inject } from '@angular/core';
   selector: 'quote-box',
   standalone: true,
   template: '<ng-content></ng-content>',
-  host: { class: 'quote-box' },
 })
 export class QuoteBoxComponent implements AfterViewInit {
   private el = inject(ElementRef);
