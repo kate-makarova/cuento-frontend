@@ -1,0 +1,16 @@
+{
+  "name": "Cuento",
+  "short_name": "Cuento",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/cuento-claw-light-filled.png",
+      "sizes": "268x268",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
