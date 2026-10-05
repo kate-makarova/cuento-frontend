@@ -11,22 +11,12 @@ export class QuoteBoxComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     const host: HTMLElement = this.el.nativeElement;
-    const author = host.getAttribute('data-author') ?? '';
     const href = host.getAttribute('data-href');
-    const innerHtml = host.innerHTML;
+    if (!href) return;
 
-    const authorHtml = href
-      ? `<a href="${href}">${this.escapeHtml(author)}</a>`
-      : this.escapeHtml(author);
+    const cite = host.querySelector('cite');
+    if (!cite) return;
 
-    host.innerHTML = `<cite>${authorHtml}</cite>${innerHtml}`;
-  }
-
-  private escapeHtml(text: string): string {
-    return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+    cite.innerHTML = `<a href="${href}">${cite.innerHTML}</a>`;
   }
 }
