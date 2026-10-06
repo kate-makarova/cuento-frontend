@@ -268,7 +268,6 @@ export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {
 
     if (this.settingZeroPoint()) {
       this.mapConfig.update(cfg => ({ ...cfg, zeroPoint: [mapX, mapY] }));
-      this.settingZeroPoint.set(false);
       return;
     }
 
@@ -289,7 +288,6 @@ export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {
         const [p1, p2] = this.zeroMeridianPoints();
         this.mapConfig.update(cfg => ({ ...cfg, zeroMeridian: [[p1.x, p1.y], [p2.x, p2.y]] as [[number, number], [number, number]] }));
         this.zeroMeridianPoints.set([]);
-        this.settingZeroMeridian.set(false);
       }
       return;
     }
