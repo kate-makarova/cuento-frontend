@@ -584,6 +584,19 @@
   overflow: hidden;
 }
 
+.modal-window--wide {
+  width: min(800px, 90vw);
+  max-height: 90vh;
+}
+
+.raw-config-textarea {
+  flex: 1;
+  min-height: 0;
+  resize: none;
+  font-family: monospace;
+  font-size: 12px;
+}
+
 .modal-header {
   display: flex;
   align-items: center;
