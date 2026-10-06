@@ -42,7 +42,7 @@ export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {
 
   // ── Setup panel ──
   setupOpen = signal(false);
-  activeSetupSection = signal<'image' | 'metadata' | 'distance' | null>(null);
+  activeSetupSection = signal<'image' | 'metadata' | 'distance' | 'radial' | null>(null);
 
   imageUrlInput = '';
   imageLoadError = false;
@@ -54,6 +54,7 @@ export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {
   metaZeroPointY = '';
   metaMeasureRatioPixels = '';
   metaMeasureRatioUnits = '';
+  metaCoordinateSystem: '' | 'cartesian' | 'radial' = '';
 
   // ── Config panel ──
   configOpen = signal(false);
@@ -87,10 +88,18 @@ export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {
   // ── Modes ──
   settingZeroPoint = signal(false);
   settingDistanceRef = signal(false);
+  settingZeroMeridian = signal(false);
+  settingRefPoint = signal(false);
   addingMark = signal(false);
 
   distanceRefPoints = signal<{ x: number; y: number }[]>([]);
   distanceInput = '';
+
+  zeroMeridianPoints = signal<{ x: number; y: number }[]>([]);
+
+  refPointX = '';
+  refPointY = '';
+  refPointLat = '';
 
   // ── Pan / zoom ──
   protected scale = signal(1);
@@ -111,7 +120,7 @@ export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {
 
   // ── Grid ──
   readonly showGrid = computed(() =>
-    !!this.mapConfig().zeroPoint && !!this.mapConfig().measureRatio
+    !!this.mapConfig().zeroPoint && !!this.mapConfig().measureRatio && this.mapConfig().coordinateSystem !== 'radial'
   );
 
   private readonly pixelsPerUnit = computed(() => {
@@ -274,6 +283,26 @@ export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {
       return;
     }
 
+    if (this.settingZeroMeridian()) {
+      this.zeroMeridianPoints.update(pts => [...pts, { x: mapX, y: mapY }]);
+      if (this.zeroMeridianPoints().length === 2) {
+        const [p1, p2] = this.zeroMeridianPoints();
+        this.mapConfig.update(cfg => ({ ...cfg, zeroMeridian: [[p1.x, p1.y], [p2.x, p2.y]] as [[number, number], [number, number]] }));
+        this.zeroMeridianPoints.set([]);
+        this.settingZeroMeridian.set(false);
+      }
+      return;
+    }
+
+    if (this.settingRefPoint()) {
+      this.refPointX = String(mapX);
+      this.refPointY = String(mapY);
+      this.settingRefPoint.set(false);
+      this.setupOpen.set(true);
+      this.activeSetupSection.set('radial');
+      return;
+    }
+
     if (this.addingMark()) {
       const id = this.nextMarkId();
       this.mapConfig.update(cfg => ({
@@ -308,7 +337,15 @@ export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {
     if (!this.setupOpen()) this.activeSetupSection.set(null);
   }
 
-  toggleSection(section: 'image' | 'metadata' | 'distance'): void {
+  toggleSection(section: 'image' | 'metadata' | 'distance' | 'radial'): void {
+    if (section === 'radial' && this.activeSetupSection() !== 'radial') {
+      const rp = this.mapConfig().referencePoint;
+      if (rp) {
+        this.refPointX = String(rp.px[0]);
+        this.refPointY = String(rp.px[1]);
+        this.refPointLat = String(rp.lat);
+      }
+    }
     this.activeSetupSection.update(s => s === section ? null : section);
   }
 
@@ -347,6 +384,7 @@ export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {
       const rp = parseFloat(this.metaMeasureRatioPixels);
       const ru = parseFloat(this.metaMeasureRatioUnits);
       if (!isNaN(rp) && !isNaN(ru)) next.measureRatio = [rp, ru];
+      if (this.metaCoordinateSystem) next.coordinateSystem = this.metaCoordinateSystem;
       return next;
     });
     this.activeSetupSection.set(null);
@@ -369,6 +407,47 @@ export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {
       this.setupOpen.set(false);
       this.marksOpen.set(false);
     }
+  }
+
+  toggleZeroMeridian(): void {
+    const activating = !this.settingZeroMeridian();
+    if (activating) this.closeAllModes();
+    this.settingZeroMeridian.set(activating);
+    if (activating) {
+      this.zeroMeridianPoints.set([]);
+      this.setupOpen.set(false);
+      this.marksOpen.set(false);
+    }
+  }
+
+  toggleSetRefPoint(): void {
+    const activating = !this.settingRefPoint();
+    if (activating) this.closeAllModes();
+    this.settingRefPoint.set(activating);
+    if (activating) {
+      this.setupOpen.set(false);
+      this.marksOpen.set(false);
+    }
+  }
+
+  applyRefPoint(): void {
+    const x = parseFloat(this.refPointX);
+    const y = parseFloat(this.refPointY);
+    const lat = parseFloat(this.refPointLat);
+    if (isNaN(x) || isNaN(y) || isNaN(lat)) return;
+    this.mapConfig.update(cfg => ({ ...cfg, referencePoint: { px: [x, y] as [number, number], lat, lon: 0 } }));
+    this.activeSetupSection.set(null);
+  }
+
+  clearRefPoint(): void {
+    this.mapConfig.update(({ referencePoint: _, ...rest }) => rest);
+    this.refPointX = '';
+    this.refPointY = '';
+    this.refPointLat = '';
+  }
+
+  clearZeroMeridian(): void {
+    this.mapConfig.update(({ zeroMeridian: _, ...rest }) => rest);
   }
 
   applyDistanceRef(): void {
@@ -496,6 +575,8 @@ export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {
   private closeAllModes(): void {
     this.settingZeroPoint.set(false);
     this.settingDistanceRef.set(false);
+    this.settingZeroMeridian.set(false);
+    this.settingRefPoint.set(false);
     this.addingMark.set(false);
   }
 }

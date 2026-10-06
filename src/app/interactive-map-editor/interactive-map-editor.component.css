@@ -24,6 +24,14 @@
   cursor: crosshair;
 }
 
+.editor-container.mode-set-meridian {
+  cursor: crosshair;
+}
+
+.editor-container.mode-set-refpoint {
+  cursor: crosshair;
+}
+
 /* ── Map image ── */
 
 .map-wrapper {
@@ -131,6 +139,20 @@
   fill: rgba(255, 200, 80, 0.9);
   stroke: rgba(0, 0, 0, 0.5);
   stroke-width: 1;
+}
+
+/* ── Radial overlays ── */
+
+.meridian-line {
+  stroke: rgba(100, 180, 255, 0.85);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+  fill: none;
+}
+
+.ref-point-dot {
+  stroke: rgba(100, 180, 255, 0.85);
+  stroke-width: 1.5;
 }
 
 /* ── Grid ── */
@@ -321,6 +343,23 @@
   color: rgba(255, 255, 255, 0.35);
   font-family: monospace;
   font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.section-clear-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  padding: 0 2px;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.section-clear-btn:hover {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .setup-section-body {
@@ -413,6 +452,16 @@
 
 .editor-btn:hover {
   background: rgba(80, 120, 200, 0.75);
+}
+
+.editor-btn--ghost {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.editor-btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .form-actions {

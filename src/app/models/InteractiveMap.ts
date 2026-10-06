@@ -22,6 +22,9 @@ export interface MapConfig {
   zeroPoint?: [number, number];
   measureUnit?: string;
   measureRatio?: [number, number];
+  coordinateSystem?: 'cartesian' | 'radial';
+  zeroMeridian?: [[number, number], [number, number]];
+  referencePoint?: { px: [number, number]; lat: number; lon: number };
   markTypes?: Record<string, MapMarkType>;
   marks?: MapMark[];
 }
