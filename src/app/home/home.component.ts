@@ -49,7 +49,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(event => {
         if (event.data.page_type === 'index') {
-          this.categoryService.loadHomeCategories();
+          const noHighlight = event.data.no_highlight ? event.data.subforum_id : null;
+          this.categoryService.loadHomeCategories(noHighlight);
         }
       });
   }
