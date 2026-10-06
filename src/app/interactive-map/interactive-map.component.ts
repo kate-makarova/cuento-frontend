@@ -362,7 +362,7 @@ export class InteractiveMapComponent implements OnInit {
   );
 
   ngOnInit(): void {
-    const idStr = this.activatedRoute.snapshot.queryParamMap.get('id');
+    const idStr = this.activatedRoute.snapshot.paramMap.get('id');
     if (!idStr) return;
     const id = Number(idStr);
     if (isNaN(id)) return;

@@ -493,12 +493,12 @@ export const routes: Routes = [
     data: { pageId: 'pun-lore-navigation-edit' }
   },
   {
-    path: 'interactive-map',
+    path: 'interactive-map/:id',
     component: InteractiveMapComponent,
     data: { pageId: 'pun-interactive-map', noWrapper: true }
   },
   {
-    path: 'interactive-map-editor',
+    path: 'interactive-map-editor/:id',
     component: InteractiveMapEditorComponent,
     data: { pageId: 'pun-interactive-map-editor', noWrapper: true }
   },
