@@ -1,5 +1,5 @@
 import { Component, OnInit, signal, computed, viewChild, ElementRef, AfterViewInit, HostListener, NgZone, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { MapMarkType, MapMark, MapConfig } from '../models/InteractiveMap';
@@ -19,6 +19,7 @@ const RULER_LEFT_WIDTH = 52;
 export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {
   private ngZone = inject(NgZone);
   private activatedRoute = inject(ActivatedRoute);
+  private router = inject(Router);
   private mapService = inject(InteractiveMapService);
 
   mapId: number | null = null;
@@ -284,15 +285,26 @@ export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {
   }
 
   saveConfig(): void {
-    if (this.mapId === null) return;
     this.saveState.set('saving');
-    this.mapService.updateMap(this.mapId, { config: this.mapConfig() }).subscribe({
-      next: () => {
-        this.saveState.set('saved');
-        setTimeout(() => this.saveState.set('idle'), 2000);
-      },
-      error: () => this.saveState.set('error'),
-    });
+    if (this.mapId === null) {
+      this.mapService.createMap({ title: 'New Map', config: this.mapConfig(), is_public: false }).subscribe({
+        next: (map) => {
+          this.mapId = map.id;
+          this.saveState.set('saved');
+          setTimeout(() => this.saveState.set('idle'), 2000);
+          this.router.navigate(['/interactive-map-editor', map.id], { replaceUrl: true });
+        },
+        error: () => this.saveState.set('error'),
+      });
+    } else {
+      this.mapService.updateMap(this.mapId, { config: this.mapConfig() }).subscribe({
+        next: () => {
+          this.saveState.set('saved');
+          setTimeout(() => this.saveState.set('idle'), 2000);
+        },
+        error: () => this.saveState.set('error'),
+      });
+    }
   }
 
   ngAfterViewInit(): void {
