@@ -592,9 +592,14 @@
 .raw-config-textarea {
   flex: 1;
   min-height: 0;
+  height: 100%;
   resize: none;
   font-family: monospace;
   font-size: 12px;
+}
+
+.modal-body.modal-detail:has(.raw-config-textarea) {
+  overflow: hidden;
 }
 
 .modal-header {
