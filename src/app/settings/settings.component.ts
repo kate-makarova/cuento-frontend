@@ -232,31 +232,23 @@ export class SettingsComponent implements OnInit {
     const settings = this.subforumSettings();
     if (settings.length === 0) return;
     this.subforumSaveState.set('loading');
-    let completed = 0;
-    let failed = false;
-    for (const s of settings) {
-      this.apiService.post<SubforumSetting>('user/subforum-settings/upsert', {
-        subforum_id: s.subforum_id,
-        hide_new_posts_index: s.hide_new_posts_index,
-        hide_new_posts_active_page: s.hide_new_posts_active_page,
-      }).subscribe({
-        next: (res) => {
-          this.subforumSettings.update(list =>
-            list.map(x => x.subforum_id === s.subforum_id ? { ...x, ...res, subforum_name: x.subforum_name } : x)
-          );
-          completed++;
-          if (completed === settings.length && !failed) {
-            this.subforumSaveState.set('success');
-            setTimeout(() => this.subforumSaveState.set('idle'), 3000);
-          }
-        },
-        error: () => {
-          failed = true;
-          this.subforumSaveState.set('error');
-          setTimeout(() => this.subforumSaveState.set('idle'), 3000);
-        },
-      });
-    }
+    const payload = settings.map(s => ({
+      subforum_id: s.subforum_id,
+      hide_new_posts_index: s.hide_new_posts_index,
+      hide_new_posts_active_page: s.hide_new_posts_active_page,
+    }));
+    this.apiService.post<SubforumSetting[]>('user/subforum-settings/update-all', payload).subscribe({
+      next: (res) => {
+        const names = new Map(settings.map(s => [s.subforum_id, s.subforum_name]));
+        this.subforumSettings.set(res.map(s => ({ ...s, subforum_name: names.get(s.subforum_id) ?? s.subforum_name })));
+        this.subforumSaveState.set('success');
+        setTimeout(() => this.subforumSaveState.set('idle'), 3000);
+      },
+      error: () => {
+        this.subforumSaveState.set('error');
+        setTimeout(() => this.subforumSaveState.set('idle'), 3000);
+      },
+    });
   }
 
   openArchiveModal() {
