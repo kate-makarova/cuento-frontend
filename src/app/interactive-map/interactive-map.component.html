@@ -41,6 +41,14 @@
             vector-effect="non-scaling-stroke"
           />
         }
+        @for (label of rg.circleDistLabels; track label.value) {
+          <text
+            [attr.x]="label.x" [attr.y]="label.y"
+            class="grid-ref-label"
+            dominant-baseline="middle"
+            [style.font-size.px]="11 / scale()"
+          >{{ label.value }}</text>
+        }
         @if (rg.refCircle; as rc) {
           <circle
             [attr.cx]="rg.zx" [attr.cy]="rg.zy"
@@ -158,21 +166,31 @@
     }
   </div>
 
-  @if (mapConfig.coordinateSystem !== 'radial') {
-    <!-- Top ruler -->
-    <div class="map-ruler map-ruler-top">
+  <!-- Top ruler -->
+  <div class="map-ruler map-ruler-top">
+    @if (radialGrid(); as rg) {
+      @for (label of rg.topRulerLabels; track label.screenX) {
+        <span class="ruler-label ruler-label-x" [style.left.px]="label.screenX">{{ label.value }}</span>
+      }
+    } @else {
       @for (label of gridLabels().xLabels; track label.screenX) {
         <span class="ruler-label ruler-label-x" [style.left.px]="label.screenX">{{ label.value }}</span>
       }
-    </div>
+    }
+  </div>
 
-    <!-- Left ruler -->
-    <div class="map-ruler map-ruler-left">
+  <!-- Left ruler -->
+  <div class="map-ruler map-ruler-left">
+    @if (radialGrid(); as rg) {
+      @for (label of rg.leftRulerLabels; track label.screenY) {
+        <span class="ruler-label ruler-label-y" [style.top.px]="label.screenY">{{ label.value }}</span>
+      }
+    } @else {
       @for (label of gridLabels().yLabels; track label.screenY) {
         <span class="ruler-label ruler-label-y" [style.top.px]="label.screenY">{{ label.value }}</span>
       }
-    </div>
-  }
+    }
+  </div>
 
   <!-- Legend -->
   <div class="map-legend" (mousedown)="$event.stopPropagation()">

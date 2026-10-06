@@ -165,7 +165,9 @@ export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {
     const power = Math.round(Math.log10(rawStep));
     const gridStepUnits = Math.pow(10, power);
 
-    const maxRadius = Math.hypot(cfg.mapWidth ?? 1000, cfg.mapHeight ?? 1000);
+    const mapW = cfg.mapWidth ?? 1000;
+    const mapH = cfg.mapHeight ?? 1000;
+    const maxRadius = Math.hypot(mapW, mapH);
     const circles: { px: number; unit: number }[] = [];
     for (let n = 1; n * gridStepUnits * ppu <= maxRadius; n++) {
       circles.push({ px: Math.round(n * gridStepUnits * ppu), unit: n * gridStepUnits });
@@ -173,22 +175,60 @@ export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {
 
     const [p1, p2] = cfg.zeroMeridian;
     const zeroAngle = Math.atan2(p2[1] - p1[1], p2[0] - p1[0]);
-    const radialLines: { x2: number; y2: number }[] = [];
+    const radialLines: { x2: number; y2: number; angle: number; deg: number }[] = [];
     for (let i = 0; i < 12; i++) {
       const angle = zeroAngle + (i * 2 * Math.PI) / 12;
-      radialLines.push({ x2: zx + Math.cos(angle) * maxRadius, y2: zy + Math.sin(angle) * maxRadius });
+      radialLines.push({ x2: zx + Math.cos(angle) * maxRadius, y2: zy + Math.sin(angle) * maxRadius, angle, deg: i * 30 });
     }
 
+    const labelFontSize = Math.max(8, Math.min(20, Math.max(mapW, mapH) / 60));
+    const margin = labelFontSize;
+
+    // Distance labels on circles: along zero meridian, only if within SVG bounds
+    const mDx = Math.cos(zeroAngle);
+    const mDy = Math.sin(zeroAngle);
+    const perpDx = -Math.sin(zeroAngle);
+    const perpDy = Math.cos(zeroAngle);
+    const offset = labelFontSize * 0.9;
+    const circleDistLabels = circles.map(({ px, unit }) => {
+      const x = zx + px * mDx + perpDx * offset;
+      const y = zy + px * mDy + perpDy * offset;
+      if (x < margin || x > mapW - margin || y < margin || y > mapH - margin) return null;
+      return { x, y, value: this.formatUnit(unit) };
+    }).filter((l): l is { x: number; y: number; value: string } => l !== null);
+
+    // Angle labels in ruler panels (screen coords)
     const s = this.scale();
     const tx = this.translateX();
     const ty = this.translateY();
-    const cx = zx * s + tx;
-    const cy = zy * s + ty;
-    const circleLabels = circles
-      .map(({ px, unit }) => ({ screenX: cx + px * s, screenY: cy, value: this.formatUnit(unit) }))
-      .filter(l => l.screenX >= RULER_LEFT_WIDTH && l.screenX <= this.containerWidth());
+    const sx = zx * s + tx;
+    const sy = zy * s + ty;
+    const topEdgeY = INSTRUMENT_PANEL_HEIGHT + RULER_TOP_HEIGHT;
+    const leftEdgeX = RULER_LEFT_WIDTH;
+    const cw = this.containerWidth();
+    const ch = window.innerHeight;
 
-    return { zx, zy, circles, radialLines, circleLabels };
+    const topRulerLabels = radialLines.map(({ angle, deg }) => {
+      const sinA = Math.sin(angle);
+      if (Math.abs(sinA) < 1e-6) return null;
+      const t = (topEdgeY - sy) / (sinA * s);
+      if (t <= 0) return null;
+      const screenX = sx + t * Math.cos(angle) * s;
+      if (screenX < leftEdgeX || screenX > cw) return null;
+      return { screenX, value: `${deg}°` };
+    }).filter((l): l is { screenX: number; value: string } => l !== null);
+
+    const leftRulerLabels = radialLines.map(({ angle, deg }) => {
+      const cosA = Math.cos(angle);
+      if (Math.abs(cosA) < 1e-6) return null;
+      const t = (leftEdgeX - sx) / (cosA * s);
+      if (t <= 0) return null;
+      const screenY = sy + t * Math.sin(angle) * s;
+      if (screenY < topEdgeY || screenY > ch) return null;
+      return { screenY, value: `${deg}°` };
+    }).filter((l): l is { screenY: number; value: string } => l !== null);
+
+    return { zx, zy, circles, radialLines, circleDistLabels, topRulerLabels, leftRulerLabels, labelFontSize };
   });
 
   readonly gridLabels = computed(() => {

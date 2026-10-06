@@ -43,6 +43,11 @@
             <circle [attr.cx]="rg.zx" [attr.cy]="rg.zy" [attr.r]="circle.px"
                     class="grid-line" fill="none" vector-effect="non-scaling-stroke"/>
           }
+          @for (label of rg.circleDistLabels; track label.value) {
+            <text [attr.x]="label.x" [attr.y]="label.y"
+                  [attr.font-size]="rg.labelFontSize"
+                  class="radial-label" dominant-baseline="middle">{{ label.value }}</text>
+          }
           @for (line of rg.radialLines; track $index) {
             <line [attr.x1]="rg.zx" [attr.y1]="rg.zy" [attr.x2]="line.x2" [attr.y2]="line.y2"
                   class="grid-line" vector-effect="non-scaling-stroke"/>
@@ -620,7 +625,7 @@
   <!-- Coordinate rulers -->
   <div class="editor-ruler-top">
     @if (radialGrid(); as rg) {
-      @for (label of rg.circleLabels; track label.screenX) {
+      @for (label of rg.topRulerLabels; track label.screenX) {
         <span class="ruler-label ruler-label-x" [style.left.px]="label.screenX">{{ label.value }}</span>
       }
     } @else {
@@ -630,7 +635,11 @@
     }
   </div>
   <div class="editor-ruler-left">
-    @if (!radialGrid()) {
+    @if (radialGrid(); as rg) {
+      @for (label of rg.leftRulerLabels; track label.screenY) {
+        <span class="ruler-label ruler-label-y" [style.top.px]="label.screenY">{{ label.value }}</span>
+      }
+    } @else {
       @for (label of gridLabels().yLabels; track label.screenY) {
         <span class="ruler-label ruler-label-y" [style.top.px]="label.screenY">{{ label.value }}</span>
       }

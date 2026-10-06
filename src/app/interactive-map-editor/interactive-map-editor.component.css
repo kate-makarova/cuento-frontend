@@ -162,6 +162,11 @@
   stroke-width: 1;
 }
 
+.radial-label {
+  fill: rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+}
+
 /* ── Legend ── */
 
 .map-legend {

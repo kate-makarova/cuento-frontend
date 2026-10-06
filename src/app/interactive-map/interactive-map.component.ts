@@ -249,20 +249,22 @@ export class InteractiveMapComponent implements OnInit {
     if (!rc) return null;
     const { circles, radials } = rc.gridLines();
     const [zx, zy] = cfg.zeroPoint;
-    const maxR = Math.hypot(cfg.mapWidth, cfg.mapHeight);
+    const mapW = cfg.mapWidth;
+    const mapH = cfg.mapHeight;
+    const maxR = Math.hypot(mapW, mapH);
     const radialLines = radials.map(r => ({
       label: r.label,
       x1: zx, y1: zy,
       x2: zx + Math.cos(r.angle) * maxR,
       y2: zy + Math.sin(r.angle) * maxR,
+      angle: r.angle,
     }));
 
     let refCircle: { px: number; label: string; labelX: number; labelY: number } | null = null;
+    const zeroAngle = radials[0]?.angle ?? 0;
     if (cfg.referencePoint) {
       const { px: refPx, lat: refLat } = cfg.referencePoint;
       const radiusPx = Math.hypot(refPx[0] - zx, refPx[1] - zy);
-      const [p1, p2] = cfg.zeroMeridian!;
-      const zeroAngle = Math.atan2(p2[1] - p1[1], p2[0] - p1[0]);
       const latStr = refLat >= 0 ? `${refLat}°N` : `${-refLat}°S`;
       refCircle = {
         px: radiusPx,
@@ -272,7 +274,53 @@ export class InteractiveMapComponent implements OnInit {
       };
     }
 
-    return { circles, radialLines, zx, zy, refCircle };
+    // Distance labels on circles in SVG (map coords)
+    const labelFontSize = Math.max(8, Math.min(20, Math.max(mapW, mapH) / 60));
+    const margin = labelFontSize;
+    const mDx = Math.cos(zeroAngle);
+    const mDy = Math.sin(zeroAngle);
+    const perpDx = -Math.sin(zeroAngle);
+    const perpDy = Math.cos(zeroAngle);
+    const labelOffset = labelFontSize * 0.9;
+    const circleDistLabels = circles.map(({ px, unit }) => {
+      const x = zx + px * mDx + perpDx * labelOffset;
+      const y = zy + px * mDy + perpDy * labelOffset;
+      if (x < margin || x > mapW - margin || y < margin || y > mapH - margin) return null;
+      return { x, y, value: rc.formatUnit(unit) };
+    }).filter((l): l is { x: number; y: number; value: string } => l !== null);
+
+    // Angle labels in ruler panels (screen coords)
+    const s = this.scale();
+    const tx = this.translateX();
+    const ty = this.translateY();
+    const sx = zx * s + tx;
+    const sy = zy * s + ty;
+    const topEdgeY = RULER_TOP_HEIGHT;
+    const leftEdgeX = RULER_LEFT_WIDTH;
+    const cw = this.containerWidth();
+    const ch = window.innerHeight;
+
+    const topRulerLabels = radialLines.map(({ angle, label }) => {
+      const sinA = Math.sin(angle);
+      if (Math.abs(sinA) < 1e-6) return null;
+      const t = (topEdgeY - sy) / (sinA * s);
+      if (t <= 0) return null;
+      const screenX = sx + t * Math.cos(angle) * s;
+      if (screenX < leftEdgeX || screenX > cw) return null;
+      return { screenX, value: label };
+    }).filter((l): l is { screenX: number; value: string } => l !== null);
+
+    const leftRulerLabels = radialLines.map(({ angle, label }) => {
+      const cosA = Math.cos(angle);
+      if (Math.abs(cosA) < 1e-6) return null;
+      const t = (leftEdgeX - sx) / (cosA * s);
+      if (t <= 0) return null;
+      const screenY = sy + t * Math.sin(angle) * s;
+      if (screenY < topEdgeY || screenY > ch) return null;
+      return { screenY, value: label };
+    }).filter((l): l is { screenY: number; value: string } => l !== null);
+
+    return { circles, radialLines, zx, zy, refCircle, circleDistLabels, topRulerLabels, leftRulerLabels, labelFontSize };
   });
 
   readonly flagColors = ['black', 'white', 'blue', 'purple', 'green', 'yellow', 'red', 'orange', 'grey'];
