@@ -13,6 +13,13 @@ import { BoardService } from '../services/board.service';
 import { ImageService } from '../services/image.service';
 import { PushService } from '../services/push.service';
 
+interface SubforumSetting {
+  subforum_id: number;
+  subforum_name: string;
+  hide_new_posts_index: boolean;
+  hide_new_posts_active_page: boolean;
+}
+
 interface UserNotificationSetting {
   notification_type: string;
   disable_toast: boolean;
@@ -120,6 +127,8 @@ export class SettingsComponent implements OnInit {
   notificationSettings = signal<UserNotificationSetting[]>([]);
   notifSaveState = signal<'idle' | 'loading' | 'success' | 'error'>('idle');
 
+  subforumSettings = signal<SubforumSetting[]>([]);
+
   notificationTypeNames: Record<string, string> = {
     system: $localize`:@@settings.notif.typeName.system:System messages`,
     game: $localize`:@@settings.notif.typeName.game:Posts in my games`,
@@ -171,6 +180,10 @@ export class SettingsComponent implements OnInit {
       next: (list) => this.notificationSettings.set(list),
       error: (err) => console.error('Failed to load notification settings', err)
     });
+    this.apiService.get<SubforumSetting[]>('user/subforum-settings').subscribe({
+      next: (list) => this.subforumSettings.set(list),
+      error: (err) => console.error('Failed to load subforum settings', err)
+    });
     this.pushService.prefetchVapidKey();
   }
 
@@ -205,6 +218,24 @@ export class SettingsComponent implements OnInit {
         this.notifSaveState.set('error');
         setTimeout(() => this.notifSaveState.set('idle'), 3000);
       }
+    });
+  }
+
+  toggleSubforumSetting(id: number, col: keyof Pick<SubforumSetting, 'hide_new_posts_index' | 'hide_new_posts_active_page'>, value: boolean) {
+    this.subforumSettings.update(list =>
+      list.map(s => s.subforum_id === id ? { ...s, [col]: value } : s)
+    );
+    const updated = this.subforumSettings().find(s => s.subforum_id === id);
+    if (!updated) return;
+    this.apiService.post<SubforumSetting>('user/subforum-settings/upsert', {
+      subforum_id: id,
+      hide_new_posts_index: updated.hide_new_posts_index,
+      hide_new_posts_active_page: updated.hide_new_posts_active_page,
+    }).subscribe({
+      next: (res) => this.subforumSettings.update(list =>
+        list.map(s => s.subforum_id === id ? { ...s, ...res, subforum_name: s.subforum_name } : s)
+      ),
+      error: (err) => console.error('Failed to save subforum setting', err),
     });
   }
 

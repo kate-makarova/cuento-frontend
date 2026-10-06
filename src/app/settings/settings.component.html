@@ -220,6 +220,41 @@
         </fieldset>
       </div>
     }
+    @if (subforumSettings().length > 0) {
+      <div class="container">
+        <fieldset>
+          <legend>Subforum settings</legend>
+          <div class="fs-box">
+            <table class="data-table notif-settings-table">
+              <thead>
+                <tr>
+                  <th>Subforum</th>
+                  <th class="notif-col-header">Hide new posts on index</th>
+                  <th class="notif-col-header">Hide new posts on active page</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (s of subforumSettings(); track s.subforum_id) {
+                  <tr>
+                    <td>{{ s.subforum_name }}</td>
+                    <td class="notif-check-cell">
+                      <label class="option-label"><input type="checkbox"
+                             [checked]="s.hide_new_posts_index"
+                             (change)="toggleSubforumSetting(s.subforum_id, 'hide_new_posts_index', $any($event.target).checked)" /></label>
+                    </td>
+                    <td class="notif-check-cell">
+                      <label class="option-label"><input type="checkbox"
+                             [checked]="s.hide_new_posts_active_page"
+                             (change)="toggleSubforumSetting(s.subforum_id, 'hide_new_posts_active_page', $any($event.target).checked)" /></label>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </fieldset>
+      </div>
+    }
     <div class="container">
       <fieldset>
         <legend i18n="@@settings.recoveryCodes">Recovery Codes</legend>
