@@ -1,3 +1,6 @@
+@if (noWrapper()) {
+  <router-outlet />
+} @else {
 <div id="pun">
   <div [id]="pageId" class="punbb">
     <app-header></app-header>
@@ -7,5 +10,8 @@
   <div id="pun-footer" class="section" app-footer></div>
 </div>
 </div>
+}
 <app-toast></app-toast>
-<app-scroll-nav></app-scroll-nav>
+@if (!noWrapper()) {
+  <app-scroll-nav></app-scroll-nav>
+}
