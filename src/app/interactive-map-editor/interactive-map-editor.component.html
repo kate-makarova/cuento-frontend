@@ -38,6 +38,16 @@
                   class="grid-line" vector-effect="non-scaling-stroke"/>
           }
         }
+        @if (radialGrid(); as rg) {
+          @for (circle of rg.circles; track circle.px) {
+            <circle [attr.cx]="rg.zx" [attr.cy]="rg.zy" [attr.r]="circle.px"
+                    class="grid-line" fill="none" vector-effect="non-scaling-stroke"/>
+          }
+          @for (line of rg.radialLines; track $index) {
+            <line [attr.x1]="rg.zx" [attr.y1]="rg.zy" [attr.x2]="line.x2" [attr.y2]="line.y2"
+                  class="grid-line" vector-effect="non-scaling-stroke"/>
+          }
+        }
 
         <!-- Distance reference -->
         @if (distanceRefPoints().length === 2) {
@@ -609,13 +619,21 @@
 
   <!-- Coordinate rulers -->
   <div class="editor-ruler-top">
-    @for (label of gridLabels().xLabels; track label.screenX) {
-      <span class="ruler-label ruler-label-x" [style.left.px]="label.screenX">{{ label.value }}</span>
+    @if (radialGrid(); as rg) {
+      @for (label of rg.circleLabels; track label.screenX) {
+        <span class="ruler-label ruler-label-x" [style.left.px]="label.screenX">{{ label.value }}</span>
+      }
+    } @else {
+      @for (label of gridLabels().xLabels; track label.screenX) {
+        <span class="ruler-label ruler-label-x" [style.left.px]="label.screenX">{{ label.value }}</span>
+      }
     }
   </div>
   <div class="editor-ruler-left">
-    @for (label of gridLabels().yLabels; track label.screenY) {
-      <span class="ruler-label ruler-label-y" [style.top.px]="label.screenY">{{ label.value }}</span>
+    @if (!radialGrid()) {
+      @for (label of gridLabels().yLabels; track label.screenY) {
+        <span class="ruler-label ruler-label-y" [style.top.px]="label.screenY">{{ label.value }}</span>
+      }
     }
   </div>
 

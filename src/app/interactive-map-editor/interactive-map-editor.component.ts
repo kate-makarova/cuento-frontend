@@ -154,9 +154,46 @@ export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {
     return { verticals, horizontals, gridStepUnits };
   });
 
+  readonly radialGrid = computed(() => {
+    const cfg = this.mapConfig();
+    if (cfg.coordinateSystem !== 'radial' || !cfg.zeroPoint || !cfg.measureRatio || !cfg.zeroMeridian) return null;
+
+    const [zx, zy] = cfg.zeroPoint;
+    const ppu = cfg.measureRatio[0] / cfg.measureRatio[1];
+    const visibleWidthUnits = this.containerWidth() / (this.scale() * ppu);
+    const rawStep = visibleWidthUnits / 10;
+    const power = Math.round(Math.log10(rawStep));
+    const gridStepUnits = Math.pow(10, power);
+
+    const maxRadius = Math.hypot(cfg.mapWidth ?? 1000, cfg.mapHeight ?? 1000);
+    const circles: { px: number; unit: number }[] = [];
+    for (let n = 1; n * gridStepUnits * ppu <= maxRadius; n++) {
+      circles.push({ px: Math.round(n * gridStepUnits * ppu), unit: n * gridStepUnits });
+    }
+
+    const [p1, p2] = cfg.zeroMeridian;
+    const zeroAngle = Math.atan2(p2[1] - p1[1], p2[0] - p1[0]);
+    const radialLines: { x2: number; y2: number }[] = [];
+    for (let i = 0; i < 12; i++) {
+      const angle = zeroAngle + (i * 2 * Math.PI) / 12;
+      radialLines.push({ x2: zx + Math.cos(angle) * maxRadius, y2: zy + Math.sin(angle) * maxRadius });
+    }
+
+    const s = this.scale();
+    const tx = this.translateX();
+    const ty = this.translateY();
+    const cx = zx * s + tx;
+    const cy = zy * s + ty;
+    const circleLabels = circles
+      .map(({ px, unit }) => ({ screenX: cx + px * s, screenY: cy, value: this.formatUnit(unit) }))
+      .filter(l => l.screenX >= RULER_LEFT_WIDTH && l.screenX <= this.containerWidth());
+
+    return { zx, zy, circles, radialLines, circleLabels };
+  });
+
   readonly gridLabels = computed(() => {
     const cfg = this.mapConfig();
-    if (!cfg.zeroPoint || !cfg.measureRatio) return { xLabels: [] as { screenX: number; value: string }[], yLabels: [] as { screenY: number; value: string }[] };
+    if (!cfg.zeroPoint || !cfg.measureRatio || cfg.coordinateSystem === 'radial') return { xLabels: [] as { screenX: number; value: string }[], yLabels: [] as { screenY: number; value: string }[] };
     const { verticals, horizontals, gridStepUnits } = this.gridLines();
     const tx = this.translateX();
     const ty = this.translateY();
