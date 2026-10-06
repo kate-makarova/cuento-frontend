@@ -237,10 +237,8 @@ export class SettingsComponent implements OnInit {
       hide_new_posts_index: s.hide_new_posts_index,
       hide_new_posts_active_page: s.hide_new_posts_active_page,
     }));
-    this.apiService.post<SubforumSetting[]>('user/subforum-settings/update-all', payload).subscribe({
-      next: (res) => {
-        const names = new Map(settings.map(s => [s.subforum_id, s.subforum_name]));
-        this.subforumSettings.set(res.map(s => ({ ...s, subforum_name: names.get(s.subforum_id) ?? s.subforum_name })));
+    this.apiService.post('user/subforum-settings/update-all', payload).subscribe({
+      next: () => {
         this.subforumSaveState.set('success');
         setTimeout(() => this.subforumSaveState.set('idle'), 3000);
       },
