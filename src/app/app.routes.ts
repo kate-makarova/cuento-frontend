@@ -40,8 +40,6 @@ import { LoreNavigationEditComponent } from './lore-navigation-edit/lore-navigat
 import { NotFoundComponent } from './error-pages/not-found/not-found.component';
 import { ForbiddenComponent } from './error-pages/forbidden/forbidden.component';
 import { ServerErrorComponent } from './error-pages/server-error/server-error.component';
-import { InteractiveMapComponent } from './interactive-map/interactive-map.component';
-import { InteractiveMapEditorComponent } from './interactive-map-editor/interactive-map-editor.component';
 
 
 
@@ -603,12 +601,12 @@ export const routes: Routes = [
   },
   {
     path: 'interactive-map/:id',
-    component: InteractiveMapComponent,
+    loadComponent: () => import('./interactive-map/interactive-map.component').then(m => m.InteractiveMapComponent),
     data: { pageId: 'pun-interactive-map', noWrapper: true }
   },
   {
     path: 'interactive-map-editor/:id',
-    component: InteractiveMapEditorComponent,
+    loadComponent: () => import('./interactive-map-editor/interactive-map-editor.component').then(m => m.InteractiveMapEditorComponent),
     data: { pageId: 'pun-interactive-map-editor', noWrapper: true }
   },
   {
