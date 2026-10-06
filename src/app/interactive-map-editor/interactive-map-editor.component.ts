@@ -1,38 +1,13 @@
-import { Component, signal, computed, viewChild, ElementRef, AfterViewInit, HostListener, NgZone, inject } from '@angular/core';
+import { Component, OnInit, signal, computed, viewChild, ElementRef, AfterViewInit, HostListener, NgZone, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
+import { MapMarkType, MapMark, MapConfig } from '../models/InteractiveMap';
+import { InteractiveMapService } from '../services/interactive-map.service';
 
 const INSTRUMENT_PANEL_HEIGHT = 44;
 const RULER_TOP_HEIGHT = 24;
 const RULER_LEFT_WIDTH = 52;
-
-export interface MapMarkType {
-  color: string;
-  shape: 'circle' | 'square' | 'triangle' | 'diamond' | 'star' | 'pentagon' | 'hexagon' | 'cross';
-  legend: string;
-}
-
-export interface MapMark {
-  id: number;
-  type: string;
-  title: string;
-  description?: string;
-  x: number;
-  y: number;
-}
-
-export interface MapConfig {
-  mapUrl?: string;
-  mapWidth?: number;
-  mapHeight?: number;
-  horizontalDirection?: 'left' | 'right';
-  verticalDirection?: 'top' | 'bottom';
-  zeroPoint?: [number, number];
-  measureUnit?: string;
-  measureRatio?: [number, number];
-  markTypes?: Record<string, MapMarkType>;
-  marks?: MapMark[];
-}
 
 @Component({
   selector: 'app-interactive-map-editor',
@@ -41,8 +16,10 @@ export interface MapConfig {
   templateUrl: './interactive-map-editor.component.html',
   styleUrl: './interactive-map-editor.component.css'
 })
-export class InteractiveMapEditorComponent implements AfterViewInit {
+export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {
   private ngZone = inject(NgZone);
+  private activatedRoute = inject(ActivatedRoute);
+  private mapService = inject(InteractiveMapService);
 
   readonly rulerTopHeight = RULER_TOP_HEIGHT;
   readonly rulerLeftWidth = RULER_LEFT_WIDTH;
@@ -201,6 +178,20 @@ export class InteractiveMapEditorComponent implements AfterViewInit {
   }
 
   // ── Lifecycle ──
+
+  ngOnInit(): void {
+    const idStr = this.activatedRoute.snapshot.queryParamMap.get('id');
+    if (!idStr) return;
+    const id = Number(idStr);
+    if (isNaN(id)) return;
+    this.mapService.getMap(id).subscribe({
+      next: (map) => {
+        this.rawConfigText = JSON.stringify(map.config, null, 2);
+        this.applyRawConfig();
+      },
+      error: (err) => console.error('Failed to load map', err),
+    });
+  }
 
   ngAfterViewInit(): void {
     this.ngZone.runOutsideAngular(() => {
