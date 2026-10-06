@@ -845,6 +845,8 @@ export const TRANSLATIONS_EN = {
   "postform.alignLeft": "Align left",
   "postform.alignRight": "Align right",
   "postform.audio": "Audio",
+  "postform.audioInsert": "Insert",
+  "postform.audioSourceDirect": "Direct audio file",
   "postform.autosaveSaved": "Autodraft updated",
   "postform.autosaveSaving": "Autodraft updating...",
   "postform.autosaveTyping": "Author is typing, waiting to update autodraft",
