@@ -21,6 +21,9 @@ export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {
   private activatedRoute = inject(ActivatedRoute);
   private mapService = inject(InteractiveMapService);
 
+  mapId: number | null = null;
+  saveState = signal<'idle' | 'saving' | 'saved' | 'error'>('idle');
+
   readonly rulerTopHeight = RULER_TOP_HEIGHT;
   readonly rulerLeftWidth = RULER_LEFT_WIDTH;
   readonly instrumentPanelHeight = INSTRUMENT_PANEL_HEIGHT;
@@ -193,12 +196,25 @@ export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {
     if (!idStr) return;
     const id = Number(idStr);
     if (isNaN(id)) return;
+    this.mapId = id;
     this.mapService.getMap(id).subscribe({
       next: (map) => {
         this.rawConfigText = JSON.stringify(map.config, null, 2);
         this.applyRawConfig();
       },
       error: (err) => console.error('Failed to load map', err),
+    });
+  }
+
+  saveConfig(): void {
+    if (this.mapId === null) return;
+    this.saveState.set('saving');
+    this.mapService.updateMap(this.mapId, { config: this.mapConfig() }).subscribe({
+      next: () => {
+        this.saveState.set('saved');
+        setTimeout(() => this.saveState.set('idle'), 2000);
+      },
+      error: () => this.saveState.set('error'),
     });
   }
 

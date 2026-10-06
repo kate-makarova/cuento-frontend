@@ -265,6 +265,28 @@
   color: #fff;
 }
 
+.instrument-btn--save {
+  margin-left: auto;
+  background: rgba(60, 140, 80, 0.4);
+  border-color: rgba(100, 200, 120, 0.4);
+  color: #fff;
+}
+
+.instrument-btn--save:hover {
+  background: rgba(60, 140, 80, 0.65);
+}
+
+.instrument-btn--save.saved {
+  background: rgba(60, 140, 80, 0.25);
+  border-color: rgba(100, 200, 120, 0.25);
+  color: rgba(100, 200, 120, 0.9);
+}
+
+.instrument-btn--save.error {
+  background: rgba(180, 60, 60, 0.4);
+  border-color: rgba(255, 100, 100, 0.4);
+}
+
 .chevron {
   transition: transform 0.2s ease;
 }
