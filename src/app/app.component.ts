@@ -60,6 +60,7 @@ export class AppComponent implements OnInit {
   }
 
   pageId = 'pun-main';
+  noWrapper = signal(false);
   private currentPageType = 'unknown';
   private currentPageNumId = 0;
 
@@ -206,6 +207,7 @@ export class AppComponent implements OnInit {
       this.pageId = data['pageId'] || 'pun-index';
       const [pageType, pageNumId] = this.resolvePageType(this.pageId, params);
       this.sendPageActivity(pageType, pageNumId);
+      this.noWrapper.set(!!data['noWrapper']);
     });
   }
 
