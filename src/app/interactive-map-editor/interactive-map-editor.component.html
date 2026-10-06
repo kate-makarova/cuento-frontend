@@ -157,23 +157,21 @@
         <path d="M1 3 L5 7 L9 3"/>
       </svg>
     </button>
-    @if (mapId !== null) {
-      <button
-        class="instrument-btn instrument-btn--save"
-        [class.saving]="saveState() === 'saving'"
-        [class.saved]="saveState() === 'saved'"
-        [class.error]="saveState() === 'error'"
-        [disabled]="saveState() === 'saving'"
-        (click)="saveConfig()"
-      >
-        @switch (saveState()) {
-          @case ('saving') { Saving… }
-          @case ('saved')  { Saved ✓ }
-          @case ('error')  { Error }
-          @default         { Save }
-        }
-      </button>
-    }
+    <button
+      class="instrument-btn instrument-btn--save"
+      [class.saving]="saveState() === 'saving'"
+      [class.saved]="saveState() === 'saved'"
+      [class.error]="saveState() === 'error'"
+      [disabled]="saveState() === 'saving'"
+      (click)="saveConfig()"
+    >
+      @switch (saveState()) {
+        @case ('saving') { Saving… }
+        @case ('saved')  { Saved ✓ }
+        @case ('error')  { Error }
+        @default         { Save }
+      }
+    </button>
   </div>
 
   <!-- Setup panel -->
