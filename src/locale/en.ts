@@ -1001,6 +1001,7 @@ export const TRANSLATIONS_EN = {
   "settings.subforum.name": "Subforum",
   "settings.subforum.hideNewPostsIndex": "Hide new posts on index",
   "settings.subforum.hideNewPostsActivePage": "Hide new posts on active page",
+  "settings.subforum.save": "Save subforum settings",
   "settings.save": "Save Settings",
   "settings.signature": "Signature",
   "settings.timezone": "Timezone",

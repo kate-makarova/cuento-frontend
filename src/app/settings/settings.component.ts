@@ -128,6 +128,7 @@ export class SettingsComponent implements OnInit {
   notifSaveState = signal<'idle' | 'loading' | 'success' | 'error'>('idle');
 
   subforumSettings = signal<SubforumSetting[]>([]);
+  subforumSaveState = signal<'idle' | 'loading' | 'success' | 'error'>('idle');
 
   notificationTypeNames: Record<string, string> = {
     system: $localize`:@@settings.notif.typeName.system:System messages`,
@@ -225,18 +226,37 @@ export class SettingsComponent implements OnInit {
     this.subforumSettings.update(list =>
       list.map(s => s.subforum_id === id ? { ...s, [col]: value } : s)
     );
-    const updated = this.subforumSettings().find(s => s.subforum_id === id);
-    if (!updated) return;
-    this.apiService.post<SubforumSetting>('user/subforum-settings/upsert', {
-      subforum_id: id,
-      hide_new_posts_index: updated.hide_new_posts_index,
-      hide_new_posts_active_page: updated.hide_new_posts_active_page,
-    }).subscribe({
-      next: (res) => this.subforumSettings.update(list =>
-        list.map(s => s.subforum_id === id ? { ...s, ...res, subforum_name: s.subforum_name } : s)
-      ),
-      error: (err) => console.error('Failed to save subforum setting', err),
-    });
+  }
+
+  saveSubforumSettings() {
+    const settings = this.subforumSettings();
+    if (settings.length === 0) return;
+    this.subforumSaveState.set('loading');
+    let completed = 0;
+    let failed = false;
+    for (const s of settings) {
+      this.apiService.post<SubforumSetting>('user/subforum-settings/upsert', {
+        subforum_id: s.subforum_id,
+        hide_new_posts_index: s.hide_new_posts_index,
+        hide_new_posts_active_page: s.hide_new_posts_active_page,
+      }).subscribe({
+        next: (res) => {
+          this.subforumSettings.update(list =>
+            list.map(x => x.subforum_id === s.subforum_id ? { ...x, ...res, subforum_name: x.subforum_name } : x)
+          );
+          completed++;
+          if (completed === settings.length && !failed) {
+            this.subforumSaveState.set('success');
+            setTimeout(() => this.subforumSaveState.set('idle'), 3000);
+          }
+        },
+        error: () => {
+          failed = true;
+          this.subforumSaveState.set('error');
+          setTimeout(() => this.subforumSaveState.set('idle'), 3000);
+        },
+      });
+    }
   }
 
   openArchiveModal() {
