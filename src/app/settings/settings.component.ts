@@ -13,6 +13,13 @@ import { BoardService } from '../services/board.service';
 import { ImageService } from '../services/image.service';
 import { PushService } from '../services/push.service';
 
+interface SubforumSetting {
+  subforum_id: number;
+  subforum_name: string;
+  hide_new_posts_index: boolean;
+  hide_new_posts_active_page: boolean;
+}
+
 interface UserNotificationSetting {
   notification_type: string;
   disable_toast: boolean;
@@ -120,6 +127,9 @@ export class SettingsComponent implements OnInit {
   notificationSettings = signal<UserNotificationSetting[]>([]);
   notifSaveState = signal<'idle' | 'loading' | 'success' | 'error'>('idle');
 
+  subforumSettings = signal<SubforumSetting[]>([]);
+  subforumSaveState = signal<'idle' | 'loading' | 'success' | 'error'>('idle');
+
   notificationTypeNames: Record<string, string> = {
     system: $localize`:@@settings.notif.typeName.system:System messages`,
     game: $localize`:@@settings.notif.typeName.game:Posts in my games`,
@@ -171,6 +181,10 @@ export class SettingsComponent implements OnInit {
       next: (list) => this.notificationSettings.set(list),
       error: (err) => console.error('Failed to load notification settings', err)
     });
+    this.apiService.get<SubforumSetting[]>('user/subforum-settings').subscribe({
+      next: (list) => this.subforumSettings.set(list),
+      error: (err) => console.error('Failed to load subforum settings', err)
+    });
     this.pushService.prefetchVapidKey();
   }
 
@@ -205,6 +219,33 @@ export class SettingsComponent implements OnInit {
         this.notifSaveState.set('error');
         setTimeout(() => this.notifSaveState.set('idle'), 3000);
       }
+    });
+  }
+
+  toggleSubforumSetting(id: number, col: keyof Pick<SubforumSetting, 'hide_new_posts_index' | 'hide_new_posts_active_page'>, value: boolean) {
+    this.subforumSettings.update(list =>
+      list.map(s => s.subforum_id === id ? { ...s, [col]: value } : s)
+    );
+  }
+
+  saveSubforumSettings() {
+    const settings = this.subforumSettings();
+    if (settings.length === 0) return;
+    this.subforumSaveState.set('loading');
+    const payload = settings.map(s => ({
+      subforum_id: s.subforum_id,
+      hide_new_posts_index: s.hide_new_posts_index,
+      hide_new_posts_active_page: s.hide_new_posts_active_page,
+    }));
+    this.apiService.post('user/subforum-settings/update-all', payload).subscribe({
+      next: () => {
+        this.subforumSaveState.set('success');
+        setTimeout(() => this.subforumSaveState.set('idle'), 3000);
+      },
+      error: () => {
+        this.subforumSaveState.set('error');
+        setTimeout(() => this.subforumSaveState.set('idle'), 3000);
+      },
     });
   }
 

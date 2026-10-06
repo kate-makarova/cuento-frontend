@@ -245,6 +245,8 @@ export interface PageChangedEvent {
   data: {
     page_type: string;
     id?: string;
+    subforum_id?: number;
+    no_highlight?: boolean;
   };
 }
 

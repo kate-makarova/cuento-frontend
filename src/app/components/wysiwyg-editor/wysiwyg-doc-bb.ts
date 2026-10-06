@@ -4,7 +4,7 @@
 // serializeDoc : DocModel → string
 
 import {
-  DocModel, BlockNode, ParagraphNode, AlignBlock, QuoteNode, CodeNode, SpoilerNode, VideoNode,
+  DocModel, BlockNode, ParagraphNode, AlignBlock, QuoteNode, CodeNode, SpoilerNode, VideoNode, AudioNode,
   InlineNode, TextNode, Mark,
 } from './wysiwyg-doc-model';
 
@@ -54,7 +54,7 @@ function findMatchingClose(text: string, tag: string, from: number): number {
 function parseBlocks(text: string): BlockNode[] {
   const result: BlockNode[] = [];
   // Matches the opening tag of every block-level construct.
-  const blockOpen = /\[code\]|\[quote(?:=[^\]]*)?\]|\[spoiler(?:=[^\]]*)?\]|\[center\]|\[right\]|\[left\]|\[video\]/gi;
+  const blockOpen = /\[code\]|\[quote(?:=[^\]]*)?\]|\[spoiler(?:=[^\]]*)?\]|\[center\]|\[right\]|\[left\]|\[video\]|\[audio(?:\s[^\]]+)?\]/gi;
   let pos = 0;
 
   let m: RegExpExecArray | null;
@@ -111,6 +111,11 @@ function parseBlocks(text: string): BlockNode[] {
       case 'video':
         result.push({ type: 'video', url: content } as VideoNode);
         break;
+      case 'audio': {
+        const ssMatch = m[0].match(/source_site=(\w+)/);
+        result.push({ type: 'audio', url: content, sourceSite: ssMatch?.[1] } as AudioNode);
+        break;
+      }
       case 'center':
       case 'right':
       case 'left':
@@ -237,6 +242,10 @@ function serializeBlock(block: BlockNode): string {
     }
     case 'video':
       return `[video]${block.url}[/video]\n`;
+    case 'audio':
+      return block.sourceSite
+        ? `[audio source_site=${block.sourceSite}]${block.url}[/audio]\n`
+        : `[audio]${block.url}[/audio]\n`;
   }
 }
 

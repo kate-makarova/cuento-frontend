@@ -517,11 +517,16 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       }
     }
 
+    const topicId = +this.id()!;
+    const userId = this.authService.currentUser()?.id ?? 0;
+    const idempotencyKey = `${topicId}:${userId}:${Date.now()}:${simpleHash(message)}`;
+
     const payload: any = {
-      topic_id: +this.id()!,
+      topic_id: topicId,
       content: message,
       use_character_profile: this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any,
-      character_profile_id: characterProfileId
+      character_profile_id: characterProfileId,
+      idempotency_key: idempotencyKey,
     };
 
     if (!this.authService.isAuthenticated()) {
@@ -781,4 +786,12 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     });
     this.reactionPickerPostId.set(null);
   }
+}
+
+function simpleHash(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) {
+    h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+  }
+  return h >>> 0;
 }
