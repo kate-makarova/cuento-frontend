@@ -59,6 +59,7 @@ export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {
   metaMeasureRatioPixels = '';
   metaMeasureRatioUnits = '';
   metaCoordinateSystem: '' | 'cartesian' | 'radial' = '';
+  isPublic = false;
 
   // ── Config panel ──
   configOpen = signal(false);
@@ -277,6 +278,7 @@ export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {
     this.mapId = id;
     this.mapService.getMap(id).subscribe({
       next: (map) => {
+        this.isPublic = map.is_public;
         this.rawConfigText = JSON.stringify(map.config, null, 2);
         this.applyRawConfig();
       },
@@ -287,7 +289,7 @@ export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {
   saveConfig(): void {
     this.saveState.set('saving');
     if (this.mapId === null) {
-      this.mapService.createMap({ title: 'New Map', config: this.mapConfig(), is_public: false }).subscribe({
+      this.mapService.createMap({ title: 'New Map', config: this.mapConfig(), is_public: this.isPublic }).subscribe({
         next: (map) => {
           this.mapId = map.id;
           this.saveState.set('saved');
@@ -297,7 +299,7 @@ export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {
         error: () => this.saveState.set('error'),
       });
     } else {
-      this.mapService.updateMap(this.mapId, { config: this.mapConfig() }).subscribe({
+      this.mapService.updateMap(this.mapId, { config: this.mapConfig(), is_public: this.isPublic }).subscribe({
         next: () => {
           this.saveState.set('saved');
           setTimeout(() => this.saveState.set('idle'), 2000);

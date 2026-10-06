@@ -157,6 +157,9 @@
         <path d="M1 3 L5 7 L9 3"/>
       </svg>
     </button>
+    <label class="instrument-public-label">
+      <input type="checkbox" [(ngModel)]="isPublic" name="isPublic"/> Public
+    </label>
     <button
       class="instrument-btn instrument-btn--save"
       [class.saving]="saveState() === 'saving'"
