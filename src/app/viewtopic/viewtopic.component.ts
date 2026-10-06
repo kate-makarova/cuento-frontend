@@ -519,8 +519,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
     const topicId = +this.id()!;
     const userId = this.authService.currentUser()?.id ?? 0;
-    const minuteBucket = Math.floor(Date.now() / 60000);
-    const idempotencyKey = `${topicId}:${userId}:${minuteBucket}:${simpleHash(message)}`;
+    const idempotencyKey = `${topicId}:${userId}:${Date.now()}:${simpleHash(message)}`;
 
     const payload: any = {
       topic_id: topicId,
