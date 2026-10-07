@@ -60,6 +60,7 @@ export class AppComponent implements OnInit {
   }
 
   pageId = 'pun-main';
+  noWrapper = signal(false);
   private currentPageType = 'unknown';
   private currentPageNumId = 0;
 
@@ -206,6 +207,7 @@ export class AppComponent implements OnInit {
       this.pageId = data['pageId'] || 'pun-index';
       const [pageType, pageNumId] = this.resolvePageType(this.pageId, params);
       this.sendPageActivity(pageType, pageNumId);
+      this.noWrapper.set(!!data['noWrapper']);
     });
   }
 
@@ -414,25 +416,23 @@ export class AppComponent implements OnInit {
   private manifestBlobUrl: string | null = null;
 
   private updateManifest(siteName: string): void {
-    const origin = window.location.origin;
-    const manifest = {
-      name: siteName,
-      short_name: siteName,
-      start_url: origin + '/',
-      display: 'standalone',
-      icons: [{ src: origin + '/favicon.ico', sizes: 'any', type: 'image/x-icon' }],
-    };
-    if (this.manifestBlobUrl) URL.revokeObjectURL(this.manifestBlobUrl);
-    this.manifestBlobUrl = URL.createObjectURL(
-      new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' })
-    );
-    let link = this.document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
-    if (!link) {
-      link = this.document.createElement('link');
-      link.rel = 'manifest';
-      this.document.head.appendChild(link);
-    }
-    link.href = this.manifestBlobUrl;
+    fetch('/manifest.webmanifest')
+      .then(r => r.json())
+      .then((base: Record<string, unknown>) => {
+        const manifest = { ...base, name: siteName, short_name: siteName };
+        if (this.manifestBlobUrl) URL.revokeObjectURL(this.manifestBlobUrl);
+        this.manifestBlobUrl = URL.createObjectURL(
+          new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' })
+        );
+        let link = this.document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
+        if (!link) {
+          link = this.document.createElement('link');
+          link.rel = 'manifest';
+          this.document.head.appendChild(link);
+        }
+        link.href = this.manifestBlobUrl;
+      })
+      .catch(() => {});
   }
 
   protected readonly Date = Date;

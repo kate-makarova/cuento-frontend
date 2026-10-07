@@ -50,7 +50,13 @@ export type VideoNode = {
   url: string;
 };
 
-export type BlockNode = ParagraphNode | AlignBlock | QuoteNode | CodeNode | SpoilerNode | VideoNode;
+export type AudioNode = {
+  type: 'audio';
+  url: string;
+  sourceSite?: string;
+};
+
+export type BlockNode = ParagraphNode | AlignBlock | QuoteNode | CodeNode | SpoilerNode | VideoNode | AudioNode;
 
 export type DocModel = { children: BlockNode[] };
 

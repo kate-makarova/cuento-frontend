@@ -9,6 +9,7 @@ import { registerLocaleData } from '@angular/common';
 import { createCustomElement } from '@angular/elements';
 import { PostInsertComponent } from './app/components/post-insert/post-insert.component';
 import { SpoilerBoxComponent } from './app/components/spoiler-box/spoiler-box.component';
+import { QuoteBoxComponent } from './app/components/quote-box/quote-box.component';
 import { LOCALES } from './locale_config';
 
 // Explicit static imports so esbuild bundles only what's listed here.
@@ -49,6 +50,9 @@ function registerCustomElements(appRef: ApplicationRef): void {
 
   const SpoilerBoxElement = createCustomElement(SpoilerBoxComponent, { injector: appRef.injector });
   customElements.define('spoiler-box', SpoilerBoxElement);
+
+  const QuoteBoxElement = createCustomElement(QuoteBoxComponent, { injector: appRef.injector });
+  customElements.define('quote-box', QuoteBoxElement);
 }
 
 async function bootstrap(): Promise<void> {

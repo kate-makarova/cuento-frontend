@@ -1,0 +1,359 @@
+.map-page-loader {
+  position: fixed;
+  inset: 0;
+  background: #111;
+  z-index: 999;
+}
+
+.map-container {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  background: #111;
+  user-select: none;
+}
+
+.map-container.mode-flag,
+.map-container.mode-path {
+  cursor: crosshair;
+}
+
+.path-line {
+  stroke: rgba(255, 255, 255, 0.85);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+  fill: none;
+}
+
+.path-dot {
+  fill: #fff;
+  stroke: rgba(0, 0, 0, 0.4);
+  stroke-width: 1;
+}
+
+.path-label {
+  fill: #fff;
+  font-size: 11px;
+  font-family: monospace;
+  paint-order: stroke;
+  stroke: #000;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  pointer-events: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.map-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+}
+
+.map-wrapper img {
+  display: block;
+}
+
+.map-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.grid-line {
+  stroke: rgba(255, 255, 255, 0.2);
+  stroke-width: 1;
+}
+
+.grid-line-ref {
+  stroke: rgba(255, 255, 255, 0.5);
+  stroke-dasharray: 6 4;
+}
+
+.grid-ref-label {
+  fill: rgba(255, 255, 255, 0.65);
+  font-size: 11px;
+  font-family: monospace;
+  paint-order: stroke;
+  stroke: #000;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  pointer-events: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.map-tool-panel {
+  position: absolute;
+  top: calc(var(--ruler-top) + 10px);
+  left: calc(var(--ruler-left) + 10px);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 20;
+}
+
+.tool-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(30, 30, 30, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.tool-btn:hover:not(:disabled) {
+  background: rgba(60, 60, 60, 0.9);
+  color: #fff;
+}
+
+.tool-btn.active {
+  background: rgba(80, 120, 200, 0.85);
+  border-color: rgba(120, 160, 255, 0.5);
+  color: #fff;
+}
+
+.tool-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.flag-color-panel {
+  position: absolute;
+  top: calc(var(--ruler-top) + 10px + 36px);
+  left: calc(var(--ruler-left) + 10px + 32px + 6px);
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  background: rgba(20, 20, 20, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 4px;
+  transform: translateX(-8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.18s ease, opacity 0.18s ease;
+  z-index: 20;
+}
+
+.flag-color-panel.open {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.flag-color-btn {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 2px;
+  transition: border-color 0.12s;
+}
+
+.flag-color-btn:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.flag-color-btn.active {
+  border-color: #fff;
+}
+
+.flag-swatch {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.flag-pole {
+  stroke: #fff;
+  stroke-width: 1.5;
+}
+
+.flag-pennant {
+  stroke: none;
+}
+
+.map-mark {
+  stroke: #fff;
+  stroke-width: 1.5;
+  cursor: pointer;
+}
+
+.map-mark-label {
+  fill: #fff;
+  font-size: 12px;
+  font-family: sans-serif;
+  paint-order: stroke;
+  stroke: #000;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  pointer-events: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.map-ruler {
+  position: absolute;
+  pointer-events: none;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.map-ruler-top {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--ruler-top);
+}
+
+.map-ruler-left {
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--ruler-left);
+}
+
+.ruler-label {
+  position: absolute;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 11px;
+  font-family: monospace;
+  white-space: nowrap;
+}
+
+.ruler-label-x {
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.ruler-label-y {
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.map-legend {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 10;
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity 0.15s;
+  user-select: none;
+}
+
+.legend-row:hover {
+  opacity: 0.75;
+}
+
+.legend-row.hidden {
+  opacity: 0.35;
+}
+
+.legend-row.hidden .legend-label {
+  text-decoration: line-through;
+}
+
+.legend-icon {
+  flex-shrink: 0;
+}
+
+.legend-label {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 12px;
+  font-family: sans-serif;
+  white-space: nowrap;
+}
+
+.map-tooltip {
+  position: fixed;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 1.6;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 100;
+}
+
+.mark-tooltip {
+  position: fixed;
+  z-index: 100;
+  background: rgba(10, 10, 10, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 8px 10px;
+  white-space: nowrap;
+  pointer-events: all;
+}
+
+.mark-tooltip-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mark-tooltip-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  font-family: sans-serif;
+}
+
+.mark-tooltip-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 10px;
+  cursor: pointer;
+  border-radius: 3px;
+  padding: 0;
+  flex-shrink: 0;
+  transition: color 0.12s, background 0.12s;
+}
+
+.mark-tooltip-close:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.mark-tooltip-legend {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: sans-serif;
+  margin-top: 4px;
+}

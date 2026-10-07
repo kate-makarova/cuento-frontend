@@ -8,6 +8,42 @@ import {
   DocModel, BlockNode, ParagraphNode, InlineNode, Mark,
 } from './wysiwyg-doc-model';
 
+function audioEmbedHtml(url: string, sourceSite?: string): string {
+  try {
+    switch (sourceSite) {
+      case 'soundcloud': {
+        const u = new URL(url);
+        if (u.hostname === 'soundcloud.com' || u.hostname === 'www.soundcloud.com') {
+          const embed = `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%23ff5500&auto_play=false`;
+          return `<iframe src="${esc(embed)}" width="100%" height="166" frameborder="0" allow="autoplay" loading="lazy"></iframe>`;
+        }
+        break;
+      }
+      case 'spotify': {
+        const u = new URL(url);
+        if (u.hostname === 'open.spotify.com') {
+          const embedPath = u.pathname.replace(/^\/(track|album|playlist|episode)\//, '/embed/$1/');
+          const embed = `https://open.spotify.com${embedPath}`;
+          return `<iframe src="${esc(embed)}" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+        }
+        break;
+      }
+      case 'archive': {
+        const u = new URL(url);
+        if (u.hostname === 'archive.org') {
+          const m = u.pathname.match(/^\/(details|download)\/(.+)/);
+          if (m) {
+            const embed = `https://archive.org/embed/${m[2]}`;
+            return `<iframe src="${esc(embed)}" width="100%" height="60" frameborder="0" loading="lazy"></iframe>`;
+          }
+        }
+        break;
+      }
+    }
+  } catch { /* fall through */ }
+  return `<audio controls src="${esc(safeSrc(url))}" style="width:100%"></audio>`;
+}
+
 function youtubeEmbedUrl(url: string): string | null {
   try {
     const u = new URL(url);
@@ -83,6 +119,9 @@ export function renderBlock(block: BlockNode, blockIdx: number): string {
       if (!embedUrl) return `<div class="wysiwyg-video" contenteditable="false"></div>`;
       return `<div class="wysiwyg-video" contenteditable="false"><iframe src="${esc(embedUrl)}" width="560" height="315" frameborder="0" allowfullscreen loading="lazy"></iframe></div>`;
     }
+
+    case 'audio':
+      return `<div class="wysiwyg-audio" contenteditable="false">${audioEmbedHtml(block.url, block.sourceSite)}</div>`;
   }
 }
 
@@ -137,6 +176,9 @@ function renderBlockStatic(block: BlockNode): string {
       if (!embedUrl) return `<div class="wysiwyg-video" contenteditable="false"></div>`;
       return `<div class="wysiwyg-video" contenteditable="false"><iframe src="${esc(embedUrl)}" width="560" height="315" frameborder="0" allowfullscreen loading="lazy"></iframe></div>`;
     }
+
+    case 'audio':
+      return `<div class="wysiwyg-audio" contenteditable="false">${audioEmbedHtml(block.url, block.sourceSite)}</div>`;
   }
 }
 

@@ -42,6 +42,7 @@ import { ForbiddenComponent } from './error-pages/forbidden/forbidden.component'
 import { ServerErrorComponent } from './error-pages/server-error/server-error.component';
 
 
+
 export const routes: Routes = [
   {
     path: '',
@@ -597,6 +598,21 @@ export const routes: Routes = [
     path: 'lore/:id/navigation-edit',
     component: LoreNavigationEditComponent,
     data: { pageId: 'pun-lore-navigation-edit' }
+  },
+  {
+    path: 'interactive-map/:id',
+    loadComponent: () => import('./interactive-map/interactive-map.component').then(m => m.InteractiveMapComponent),
+    data: { pageId: 'pun-interactive-map', noWrapper: true }
+  },
+  {
+    path: 'interactive-map-editor',
+    loadComponent: () => import('./interactive-map-editor/interactive-map-editor.component').then(m => m.InteractiveMapEditorComponent),
+    data: { pageId: 'pun-interactive-map-editor', noWrapper: true }
+  },
+  {
+    path: 'interactive-map-editor/:id',
+    loadComponent: () => import('./interactive-map-editor/interactive-map-editor.component').then(m => m.InteractiveMapEditorComponent),
+    data: { pageId: 'pun-interactive-map-editor', noWrapper: true }
   },
   {
     path: '403',

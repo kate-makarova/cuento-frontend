@@ -49,6 +49,8 @@ export class AdminUsersComponent implements OnInit {
   absenceError = signal<string | null>(null);
   today = new Date().toISOString().slice(0, 10);
 
+  wipeOutModalUser = signal<AdminUserListItem | null>(null);
+
   ngOnInit() {
     this.apiService.get<AdminUserListItem[]>('admin/user-list').subscribe({
       next: (data) => this.users.set(data),
@@ -160,6 +162,35 @@ export class AdminUsersComponent implements OnInit {
     this.apiService.post(`admin/user/ban/${user.id}`, body).subscribe({
       next: () => this.closeBanModal(),
       error: (err) => console.error('Failed to ban user', err)
+    });
+  }
+
+  openWipeOutModal(user: AdminUserListItem) {
+    this.wipeOutModalUser.set(user);
+  }
+
+  closeWipeOutModal() {
+    this.wipeOutModalUser.set(null);
+  }
+
+  submitWipeOut() {
+    const user = this.wipeOutModalUser();
+    if (!user) return;
+    this.apiService.post(`admin/user/delete/${user.id}`, {}).subscribe({
+      next: () => {
+        this.users.update(list => list.filter(u => u.id !== user.id));
+        this.closeWipeOutModal();
+      },
+      error: (err) => console.error('Failed to wipe out user', err)
+    });
+  }
+
+  reactivate(user: AdminUserListItem) {
+    this.apiService.post(`admin/user/reactivate/${user.id}`, {}).subscribe({
+      next: () => {
+        this.users.update(list => list.map(u => u.id === user.id ? { ...u, user_status: 0 } : u));
+      },
+      error: (err) => console.error('Failed to reactivate user', err)
     });
   }
 

@@ -1,0 +1,237 @@
+@if (loading()) {
+  <div class="map-page-loader"></div>
+}
+<div
+  class="map-container"
+  #container
+  (mousedown)="onMouseDown($event)"
+  (mousemove)="onMouseMove($event)"
+  (mouseup)="onMouseUp($event)"
+  (mouseleave)="onMouseUp($event)"
+  [class.mode-flag]="mode() === 'flag'"
+  [class.mode-path]="mode() === 'path'"
+  [style.--ruler-top.px]="rulerTopHeight"
+  [style.--ruler-left.px]="rulerLeftWidth"
+>
+  <div class="map-wrapper" [style.transform]="transform()">
+    <img
+      [src]="mapConfig.mapUrl"
+      [attr.width]="mapConfig.mapWidth"
+      [attr.height]="mapConfig.mapHeight"
+      draggable="false"
+      alt="Map"
+    />
+    <svg
+      class="map-grid"
+      [attr.width]="mapConfig.mapWidth"
+      [attr.height]="mapConfig.mapHeight"
+      overflow="visible"
+    >
+      @if (radialGrid(); as rg) {
+        @for (circle of rg.circles; track circle.px) {
+          <circle
+            [attr.cx]="rg.zx" [attr.cy]="rg.zy"
+            [attr.r]="circle.px"
+            class="grid-line" fill="none"
+            vector-effect="non-scaling-stroke"
+          />
+        }
+        @for (line of rg.radialLines; track line.label) {
+          <line
+            [attr.x1]="line.x1" [attr.y1]="line.y1"
+            [attr.x2]="line.x2" [attr.y2]="line.y2"
+            class="grid-line"
+            vector-effect="non-scaling-stroke"
+          />
+        }
+        @for (label of rg.circleDistLabels; track label.value) {
+          <text
+            [attr.x]="label.x" [attr.y]="label.y"
+            class="grid-ref-label"
+            dominant-baseline="middle"
+            [style.font-size.px]="11 / scale()"
+          >{{ label.value }}</text>
+        }
+        @if (rg.refCircle; as rc) {
+          <circle
+            [attr.cx]="rg.zx" [attr.cy]="rg.zy"
+            [attr.r]="rc.px"
+            class="grid-line grid-line-ref" fill="none"
+            vector-effect="non-scaling-stroke"
+          />
+          <text
+            [attr.x]="rc.labelX" [attr.y]="rc.labelY"
+            class="grid-ref-label"
+            dominant-baseline="middle"
+            [style.font-size.px]="11 / scale()"
+            vector-effect="non-scaling-stroke"
+          >{{ rc.label }}</text>
+        }
+      } @else {
+        @for (line of gridLines().verticals; track line.px) {
+          <line
+            [attr.x1]="line.px" y1="0"
+            [attr.x2]="line.px" [attr.y2]="mapConfig.mapHeight"
+            class="grid-line"
+            vector-effect="non-scaling-stroke"
+          />
+        }
+        @for (line of gridLines().horizontals; track line.px) {
+          <line
+            x1="0" [attr.y1]="line.px"
+            [attr.x2]="mapConfig.mapWidth" [attr.y2]="line.px"
+            class="grid-line"
+            vector-effect="non-scaling-stroke"
+          />
+        }
+      }
+      @for (flag of flags(); track $index) {
+        <g [attr.transform]="'translate(' + flag.x + ',' + flag.y + ')'">
+          <line x1="0" y1="0" x2="0" y2="-20" class="flag-pole" vector-effect="non-scaling-stroke"/>
+          <polygon points="0,-20 10,-16 0,-12" [attr.fill]="flag.color" class="flag-pennant" vector-effect="non-scaling-stroke"/>
+        </g>
+      }
+      <!-- Path drawing -->
+      @for (pathData of allPathData(); track $index) {
+        @for (seg of pathData.segments; track $index) {
+          <line [attr.x1]="seg.a.x" [attr.y1]="seg.a.y" [attr.x2]="seg.b.x" [attr.y2]="seg.b.y" class="path-line" vector-effect="non-scaling-stroke"/>
+          <text [attr.x]="seg.mx" [attr.y]="seg.my - 10 / scale()" class="path-label" text-anchor="middle" [style.font-size.px]="11 / scale()">{{ seg.distLabel }} {{ mapConfig.measureUnit }}</text>
+        }
+        @for (pt of pathData.pts; track $index) {
+          <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="4" class="path-dot" vector-effect="non-scaling-stroke"/>
+        }
+        @if (pathData.pts.length > 0) {
+          <text [attr.x]="pathData.pts[0].x" [attr.y]="pathData.pts[0].y - 10 / scale()" class="path-label" text-anchor="middle" [style.font-size.px]="11 / scale()">0</text>
+        }
+        @if (pathData.pts.length > 1) {
+          <text [attr.x]="pathData.pts[pathData.pts.length - 1].x" [attr.y]="pathData.pts[pathData.pts.length - 1].y - 10 / scale()" class="path-label" text-anchor="middle" [style.font-size.px]="11 / scale()">{{ pathData.totalLabel }} {{ mapConfig.measureUnit }}</text>
+        }
+      }
+
+      @for (mark of mapConfig.marks; track mark.title) {
+        @if (!hiddenMarkTypes().has(mark.type)) {
+          <g style="pointer-events: all; cursor: pointer" (click)="showMarkTooltip($event, mark)">
+            @if (getMarkType(mark.type); as mt) {
+              @switch (mt.shape) {
+                @case ('circle')   { <circle [attr.cx]="mark.x" [attr.cy]="mark.y" r="7" [attr.fill]="mt.color" class="map-mark" vector-effect="non-scaling-stroke"/> }
+                @case ('square')   { <rect [attr.x]="mark.x - 6" [attr.y]="mark.y - 6" width="12" height="12" [attr.fill]="mt.color" class="map-mark" vector-effect="non-scaling-stroke"/> }
+                @case ('triangle') { <polygon [attr.points]="trianglePoints(mark.x, mark.y)" [attr.fill]="mt.color" class="map-mark" vector-effect="non-scaling-stroke"/> }
+                @case ('diamond')  { <polygon [attr.points]="diamondPoints(mark.x, mark.y)" [attr.fill]="mt.color" class="map-mark" vector-effect="non-scaling-stroke"/> }
+                @case ('star')     { <polygon [attr.points]="starPoints(mark.x, mark.y)" [attr.fill]="mt.color" class="map-mark" vector-effect="non-scaling-stroke"/> }
+                @case ('pentagon') { <polygon [attr.points]="pentagonPoints(mark.x, mark.y)" [attr.fill]="mt.color" class="map-mark" vector-effect="non-scaling-stroke"/> }
+                @case ('hexagon')  { <polygon [attr.points]="hexagonPoints(mark.x, mark.y)" [attr.fill]="mt.color" class="map-mark" vector-effect="non-scaling-stroke"/> }
+                @case ('cross')    { <path [attr.d]="crossPath(mark.x, mark.y)" [attr.fill]="mt.color" class="map-mark" vector-effect="non-scaling-stroke"/> }
+              }
+              @if (mark.title) {
+                <text [attr.x]="mark.x" [attr.y]="mark.y - 12 / scale()" class="map-mark-label" text-anchor="middle" [style.font-size.px]="12 / scale()">{{ mark.title }}</text>
+              }
+            } @else if (mark.title) {
+              <text [attr.x]="mark.x" [attr.y]="mark.y" class="map-mark-label" text-anchor="middle" dominant-baseline="middle" [style.font-size.px]="12 / scale()">{{ mark.title }}</text>
+            }
+          </g>
+        }
+      }
+    </svg>
+  </div>
+  <!-- Tool panel -->
+  <div class="map-tool-panel" (click)="onClick($event)" (mousedown)="$event.stopPropagation()">
+    <button class="tool-btn" [class.active]="mode() === 'cursor'" (click)="mode.set('cursor')" title="Cursor">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M2 1 L2 13 L5.5 9.5 L8.5 15.5 L10.5 14.5 L7.5 8.5 L12 8.5 Z"/>
+      </svg>
+    </button>
+    <button class="tool-btn" [class.active]="mode() === 'flag'" (click)="toggleFlagPanel()" title="Place flag">
+      <svg width="16" height="16" viewBox="0 0 16 16">
+        <line x1="4" y1="2" x2="4" y2="14" stroke="currentColor" stroke-width="1.5"/>
+        <polygon points="4,2 13,5.5 4,9" [attr.fill]="selectedFlagColor()"/>
+      </svg>
+    </button>
+    <button class="tool-btn" [class.active]="mode() === 'path'" (click)="enterPathMode()" title="Draw path">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+        <circle cx="3" cy="13" r="2"/>
+        <circle cx="13" cy="3" r="2"/>
+        <line x1="3" y1="13" x2="13" y2="3" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2,2"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Flag color panel -->
+  <div class="flag-color-panel" [class.open]="mode() === 'flag'" (click)="onClick($event)" (mousedown)="$event.stopPropagation()">
+    @for (color of flagColors; track color) {
+      <button
+        class="flag-color-btn"
+        [class.active]="selectedFlagColor() === color"
+        [title]="color"
+        (click)="selectFlagColor(color)"
+      >
+        <span class="flag-swatch" [style.background]="color"></span>
+      </button>
+    }
+  </div>
+
+  <!-- Top ruler -->
+  <div class="map-ruler map-ruler-top">
+    @if (radialGrid(); as rg) {
+      @for (label of rg.topRulerLabels; track label.screenX) {
+        <span class="ruler-label ruler-label-x" [style.left.px]="label.screenX">{{ label.value }}</span>
+      }
+    } @else {
+      @for (label of gridLabels().xLabels; track label.screenX) {
+        <span class="ruler-label ruler-label-x" [style.left.px]="label.screenX">{{ label.value }}</span>
+      }
+    }
+  </div>
+
+  <!-- Left ruler -->
+  <div class="map-ruler map-ruler-left">
+    @if (radialGrid(); as rg) {
+      @for (label of rg.leftRulerLabels; track label.screenY) {
+        <span class="ruler-label ruler-label-y" [style.top.px]="label.screenY">{{ label.value }}</span>
+      }
+    } @else {
+      @for (label of gridLabels().yLabels; track label.screenY) {
+        <span class="ruler-label ruler-label-y" [style.top.px]="label.screenY">{{ label.value }}</span>
+      }
+    }
+  </div>
+
+  <!-- Legend -->
+  <div class="map-legend" (mousedown)="$event.stopPropagation()">
+    @for (type of markTypesList; track type.key) {
+      <div class="legend-row" [class.hidden]="hiddenMarkTypes().has(type.key)" (click)="toggleMarkType(type.key)">
+        <svg class="legend-icon" viewBox="0 0 14 14" width="14" height="14">
+          @switch (type.shape) {
+            @case ('circle')   { <circle cx="7" cy="7" r="5" [attr.fill]="type.color" class="map-mark"/> }
+            @case ('square')   { <rect x="2" y="2" width="10" height="10" [attr.fill]="type.color" class="map-mark"/> }
+            @case ('triangle') { <polygon points="7,1 13,12 1,12" [attr.fill]="type.color" class="map-mark"/> }
+            @case ('diamond')  { <polygon points="7,1 13,7 7,13 1,7" [attr.fill]="type.color" class="map-mark"/> }
+            @case ('star')     { <polygon points="7,1.5 8.2,5.1 12,5.1 9,7.4 10.1,11 7,8.8 3.9,11 5,7.4 2,5.1 5.8,5.1" [attr.fill]="type.color" class="map-mark"/> }
+            @case ('pentagon') { <polygon points="7,1.5 12,5.1 10,11.5 4,11.5 2,5.1" [attr.fill]="type.color" class="map-mark"/> }
+            @case ('hexagon')  { <polygon points="12,7 9.5,11.3 4.5,11.3 2,7 4.5,2.7 9.5,2.7" [attr.fill]="type.color" class="map-mark"/> }
+            @case ('cross')    { <path d="M5,1 H9 V5 H13 V9 H9 V13 H5 V9 H1 V5 H5 Z" [attr.fill]="type.color" class="map-mark"/> }
+          }
+        </svg>
+        <span class="legend-label">{{ type.legend }}</span>
+      </div>
+    }
+  </div>
+
+  @if (tooltip(); as t) {
+    <div class="map-tooltip" [style.left.px]="t.screenX + 14" [style.top.px]="t.screenY + 14">
+      <div>{{ t.text }}</div>
+      <div>{{ t.mapX }} × {{ t.mapY }} px</div>
+    </div>
+  }
+
+  @if (markTooltip(); as t) {
+    <div class="mark-tooltip" [style.left.px]="t.screenX + 14" [style.top.px]="t.screenY + 14" (mousedown)="$event.stopPropagation()">
+      <div class="mark-tooltip-header">
+        <span class="mark-tooltip-title">{{ t.title }}</span>
+        <button class="mark-tooltip-close" (click)="hideMarkTooltip()">✕</button>
+      </div>
+      @if (t.legend) {
+        <div class="mark-tooltip-legend">{{ t.legend }}</div>
+      }
+    </div>
+  }
+</div>

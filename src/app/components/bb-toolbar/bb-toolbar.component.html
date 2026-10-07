@@ -29,7 +29,7 @@
   </span>
   <span title="Smile" i18n-title="@@postform.smile" (click)="toggleArea('smile')"><i class="bi bi-emoji-smile"></i></span>
   <span title="Video" i18n-title="@@postform.video" (click)="toggleArea('video')"><i class="bi bi-camera-video"></i></span>
-  <span title="Audio" i18n-title="@@postform.audio" (click)="insertTag('audio')"><i class="bi bi-music-note"></i></span>
+  <span title="Audio" i18n-title="@@postform.audio" (click)="toggleArea('audio')"><i class="bi bi-music-note"></i></span>
   @if (showImageUpload) {
     <span title="Upload image" i18n-title="@@postform.uploadImage" (click)="toggleArea('image')"><i class="bi bi-image"></i></span>
   }
@@ -69,6 +69,19 @@
     <div class="container" id="video-area">
       <input #videoInput type="text" placeholder="https://" (mousedown)="$event.stopPropagation()" (keydown.enter)="insertVideo(videoInput.value)" />
       <button type="button" (mousedown)="$event.preventDefault()" (click)="insertVideo(videoInput.value)" i18n="@@postform.videoInsert">Insert</button>
+    </div>
+  }
+  @if (activeArea === 'audio') {
+    <div class="container" id="audio-area">
+      <select [(ngModel)]="audioSource" (mousedown)="$event.stopPropagation()">
+        <option value="" i18n="@@postform.audioSourceDirect">Direct audio file</option>
+        <option value="soundcloud">SoundCloud</option>
+        <option value="spotify">Spotify</option>
+        <option value="archive">Archive.org</option>
+        <option value="bandcamp">Bandcamp</option>
+      </select>
+      <input #audioInput type="text" placeholder="https://" (mousedown)="$event.stopPropagation()" (keydown.enter)="insertAudio(audioInput.value)" />
+      <button type="button" (mousedown)="$event.preventDefault()" (click)="insertAudio(audioInput.value)" i18n="@@postform.audioInsert">Insert</button>
     </div>
   }
   @if (activeArea === 'color') {
