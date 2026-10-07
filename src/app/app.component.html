@@ -1,16 +1,15 @@
-@if (noWrapper()) {
-  <router-outlet />
-} @else {
-<div id="pun">
-  <div [id]="pageId" class="punbb">
-    <app-header></app-header>
+<div id="pun" [style.display]="noWrapper() ? 'contents' : ''">
+  <div [id]="pageId" class="punbb" [style.display]="noWrapper() ? 'contents' : ''">
+    @if (!noWrapper()) {
+      <app-header></app-header>
+    }
 <router-outlet />
-
-  <div id="footer-widget-panel" appRouterLinks [innerHTML]="footerPanelHtml()"></div>
-  <div id="pun-footer" class="section" app-footer></div>
+    @if (!noWrapper()) {
+      <div id="footer-widget-panel" appRouterLinks [innerHTML]="footerPanelHtml()"></div>
+      <div id="pun-footer" class="section" app-footer></div>
+    }
+  </div>
 </div>
-</div>
-}
 <app-toast></app-toast>
 @if (!noWrapper()) {
   <app-scroll-nav></app-scroll-nav>
