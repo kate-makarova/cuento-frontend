@@ -24,6 +24,7 @@ export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {
 
   mapId: number | null = null;
   saveState = signal<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  loading = signal(false);
 
   readonly rulerTopHeight = RULER_TOP_HEIGHT;
   readonly rulerLeftWidth = RULER_LEFT_WIDTH;
@@ -276,13 +277,22 @@ export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {
     const id = Number(idStr);
     if (isNaN(id)) return;
     this.mapId = id;
+    this.loading.set(true);
     this.mapService.getMap(id).subscribe({
       next: (map) => {
+        if (!map.can_edit) {
+          this.router.navigate(['/403']);
+          return;
+        }
         this.isPublic = map.is_public;
         this.rawConfigText = JSON.stringify(map.config, null, 2);
         this.applyRawConfig();
+        this.loading.set(false);
       },
-      error: (err) => console.error('Failed to load map', err),
+      error: (err) => {
+        console.error('Failed to load map', err);
+        this.loading.set(false);
+      },
     });
   }
 
