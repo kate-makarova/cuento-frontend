@@ -42,7 +42,7 @@
         <td><button (click)="openAbsenceModal(user)" i18n="@@adminUsers.absence">Absence</button></td>
         <td>
           @if (user.user_status === 1) {
-            <a [routerLink]="['/admin/user/reactivate', user.id]" class="button" i18n="@@adminUsers.reactivate">Reactivate</a>
+            <button (click)="reactivate(user)" i18n="@@adminUsers.reactivate">Reactivate</button>
           } @else {
             <button (click)="openBanModal(user)" i18n="@@adminUsers.ban">Ban</button>
           }
