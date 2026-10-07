@@ -207,6 +207,7 @@ export class InteractiveMapComponent implements OnInit {
   private mapService = inject(InteractiveMapService);
   private destroyRef = inject(DestroyRef);
 
+  loading = signal(true);
   private mapConfigData = signal<(CoordConfig & { mapUrl?: string; coordinateSystem?: string; zeroMeridian?: number[][]; referencePoint?: any; markTypes?: Record<string, any>; marks?: any[]; measureUnit?: string }) | null>(null);
 
   get mapConfig() {
@@ -419,6 +420,7 @@ export class InteractiveMapComponent implements OnInit {
       next: (map) => {
         const cfg = map.config as any;
         this.mapConfigData.set(cfg);
+        this.loading.set(false);
         this.coordsInstance.set(new CartesianCoordinates(cfg, this.scale, this.translateX, this.translateY, this.containerWidth));
         if (cfg.coordinateSystem === 'radial' && cfg.zeroMeridian) {
           this.radialCoordsInstance.set(new RadialCoordinates(cfg, this.scale, this.translateX, this.translateY, this.containerWidth));
@@ -448,7 +450,7 @@ export class InteractiveMapComponent implements OnInit {
         const rawHidden = qp.getAll('hidden');
         if (rawHidden.length) this.hiddenMarkTypes.set(new Set(rawHidden));
       },
-      error: (err) => console.error('Failed to load map', err),
+      error: (err) => { console.error('Failed to load map', err); this.loading.set(false); },
     });
   }
 

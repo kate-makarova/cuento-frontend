@@ -4,6 +4,13 @@
   height: 100vh;
 }
 
+.map-page-loader {
+  position: fixed;
+  inset: 0;
+  background: #1e1e1e;
+  z-index: 999;
+}
+
 /* ── Main container ── */
 
 .editor-container {

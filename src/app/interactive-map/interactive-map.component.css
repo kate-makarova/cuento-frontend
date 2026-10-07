@@ -1,3 +1,10 @@
+.map-page-loader {
+  position: fixed;
+  inset: 0;
+  background: #111;
+  z-index: 999;
+}
+
 .map-container {
   width: 100vw;
   height: 100vh;
