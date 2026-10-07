@@ -603,9 +603,27 @@ export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {
       if (parsed.mapWidth && parsed.mapHeight) {
         this.fitImageToScreen(parsed.mapWidth, parsed.mapHeight);
       }
+      this.syncFormFieldsFromConfig(parsed);
       this.closeRawConfigModal();
     } catch {
       this.rawConfigError = 'Invalid JSON — please fix the syntax and try again.';
+    }
+  }
+
+  private syncFormFieldsFromConfig(cfg: MapConfig): void {
+    this.imageUrlInput = cfg.mapUrl ?? '';
+    this.metaHorizontalDirection = cfg.horizontalDirection ?? '';
+    this.metaVerticalDirection = cfg.verticalDirection ?? '';
+    this.metaMeasureUnit = cfg.measureUnit ?? '';
+    this.metaZeroPointX = cfg.zeroPoint ? String(cfg.zeroPoint[0]) : '';
+    this.metaZeroPointY = cfg.zeroPoint ? String(cfg.zeroPoint[1]) : '';
+    this.metaMeasureRatioPixels = cfg.measureRatio ? String(cfg.measureRatio[0]) : '';
+    this.metaMeasureRatioUnits = cfg.measureRatio ? String(cfg.measureRatio[1]) : '';
+    this.metaCoordinateSystem = cfg.coordinateSystem ?? '';
+    if (cfg.referencePoint) {
+      this.refPointX = String(cfg.referencePoint.px[0]);
+      this.refPointY = String(cfg.referencePoint.px[1]);
+      this.refPointLat = String(cfg.referencePoint.lat);
     }
   }
 
