@@ -35,4 +35,5 @@ export interface InteractiveMap {
   config: MapConfig;
   is_public: boolean;
   creator_id: number;
+  can_edit: boolean;
 }
