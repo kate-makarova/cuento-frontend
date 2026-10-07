@@ -1,6 +1,6 @@
 import {afterRender, Component, effect, inject, OnInit, signal, HostBinding} from '@angular/core';
 import {DOCUMENT} from '@angular/common';
-import {ActivatedRoute, NavigationEnd, NavigationStart, Router, RouterOutlet} from '@angular/router';
+import {ActivatedRoute, NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router, RouterOutlet, RoutesRecognized} from '@angular/router';
 import {FooterComponent} from './components/footer/footer.component';
 import {combineLatest, filter, map, mergeMap, take} from 'rxjs';
 import {ToastComponent} from './components/toast/toast.component';
@@ -193,6 +193,29 @@ export class AppComponent implements OnInit {
   }
 
   private setupRouteListener() {
+    // Hide the wrapper early when navigating TO a noWrapper page so the header
+    // is already gone before the map component renders.
+    this.router.events.pipe(
+      filter(event => event instanceof RoutesRecognized)
+    ).subscribe(event => {
+      const e = event as RoutesRecognized;
+      let route = e.state.root;
+      while (route.firstChild) route = route.firstChild;
+      if (route.data['noWrapper']) {
+        this.noWrapper.set(true);
+      }
+    });
+
+    // If navigation is cancelled after noWrapper was set early, revert to
+    // whatever the currently active route says.
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationCancel || event instanceof NavigationError)
+    ).subscribe(() => {
+      let route = this.activatedRoute;
+      while (route.firstChild) route = route.firstChild;
+      this.noWrapper.set(!!route.snapshot.data['noWrapper']);
+    });
+
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
       map(() => this.activatedRoute),
