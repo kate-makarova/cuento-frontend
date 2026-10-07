@@ -185,6 +185,15 @@ export class AdminUsersComponent implements OnInit {
     });
   }
 
+  reactivate(user: AdminUserListItem) {
+    this.apiService.post(`admin/user/reactivate/${user.id}`, {}).subscribe({
+      next: () => {
+        this.users.update(list => list.map(u => u.id === user.id ? { ...u, user_status: 0 } : u));
+      },
+      error: (err) => console.error('Failed to reactivate user', err)
+    });
+  }
+
   saveRoles() {
     const user = this.rolesModalUser();
     if (!user) return;
