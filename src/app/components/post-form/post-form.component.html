@@ -5,7 +5,12 @@
 
         <app-bb-toolbar
           [editor]="editorMode() === 'wysiwyg' ? (wysiwygEditor ?? null) : null"
-          [textarea]="editorMode() === 'bbcode' ? textareaEl : null">
+          [textarea]="editorMode() === 'bbcode' ? textareaEl : null"
+          [isGm]="isGm"
+          [npcBlockActive]="showNpcPanel()"
+          [hidePanelActive]="showHidePanel()"
+          (npcBlockClick)="toggleNpcPanel()"
+          (hiddenMessageClick)="toggleHidePanel()">
         </app-bb-toolbar>
 
         <div class="post-editor-container">
@@ -34,6 +39,106 @@
             }
           </div>
         </div>
+
+        @if (showHidePanel()) {
+          <div class="npc-panel">
+            <div class="npc-search-wrapper">
+              <input
+                type="text"
+                class="npc-search-input"
+                [ngModel]="hideSearch()"
+                (ngModelChange)="onHideSearchChange($event)"
+                (focus)="onHideSearchFocus()"
+                (blur)="onHideSearchBlur()"
+                i18n-placeholder="@@postform.hideSearchPlaceholder"
+                placeholder="Search users…"
+                autocomplete="off"
+              />
+              @if (showHideDropdown() && filteredHideResults().length > 0) {
+                <ul class="npc-dropdown">
+                  @for (user of filteredHideResults(); track user.id) {
+                    <li (mousedown)="selectHideUser(user)">
+                      @if (user.avatar) {
+                        <img [src]="user.avatar" [alt]="user.username" class="npc-dropdown-avatar" />
+                      }
+                      {{ user.username }}
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+
+            @if (selectedHideUsers().length > 0) {
+              <div class="npc-selected">
+                @for (user of selectedHideUsers(); track user.id) {
+                  <span class="npc-chip">
+                    @if (user.avatar) {
+                      <img [src]="user.avatar" [alt]="user.username" class="npc-chip-avatar" />
+                    }
+                    {{ user.username }}
+                    <button type="button" class="npc-chip-remove" (click)="removeHideUser(user)">×</button>
+                  </span>
+                }
+              </div>
+            }
+
+            <div class="npc-panel-actions">
+              <button type="button" class="button" (click)="insertHideBlock()" [disabled]="selectedHideUsers().length === 0" i18n="@@postform.hideInsert">Insert</button>
+              <button type="button" class="button" (click)="closeHidePanel()" i18n="@@postform.hideClose">Cancel</button>
+            </div>
+          </div>
+        }
+
+        @if (isGm) {
+          @if (showNpcPanel()) {
+            <div class="npc-panel">
+              <div class="npc-search-wrapper">
+                <input
+                  type="text"
+                  class="npc-search-input"
+                  [ngModel]="npcSearch()"
+                  (ngModelChange)="onNpcSearchChange($event)"
+                  (focus)="onNpcSearchFocus()"
+                  (blur)="onNpcSearchBlur()"
+                  i18n-placeholder="@@postform.npcSearchPlaceholder"
+                  placeholder="Search NPCs…"
+                  autocomplete="off"
+                />
+                @if (showNpcDropdown() && filteredNpcResults().length > 0) {
+                  <ul class="npc-dropdown">
+                    @for (npc of filteredNpcResults(); track npc.id) {
+                      <li (mousedown)="selectNpc(npc)">
+                        @if (npc.avatar) {
+                          <img [src]="npc.avatar" [alt]="npc.name" class="npc-dropdown-avatar" />
+                        }
+                        {{ npc.name }}
+                      </li>
+                    }
+                  </ul>
+                }
+              </div>
+
+              @if (selectedNpcs().length > 0) {
+                <div class="npc-selected">
+                  @for (npc of selectedNpcs(); track npc.id) {
+                    <span class="npc-chip">
+                      @if (npc.avatar) {
+                        <img [src]="npc.avatar" [alt]="npc.name" class="npc-chip-avatar" />
+                      }
+                      {{ npc.name }}
+                      <button type="button" class="npc-chip-remove" (click)="removeNpc(npc)">×</button>
+                    </span>
+                  }
+                </div>
+              }
+
+              <div class="npc-panel-actions">
+                <button type="button" class="button" (click)="insertNpcBlock()" [disabled]="selectedNpcs().length === 0" i18n="@@postform.npcInsert">Insert</button>
+                <button type="button" class="button" (click)="closeNpcPanel()" i18n="@@postform.npcClose">Cancel</button>
+              </div>
+            </div>
+          }
+        }
 
         <div class="editor-mode-bar">
           @if (topicId && isAuthenticated()) {

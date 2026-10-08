@@ -23,6 +23,11 @@ import {PreviewComponent} from './preview/preview.component';
 import { UserListComponent } from './user-list/user-list.component';
 import { SettingsComponent } from './settings/settings.component';
 import { ActiveTopicsComponent } from './active-topics/active-topics.component';
+import { ArcListComponent } from './arc-list/arc-list.component';
+import { ArcFormComponent } from './arc-form/arc-form.component';
+import { ArcDetailComponent } from './arc-detail/arc-detail.component';
+import { NpcFormComponent } from './npc-form/npc-form.component';
+import { NpcDetailComponent } from './npc-detail/npc-detail.component';
 import { MaskPageComponent } from './mask-page/mask-page.component';
 import { RecoveryCodesComponent } from './recovery-codes/recovery-codes.component';
 import { SettingsRestorationCodesComponent } from './settings-restoration-codes/settings-restoration-codes.component';
@@ -203,6 +208,48 @@ export const routes: Routes = [
     component: WantedCharacterListComponent,
     title: 'Wanted Characters',
     data: { pageId: 'pun-wanted-character-list' }
+  },
+  {
+    path: 'arc-list',
+    component: ArcListComponent,
+    title: 'Story Arcs',
+    data: { pageId: 'pun-arc-list' }
+  },
+  {
+    path: 'arc/create',
+    component: ArcFormComponent,
+    title: 'Create Story Arc',
+    data: { pageId: 'pun-arc-create' }
+  },
+  {
+    path: 'arc/:id/edit',
+    component: ArcFormComponent,
+    title: 'Edit Story Arc',
+    data: { pageId: 'pun-arc-edit' }
+  },
+  {
+    path: 'arc/:id',
+    component: ArcDetailComponent,
+    title: 'Story Arc',
+    data: { pageId: 'pun-arc-detail' }
+  },
+  {
+    path: 'npc/create',
+    component: NpcFormComponent,
+    title: 'Create NPC',
+    data: { pageId: 'pun-npc-create' }
+  },
+  {
+    path: 'npc/:id/edit',
+    component: NpcFormComponent,
+    title: 'Edit NPC',
+    data: { pageId: 'pun-npc-edit' }
+  },
+  {
+    path: 'npc/:id',
+    component: NpcDetailComponent,
+    title: 'NPC',
+    data: { pageId: 'pun-npc-detail' }
   },
   {
     path: 'active-topics',

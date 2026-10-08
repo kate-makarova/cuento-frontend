@@ -128,8 +128,8 @@ export class TopicCreateComponent implements OnInit {
         console.log('Topic created successfully', response);
         // Assuming response contains the new topic ID, redirect to it
         // If not, redirect to the subforum
-        if (response && response.id) {
-            this.router.navigate(['/viewtopic', response.id]);
+        if (response && response.topic_id) {
+            this.router.navigate(['/viewtopic', response.topic_id]);
         } else {
             this.router.navigate(['/viewforum', this.subforumId]);
         }

@@ -1,0 +1,59 @@
+<div id="pun-npc-form" class="main npc-form">
+  <app-breadcrumbs [items]="breadcrumbs()"></app-breadcrumbs>
+  @if (!loading()) {
+    <div class="main-header">
+      <h1>
+        @if (isEdit) {
+          <ng-container i18n="@@npcform.titleEdit">Edit NPC</ng-container>
+        } @else {
+          <ng-container i18n="@@npcform.titleCreate">Create NPC</ng-container>
+        }
+      </h1>
+    </div>
+
+    <form class="form-container" (ngSubmit)="submit()">
+
+      <div class="form-group">
+        <label for="npc-name" i18n="@@npcform.name">Name</label>
+        <input id="npc-name" type="text" [(ngModel)]="name" name="name" required />
+      </div>
+
+      <div class="form-group">
+        <label i18n="@@npcform.avatar">Avatar</label>
+        @if (canUpload()) {
+          <app-cropped-image-field
+            #croppedImageRef
+            [fieldValue]="avatarUrl"
+            [showFieldName]="false"
+            [width]="avatarWidth()"
+            [height]="avatarHeight()">
+          </app-cropped-image-field>
+        } @else {
+          <input type="url" [(ngModel)]="avatarUrl" name="avatar_url" />
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="npc-description" i18n="@@npcform.description">Description</label>
+        <textarea id="npc-description" rows="5" [(ngModel)]="description" name="description"></textarea>
+      </div>
+
+      <div class="form-group form-group--narrow">
+        <label for="npc-order" i18n="@@npcform.displayOrder">Display order</label>
+        <input id="npc-order" type="number" [(ngModel)]="displayOrder" name="display_order" />
+      </div>
+
+      <div class="form-actions">
+        <app-save-button [state]="saveState()" (clicked)="submit()">
+          <span i18n="@@npcform.save">Save</span>
+        </app-save-button>
+        @if (isEdit && npcId) {
+          <a class="button" [routerLink]="['/npc', npcId]" i18n="@@common.cancel">Cancel</a>
+        } @else if (arcId) {
+          <a class="button" [routerLink]="['/arc', arcId]" i18n="@@common.cancel">Cancel</a>
+        }
+      </div>
+
+    </form>
+  }
+</div>

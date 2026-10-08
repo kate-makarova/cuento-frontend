@@ -1,5 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output, effect } from '@angular/core';
-
+import { Component, EventEmitter, inject, Input, OnInit, Output, effect, input } from '@angular/core';
 import { Post } from '../../models/Post';
 import { ShortTextFieldDisplayComponent } from '../short-text-field-display/short-text-field-display.component';
 import { LongTextFieldDisplayComponent } from '../long-text-field-display/long-text-field-display.component';
@@ -28,7 +27,7 @@ export class CharacterProfileComponent implements OnInit {
   @Input() post?: Post;
   @Input() accountName: string = '';
   @Input() loadProfiles: boolean = true;
-  @Input() showAccount: boolean = true;
+  showAccount = input<boolean>(true);
   @Input() compact: boolean = false;
   @Input() initialCharacterId: number | null | undefined = undefined;
   @Output() characterSelected = new EventEmitter<number | null>();
@@ -50,7 +49,8 @@ export class CharacterProfileComponent implements OnInit {
   constructor() {
     effect(() => {
       const chars = this.characters();
-      if (!this.post && !this.showAccount && chars.length > 0 && this.selectedCharacterId === 'account') {
+      const showAcc = this.showAccount();
+      if (!this.post && !showAcc && chars.length > 0 && this.selectedCharacterId === 'account') {
         // Episode: account is hidden, auto-select the first available character
         this.selectedCharacterId = chars[0].id;
         this.onSelect();
@@ -79,6 +79,7 @@ export class CharacterProfileComponent implements OnInit {
     }
   }
 
+
   private initFromPost() {
     if (this.post!.use_character_profile && this.post!.character_profile !== null) {
       this.isCharacter = true;
@@ -95,25 +96,38 @@ export class CharacterProfileComponent implements OnInit {
   }
 
   private initForForm() {
-    if (this.showAccount || !this.authService.isAuthenticated()) {
+    if (this.showAccount() || !this.authService.isAuthenticated()) {
       this.isCharacter = false;
       this.displayName = this.authService.isAuthenticated() ? this.accountName : this.guestName;
       this.displayAvatar = this.authService.currentUser()?.avatar ?? '';
       this.selectedCharacterId = 'account';
-      this.characterSelected.emit(null);
+      // Defer emit: firing during ngOnInit (which runs inside Angular's CD cycle) would
+      // mutate parent state and trigger NG0100. A resolved promise fires after CD completes.
+      Promise.resolve().then(() => this.characterSelected.emit(null));
     } else {
-      // If account is hidden, we wait for characters to load (handled by effect)
-      // or if already loaded, select first
       const chars = this.characters();
       if (chars.length > 0) {
-        this.selectedCharacterId = chars[0].id;
-        this.onSelect();
+        const char = chars[0];
+        this.selectedCharacterId = char.id;
+        this.isCharacter = true;
+        this.displayName = char.is_mask && char.mask_name ? char.mask_name : char.character_name;
+        this.displayAvatar = char.avatar;
+        this.customFields = this.processCustomFields(char.custom_fields);
+        Promise.resolve().then(() => this.characterSelected.emit(char.id));
       }
     }
   }
 
   selectCharacterById(id: number | null) {
-    this.selectedCharacterId = id ?? 'account';
+    if (id === null && !this.showAccount()) {
+      // Account is hidden; null means "no draft character" — keep current or use first available
+      if (this.selectedCharacterId !== 'account') return;
+      const chars = this.characters();
+      if (chars.length > 0) this.selectedCharacterId = chars[0].id;
+      else return;
+    } else {
+      this.selectedCharacterId = id ?? 'account';
+    }
     this.onSelect();
   }
 

@@ -95,10 +95,17 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
   breadcrumbs: BreadcrumbItem[] = [];
   showPostForm = signal<boolean>(false);
+  profilesReady = signal(false);
   sidebarMode = signal(false);
   sidebarProfileCompact = signal(false);
-  loadProfiles = true;
-  showAccount = true;
+  readonly showAccountInForm = computed(() => this.topic().type !== TopicType.episode);
+  readonly isProfilesLoading = computed(() => {
+    const t = this.topic();
+    return t.id !== 0 &&
+      (t.type === TopicType.episode || t.type === TopicType.general) &&
+      !this.profilesReady() &&
+      (t.permissions?.subforum_post ?? false);
+  });
   savedTopicCharacter = signal<number | undefined>(undefined);
   isTopicLoading = computed(() => !!this.id() && this.topic().id !== this.id());
 
@@ -148,6 +155,10 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   readonly isEpisodeParticipant = computed(() =>
     (this.topic().can_edit ?? false) || this.userCharacterProfiles().length > 0
   );
+
+  isGmPostMode = signal(false);
+  readonly showGmToggle = computed(() => this.topic().episode?.is_gm ?? false);
+  readonly effectiveGmPost = computed(() => this.isGmPostMode());
 
   get shouldBlur(): boolean {
     if (this.blurAcknowledged()) return false;
@@ -247,18 +258,20 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
         if (currentTopicId && t.id === currentTopicId && this.lastLoadedProfilesForTopicId !== currentTopicId) {
           if (t.type === TopicType.character) {
-            this.loadProfiles = false;
-            this.showAccount = true;
             this.lastLoadedProfilesForTopicId = currentTopicId;
           } else if (t.type === TopicType.episode) {
-            this.loadProfiles = false;
-            this.showAccount = false;
-            this.characterService.loadUserCharacterProfilesForTopic(currentTopicId);
+            this.profilesReady.set(false);
+            this.characterService.loadUserCharacterProfilesForTopic(currentTopicId).subscribe({
+              next: () => this.profilesReady.set(true),
+              error: () => this.profilesReady.set(true),
+            });
             this.lastLoadedProfilesForTopicId = currentTopicId;
           } else if (t.type === TopicType.general) {
-            this.loadProfiles = false;
-            this.showAccount = true;
-            this.characterService.loadUserCharacterProfilesForTopic(currentTopicId);
+            this.profilesReady.set(false);
+            this.characterService.loadUserCharacterProfilesForTopic(currentTopicId).subscribe({
+              next: () => this.profilesReady.set(true),
+              error: () => this.profilesReady.set(true),
+            });
             this.lastLoadedProfilesForTopicId = currentTopicId;
             const saved = sessionStorage.getItem(`topic-char-${currentTopicId}`);
             this.savedTopicCharacter.set(saved !== null ? JSON.parse(saved) : undefined);
@@ -271,6 +284,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     effect(() => {
       const t = this.topic();
       const profiles = this.userCharacterProfiles();
+      const profilesReady = this.profilesReady();
 
       // Check topic permissions first
       if (!t.permissions || !t.permissions.subforum_post) {
@@ -284,7 +298,9 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       }
 
       if (t.type === TopicType.episode) {
-        this.showPostForm.set(profiles.length > 0);
+        this.showPostForm.set(profilesReady && (profiles.length > 0 || (t.episode?.is_gm ?? false)));
+      } else if (t.type === TopicType.general) {
+        this.showPostForm.set(profilesReady);
       } else {
         this.showPostForm.set(true);
       }
@@ -509,14 +525,6 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
     this.isSubmitting.set(true);
 
-    let characterProfileId: number | null = null;
-    if (this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any) {
-      const profile = this.userCharacterProfiles().find(p => p.id === this.selectedCharacterId);
-      if (profile) {
-        characterProfileId = profile.id;
-      }
-    }
-
     const topicId = +this.id()!;
     const userId = this.authService.currentUser()?.id ?? 0;
     const idempotencyKey = `${topicId}:${userId}:${Date.now()}:${simpleHash(message)}`;
@@ -524,10 +532,23 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     const payload: any = {
       topic_id: topicId,
       content: message,
-      use_character_profile: this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any,
-      character_profile_id: characterProfileId,
       idempotency_key: idempotencyKey,
     };
+
+    if (this.effectiveGmPost()) {
+      payload.is_gm_post = true;
+      payload.use_character_profile = false;
+    } else {
+      let characterProfileId: number | null = null;
+      if (this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any) {
+        const profile = this.userCharacterProfiles().find(p => p.id === this.selectedCharacterId);
+        if (profile) {
+          characterProfileId = profile.id;
+        }
+      }
+      payload.use_character_profile = this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any;
+      payload.character_profile_id = characterProfileId;
+    }
 
     if (!this.authService.isAuthenticated()) {
       payload.guest_name = this.guestName;
@@ -578,20 +599,25 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
     if (!message || !this.id()) return;
 
-    let characterProfileId: number | null = null;
-    if (this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any) {
-      const profile = this.userCharacterProfiles().find(p => p.id === this.selectedCharacterId);
-      if (profile) {
-        characterProfileId = profile.id;
-      }
-    }
-
     const payload: any = {
       topic_id: +this.id()!,
       content: message,
-      use_character_profile: this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any,
-      character_profile_id: characterProfileId
     };
+
+    if (this.effectiveGmPost()) {
+      payload.is_gm_post = true;
+      payload.use_character_profile = false;
+    } else {
+      let characterProfileId: number | null = null;
+      if (this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any) {
+        const profile = this.userCharacterProfiles().find(p => p.id === this.selectedCharacterId);
+        if (profile) {
+          characterProfileId = profile.id;
+        }
+      }
+      payload.use_character_profile = this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any;
+      payload.character_profile_id = characterProfileId;
+    }
 
     if (!this.authService.isAuthenticated()) {
       payload.guest_name = this.guestName;

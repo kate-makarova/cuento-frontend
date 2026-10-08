@@ -56,7 +56,21 @@ export type AudioNode = {
   sourceSite?: string;
 };
 
-export type BlockNode = ParagraphNode | AlignBlock | QuoteNode | CodeNode | SpoilerNode | VideoNode | AudioNode;
+export type NpcBlockNode = {
+  type: 'npc-block';
+  npcIds: number[];
+  npcs?: { id: number; name: string; avatar: string | null }[];
+  children: ParagraphNode[];
+};
+
+export type HideNode = {
+  type: 'hide';
+  userIds: number[];
+  users?: { id: number; username: string }[];
+  children: ParagraphNode[];
+};
+
+export type BlockNode = ParagraphNode | AlignBlock | QuoteNode | CodeNode | SpoilerNode | VideoNode | AudioNode | NpcBlockNode | HideNode;
 
 export type DocModel = { children: BlockNode[] };
 
