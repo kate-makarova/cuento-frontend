@@ -385,7 +385,7 @@
         }
 
         <div class="form-content" style="flex: 1;">
-          <app-post-form #mainPostForm [isEpisode]="isEpisode()" [isGm]="topic().episode?.is_gm ?? false" [arcId]="topic().episode?.arc?.id ?? null" [topicId]="id() ?? null" [characterId]="selectedCharacterId" (characterIdChange)="onDraftCharacterLoaded($event)"></app-post-form>
+          <app-post-form #mainPostForm [isEpisode]="isEpisode()" [isGm]="topic().episode?.is_gm ?? false" [arcId]="topic().episode?.arc?.id ?? null" [episodeId]="topic().episode?.id ?? null" [topicId]="id() ?? null" [characterId]="selectedCharacterId" (characterIdChange)="onDraftCharacterLoaded($event)"></app-post-form>
         </div>
       </div>
 

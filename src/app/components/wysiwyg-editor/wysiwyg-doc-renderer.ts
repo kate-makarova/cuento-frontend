@@ -5,7 +5,7 @@
 // up to the nearest [data-doc-path] element and counting inline characters.
 
 import {
-  DocModel, BlockNode, ParagraphNode, InlineNode, Mark, NpcBlockNode,
+  DocModel, BlockNode, ParagraphNode, InlineNode, Mark, NpcBlockNode, HideNode,
 } from './wysiwyg-doc-model';
 
 function audioEmbedHtml(url: string, sourceSite?: string): string {
@@ -125,6 +125,9 @@ export function renderBlock(block: BlockNode, blockIdx: number): string {
 
     case 'npc-block':
       return renderNpcBlock(block, blockIdx);
+
+    case 'hide':
+      return renderHideBlock(block, blockIdx);
   }
 }
 
@@ -149,6 +152,29 @@ function renderNpcHeader(block: NpcBlockNode): string {
     }).join('');
   }
   return esc(block.npcIds.length > 0 ? `NPC: ${block.npcIds.join(', ')}` : 'NPC block');
+}
+
+function renderHideBlock(block: HideNode, blockIdx: number): string {
+  const header = renderHideHeader(block);
+  const inner = block.children.map((p, pi) => renderPara(p, [blockIdx, pi])).join('');
+  return (
+    `<div class="wysiwyg-hide" data-doc-path="${blockIdx}">` +
+      `<div class="wysiwyg-hide-header" contenteditable="false">${header}</div>` +
+      `<div class="wysiwyg-hide-body">${inner}</div>` +
+    `</div>`
+  );
+}
+
+function renderHideHeader(block: HideNode): string {
+  const prefix = 'Hidden from: ';
+  if (block.users && block.users.length > 0) {
+    const links = block.users.map(u =>
+      `<a class="wysiwyg-hide-user-link" href="/profile/${u.id}" target="_blank">${esc(u.username)}</a>`
+    ).join(', ');
+    return esc(prefix) + links;
+  }
+  if (block.userIds.length > 0) return esc(`${prefix}${block.userIds.join(', ')}`);
+  return esc('Hidden');
 }
 
 // ─── Paragraph rendering ─────────────────────────────────────────────────────
@@ -215,6 +241,19 @@ function renderBlockStatic(block: BlockNode): string {
         `<div class="wysiwyg-npc-block">` +
           `<div class="wysiwyg-npc-header" contenteditable="false">${header}</div>` +
           `<div class="wysiwyg-npc-body">${inner}</div>` +
+        `</div>`
+      );
+    }
+    case 'hide': {
+      const header = renderHideHeader(block);
+      const inner = block.children.map(p => {
+        const content = p.children.length > 0 ? p.children.map(renderInline).join('') : '<br>';
+        return `<div>${content}</div>`;
+      }).join('');
+      return (
+        `<div class="wysiwyg-hide">` +
+          `<div class="wysiwyg-hide-header" contenteditable="false">${header}</div>` +
+          `<div class="wysiwyg-hide-body">${inner}</div>` +
         `</div>`
       );
     }

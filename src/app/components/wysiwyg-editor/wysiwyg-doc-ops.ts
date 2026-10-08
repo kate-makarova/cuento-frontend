@@ -5,7 +5,7 @@
 // Nothing here touches the DOM.
 
 import {
-  DocModel, BlockNode, ParagraphNode, AlignBlock, QuoteNode, SpoilerNode, CodeNode, NpcBlockNode,
+  DocModel, BlockNode, ParagraphNode, AlignBlock, QuoteNode, SpoilerNode, CodeNode, NpcBlockNode, HideNode,
   InlineNode, TextNode, ImgNode, Mark, DocPoint, DocRange,
 } from './wysiwyg-doc-model';
 
@@ -481,7 +481,7 @@ function normalize(nodes: InlineNode[]): InlineNode[] {
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────
 
-type ContainerBlock = AlignBlock | QuoteNode | SpoilerNode | NpcBlockNode;
+type ContainerBlock = AlignBlock | QuoteNode | SpoilerNode | NpcBlockNode | HideNode;
 
 // Cursor-based ops only reach ParagraphNode children (cursor can't enter
 // non-paragraph children of a quote).  These helpers centralise the casts.

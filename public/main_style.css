@@ -1854,6 +1854,41 @@ spoiler-box .spoiler-content {
   text-decoration: underline;
 }
 
+.wysiwyg-hide {
+  display: block;
+  margin: 8px 0;
+}
+
+.wysiwyg-hide .wysiwyg-hide-header {
+  background-color: #f0e8d5;
+  border: 1px solid #c9a96e;
+  border-radius: 4px 4px 0 0;
+  padding: 6px 10px;
+  font-size: 0.85em;
+  color: #6b4c1e;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.wysiwyg-hide .wysiwyg-hide-body {
+  border: 1px solid #c9a96e;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  padding: 8px 10px;
+}
+
+.wysiwyg-hide .wysiwyg-hide-user-link {
+  color: #6b4c1e;
+  font-weight: 600;
+}
+
+.wysiwyg-hide .wysiwyg-hide-user-link:hover {
+  text-decoration: underline;
+}
+
 .wysiwyg-npc-block .wysiwyg-npc-body {
   border: 1px solid #9bb87e;
   border-top: none;

@@ -39,7 +39,7 @@
   <span title="Grid" i18n-title="@@postform.grid" (click)="toggleArea('grid')"><i class="bi bi-grid-3x3-gap"></i></span>
   @if (isGm) {
     <span title="NPC block" i18n-title="@@postform.npcBlock" (click)="npcBlockClick.emit()" [class.toolbar-active]="npcBlockActive || isFormatActive('npc-block')"><i class="bi bi-person-fill"></i></span>
-    <span title="Hidden message" i18n-title="@@postform.hiddenMessage" (click)="hiddenMessageClick.emit()"><i class="bi bi-lock"></i></span>
+    <span title="Hidden message" i18n-title="@@postform.hiddenMessage" (click)="hiddenMessageClick.emit()" [class.toolbar-active]="hidePanelActive || isFormatActive('hide')"><i class="bi bi-lock"></i></span>
   }
 </div>
 

@@ -63,7 +63,14 @@ export type NpcBlockNode = {
   children: ParagraphNode[];
 };
 
-export type BlockNode = ParagraphNode | AlignBlock | QuoteNode | CodeNode | SpoilerNode | VideoNode | AudioNode | NpcBlockNode;
+export type HideNode = {
+  type: 'hide';
+  userIds: number[];
+  users?: { id: number; username: string }[];
+  children: ParagraphNode[];
+};
+
+export type BlockNode = ParagraphNode | AlignBlock | QuoteNode | CodeNode | SpoilerNode | VideoNode | AudioNode | NpcBlockNode | HideNode;
 
 export type DocModel = { children: BlockNode[] };
 

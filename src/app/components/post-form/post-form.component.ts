@@ -49,6 +49,7 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
   @Input() isEpisode: boolean = false;
   @Input() isGm: boolean = false;
   @Input() arcId: number | null = null;
+  @Input() episodeId: number | null = null;
   @Input() topicId: number | null = null;
   @Input() characterId: number | null = null;
   @Output() characterIdChange = new EventEmitter<number | null>();
@@ -84,6 +85,19 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
   private mentionSubject = new Subject<string>();
   private mentionSub: Subscription;
 
+  // Hide panel state
+  showHidePanel = signal(false);
+  hideSearch = signal('');
+  hideSearchResults = signal<UserShort[]>([]);
+  selectedHideUsers = signal<UserShort[]>([]);
+  showHideDropdown = signal(false);
+  filteredHideResults = computed(() => {
+    const selectedIds = new Set(this.selectedHideUsers().map(u => u.id));
+    return this.hideSearchResults().filter(u => !selectedIds.has(u.id));
+  });
+  private hideSearchSubject = new Subject<string>();
+  private hideSearchSub?: Subscription;
+
   // NPC panel state
   showNpcPanel = signal(false);
   npcSearch = signal('');
@@ -117,6 +131,16 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
       switchMap(term => this.arcId != null ? this.arcService.searchNpcs(this.arcId, term) : of([]))
     ).subscribe(results => {
       this.npcSearchResults.set(results);
+    });
+
+    this.hideSearchSub = this.hideSearchSubject.pipe(
+      debounceTime(200),
+      distinctUntilChanged(),
+      switchMap(term => term.length >= 1 && this.episodeId != null
+        ? this.apiService.get<UserShort[]>(`user/autocomplete/${encodeURIComponent(term)}?episode_id=${this.episodeId}`)
+        : of([]))
+    ).subscribe(results => {
+      this.hideSearchResults.set(results);
     });
   }
 
@@ -197,6 +221,7 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
     this.mentionSub.unsubscribe();
     this.autosaveSub?.unsubscribe();
     this.npcSearchSub?.unsubscribe();
+    this.hideSearchSub?.unsubscribe();
     if (this.savedClearTimer) clearTimeout(this.savedClearTimer);
   }
 
@@ -362,8 +387,63 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
     }
   }
 
-  insertHiddenMessage(): void {
-    this.appendBbCode('[hidden][/hidden]');
+  toggleHidePanel(): void {
+    if (this.editorMode() === 'wysiwyg' && this.wysiwygEditor?.activeFormats().has('hide')) {
+      this.wysiwygEditor.unwrapBlock('.wysiwyg-hide');
+      return;
+    }
+    if (this.showHidePanel()) {
+      this.closeHidePanel();
+    } else {
+      this.showHidePanel.set(true);
+      this.hideSearch.set('');
+      this.selectedHideUsers.set([]);
+      this.hideSearchSubject.next('');
+      this.showHideDropdown.set(false);
+    }
+  }
+
+  closeHidePanel(): void {
+    this.showHidePanel.set(false);
+    this.hideSearch.set('');
+    this.hideSearchResults.set([]);
+    this.selectedHideUsers.set([]);
+    this.showHideDropdown.set(false);
+  }
+
+  onHideSearchChange(value: string): void {
+    this.hideSearch.set(value);
+    this.hideSearchSubject.next(value);
+    this.showHideDropdown.set(true);
+  }
+
+  onHideSearchFocus(): void { this.showHideDropdown.set(true); }
+
+  onHideSearchBlur(): void {
+    setTimeout(() => this.showHideDropdown.set(false), 150);
+  }
+
+  selectHideUser(user: UserShort): void {
+    this.selectedHideUsers.update(list => [...list, user]);
+    this.hideSearch.set('');
+    this.hideSearchResults.set([]);
+    this.showHideDropdown.set(false);
+  }
+
+  removeHideUser(user: UserShort): void {
+    this.selectedHideUsers.update(list => list.filter(u => u.id !== user.id));
+  }
+
+  insertHideBlock(): void {
+    const users = this.selectedHideUsers();
+    if (!users.length) return;
+    if (this.editorMode() === 'wysiwyg' && this.wysiwygEditor) {
+      this.wysiwygEditor.insertHideBlockDirect(users.map(u => ({ id: u.id, username: u.username })));
+    } else {
+      const ids = users.map(u => u.id).join(',');
+      this.appendBbCode(`[hide users=${ids}][/hide]`);
+    }
+    this.closeHidePanel();
   }
 
   appendBbCode(bbCode: string): void {

@@ -22,6 +22,7 @@ export class BbToolbarComponent {
   @Input() showImageUpload = true;
   @Input() isGm = false;
   @Input() npcBlockActive = false;
+  @Input() hidePanelActive = false;
   @Output() npcBlockClick = new EventEmitter<void>();
   @Output() hiddenMessageClick = new EventEmitter<void>();
 

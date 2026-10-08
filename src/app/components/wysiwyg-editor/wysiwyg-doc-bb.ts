@@ -4,7 +4,7 @@
 // serializeDoc : DocModel → string
 
 import {
-  DocModel, BlockNode, ParagraphNode, AlignBlock, QuoteNode, CodeNode, SpoilerNode, VideoNode, AudioNode, NpcBlockNode,
+  DocModel, BlockNode, ParagraphNode, AlignBlock, QuoteNode, CodeNode, SpoilerNode, VideoNode, AudioNode, NpcBlockNode, HideNode,
   InlineNode, TextNode, Mark,
 } from './wysiwyg-doc-model';
 
@@ -54,7 +54,7 @@ function findMatchingClose(text: string, tag: string, from: number): number {
 function parseBlocks(text: string): BlockNode[] {
   const result: BlockNode[] = [];
   // Matches the opening tag of every block-level construct.
-  const blockOpen = /\[code\]|\[quote(?:=[^\]]*)?\]|\[spoiler(?:=[^\]]*)?\]|\[center\]|\[right\]|\[left\]|\[video\]|\[audio(?:\s[^\]]+)?\]|\[npc-block\]/gi;
+  const blockOpen = /\[code\]|\[quote(?:=[^\]]*)?\]|\[spoiler(?:=[^\]]*)?\]|\[center\]|\[right\]|\[left\]|\[video\]|\[audio(?:\s[^\]]+)?\]|\[npc-block\]|\[hide(?:\s[^\]]+)?\]/gi;
   let pos = 0;
 
   let m: RegExpExecArray | null;
@@ -124,6 +124,12 @@ function parseBlocks(text: string): BlockNode[] {
       case 'npc-block':
         result.push(parseNpcBlock(content));
         break;
+      case 'hide': {
+        const usersMatch = m[0].match(/\busers=([\d,]+)/);
+        const userIds = usersMatch ? usersMatch[1].split(',').map(Number).filter(n => !isNaN(n) && n > 0) : [];
+        result.push({ type: 'hide', userIds, children: paraLines(content) } as HideNode);
+        break;
+      }
     }
   }
 
@@ -267,6 +273,11 @@ function serializeBlock(block: BlockNode): string {
       const npcTags = block.npcIds.map(id => `[npc id=${id}]`).join('');
       const inner = block.children.map(serializeParaContent).join('\n');
       return `[npc-block][npc-header]${npcTags}[/npc-header][npc-body]${inner}[/npc-body][/npc-block]\n`;
+    }
+    case 'hide': {
+      const inner = block.children.map(serializeParaContent).join('\n');
+      const usersAttr = block.userIds.length > 0 ? ` users=${block.userIds.join(',')}` : '';
+      return `[hide${usersAttr}]${inner}[/hide]\n`;
     }
   }
 }

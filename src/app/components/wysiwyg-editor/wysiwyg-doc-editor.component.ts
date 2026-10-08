@@ -4,7 +4,7 @@ import {
 import { BoardService } from '../../services/board.service';
 import { ImageService } from '../../services/image.service';
 import {
-  DocModel, BlockNode, ParagraphNode, AlignBlock, DocPoint, DocRange, Mark, NpcBlockNode,
+  DocModel, BlockNode, ParagraphNode, AlignBlock, DocPoint, DocRange, Mark, NpcBlockNode, HideNode,
 } from './wysiwyg-doc-model';
 import { parseBbCode, serializeDoc } from './wysiwyg-doc-bb';
 import { renderDoc } from './wysiwyg-doc-renderer';
@@ -665,6 +665,7 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
       if (block.type === 'quote')     active.add('quote');
       if (block.type === 'spoiler')   active.add('spoiler');
       if (block.type === 'npc-block') active.add('npc-block');
+      if (block.type === 'hide')      active.add('hide');
       if (block.type === 'align')     active.add(block.align);
     }
 
@@ -937,6 +938,8 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
         const headerText = child.querySelector('.wysiwyg-npc-header')?.textContent ?? '';
         const npcIds = (headerText.match(/\d+/g) ?? []).map(Number);
         blocks.push({ type: 'npc-block', npcIds, children: [{ type: 'paragraph', children: [] }] });
+      } else if (child.classList.contains('wysiwyg-hide')) {
+        blocks.push({ type: 'hide', userIds: [], children: [{ type: 'paragraph', children: [] }] });
       } else if (child.tagName === 'DIV') {
         if (!child.className || child.className === '') {
           blocks.push({ type: 'paragraph', children: [] });
@@ -996,6 +999,34 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
     this.render();
 
     const cursorIdx = before.length; // place cursor inside the npc-block body
+    const newCursor: DocPoint = { path: [cursorIdx, 0], offset: 0 };
+    this.cursor = { anchor: newCursor, focus: newCursor };
+    this.editorEl.nativeElement.focus();
+    applyDocRange(this.cursor, this.editorEl.nativeElement);
+    this.updateActiveState();
+  }
+
+  insertHideBlockDirect(users: { id: number; username: string }[]): void {
+    this.pushHistory('other');
+    const node: HideNode = {
+      type: 'hide',
+      userIds: users.map(u => u.id),
+      users,
+      children: [{ type: 'paragraph', children: [] }],
+    };
+    const toInsert: BlockNode[] = [node, { type: 'paragraph', children: [] } as ParagraphNode];
+
+    const blockIdx = this.cursor.anchor.path[0];
+    const current = this.doc.children[blockIdx];
+    const replaceEmpty = current?.type === 'paragraph' && current.children.length === 0;
+
+    const before = this.doc.children.slice(0, replaceEmpty ? blockIdx : blockIdx + 1);
+    const after  = this.doc.children.slice(replaceEmpty ? blockIdx + 1 : blockIdx + 1);
+
+    this.doc = { children: [...before, ...toInsert, ...after] };
+    this.render();
+
+    const cursorIdx = before.length;
     const newCursor: DocPoint = { path: [cursorIdx, 0], offset: 0 };
     this.cursor = { anchor: newCursor, focus: newCursor };
     this.editorEl.nativeElement.focus();
@@ -1092,6 +1123,8 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
       if (block.type === 'spoiler') children = block.children;
     } else if (containerSelector.includes('wysiwyg-npc-block')) {
       if (block.type === 'npc-block') children = block.children;
+    } else if (containerSelector.includes('wysiwyg-hide')) {
+      if (block.type === 'hide') children = block.children;
     }
 
     if (!children) return;
