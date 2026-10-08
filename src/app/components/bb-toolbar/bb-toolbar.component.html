@@ -37,6 +37,10 @@
     <span title="Spoiler" (click)="openSpoilerModal()" [class.toolbar-active]="isFormatActive('spoiler')"><i class="bi bi-eye-slash"></i></span>
   }
   <span title="Grid" i18n-title="@@postform.grid" (click)="toggleArea('grid')"><i class="bi bi-grid-3x3-gap"></i></span>
+  @if (isGm) {
+    <span title="NPC block" i18n-title="@@postform.npcBlock" (click)="npcBlockClick.emit()" [class.toolbar-active]="npcBlockActive"><i class="bi bi-person-fill"></i></span>
+    <span title="Hidden message" i18n-title="@@postform.hiddenMessage" (click)="hiddenMessageClick.emit()"><i class="bi bi-lock"></i></span>
+  }
 </div>
 
 <div id="tags" (mousedown)="$event.preventDefault()">

@@ -5,7 +5,11 @@
 
         <app-bb-toolbar
           [editor]="editorMode() === 'wysiwyg' ? (wysiwygEditor ?? null) : null"
-          [textarea]="editorMode() === 'bbcode' ? textareaEl : null">
+          [textarea]="editorMode() === 'bbcode' ? textareaEl : null"
+          [isGm]="isGm"
+          [npcBlockActive]="showNpcPanel()"
+          (npcBlockClick)="toggleNpcPanel()"
+          (hiddenMessageClick)="insertHiddenMessage()">
         </app-bb-toolbar>
 
         <div class="post-editor-container">
@@ -36,11 +40,6 @@
         </div>
 
         @if (isGm) {
-          <div class="gm-actions">
-            <button type="button" class="button" [class.button--active]="showNpcPanel()" (click)="toggleNpcPanel()" i18n="@@postform.npcBlock">NPC block</button>
-            <button type="button" class="button" i18n="@@postform.hiddenMessage">Hidden message</button>
-          </div>
-
           @if (showNpcPanel()) {
             <div class="npc-panel">
               <div class="npc-search-wrapper">

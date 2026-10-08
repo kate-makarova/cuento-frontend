@@ -100,7 +100,7 @@ function nearestDocPathEl(node: Node, editorEl: HTMLElement): HTMLElement | null
  * but are not themselves editable paragraphs.
  */
 function isContainerEl(el: HTMLElement): boolean {
-  return el.tagName === 'BLOCKQUOTE' || el.classList.contains('wysiwyg-spoiler');
+  return el.tagName === 'BLOCKQUOTE' || el.classList.contains('wysiwyg-spoiler') || el.classList.contains('wysiwyg-npc-block');
 }
 
 // ─── Character counting: DOM → model offset ───────────────────────────────────

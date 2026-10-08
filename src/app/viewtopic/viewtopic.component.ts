@@ -149,6 +149,15 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     (this.topic().can_edit ?? false) || this.userCharacterProfiles().length > 0
   );
 
+  isGmPostMode = signal(false);
+  readonly showGmToggle = computed(() =>
+    (this.topic().episode?.is_gm ?? false) && this.userCharacterProfiles().length > 0
+  );
+  // True when posting as GM: either the user toggled GM mode, or they're a GM with no characters
+  readonly effectiveGmPost = computed(() =>
+    this.isGmPostMode() || ((this.topic().episode?.is_gm ?? false) && this.userCharacterProfiles().length === 0)
+  );
+
   get shouldBlur(): boolean {
     if (this.blurAcknowledged()) return false;
     if (this.showPostForm()) return false;
@@ -284,7 +293,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       }
 
       if (t.type === TopicType.episode) {
-        this.showPostForm.set(profiles.length > 0);
+        this.showPostForm.set(profiles.length > 0 || (t.episode?.is_gm ?? false));
       } else {
         this.showPostForm.set(true);
       }
@@ -509,14 +518,6 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
     this.isSubmitting.set(true);
 
-    let characterProfileId: number | null = null;
-    if (this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any) {
-      const profile = this.userCharacterProfiles().find(p => p.id === this.selectedCharacterId);
-      if (profile) {
-        characterProfileId = profile.id;
-      }
-    }
-
     const topicId = +this.id()!;
     const userId = this.authService.currentUser()?.id ?? 0;
     const idempotencyKey = `${topicId}:${userId}:${Date.now()}:${simpleHash(message)}`;
@@ -524,10 +525,23 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     const payload: any = {
       topic_id: topicId,
       content: message,
-      use_character_profile: this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any,
-      character_profile_id: characterProfileId,
       idempotency_key: idempotencyKey,
     };
+
+    if (this.effectiveGmPost()) {
+      payload.is_gm_post = true;
+      payload.use_character_profile = false;
+    } else {
+      let characterProfileId: number | null = null;
+      if (this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any) {
+        const profile = this.userCharacterProfiles().find(p => p.id === this.selectedCharacterId);
+        if (profile) {
+          characterProfileId = profile.id;
+        }
+      }
+      payload.use_character_profile = this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any;
+      payload.character_profile_id = characterProfileId;
+    }
 
     if (!this.authService.isAuthenticated()) {
       payload.guest_name = this.guestName;
@@ -578,20 +592,25 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
     if (!message || !this.id()) return;
 
-    let characterProfileId: number | null = null;
-    if (this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any) {
-      const profile = this.userCharacterProfiles().find(p => p.id === this.selectedCharacterId);
-      if (profile) {
-        characterProfileId = profile.id;
-      }
-    }
-
     const payload: any = {
       topic_id: +this.id()!,
       content: message,
-      use_character_profile: this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any,
-      character_profile_id: characterProfileId
     };
+
+    if (this.effectiveGmPost()) {
+      payload.is_gm_post = true;
+      payload.use_character_profile = false;
+    } else {
+      let characterProfileId: number | null = null;
+      if (this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any) {
+        const profile = this.userCharacterProfiles().find(p => p.id === this.selectedCharacterId);
+        if (profile) {
+          characterProfileId = profile.id;
+        }
+      }
+      payload.use_character_profile = this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any;
+      payload.character_profile_id = characterProfileId;
+    }
 
     if (!this.authService.isAuthenticated()) {
       payload.guest_name = this.guestName;

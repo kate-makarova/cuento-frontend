@@ -1805,6 +1805,29 @@ spoiler-box .spoiler-content {
   padding: 8px 10px;
 }
 
+.wysiwyg-npc-block {
+  display: block;
+  margin: 8px 0;
+}
+
+.wysiwyg-npc-block .wysiwyg-npc-header {
+  background-color: #e3e8d5;
+  border: 1px solid #9bb87e;
+  border-radius: 4px 4px 0 0;
+  padding: 6px 10px;
+  font-size: 0.85em;
+  color: #4a5c30;
+  font-weight: 600;
+  user-select: none;
+}
+
+.wysiwyg-npc-block .wysiwyg-npc-body {
+  border: 1px solid #9bb87e;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  padding: 8px 10px;
+}
+
 .widget-grid {
   display: grid;
 }

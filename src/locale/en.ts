@@ -946,6 +946,8 @@ export const TRANSLATIONS_EN = {
   "postform.npcClose": "Cancel",
   "postform.npcInsert": "Insert",
   "postform.npcSearchPlaceholder": "Search NPCs…",
+  "postform.normalPost": "Normal post",
+  "postform.gmPost": "GM post",
   "postform.preview": "Preview",
   "postform.profile": "Profile",
   "postform.quickReply": "Quick reply",

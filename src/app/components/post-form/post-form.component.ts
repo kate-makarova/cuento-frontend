@@ -362,6 +362,10 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
     }
   }
 
+  insertHiddenMessage(): void {
+    this.appendBbCode('[hidden][/hidden]');
+  }
+
   appendBbCode(bbCode: string): void {
     if (this.editorMode() === 'wysiwyg') {
       this.wysiwygEditor?.insertBbCodeBlocks(bbCode);

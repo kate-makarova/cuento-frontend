@@ -5,7 +5,7 @@
 // up to the nearest [data-doc-path] element and counting inline characters.
 
 import {
-  DocModel, BlockNode, ParagraphNode, InlineNode, Mark,
+  DocModel, BlockNode, ParagraphNode, InlineNode, Mark, NpcBlockNode,
 } from './wysiwyg-doc-model';
 
 function audioEmbedHtml(url: string, sourceSite?: string): string {
@@ -122,7 +122,21 @@ export function renderBlock(block: BlockNode, blockIdx: number): string {
 
     case 'audio':
       return `<div class="wysiwyg-audio" contenteditable="false">${audioEmbedHtml(block.url, block.sourceSite)}</div>`;
+
+    case 'npc-block':
+      return renderNpcBlock(block, blockIdx);
   }
+}
+
+function renderNpcBlock(block: NpcBlockNode, blockIdx: number): string {
+  const label = block.npcIds.length > 0 ? `NPC: ${block.npcIds.join(', ')}` : 'NPC block';
+  const inner = block.children.map((p, pi) => renderPara(p, [blockIdx, pi])).join('');
+  return (
+    `<div class="wysiwyg-npc-block" data-doc-path="${blockIdx}">` +
+      `<div class="wysiwyg-npc-header" contenteditable="false">${esc(label)}</div>` +
+      `<div class="wysiwyg-npc-body">${inner}</div>` +
+    `</div>`
+  );
 }
 
 // ─── Paragraph rendering ─────────────────────────────────────────────────────
@@ -179,6 +193,19 @@ function renderBlockStatic(block: BlockNode): string {
 
     case 'audio':
       return `<div class="wysiwyg-audio" contenteditable="false">${audioEmbedHtml(block.url, block.sourceSite)}</div>`;
+    case 'npc-block': {
+      const label = block.npcIds.length > 0 ? `NPC: ${block.npcIds.join(', ')}` : 'NPC block';
+      const inner = block.children.map(p => {
+        const content = p.children.length > 0 ? p.children.map(renderInline).join('') : '<br>';
+        return `<div>${content}</div>`;
+      }).join('');
+      return (
+        `<div class="wysiwyg-npc-block">` +
+          `<div class="wysiwyg-npc-header" contenteditable="false">${esc(label)}</div>` +
+          `<div class="wysiwyg-npc-body">${inner}</div>` +
+        `</div>`
+      );
+    }
   }
 }
 

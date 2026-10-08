@@ -4,7 +4,7 @@
 // serializeDoc : DocModel → string
 
 import {
-  DocModel, BlockNode, ParagraphNode, AlignBlock, QuoteNode, CodeNode, SpoilerNode, VideoNode, AudioNode,
+  DocModel, BlockNode, ParagraphNode, AlignBlock, QuoteNode, CodeNode, SpoilerNode, VideoNode, AudioNode, NpcBlockNode,
   InlineNode, TextNode, Mark,
 } from './wysiwyg-doc-model';
 
@@ -54,7 +54,7 @@ function findMatchingClose(text: string, tag: string, from: number): number {
 function parseBlocks(text: string): BlockNode[] {
   const result: BlockNode[] = [];
   // Matches the opening tag of every block-level construct.
-  const blockOpen = /\[code\]|\[quote(?:=[^\]]*)?\]|\[spoiler(?:=[^\]]*)?\]|\[center\]|\[right\]|\[left\]|\[video\]|\[audio(?:\s[^\]]+)?\]/gi;
+  const blockOpen = /\[code\]|\[quote(?:=[^\]]*)?\]|\[spoiler(?:=[^\]]*)?\]|\[center\]|\[right\]|\[left\]|\[video\]|\[audio(?:\s[^\]]+)?\]|\[npc-block\]/gi;
   let pos = 0;
 
   let m: RegExpExecArray | null;
@@ -69,7 +69,7 @@ function parseBlocks(text: string): BlockNode[] {
       result.push(...paraLines(before));
     }
 
-    const tag   = (m[0].match(/\[(\w+)/) ?? [])[1]?.toLowerCase() ?? '';
+    const tag   = (m[0].match(/\[([a-z][a-z0-9-]*)/) ?? [])[1]?.toLowerCase() ?? '';
     const attr  = (m[0].match(/\[(?:\w+)=([^\]]*)\]/) ?? [])[1];
     const close = `[/${tag}]`;
     const after = m.index + m[0].length;
@@ -121,6 +121,9 @@ function parseBlocks(text: string): BlockNode[] {
       case 'left':
         result.push({ type: 'align', align: tag as AlignBlock['align'], children: paraLines(content) });
         break;
+      case 'npc-block':
+        result.push(parseNpcBlock(content));
+        break;
     }
   }
 
@@ -129,6 +132,20 @@ function parseBlocks(text: string): BlockNode[] {
   }
 
   return result;
+}
+
+function parseNpcBlock(content: string): NpcBlockNode {
+  const npcIds: number[] = [];
+  const headerMatch = content.match(/\[npc-header\]([\s\S]*?)\[\/npc-header\]/i);
+  if (headerMatch) {
+    const re = /\[npc\s+id=(\d+)\]/gi;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(headerMatch[1])) !== null) npcIds.push(parseInt(m[1], 10));
+  }
+  const bodyMatch = content.match(/\[npc-body\]([\s\S]*?)\[\/npc-body\]/i);
+  const bodyText = bodyMatch ? bodyMatch[1].replace(/^\n+|\n+$/, '') : '';
+  const children = bodyText ? paraLines(bodyText) : [{ type: 'paragraph' as const, children: [] }];
+  return { type: 'npc-block', npcIds, children };
 }
 
 // Split raw text on newlines → ParagraphNode[]
@@ -246,6 +263,11 @@ function serializeBlock(block: BlockNode): string {
       return block.sourceSite
         ? `[audio source_site=${block.sourceSite}]${block.url}[/audio]\n`
         : `[audio]${block.url}[/audio]\n`;
+    case 'npc-block': {
+      const npcTags = block.npcIds.map(id => `[npc id=${id}]`).join('');
+      const inner = block.children.map(serializeParaContent).join('\n');
+      return `[npc-block][npc-header]${npcTags}[/npc-header][npc-body]${inner}[/npc-body][/npc-block]\n`;
+    }
   }
 }
 

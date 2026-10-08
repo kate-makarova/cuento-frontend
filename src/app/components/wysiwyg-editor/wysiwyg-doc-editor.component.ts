@@ -909,7 +909,7 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
 
     const firstIdx = before.length;
     const firstBlock = this.doc.children[firstIdx];
-    const newCursor: DocPoint = firstBlock.type === 'quote' || firstBlock.type === 'spoiler'
+    const newCursor: DocPoint = firstBlock.type === 'quote' || firstBlock.type === 'spoiler' || firstBlock.type === 'npc-block'
       ? { path: [firstIdx, 0], offset: 0 }
       : { path: [firstIdx], offset: 0 };
 
@@ -932,6 +932,10 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
       } else if (child.classList.contains('wysiwyg-spoiler')) {
         const title = child.querySelector('.wysiwyg-spoiler-header')?.textContent?.trim() ?? 'Spoiler';
         blocks.push({ type: 'spoiler', title, children: [{ type: 'paragraph', children: [] }] });
+      } else if (child.classList.contains('wysiwyg-npc-block')) {
+        const headerText = child.querySelector('.wysiwyg-npc-header')?.textContent ?? '';
+        const npcIds = (headerText.match(/\d+/g) ?? []).map(Number);
+        blocks.push({ type: 'npc-block', npcIds, children: [{ type: 'paragraph', children: [] }] });
       } else if (child.tagName === 'DIV') {
         if (!child.className || child.className === '') {
           blocks.push({ type: 'paragraph', children: [] });
