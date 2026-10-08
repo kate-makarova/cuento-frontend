@@ -145,7 +145,7 @@ function renderNpcHeader(block: NpcBlockNode): string {
       const avatar = npc.avatar
         ? `<img class="wysiwyg-npc-avatar" src="${esc(safeSrc(npc.avatar))}" alt="${esc(npc.name)}">`
         : `<span class="wysiwyg-npc-avatar wysiwyg-npc-avatar--placeholder"></span>`;
-      return `${avatar}<span class="wysiwyg-npc-name">${esc(npc.name)}</span>`;
+      return `<a class="wysiwyg-npc-link" href="/npc/${npc.id}" target="_blank">${avatar}<span class="wysiwyg-npc-name">${esc(npc.name)}</span></a>`;
     }).join('');
   }
   return esc(block.npcIds.length > 0 ? `NPC: ${block.npcIds.join(', ')}` : 'NPC block');

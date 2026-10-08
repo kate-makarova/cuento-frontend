@@ -1842,6 +1842,18 @@ spoiler-box .spoiler-content {
   margin-right: 8px;
 }
 
+.wysiwyg-npc-block .wysiwyg-npc-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.wysiwyg-npc-block .wysiwyg-npc-link:hover {
+  text-decoration: underline;
+}
+
 .wysiwyg-npc-block .wysiwyg-npc-body {
   border: 1px solid #9bb87e;
   border-top: none;
