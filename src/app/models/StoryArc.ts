@@ -47,7 +47,6 @@ export interface ArcCreateRequest {
 }
 
 export interface ArcUpdateRequest {
-  id: number;
   title?: string;
   description?: string;
   status?: number;

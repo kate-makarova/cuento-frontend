@@ -34,7 +34,7 @@ export class ArcService {
   }
 
   updateArc(id: number, data: Omit<ArcUpdateRequest, 'id'>): Observable<StoryArc> {
-    return this.apiService.post<StoryArc>('arc/update', { ...data, id });
+    return this.apiService.post<StoryArc>(`arc/update/${id}`, data);
   }
 
   getArcEpisodes(id: number): Observable<ArcEpisode[]> {
