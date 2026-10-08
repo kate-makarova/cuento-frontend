@@ -25,6 +25,7 @@ import { SettingsComponent } from './settings/settings.component';
 import { ActiveTopicsComponent } from './active-topics/active-topics.component';
 import { ArcListComponent } from './arc-list/arc-list.component';
 import { ArcFormComponent } from './arc-form/arc-form.component';
+import { ArcDetailComponent } from './arc-detail/arc-detail.component';
 import { MaskPageComponent } from './mask-page/mask-page.component';
 import { RecoveryCodesComponent } from './recovery-codes/recovery-codes.component';
 import { SettingsRestorationCodesComponent } from './settings-restoration-codes/settings-restoration-codes.component';
@@ -223,6 +224,12 @@ export const routes: Routes = [
     component: ArcFormComponent,
     title: 'Edit Story Arc',
     data: { pageId: 'pun-arc-edit' }
+  },
+  {
+    path: 'arc/:id',
+    component: ArcDetailComponent,
+    title: 'Story Arc',
+    data: { pageId: 'pun-arc-detail' }
   },
   {
     path: 'active-topics',

@@ -25,6 +25,16 @@ export interface StoryArc {
   can_edit?: boolean;
 }
 
+export interface ArcEpisode {
+  id: number;
+  title: string;
+  status: number;
+  last_post_date: string | null;
+  last_post_author: UserShort | null;
+  characters: { id: number; name: string; avatar: string | null }[];
+  factions: FactionShort[];
+}
+
 export interface ArcSaveRequest {
   title: string;
   description?: string;

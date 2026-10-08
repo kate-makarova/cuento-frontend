@@ -1,0 +1,124 @@
+<div id="pun-arc-detail" class="main arc-detail">
+  @if (!loading()) {
+    @if (arc(); as arc) {
+      <div class="main-header">
+        <h1>{{ arc.title }}</h1>
+        <div class="main-header-controls">
+          @if (canEdit()) {
+            <a class="button" [routerLink]="['/arc', arc.id, 'edit']" i18n="@@arcdetail.edit">Edit</a>
+          }
+        </div>
+      </div>
+
+      <div class="arc-header">
+        @if (arc.image_url) {
+          <div class="arc-header-image">
+            <img [src]="arc.image_url" [alt]="arc.title" />
+          </div>
+        }
+
+        <div class="arc-header-body">
+          <div class="arc-header-meta">
+            <span class="arc-status-badge status-{{ arc.status }}">{{ statusLabels[arc.status] }}</span>
+            @if (!arc.is_public) {
+              <span class="arc-private-badge" i18n="@@arcdetail.private">Private</span>
+            }
+          </div>
+
+          @if (arc.description) {
+            <div class="arc-description">{{ arc.description }}</div>
+          }
+
+          @if (arc.factions?.length) {
+            <div class="arc-meta-row">
+              <span class="arc-meta-label" i18n="@@arcdetail.factions">Factions:</span>
+              <span class="arc-faction-tags">
+                @for (f of arc.factions; track f.id; let last = $last) {
+                  <span class="arc-faction-tag">{{ f.name }}</span>
+                }
+              </span>
+            </div>
+          }
+
+          @if (arc.game_masters?.length) {
+            <div class="arc-meta-row">
+              <span class="arc-meta-label" i18n="@@arcdetail.gm">GM:</span>
+              <span class="arc-gm-list">
+                @for (gm of arc.game_masters; track gm.id; let last = $last) {
+                  <a [routerLink]="['/profile', gm.id]" class="arc-gm-link">
+                    @if (gm.avatar) {
+                      <img [src]="gm.avatar" [alt]="gm.username" class="arc-gm-avatar" />
+                    }
+                    {{ gm.username }}
+                  </a>@if (!last) {, }
+                }
+              </span>
+            </div>
+          }
+
+          <div class="arc-meta-row">
+            <span class="arc-meta-label" i18n="@@arcdetail.episodes">Episodes:</span>
+            {{ arc.episode_count }}
+          </div>
+        </div>
+      </div>
+
+      <section class="arc-episodes">
+        <h2 i18n="@@arcdetail.episodesTitle">Episodes</h2>
+
+        @if (episodes().length) {
+          <table class="episodes-table" cellspacing="0">
+            <thead>
+              <tr>
+                <th i18n="@@arcdetail.colTitle">Title</th>
+                <th i18n="@@arcdetail.colStatus">Status</th>
+                <th i18n="@@arcdetail.colLastPost">Last Post</th>
+                <th i18n="@@arcdetail.colAuthor">Author</th>
+                <th i18n="@@arcdetail.colCharacters">Characters</th>
+                <th i18n="@@arcdetail.colFactions">Factions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (ep of episodes(); track ep.id) {
+                <tr>
+                  <td>
+                    <a [routerLink]="['/viewtopic', ep.id]" class="episode-link">{{ ep.title }}</a>
+                  </td>
+                  <td>
+                    <span class="episode-status-badge status-{{ ep.status }}">
+                      {{ episodeStatusLabels[ep.status] ?? ep.status }}
+                    </span>
+                  </td>
+                  <td class="col-date">
+                    {{ ep.last_post_date | date:'yyyy-MM-dd' }}
+                  </td>
+                  <td>
+                    @if (ep.last_post_author) {
+                      <a [routerLink]="['/profile', ep.last_post_author.id]">{{ ep.last_post_author.username }}</a>
+                    }
+                  </td>
+                  <td>
+                    <span class="character-list">
+                      @for (c of ep.characters; track c.id; let last = $last) {
+                        <span class="character-tag">{{ c.name }}</span>
+                      }
+                    </span>
+                  </td>
+                  <td>
+                    <span class="faction-list">
+                      @for (f of ep.factions; track f.id; let last = $last) {
+                        <span class="faction-tag">{{ f.name }}</span>
+                      }
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <p class="arc-empty" i18n="@@arcdetail.noEpisodes">No episodes yet.</p>
+        }
+      </section>
+    }
+  }
+</div>
