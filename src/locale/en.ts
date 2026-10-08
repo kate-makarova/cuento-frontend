@@ -613,6 +613,7 @@ export const TRANSLATIONS_EN = {
   "common.delete": "Delete",
   "common.deleted": "Deleted",
   "common.edit": "Edit",
+  "common.home": "Home",
   "common.level": "Level",
   "common.loading": "Loading...",
   "common.next": "Next",

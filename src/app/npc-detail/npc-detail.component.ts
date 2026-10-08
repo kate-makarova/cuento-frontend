@@ -29,6 +29,7 @@ export class NpcDetailComponent implements OnInit {
       next: (npc) => {
         this.npc.set(npc);
         this.breadcrumbs.set([
+          { label: $localize`:@@common.home:Home`, link: '/' },
           { label: $localize`:@@npcdetail.breadcrumbArcList:Story Arcs`, link: '/arc-list' },
           ...(npc.arc ? [{ label: npc.arc.title, link: `/arc/${npc.arc.id}` }] : []),
           { label: npc.name },

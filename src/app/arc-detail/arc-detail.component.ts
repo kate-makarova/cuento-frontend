@@ -22,6 +22,7 @@ export class ArcDetailComponent implements OnInit {
   private router = inject(Router);
 
   breadcrumbs = signal<BreadcrumbItem[]>([
+    { label: $localize`:@@common.home:Home`, link: '/' },
     { label: $localize`:@@arcdetail.breadcrumbArcList:Story Arcs`, link: '/arc-list' },
   ]);
 

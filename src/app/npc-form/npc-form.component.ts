@@ -41,6 +41,7 @@ export class NpcFormComponent implements OnInit {
   avatarUrl = '';
   displayOrder = 0;
 
+  private readonly homeCrumb: BreadcrumbItem = { label: $localize`:@@common.home:Home`, link: '/' };
   private readonly arcListCrumb: BreadcrumbItem = {
     label: $localize`:@@npcform.breadcrumbArcList:Story Arcs`,
     link: '/arc-list',
@@ -64,6 +65,7 @@ export class NpcFormComponent implements OnInit {
           if (npc.arc) this.arcId = npc.arc.id;
 
           this.breadcrumbs.set([
+            this.homeCrumb,
             this.arcListCrumb,
             ...(npc.arc ? [{ label: npc.arc.title, link: `/arc/${npc.arc.id}` }] : []),
             { label: npc.name, link: `/npc/${npc.id}` },
@@ -77,6 +79,7 @@ export class NpcFormComponent implements OnInit {
       // Create mode — arc context comes from query params
       if (this.arcId && arcTitle) {
         this.breadcrumbs.set([
+          this.homeCrumb,
           this.arcListCrumb,
           { label: arcTitle, link: `/arc/${this.arcId}` },
           { label: $localize`:@@npcform.breadcrumbCreate:Create NPC` },
@@ -86,6 +89,7 @@ export class NpcFormComponent implements OnInit {
         this.arcService.getArc(this.arcId).subscribe({
           next: (arc) => {
             this.breadcrumbs.set([
+              this.homeCrumb,
               this.arcListCrumb,
               { label: arc.title, link: `/arc/${arc.id}` },
               { label: $localize`:@@npcform.breadcrumbCreate:Create NPC` },
@@ -93,12 +97,12 @@ export class NpcFormComponent implements OnInit {
             this.loading.set(false);
           },
           error: () => {
-            this.breadcrumbs.set([this.arcListCrumb]);
+            this.breadcrumbs.set([this.homeCrumb, this.arcListCrumb]);
             this.loading.set(false);
           },
         });
       } else {
-        this.breadcrumbs.set([this.arcListCrumb]);
+        this.breadcrumbs.set([this.homeCrumb, this.arcListCrumb]);
         this.loading.set(false);
       }
     }
