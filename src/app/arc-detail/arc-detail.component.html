@@ -60,6 +60,12 @@
             <span class="arc-meta-label" i18n="@@arcdetail.episodes">Episodes:</span>
             {{ arc.episode_count }}
           </div>
+
+          @if (arc.subforum_id) {
+            <div class="arc-meta-row">
+              <a [routerLink]="['/viewforum', arc.subforum_id]" i18n="@@arcdetail.privateSubforum">Game Masters' private subforum</a>
+            </div>
+          }
         </div>
       </div>
 

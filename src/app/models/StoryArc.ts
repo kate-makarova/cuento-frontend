@@ -23,6 +23,7 @@ export interface StoryArc {
   game_masters: UserShort[];
   episode_count: number;
   can_edit?: boolean;
+  subforum_id?: number | null;
 }
 
 export interface ArcEpisode {
