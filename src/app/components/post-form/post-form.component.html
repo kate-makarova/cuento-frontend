@@ -37,9 +37,58 @@
 
         @if (isGm) {
           <div class="gm-actions">
-            <button type="button" class="button" i18n="@@postform.npcBlock">NPC block</button>
+            <button type="button" class="button" [class.button--active]="showNpcPanel()" (click)="toggleNpcPanel()" i18n="@@postform.npcBlock">NPC block</button>
             <button type="button" class="button" i18n="@@postform.hiddenMessage">Hidden message</button>
           </div>
+
+          @if (showNpcPanel()) {
+            <div class="npc-panel">
+              <div class="npc-search-wrapper">
+                <input
+                  type="text"
+                  class="npc-search-input"
+                  [ngModel]="npcSearch()"
+                  (ngModelChange)="onNpcSearchChange($event)"
+                  (focus)="onNpcSearchFocus()"
+                  (blur)="onNpcSearchBlur()"
+                  i18n-placeholder="@@postform.npcSearchPlaceholder"
+                  placeholder="Search NPCs…"
+                  autocomplete="off"
+                />
+                @if (showNpcDropdown() && filteredNpcResults().length > 0) {
+                  <ul class="npc-dropdown">
+                    @for (npc of filteredNpcResults(); track npc.id) {
+                      <li (mousedown)="selectNpc(npc)">
+                        @if (npc.avatar) {
+                          <img [src]="npc.avatar" [alt]="npc.name" class="npc-dropdown-avatar" />
+                        }
+                        {{ npc.name }}
+                      </li>
+                    }
+                  </ul>
+                }
+              </div>
+
+              @if (selectedNpcs().length > 0) {
+                <div class="npc-selected">
+                  @for (npc of selectedNpcs(); track npc.id) {
+                    <span class="npc-chip">
+                      @if (npc.avatar) {
+                        <img [src]="npc.avatar" [alt]="npc.name" class="npc-chip-avatar" />
+                      }
+                      {{ npc.name }}
+                      <button type="button" class="npc-chip-remove" (click)="removeNpc(npc)">×</button>
+                    </span>
+                  }
+                </div>
+              }
+
+              <div class="npc-panel-actions">
+                <button type="button" class="button" (click)="insertNpcBlock()" [disabled]="selectedNpcs().length === 0" i18n="@@postform.npcInsert">Insert</button>
+                <button type="button" class="button" (click)="closeNpcPanel()" i18n="@@postform.npcClose">Cancel</button>
+              </div>
+            </div>
+          }
         }
 
         <div class="editor-mode-bar">

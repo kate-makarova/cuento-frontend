@@ -45,4 +45,9 @@ export class ArcService {
     const params = limit !== undefined ? `?number=${limit}` : '';
     return this.apiService.get<ArcNpc[]>(`arc/${id}/npcs${params}`);
   }
+
+  searchNpcs(arcId: number, name: string): Observable<ArcNpc[]> {
+    const params = name ? `?name=${encodeURIComponent(name)}` : '';
+    return this.apiService.get<ArcNpc[]>(`arc/${arcId}/npcs/search${params}`);
+  }
 }
