@@ -174,7 +174,7 @@ export class EpisodeCreateComponent implements OnInit {
         this.forumService.loadSubforum(this.subforumId);
       } else {
         this.needsSubforumSelection = true;
-        this.episodeService.loadSubforumList();
+        this.episodeService.loadEpisodeSubforumList();
       }
       if (params['arc_id'] && !this.initialData) {
         this.arcId = +params['arc_id'];

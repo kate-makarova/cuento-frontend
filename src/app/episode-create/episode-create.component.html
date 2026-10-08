@@ -13,7 +13,7 @@
             <span class="input">
               <select [(ngModel)]="subforumId" [ngModelOptions]="{standalone: true}">
                 <option [ngValue]="0" i18n="@@episodecreate.selectSubforum">Select a subforum…</option>
-                @for (sf of episodeService.subforumList(); track sf.id) {
+                @for (sf of episodeService.episodeSubforumList(); track sf.id) {
                   <option [ngValue]="sf.id">{{ sf.name }}</option>
                 }
               </select>
