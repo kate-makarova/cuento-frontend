@@ -3,7 +3,6 @@ import { FormArray, FormControl, ReactiveFormsModule, FormsModule } from '@angul
 
 import { EpisodeService } from '../services/episode.service';
 import { CharacterService } from '../services/character.service';
-import { ArcService } from '../services/arc.service';
 import { TopicService } from '../services/topic.service';
 import { FieldInputComponent } from '../components/field-input/field-input.component';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
@@ -27,7 +26,6 @@ import { StandardWarning } from '../models/StandardWarning';
 export class EpisodeCreateComponent implements OnInit {
   episodeService = inject(EpisodeService);
   characterService = inject(CharacterService);
-  private arcService = inject(ArcService);
   topicService = inject(TopicService);
   maskService = inject(MaskService);
   previewService = inject(PreviewService);
@@ -73,12 +71,9 @@ export class EpisodeCreateComponent implements OnInit {
   subject: string = '';
   openToEveryone: boolean = false;
 
-  // Arc autocomplete
-  arcControl = new FormControl('');
-  selectedArcId: number | null = null;
-  private originalArcId: number | null = null;
-  arcSuggestions = signal<{ id: number; title: string }[]>([]);
-  arcSearchActive = signal(false);
+  // Arc — set from query params on create, read-only
+  arcId: number | null = null;
+  arcTitle: string = '';
 
   // Rating — manual baseline set by the user directly in the dropdowns
   manualRatingLanguage: number = 0;
@@ -103,21 +98,6 @@ export class EpisodeCreateComponent implements OnInit {
   constructor() {
     this.setupAutocomplete(0);
     this.setupMaskAutocomplete(0);
-    this.arcControl.valueChanges.pipe(
-      debounceTime(300),
-      distinctUntilChanged()
-    ).subscribe(value => {
-      if (value && value.length >= 1) {
-        this.arcSearchActive.set(true);
-        this.arcService.searchArcs(value).subscribe({
-          next: (results) => this.arcSuggestions.set(results),
-          error: () => this.arcSuggestions.set([])
-        });
-      } else {
-        this.arcSuggestions.set([]);
-        this.arcSearchActive.set(false);
-      }
-    });
     effect(() => {
       const s = this.forumService.subforum();
       if (s?.id) {
@@ -136,8 +116,8 @@ export class EpisodeCreateComponent implements OnInit {
       const p = previewState.formPayload;
       this.subject = p.name;
       if (p.arc_id) {
-        this.selectedArcId = p.arc_id;
-        this.arcControl.setValue(p._arcTitle || '', { emitEvent: false });
+        this.arcId = p.arc_id;
+        this.arcTitle = p._arcTitle || '';
       }
 
       this.characterControls.clear();
@@ -197,8 +177,8 @@ export class EpisodeCreateComponent implements OnInit {
         this.episodeService.loadSubforumList();
       }
       if (params['arc_id'] && !this.initialData) {
-        this.selectedArcId = +params['arc_id'];
-        this.arcControl.setValue(params['arc_title'] || '', { emitEvent: false });
+        this.arcId = +params['arc_id'];
+        this.arcTitle = params['arc_title'] || '';
       }
     });
 
@@ -210,9 +190,6 @@ export class EpisodeCreateComponent implements OnInit {
   populateForm(data: Episode) {
     this.subject = data.name;
     this.openToEveryone = data.open_to_everyone ?? false;
-    this.originalArcId = data.arc?.id ?? null;
-    this.selectedArcId = data.arc?.id ?? null;
-    this.arcControl.setValue(data.arc?.title ?? '', { emitEvent: false });
     this.manualRatingLanguage = data.rating_language ?? 0;
     this.manualRatingViolence = data.rating_violence ?? 0;
     this.manualRatingSex = data.rating_sex ?? 0;
@@ -348,24 +325,6 @@ export class EpisodeCreateComponent implements OnInit {
     }
   }
 
-  selectArc(id: number, title: string): void {
-    this.selectedArcId = id;
-    this.arcControl.setValue(title, { emitEvent: false });
-    this.arcSuggestions.set([]);
-    this.arcSearchActive.set(false);
-  }
-
-  clearArc(): void {
-    this.selectedArcId = null;
-    this.arcControl.setValue('', { emitEvent: false });
-    this.arcSuggestions.set([]);
-    this.arcSearchActive.set(false);
-  }
-
-  onArcInputBlur(): void {
-    setTimeout(() => this.arcSearchActive.set(false), 150);
-  }
-
   onRatingLanguageChange(value: number) {
     this.manualRatingLanguage = +value;
     this.recalculateRatings();
@@ -443,17 +402,8 @@ export class EpisodeCreateComponent implements OnInit {
       warning_ids: this.selectedWarnings.map(w => w.id),
     };
 
-    // Arc: for create include arc_id if selected; for update detect changes
-    if (this.formSubmit.observed) {
-      if (this.selectedArcId !== null && this.selectedArcId !== this.originalArcId) {
-        request.arc_id = this.selectedArcId;
-      } else if (this.selectedArcId === null && this.originalArcId !== null) {
-        request.remove_arc = true;
-      }
-    } else {
-      if (this.selectedArcId !== null) {
-        request.arc_id = this.selectedArcId;
-      }
+    if (!this.formSubmit.observed && this.arcId !== null) {
+      request.arc_id = this.arcId;
     }
 
     const isPreview = ((event as SubmitEvent).submitter as HTMLInputElement | null)?.name === 'preview';
@@ -480,7 +430,7 @@ export class EpisodeCreateComponent implements OnInit {
             } as Topic,
             posts: [],
             returnUrl: this.router.url,
-            formPayload: { ...request, _characterEntries: characterEntries, _maskEntries: maskEntries, _arcTitle: this.arcControl.value }
+            formPayload: { ...request, _characterEntries: characterEntries, _maskEntries: maskEntries, _arcTitle: this.arcTitle }
           });
           this.router.navigate(['/preview']);
         },
