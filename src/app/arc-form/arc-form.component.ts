@@ -7,7 +7,7 @@ import { FactionService } from '../services/faction.service';
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
 import { BoardService } from '../services/board.service';
-import { ArcSaveRequest, ArcStatus, StoryArc } from '../models/StoryArc';
+import { ArcCreateRequest, ArcStatus, StoryArc } from '../models/StoryArc';
 import { UserShort } from '../models/UserShort';
 import { SaveButtonComponent, SaveState } from '../admin/save-button/save-button.component';
 import { CroppedImageFieldComponent } from '../components/cropped-image-field/cropped-image-field.component';
@@ -141,7 +141,7 @@ export class ArcFormComponent implements OnInit {
       ? (this.croppedImageRef?.value || undefined)
       : (this.imageUrl.trim() || undefined);
 
-    const request: ArcSaveRequest = {
+    const request: ArcCreateRequest = {
       title: this.title.trim(),
       description: this.description.trim() || undefined,
       status: this.status,

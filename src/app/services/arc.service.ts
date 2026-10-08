@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { ArcEpisode, ArcFilterRequest, ArcListResponse, ArcSaveRequest, StoryArc } from '../models/StoryArc';
+import { ArcCreateRequest, ArcEpisode, ArcFilterRequest, ArcListResponse, ArcUpdateRequest, StoryArc } from '../models/StoryArc';
 
 @Injectable({ providedIn: 'root' })
 export class ArcService {
@@ -29,12 +29,12 @@ export class ArcService {
     return this.apiService.get<StoryArc>(`arc/${id}`);
   }
 
-  createArc(data: ArcSaveRequest): Observable<StoryArc> {
-    return this.apiService.post<StoryArc>('arc', data);
+  createArc(data: ArcCreateRequest): Observable<StoryArc> {
+    return this.apiService.post<StoryArc>('arc/create', data);
   }
 
-  updateArc(id: number, data: ArcSaveRequest): Observable<StoryArc> {
-    return this.apiService.put<StoryArc>(`arc/${id}`, data);
+  updateArc(id: number, data: Omit<ArcUpdateRequest, 'id'>): Observable<StoryArc> {
+    return this.apiService.post<StoryArc>('arc/update', { ...data, id });
   }
 
   getArcEpisodes(id: number): Observable<ArcEpisode[]> {

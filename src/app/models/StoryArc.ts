@@ -35,7 +35,7 @@ export interface ArcEpisode {
   factions: FactionShort[];
 }
 
-export interface ArcSaveRequest {
+export interface ArcCreateRequest {
   title: string;
   description?: string;
   status: number;
@@ -43,6 +43,17 @@ export interface ArcSaveRequest {
   image_url?: string;
   faction_ids: number[];
   game_master_ids: number[];
+}
+
+export interface ArcUpdateRequest {
+  id: number;
+  title?: string;
+  description?: string;
+  status?: number;
+  is_public?: boolean;
+  image_url?: string;
+  faction_ids?: number[];
+  game_master_ids?: number[];
 }
 
 export interface ArcFilterRequest {
