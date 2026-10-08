@@ -1,16 +1,13 @@
 import { FactionShort } from './Faction';
+import { UserShort } from './UserShort';
+
+export type { UserShort };
 
 export enum ArcStatus {
   Pending = 0,
   Active = 1,
   Archived = 2,
   Finished = 3
-}
-
-export interface ShortUser {
-  id: number;
-  username: string;
-  avatar?: string | null;
 }
 
 export interface StoryArc {
@@ -23,8 +20,19 @@ export interface StoryArc {
   thumbnail_url?: string | null;
   creator_id?: number | null;
   factions: FactionShort[];
-  game_masters: ShortUser[];
+  game_masters: UserShort[];
   episode_count: number;
+  can_edit?: boolean;
+}
+
+export interface ArcSaveRequest {
+  title: string;
+  description?: string;
+  status: number;
+  is_public: boolean;
+  image_url?: string;
+  faction_ids: number[];
+  game_master_ids: number[];
 }
 
 export interface ArcFilterRequest {

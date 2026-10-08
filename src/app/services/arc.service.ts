@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
+import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { ArcFilterRequest, ArcListResponse, StoryArc } from '../models/StoryArc';
+import { ArcFilterRequest, ArcListResponse, ArcSaveRequest, StoryArc } from '../models/StoryArc';
 
 @Injectable({ providedIn: 'root' })
 export class ArcService {
@@ -22,5 +23,17 @@ export class ArcService {
       },
       error: (err) => console.error('Failed to load arcs', err)
     });
+  }
+
+  getArc(id: number): Observable<StoryArc> {
+    return this.apiService.get<StoryArc>(`arc/${id}`);
+  }
+
+  createArc(data: ArcSaveRequest): Observable<StoryArc> {
+    return this.apiService.post<StoryArc>('arc', data);
+  }
+
+  updateArc(id: number, data: ArcSaveRequest): Observable<StoryArc> {
+    return this.apiService.put<StoryArc>(`arc/${id}`, data);
   }
 }

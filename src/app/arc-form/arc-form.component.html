@@ -1,0 +1,135 @@
+<div id="pun-arc-form" class="main">
+  @if (!loading()) {
+    <div class="main-header">
+      <h1>
+        @if (isEdit) {
+          <ng-container i18n="@@arcform.editTitle">Edit Story Arc</ng-container>
+        } @else {
+          <ng-container i18n="@@arcform.createTitle">Create Story Arc</ng-container>
+        }
+      </h1>
+    </div>
+
+    <div class="formal">
+      <form class="container">
+        <fieldset>
+          <div class="fs-box">
+            <p class="inputfield required">
+              <label for="arc-title" i18n="@@arcform.title">Title (Required)</label>
+              <span class="input">
+                <input id="arc-title" type="text" [(ngModel)]="title" name="title" maxlength="255" required />
+              </span>
+            </p>
+          </div>
+
+          <div class="fs-box">
+            <p class="inputfield">
+              <label for="arc-description" i18n="@@arcform.description">Description</label>
+              <span class="input">
+                <textarea id="arc-description" [(ngModel)]="description" name="description" rows="5"></textarea>
+              </span>
+            </p>
+          </div>
+
+          <div class="fs-box">
+            <p class="inputfield">
+              <label for="arc-status" i18n="@@arcform.status">Status</label>
+              <span class="input">
+                <select id="arc-status" [(ngModel)]="status" name="status">
+                  @for (s of allStatuses; track s.value) {
+                    <option [value]="s.value">{{ s.label }}</option>
+                  }
+                </select>
+              </span>
+            </p>
+          </div>
+
+          <div class="fs-box">
+            <p class="inputfield">
+              <label for="arc-image-url" i18n="@@arcform.imageUrl">Image URL</label>
+              <span class="input">
+                <input id="arc-image-url" type="url" [(ngModel)]="imageUrl" name="image_url" />
+              </span>
+            </p>
+          </div>
+
+          <div class="fs-box">
+            <p class="inputfield">
+              <label>
+                <span class="checkbox-input">
+                  <input type="checkbox" [(ngModel)]="isPublic" name="is_public" />
+                  <ng-container i18n="@@arcform.isPublic">Public</ng-container>
+                </span>
+              </label>
+            </p>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend i18n="@@arcform.factions">Factions</legend>
+          <div class="fs-box">
+            <div class="checkbox-list">
+              @for (faction of factions(); track faction.id) {
+                <label [style.padding-left.rem]="faction.level > 0 ? faction.level * 1.5 : 0">
+                  <span class="checkbox-input">
+                    <input type="checkbox" [checked]="isFactionSelected(faction.id)" (change)="toggleFaction(faction.id)" />
+                    {{ faction.name }}
+                  </span>
+                </label>
+              }
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend i18n="@@arcform.gameMasters">Game Masters</legend>
+          <div class="fs-box">
+            <div class="gm-search autocomplete-wrapper">
+              <input
+                type="text"
+                [(ngModel)]="gmSearchQuery"
+                name="gm_search"
+                (ngModelChange)="onGmSearchInput()"
+                placeholder="Search users…"
+                i18n-placeholder="@@arcform.searchUsers"
+                autocomplete="off"
+              />
+              @if (gmSuggestions().length > 0) {
+                <div class="suggestions-dropdown">
+                  @for (user of gmSuggestions(); track user.id) {
+                    <div class="suggestion-item" (mousedown)="selectGm(user)">
+                      @if (user.avatar) {
+                        <img [src]="user.avatar" [alt]="user.username" class="suggestion-avatar" />
+                      }
+                      {{ user.username }}
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+            @if (selectedGMs.length > 0) {
+              <div class="selected-tags">
+                @for (gm of selectedGMs; track gm.id) {
+                  <span class="tag">
+                    @if (gm.avatar) {
+                      <img [src]="gm.avatar" [alt]="gm.username" class="tag-avatar" />
+                    }
+                    {{ gm.username }}
+                    <i (click)="removeGm(gm.id)">×</i>
+                  </span>
+                }
+              </div>
+            }
+          </div>
+        </fieldset>
+
+        <p class="formsubmit">
+          <app-save-button [state]="saveState()" (clicked)="submit()">
+            <ng-container i18n="@@arcform.save">Save</ng-container>
+          </app-save-button>
+          <a class="button" [routerLink]="isEdit ? ['/arc', arcId] : ['/arc-list']" i18n="@@arcform.cancel">Cancel</a>
+        </p>
+      </form>
+    </div>
+  }
+</div>
