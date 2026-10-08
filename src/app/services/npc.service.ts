@@ -18,12 +18,22 @@ export interface NpcUpdateRequest {
   display_order?: number;
 }
 
+export interface NpcTopic {
+  topic_id: number;
+  topic_name: string;
+  post_ids: number[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class NpcService {
   private apiService = inject(ApiService);
 
   getNpc(id: number): Observable<ArcNpc> {
     return this.apiService.get<ArcNpc>(`npc/${id}`);
+  }
+
+  getNpcTopics(id: number): Observable<NpcTopic[]> {
+    return this.apiService.get<NpcTopic[]>(`npc/${id}/topics`);
   }
 
   createNpc(data: NpcCreateRequest): Observable<{ id: number }> {

@@ -24,6 +24,24 @@
           <div class="npc-profile-description">{{ npc()!.description }}</div>
         }
       </div>
+
+      @if (topics().length > 0) {
+        <div class="npc-topics">
+          <h2 i18n="@@npcdetail.topicsHeading">Topics</h2>
+          <ul class="npc-topics-list">
+            @for (topic of topics(); track topic.topic_id) {
+              <li>
+                <a [routerLink]="['/viewtopic', topic.topic_id]">{{ topic.topic_name }}</a>
+                <span class="npc-post-links">
+                  @for (postId of topic.post_ids; track postId) {
+                    <a [routerLink]="['/viewtopic', topic.topic_id]" [queryParams]="{ post_id: postId }" [fragment]="'' + postId">#{{ postId }}</a>
+                  }
+                </span>
+              </li>
+            }
+          </ul>
+        </div>
+      }
     }
   }
 </div>

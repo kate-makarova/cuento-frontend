@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { NpcService } from '../services/npc.service';
+import { NpcService, NpcTopic } from '../services/npc.service';
 import { ArcNpc } from '../models/StoryArc';
 import { BreadcrumbItem, BreadcrumbsComponent } from '../components/breadcrumbs/breadcrumbs.component';
 
@@ -17,6 +17,7 @@ export class NpcDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
 
   npc = signal<ArcNpc | null>(null);
+  topics = signal<NpcTopic[]>([]);
   breadcrumbs = signal<BreadcrumbItem[]>([]);
   loading = signal(true);
   error = signal(false);
@@ -40,6 +41,11 @@ export class NpcDetailComponent implements OnInit {
         this.error.set(true);
         this.loading.set(false);
       },
+    });
+
+    this.npcService.getNpcTopics(id).subscribe({
+      next: (topics) => this.topics.set(topics),
+      error: () => {},
     });
   }
 }
