@@ -443,8 +443,8 @@ export class EpisodeCreateComponent implements OnInit {
     } else {
       this.episodeService.createEpisode(request as CreateEpisodeRequest).subscribe({
         next: (response: any) => {
-          if (response?.id) {
-            this.router.navigate(['/viewtopic', response.id]);
+          if (response?.topic_id) {
+            this.router.navigate(['/viewtopic', response.topic_id]);
           } else {
             this.router.navigate(['/viewforum', this.subforumId]);
           }

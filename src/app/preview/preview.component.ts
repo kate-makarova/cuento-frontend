@@ -54,8 +54,8 @@ export class PreviewComponent {
     this.topicService.createTopic(request, createEndpoint).subscribe({
       next: (response: any) => {
         this.previewService.clear();
-        if (response?.id) {
-          this.router.navigate(['/viewtopic', response.id]);
+        if (response?.topic_id) {
+          this.router.navigate(['/viewtopic', response.topic_id]);
         } else {
           this.router.navigate(['/viewforum', request.subforum_id]);
         }
