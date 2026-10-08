@@ -165,7 +165,7 @@
 
   <div [class.content-blurred]="shouldBlur">
   @for(post of posts(); track (post.id || $index); let i = $index; let isEven = $even) {
-  <div id="{{post.id}}" [class]="'post ' + topicTypeClass() + (isEven ? ' altstyle' : '')">
+  <div id="{{post.id}}" [class]="'post ' + topicTypeClass() + (isEven ? ' altstyle' : '') + (post.is_gm_post ? ' post-gm' : '')">
     <h3>
       <span class="post-meta">{{ post.date_created_localized }}</span>
       <strong class="post-number">
@@ -185,7 +185,7 @@
           @if (editingPostId() === post.id) {
             @if (isPostAuthor(post)) {
               <app-character-profile
-                [showAccount]="showAccount"
+                [showAccount]="showAccountInForm()"
                 [accountName]="accountName"
                 [loadProfiles]="false"
                 [initialCharacterId]="post.character_profile?.id"
@@ -355,17 +355,25 @@
   </div>
   }
 
+  @if (isProfilesLoading()) {
+    <div class="post-form-loader" i18n="@@postform.loadingProfile">Loading profile…</div>
+  }
+
   @if (showPostForm()) {
   <app-post-sidebar id="post-form" class="formal" (sidebarModeChange)="onSidebarModeChange($event)">
     <form class="container" (submit)="onSubmit($event)">
       @if (showGmToggle()) {
         <div class="gm-post-toggle">
-          <button type="button" class="button" [class.button--active]="!isGmPostMode()" (click)="isGmPostMode.set(false)" i18n="@@postform.normalPost">Normal post</button>
-          <button type="button" class="button" [class.button--active]="isGmPostMode()" (click)="isGmPostMode.set(true)" i18n="@@postform.gmPost">GM post</button>
+          @if (isGmPostMode()) {
+            <button type="button" class="button" (click)="isGmPostMode.set(false)" i18n="@@postform.normalPost">Normal post</button>
+          } @else {
+            <button type="button" class="button" (click)="isGmPostMode.set(true)" i18n="@@postform.gmPost">GM post</button>
+          }
         </div>
       }
       <div class="post-editor-container" style="display: flex; gap: 15px;">
-        <div class="profile-sidebar" style="width: 200px;" [hidden]="effectiveGmPost()">
+        @if (!effectiveGmPost()) {
+        <div class="profile-sidebar" style="width: 200px;">
           <button type="button" class="profile-collapse-btn" (click)="sidebarProfileCompact.set(!sidebarProfileCompact())" [title]="sidebarProfileCompact() ? 'Expand profile' : 'Collapse profile'">
             <i [class]="sidebarProfileCompact() ? 'bi bi-chevron-down' : 'bi bi-chevron-up'"></i>
             <span i18n="@@postform.profile">Profile</span>
@@ -373,17 +381,18 @@
           <app-character-profile
             #characterProfileRef
             [accountName]="accountName"
-            [loadProfiles]="loadProfiles"
-            [showAccount]="showAccount"
+            [loadProfiles]="false"
+            [showAccount]="showAccountInForm()"
             [compact]="sidebarProfileCompact()"
             [initialCharacterId]="savedTopicCharacter()"
             (characterSelected)="onCharacterSelected($event)"
             (guestNameChanged)="onGuestNameChanged($event)">
           </app-character-profile>
         </div>
+        }
 
         <div class="form-content" style="flex: 1;">
-          <app-post-form #mainPostForm [isEpisode]="isEpisode()" [isGm]="topic().episode?.is_gm ?? false" [arcId]="topic().episode?.arc?.id ?? null" [episodeId]="topic().episode?.id ?? null" [topicId]="id() ?? null" [characterId]="selectedCharacterId" (characterIdChange)="onDraftCharacterLoaded($event)"></app-post-form>
+          <app-post-form #mainPostForm [isEpisode]="isEpisode()" [isGm]="effectiveGmPost()" [arcId]="topic().episode?.arc?.id ?? null" [episodeId]="topic().episode?.id ?? null" [topicId]="id() ?? null" [characterId]="selectedCharacterId" (characterIdChange)="onDraftCharacterLoaded($event)"></app-post-form>
         </div>
       </div>
 

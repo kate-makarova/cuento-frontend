@@ -95,10 +95,17 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
   breadcrumbs: BreadcrumbItem[] = [];
   showPostForm = signal<boolean>(false);
+  profilesReady = signal(false);
   sidebarMode = signal(false);
   sidebarProfileCompact = signal(false);
-  loadProfiles = true;
-  showAccount = true;
+  readonly showAccountInForm = computed(() => this.topic().type !== TopicType.episode);
+  readonly isProfilesLoading = computed(() => {
+    const t = this.topic();
+    return t.id !== 0 &&
+      (t.type === TopicType.episode || t.type === TopicType.general) &&
+      !this.profilesReady() &&
+      (t.permissions?.subforum_post ?? false);
+  });
   savedTopicCharacter = signal<number | undefined>(undefined);
   isTopicLoading = computed(() => !!this.id() && this.topic().id !== this.id());
 
@@ -150,13 +157,8 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   );
 
   isGmPostMode = signal(false);
-  readonly showGmToggle = computed(() =>
-    (this.topic().episode?.is_gm ?? false) && this.userCharacterProfiles().length > 0
-  );
-  // True when posting as GM: either the user toggled GM mode, or they're a GM with no characters
-  readonly effectiveGmPost = computed(() =>
-    this.isGmPostMode() || ((this.topic().episode?.is_gm ?? false) && this.userCharacterProfiles().length === 0)
-  );
+  readonly showGmToggle = computed(() => this.topic().episode?.is_gm ?? false);
+  readonly effectiveGmPost = computed(() => this.isGmPostMode());
 
   get shouldBlur(): boolean {
     if (this.blurAcknowledged()) return false;
@@ -256,18 +258,20 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
         if (currentTopicId && t.id === currentTopicId && this.lastLoadedProfilesForTopicId !== currentTopicId) {
           if (t.type === TopicType.character) {
-            this.loadProfiles = false;
-            this.showAccount = true;
             this.lastLoadedProfilesForTopicId = currentTopicId;
           } else if (t.type === TopicType.episode) {
-            this.loadProfiles = false;
-            this.showAccount = false;
-            this.characterService.loadUserCharacterProfilesForTopic(currentTopicId);
+            this.profilesReady.set(false);
+            this.characterService.loadUserCharacterProfilesForTopic(currentTopicId).subscribe({
+              next: () => this.profilesReady.set(true),
+              error: () => this.profilesReady.set(true),
+            });
             this.lastLoadedProfilesForTopicId = currentTopicId;
           } else if (t.type === TopicType.general) {
-            this.loadProfiles = false;
-            this.showAccount = true;
-            this.characterService.loadUserCharacterProfilesForTopic(currentTopicId);
+            this.profilesReady.set(false);
+            this.characterService.loadUserCharacterProfilesForTopic(currentTopicId).subscribe({
+              next: () => this.profilesReady.set(true),
+              error: () => this.profilesReady.set(true),
+            });
             this.lastLoadedProfilesForTopicId = currentTopicId;
             const saved = sessionStorage.getItem(`topic-char-${currentTopicId}`);
             this.savedTopicCharacter.set(saved !== null ? JSON.parse(saved) : undefined);
@@ -280,6 +284,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     effect(() => {
       const t = this.topic();
       const profiles = this.userCharacterProfiles();
+      const profilesReady = this.profilesReady();
 
       // Check topic permissions first
       if (!t.permissions || !t.permissions.subforum_post) {
@@ -293,7 +298,9 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       }
 
       if (t.type === TopicType.episode) {
-        this.showPostForm.set(profiles.length > 0 || (t.episode?.is_gm ?? false));
+        this.showPostForm.set(profilesReady && (profiles.length > 0 || (t.episode?.is_gm ?? false)));
+      } else if (t.type === TopicType.general) {
+        this.showPostForm.set(profilesReady);
       } else {
         this.showPostForm.set(true);
       }

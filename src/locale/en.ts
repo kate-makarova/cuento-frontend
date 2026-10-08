@@ -948,6 +948,7 @@ export const TRANSLATIONS_EN = {
   "postform.npcSearchPlaceholder": "Search NPCs…",
   "postform.normalPost": "Normal post",
   "postform.gmPost": "GM post",
+  "postform.loadingProfile": "Loading profile…",
   "postform.hideSearchPlaceholder": "Search users…",
   "postform.hideInsert": "Insert",
   "postform.hideClose": "Cancel",

@@ -2291,6 +2291,17 @@ span.mention {
   margin-top: 10px;
 }
 
+.punbb .post.post-gm {
+  background-color: var(--color-post-gm-bg, rgba(120, 80, 180, 0.08));
+  border-left: 3px solid var(--color-post-gm-accent, #7850b4);
+}
+
+.post-form-loader {
+  padding: 8px 0;
+  color: var(--color-text-muted, #888);
+  font-style: italic;
+}
+
 .profile-sidebar {
   flex: 0 0 180px;
   display: flex;
