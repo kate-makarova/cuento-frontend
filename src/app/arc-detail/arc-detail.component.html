@@ -119,7 +119,7 @@
               @for (ep of episodes(); track ep.id) {
                 <tr>
                   <td>
-                    <a [routerLink]="['/viewtopic', ep.id]" class="episode-link">{{ ep.title }}</a>
+                    <a [routerLink]="['/viewtopic', ep.topic_id]" class="episode-link">{{ ep.title }}</a>
                   </td>
                   <td>
                     <span class="episode-status-badge status-{{ ep.status }}">

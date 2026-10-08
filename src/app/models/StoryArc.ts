@@ -28,6 +28,7 @@ export interface StoryArc {
 
 export interface ArcEpisode {
   id: number;
+  topic_id: number;
   title: string;
   status: number;
   last_post_date: string | null;
