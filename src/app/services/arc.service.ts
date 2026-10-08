@@ -1,5 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { ArcCreateRequest, ArcEpisode, ArcFilterRequest, ArcListResponse, ArcNpc, ArcUpdateRequest, StoryArc } from '../models/StoryArc';
 
@@ -44,6 +45,15 @@ export class ArcService {
   getArcNpcs(id: number, limit?: number): Observable<ArcNpc[]> {
     const params = limit !== undefined ? `?number=${limit}` : '';
     return this.apiService.get<ArcNpc[]>(`arc/${id}/npcs${params}`);
+  }
+
+  searchArcs(term: string): Observable<{ id: number; title: string }[]> {
+    return this.apiService.post<ArcListResponse | StoryArc[]>('arc/list', { search: term, page: 1 }).pipe(
+      map(res => {
+        const items = Array.isArray(res) ? res : res.items;
+        return items.map(a => ({ id: a.id, title: a.title }));
+      })
+    );
   }
 
   searchNpcs(arcId: number, name: string): Observable<ArcNpc[]> {

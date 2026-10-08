@@ -6,11 +6,52 @@
   <form class="container" (submit)="onSubmit($event)">
     <fieldset>
       <legend></legend>
+      @if (needsSubforumSelection) {
+        <div class="fs-box hashelp">
+          <p class="inputfield required">
+            <label i18n="@@episodecreate.subforum">Subforum</label>
+            <span class="input">
+              <select [(ngModel)]="subforumId" [ngModelOptions]="{standalone: true}">
+                <option [ngValue]="0" i18n="@@episodecreate.selectSubforum">Select a subforum…</option>
+                @for (sf of episodeService.subforumList(); track sf.id) {
+                  <option [ngValue]="sf.id">{{ sf.name }}</option>
+                }
+              </select>
+            </span>
+          </p>
+        </div>
+      }
+
       <div class="fs-box hashelp">
         <p class="inputfield required">
           <label for="fld3"><ng-container i18n="@@topiccreate.subject">Subject</ng-container> <em><ng-container i18n="@@topiccreate.required">(Required)</ng-container></em></label>
           <span class="input"><input id="fld3" type="text" name="req_subject" [value]="subject" size="80" maxlength="70" /></span>
         </p>
+      </div>
+
+      <div class="fs-box hashelp">
+        <div class="inputfield">
+          <label i18n="@@episodecreate.arc">Story Arc</label>
+          <div class="character-input-group" style="position:relative">
+            @if (selectedArcId !== null) {
+              <span class="input arc-selected">
+                <span>{{ arcControl.value }}</span>
+                <button type="button" class="remove-char" (click)="clearArc()" i18n-title="@@episodecreate.arcRemove" title="Remove arc">×</button>
+              </span>
+            } @else {
+              <span class="input">
+                <input type="text" [formControl]="arcControl" (blur)="onArcInputBlur()" i18n-placeholder="@@episodecreate.arcPlaceholder" placeholder="Search arcs…" autocomplete="off" />
+              </span>
+              @if (arcSearchActive() && arcSuggestions().length > 0) {
+                <ul class="autocomplete-list">
+                  @for (arc of arcSuggestions(); track arc.id) {
+                    <li (mousedown)="selectArc(arc.id, arc.title)">{{ arc.title }}</li>
+                  }
+                </ul>
+              }
+            }
+          </div>
+        </div>
       </div>
 
       <div class="fs-box hashelp">

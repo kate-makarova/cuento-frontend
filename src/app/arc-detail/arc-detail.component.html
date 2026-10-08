@@ -96,7 +96,12 @@
       }
 
       <section class="arc-episodes">
-        <h2 i18n="@@arcdetail.episodesTitle">Episodes</h2>
+        <div class="arc-section-header">
+          <h2 i18n="@@arcdetail.episodesTitle">Episodes</h2>
+          @if (canEdit()) {
+            <a class="button" routerLink="/episode-create" [queryParams]="{ arc_id: arc.id, arc_title: arc.title }" i18n="@@arcdetail.addEpisode">Add Episode</a>
+          }
+        </div>
 
         @if (episodes().length) {
           <table class="episodes-table" cellspacing="0">
