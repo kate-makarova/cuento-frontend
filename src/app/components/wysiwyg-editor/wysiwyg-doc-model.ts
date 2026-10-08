@@ -59,6 +59,7 @@ export type AudioNode = {
 export type NpcBlockNode = {
   type: 'npc-block';
   npcIds: number[];
+  npcs?: { id: number; name: string; avatar: string | null }[];
   children: ParagraphNode[];
 };
 

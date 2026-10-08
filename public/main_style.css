@@ -1819,6 +1819,27 @@ spoiler-box .spoiler-content {
   color: #4a5c30;
   font-weight: 600;
   user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.wysiwyg-npc-block .wysiwyg-npc-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.wysiwyg-npc-block .wysiwyg-npc-avatar--placeholder {
+  background-color: #b8c9a0;
+  display: inline-block;
+}
+
+.wysiwyg-npc-block .wysiwyg-npc-name {
+  margin-right: 8px;
 }
 
 .wysiwyg-npc-block .wysiwyg-npc-body {

@@ -4,7 +4,7 @@ import {
 import { BoardService } from '../../services/board.service';
 import { ImageService } from '../../services/image.service';
 import {
-  DocModel, BlockNode, ParagraphNode, AlignBlock, DocPoint, DocRange, Mark,
+  DocModel, BlockNode, ParagraphNode, AlignBlock, DocPoint, DocRange, Mark, NpcBlockNode,
 } from './wysiwyg-doc-model';
 import { parseBbCode, serializeDoc } from './wysiwyg-doc-bb';
 import { renderDoc } from './wysiwyg-doc-renderer';
@@ -968,6 +968,34 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
 
     const cursorIdx = before.length + toInsert.length - 1;
     const newCursor: DocPoint = { path: [cursorIdx], offset: 0 };
+    this.cursor = { anchor: newCursor, focus: newCursor };
+    this.editorEl.nativeElement.focus();
+    applyDocRange(this.cursor, this.editorEl.nativeElement);
+    this.updateActiveState();
+  }
+
+  insertNpcBlockDirect(npcs: { id: number; name: string; avatar: string | null }[]): void {
+    this.pushHistory('other');
+    const node: NpcBlockNode = {
+      type: 'npc-block',
+      npcIds: npcs.map(n => n.id),
+      npcs,
+      children: [{ type: 'paragraph', children: [] }],
+    };
+    const toInsert: BlockNode[] = [node, { type: 'paragraph', children: [] } as ParagraphNode];
+
+    const blockIdx = this.cursor.anchor.path[0];
+    const current = this.doc.children[blockIdx];
+    const replaceEmpty = current?.type === 'paragraph' && current.children.length === 0;
+
+    const before = this.doc.children.slice(0, replaceEmpty ? blockIdx : blockIdx + 1);
+    const after  = this.doc.children.slice(replaceEmpty ? blockIdx + 1 : blockIdx + 1);
+
+    this.doc = { children: [...before, ...toInsert, ...after] };
+    this.render();
+
+    const cursorIdx = before.length; // place cursor inside the npc-block body
+    const newCursor: DocPoint = { path: [cursorIdx, 0], offset: 0 };
     this.cursor = { anchor: newCursor, focus: newCursor };
     this.editorEl.nativeElement.focus();
     applyDocRange(this.cursor, this.editorEl.nativeElement);

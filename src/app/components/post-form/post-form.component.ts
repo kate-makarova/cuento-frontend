@@ -508,9 +508,13 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
   insertNpcBlock(): void {
     const npcs = this.selectedNpcs();
     if (!npcs.length) return;
-    const npcTags = npcs.map(n => `[npc id=${n.id}]`).join('');
-    const bb = `[npc-block][npc-header]${npcTags}[/npc-header][npc-body][/npc-body][/npc-block]`;
-    this.appendBbCode(bb);
+    if (this.editorMode() === 'wysiwyg' && this.wysiwygEditor) {
+      this.wysiwygEditor.insertNpcBlockDirect(npcs.map(n => ({ id: n.id, name: n.name, avatar: n.avatar })));
+    } else {
+      const npcTags = npcs.map(n => `[npc id=${n.id}]`).join('');
+      const bb = `[npc-block][npc-header]${npcTags}[/npc-header][npc-body][/npc-body][/npc-block]`;
+      this.appendBbCode(bb);
+    }
     this.closeNpcPanel();
   }
 

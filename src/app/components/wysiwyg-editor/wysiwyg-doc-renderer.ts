@@ -129,14 +129,26 @@ export function renderBlock(block: BlockNode, blockIdx: number): string {
 }
 
 function renderNpcBlock(block: NpcBlockNode, blockIdx: number): string {
-  const label = block.npcIds.length > 0 ? `NPC: ${block.npcIds.join(', ')}` : 'NPC block';
+  const header = renderNpcHeader(block);
   const inner = block.children.map((p, pi) => renderPara(p, [blockIdx, pi])).join('');
   return (
     `<div class="wysiwyg-npc-block" data-doc-path="${blockIdx}">` +
-      `<div class="wysiwyg-npc-header" contenteditable="false">${esc(label)}</div>` +
+      `<div class="wysiwyg-npc-header" contenteditable="false">${header}</div>` +
       `<div class="wysiwyg-npc-body">${inner}</div>` +
     `</div>`
   );
+}
+
+function renderNpcHeader(block: NpcBlockNode): string {
+  if (block.npcs && block.npcs.length > 0) {
+    return block.npcs.map(npc => {
+      const avatar = npc.avatar
+        ? `<img class="wysiwyg-npc-avatar" src="${esc(safeSrc(npc.avatar))}" alt="${esc(npc.name)}">`
+        : `<span class="wysiwyg-npc-avatar wysiwyg-npc-avatar--placeholder"></span>`;
+      return `${avatar}<span class="wysiwyg-npc-name">${esc(npc.name)}</span>`;
+    }).join('');
+  }
+  return esc(block.npcIds.length > 0 ? `NPC: ${block.npcIds.join(', ')}` : 'NPC block');
 }
 
 // ─── Paragraph rendering ─────────────────────────────────────────────────────
@@ -194,14 +206,14 @@ function renderBlockStatic(block: BlockNode): string {
     case 'audio':
       return `<div class="wysiwyg-audio" contenteditable="false">${audioEmbedHtml(block.url, block.sourceSite)}</div>`;
     case 'npc-block': {
-      const label = block.npcIds.length > 0 ? `NPC: ${block.npcIds.join(', ')}` : 'NPC block';
+      const header = renderNpcHeader(block);
       const inner = block.children.map(p => {
         const content = p.children.length > 0 ? p.children.map(renderInline).join('') : '<br>';
         return `<div>${content}</div>`;
       }).join('');
       return (
         `<div class="wysiwyg-npc-block">` +
-          `<div class="wysiwyg-npc-header" contenteditable="false">${esc(label)}</div>` +
+          `<div class="wysiwyg-npc-header" contenteditable="false">${header}</div>` +
           `<div class="wysiwyg-npc-body">${inner}</div>` +
         `</div>`
       );
