@@ -1,0 +1,213 @@
+.arc-header {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.arc-header-image img {
+  max-height: 220px;
+  width: auto;
+  display: block;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.arc-header-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.arc-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.arc-status-badge {
+  font-size: 0.75rem;
+  padding: 2px 9px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.status-0 { background: rgba(150, 150, 150, 0.2); }
+.status-1 { background: rgba(60, 160, 80,  0.2); }
+.status-2 { background: rgba(200, 140, 40, 0.2); }
+.status-3 { background: rgba(80,  120, 200, 0.2); }
+
+.arc-private-badge {
+  font-size: 0.75rem;
+  padding: 2px 9px;
+  border-radius: 10px;
+  background: rgba(200, 60, 60, 0.15);
+}
+
+.arc-description {
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.arc-meta-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+}
+
+.arc-meta-label {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.arc-faction-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.arc-faction-tag {
+  font-size: 0.8rem;
+  padding: 1px 7px;
+  border-radius: 3px;
+  background: rgba(128, 128, 128, 0.15);
+}
+
+.arc-gm-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+}
+
+.arc-gm-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+}
+
+.arc-gm-link:hover { text-decoration: underline; }
+
+.arc-gm-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  vertical-align: middle;
+}
+
+/* NPC cards */
+
+.arc-npcs {
+  margin-bottom: 28px;
+}
+
+.arc-npcs-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.arc-npcs-header h2 {
+  margin: 0;
+}
+
+.npc-cards {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.npc-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  width: 80px;
+}
+
+.npc-card:hover .npc-name { text-decoration: underline; }
+
+.npc-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 4px;
+  object-fit: cover;
+  display: block;
+}
+
+.npc-avatar--placeholder {
+  background: var(--placeholder-bg, rgba(128, 128, 128, 0.15));
+}
+
+.npc-name {
+  font-size: 0.85rem;
+  text-align: center;
+  word-break: break-word;
+}
+
+/* Episodes table */
+
+.arc-episodes h2 {
+  margin-bottom: 12px;
+}
+
+.episodes-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.episodes-table th,
+.episodes-table td {
+  padding: 7px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.episode-link {
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.episode-link:hover { text-decoration: underline; }
+
+.episode-status-badge {
+  font-size: 0.75rem;
+  padding: 1px 7px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.episode-status-badge.status-0 { background: rgba(60, 160, 80, 0.2); }
+.episode-status-badge.status-1 { background: rgba(128, 128, 128, 0.2); }
+
+.col-date {
+  white-space: nowrap;
+}
+
+.character-list,
+.faction-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.character-tag,
+.faction-tag {
+  font-size: 0.78rem;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: rgba(128, 128, 128, 0.15);
+}
+
+.arc-empty {
+  opacity: 0.6;
+}

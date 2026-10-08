@@ -4,22 +4,22 @@ Translate new i18n keys into Russian and add them to the backend locale file.
 
 ## Locale file locations
 
-- **Frontend English source**: `src/locale/en.ts` (in this repo, `cuento-frontend`)
-- **Backend Russian target**: `../cuento-backend/locales/ru.ts` (sibling repo)
+- **Frontend English source**: `src/locale/en.ts` — exports `TRANSLATIONS_EN`
+- **Backend Russian target**: `../cuento-backend/locales/ru.ts` — exports `TRANSLATIONS_RU`
 
-Both files export a plain object (`TRANSLATIONS_EN` / `TRANSLATIONS_RU`) with string keys and string values.
+Both repos sit under the same parent: `cuento-frontend/` and `cuento-backend/` are siblings.
 
 ## When to use
 
-Use this skill after adding new keys to `src/locale/en.ts`. It finds keys that are present in the frontend English file but missing from the backend Russian file and adds translations for them.
+Use this skill after adding new feature keys. It finds keys that are present in `en.ts` but missing from `ru.ts` and adds Russian translations for them.
 
 ## Workflow
 
 1. Read `src/locale/en.ts` and collect all keys.
 2. Read `../cuento-backend/locales/ru.ts` and collect all keys.
 3. Identify keys present in English but missing in Russian.
-4. Translate the missing values into natural Russian (informal, forum-appropriate tone — the project is a roleplay forum).
-5. Insert the new key-value pairs into `../cuento-backend/locales/ru.ts`, keeping the object sorted alphabetically by key (matching the existing order).
+4. Translate the missing values into natural Russian (see notes below).
+5. Append the new key-value pairs to `../cuento-backend/locales/ru.ts` before the closing `};`. The file is not strictly alphabetical — append near related keys (same prefix) or at the end.
 6. Report which keys were added.
 
 ## Translation notes
@@ -28,3 +28,7 @@ Use this skill after adding new keys to `src/locale/en.ts`. It finds keys that a
 - Admin UI strings (keys starting with `admin`) can be more neutral/formal.
 - Preserve any interpolation placeholders like `{{ variable }}` exactly as-is.
 - Do not add keys that already exist in the Russian file, even if the translation looks different.
+
+## Also check en.ts
+
+If the task includes adding keys for a new feature, make sure they are in `src/locale/en.ts` first. The skill translates existing EN keys — it does not add missing EN keys on its own.

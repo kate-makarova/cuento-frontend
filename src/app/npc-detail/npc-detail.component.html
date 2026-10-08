@@ -1,0 +1,47 @@
+<div id="pun-npc-detail" class="main npc-detail">
+  <app-breadcrumbs [items]="breadcrumbs()"></app-breadcrumbs>
+  @if (!loading()) {
+    @if (error()) {
+      <p i18n="@@npcdetail.error">Could not load NPC data.</p>
+    } @else if (npc()) {
+      <div class="main-header">
+        <h1>{{ npc()!.name }}</h1>
+        @if (npc()!.can_edit) {
+          <div class="main-header-controls">
+            <a class="button" [routerLink]="['/npc', npc()!.id, 'edit']" i18n="@@npcdetail.edit">Edit</a>
+          </div>
+        }
+      </div>
+
+      <div class="npc-profile">
+        @if (npc()!.avatar) {
+          <div class="npc-profile-avatar">
+            <img [src]="npc()!.avatar!" [alt]="npc()!.name" />
+          </div>
+        }
+
+        @if (npc()!.description) {
+          <div class="npc-profile-description">{{ npc()!.description }}</div>
+        }
+      </div>
+
+      @if (topics().length > 0) {
+        <div class="npc-topics">
+          <h2 i18n="@@npcdetail.topicsHeading">Topics</h2>
+          <ul class="npc-topics-list">
+            @for (topic of topics(); track topic.topic_id) {
+              <li>
+                <a [routerLink]="['/viewtopic', topic.topic_id]">{{ topic.topic_name }}</a>
+                <span class="npc-post-links">
+                  @for (postId of topic.post_ids; track postId) {
+                    <a [routerLink]="['/viewtopic', topic.topic_id]" [queryParams]="{ post_id: postId }" [fragment]="'' + postId">#{{ postId }}</a>
+                  }
+                </span>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    }
+  }
+</div>
