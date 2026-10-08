@@ -166,7 +166,7 @@ function renderHideBlock(block: HideNode, blockIdx: number): string {
 }
 
 function renderHideHeader(block: HideNode): string {
-  const prefix = 'Hidden from: ';
+  const prefix = 'Visible to: ';
   if (block.users && block.users.length > 0) {
     const links = block.users.map(u =>
       `<a class="wysiwyg-hide-user-link" href="/profile/${u.id}" target="_blank">${esc(u.username)}</a>`
