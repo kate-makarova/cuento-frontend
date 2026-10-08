@@ -23,6 +23,7 @@ import {PreviewComponent} from './preview/preview.component';
 import { UserListComponent } from './user-list/user-list.component';
 import { SettingsComponent } from './settings/settings.component';
 import { ActiveTopicsComponent } from './active-topics/active-topics.component';
+import { ArcListComponent } from './arc-list/arc-list.component';
 import { MaskPageComponent } from './mask-page/mask-page.component';
 import { RecoveryCodesComponent } from './recovery-codes/recovery-codes.component';
 import { SettingsRestorationCodesComponent } from './settings-restoration-codes/settings-restoration-codes.component';
@@ -203,6 +204,12 @@ export const routes: Routes = [
     component: WantedCharacterListComponent,
     title: 'Wanted Characters',
     data: { pageId: 'pun-wanted-character-list' }
+  },
+  {
+    path: 'arc-list',
+    component: ArcListComponent,
+    title: 'Story Arcs',
+    data: { pageId: 'pun-arc-list' }
   },
   {
     path: 'active-topics',
