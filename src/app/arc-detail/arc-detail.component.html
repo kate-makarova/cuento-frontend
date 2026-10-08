@@ -26,10 +26,6 @@
             }
           </div>
 
-          @if (arc.description) {
-            <div class="arc-description">{{ arc.description }}</div>
-          }
-
           @if (arc.factions?.length) {
             <div class="arc-meta-row">
               <span class="arc-meta-label" i18n="@@arcdetail.factions">Factions:</span>
@@ -61,6 +57,10 @@
             <span class="arc-meta-label" i18n="@@arcdetail.episodes">Episodes:</span>
             {{ arc.episode_count }}
           </div>
+
+          @if (arc.description) {
+            <div class="arc-description">{{ arc.description }}</div>
+          }
 
           @if (arc.subforum_id) {
             <div class="arc-meta-row">
