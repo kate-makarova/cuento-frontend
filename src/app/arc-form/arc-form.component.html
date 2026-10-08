@@ -46,10 +46,20 @@
 
           <div class="fs-box">
             <p class="inputfield">
-              <label for="arc-image-url" i18n="@@arcform.imageUrl">Image URL</label>
-              <span class="input">
-                <input id="arc-image-url" type="url" [(ngModel)]="imageUrl" name="image_url" />
-              </span>
+              <label i18n="@@arcform.image">Image</label>
+              @if (canUpload()) {
+                <app-cropped-image-field
+                  #croppedImageRef
+                  [fieldValue]="imageUrl"
+                  [showFieldName]="false"
+                  [width]="1600"
+                  [height]="2560">
+                </app-cropped-image-field>
+              } @else {
+                <span class="input">
+                  <input id="arc-image-url" type="url" [(ngModel)]="imageUrl" name="image_url" />
+                </span>
+              }
             </p>
           </div>
 

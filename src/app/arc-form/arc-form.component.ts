@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
@@ -6,15 +6,17 @@ import { ArcService } from '../services/arc.service';
 import { FactionService } from '../services/faction.service';
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
+import { BoardService } from '../services/board.service';
 import { ArcSaveRequest, ArcStatus, StoryArc } from '../models/StoryArc';
 import { UserShort } from '../models/UserShort';
 import { SaveButtonComponent, SaveState } from '../admin/save-button/save-button.component';
+import { CroppedImageFieldComponent } from '../components/cropped-image-field/cropped-image-field.component';
 
 @Component({
   selector: 'app-arc-form',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [FormsModule, RouterLink, SaveButtonComponent],
+  imports: [FormsModule, RouterLink, SaveButtonComponent, CroppedImageFieldComponent],
   templateUrl: './arc-form.component.html',
   styleUrl: './arc-form.component.css',
 })
@@ -23,8 +25,13 @@ export class ArcFormComponent implements OnInit {
   private factionService = inject(FactionService);
   private authService = inject(AuthService);
   private userService = inject(UserService);
+  private boardService = inject(BoardService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+
+  @ViewChild('croppedImageRef') croppedImageRef?: CroppedImageFieldComponent;
+
+  readonly canUpload = computed(() => this.boardService.board().use_image_uploading === 'y');
 
   readonly factions = this.factionService.factions;
 
@@ -130,12 +137,16 @@ export class ArcFormComponent implements OnInit {
   submit(): void {
     if (!this.title.trim()) return;
 
+    const resolvedImageUrl = this.canUpload()
+      ? (this.croppedImageRef?.value || undefined)
+      : (this.imageUrl.trim() || undefined);
+
     const request: ArcSaveRequest = {
       title: this.title.trim(),
       description: this.description.trim() || undefined,
       status: this.status,
       is_public: this.isPublic,
-      image_url: this.imageUrl.trim() || undefined,
+      image_url: resolvedImageUrl,
       faction_ids: this.selectedFactionIds,
       game_master_ids: this.selectedGMs.map(gm => gm.id),
     };
