@@ -82,16 +82,14 @@
                   }
                 </div>
               }
-              @if (arc.game_masters?.length) {
-                <div class="arc-card-gms">
-                  <span class="arc-meta-label" i18n="@@arclist.gm">GM:</span>
+              <div class="arc-card-episodes-gms">
+                <span><span class="arc-meta-label" i18n="@@arclist.episodes">Episodes:</span> {{ arc.episode_count }}</span>
+                @if (arc.game_masters?.length) {
+                  <span><span class="arc-meta-label" i18n="@@arclist.gm">GM:</span>
                   @for (gm of arc.game_masters; track gm.id; let last = $last) {
                     {{ gm.username }}@if (!last) {, }
-                  }
-                </div>
-              }
-              <div class="arc-card-episodes">
-                <span class="arc-meta-label" i18n="@@arclist.episodes">Episodes:</span> {{ arc.episode_count }}
+                  }</span>
+                }
               </div>
             </div>
           </div>

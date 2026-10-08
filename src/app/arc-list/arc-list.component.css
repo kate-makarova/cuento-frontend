@@ -98,9 +98,11 @@
   background: rgba(128, 128, 128, 0.15);
 }
 
-.arc-card-gms,
-.arc-card-episodes {
+.arc-card-episodes-gms {
+  display: flex;
+  gap: 14px;
   font-size: 0.85rem;
+  flex-wrap: wrap;
 }
 
 .arc-meta-label {
