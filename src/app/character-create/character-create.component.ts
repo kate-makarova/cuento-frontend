@@ -388,10 +388,13 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
       this.formSubmit.emit(request);
     } else {
       this.characterService.createCharacter(request as CreateCharacterRequest).subscribe({
-        next: (response) => {
+        next: (response: any) => {
           deleteDraft();
-          console.log('Character created successfully', response);
-          this.router.navigate(['/viewforum', this.subforumId]);
+          if (response?.id) {
+            this.router.navigate(['/viewtopic', response.id]);
+          } else {
+            this.router.navigate(['/viewforum', this.subforumId]);
+          }
         },
         error: (err) => {
           console.error('Failed to create character', err);

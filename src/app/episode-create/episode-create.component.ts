@@ -442,9 +442,12 @@ export class EpisodeCreateComponent implements OnInit {
       this.formSubmit.emit(request);
     } else {
       this.episodeService.createEpisode(request as CreateEpisodeRequest).subscribe({
-        next: (response) => {
-          console.log('Episode created successfully', response);
-          this.router.navigate(['/viewforum', this.subforumId]);
+        next: (response: any) => {
+          if (response?.id) {
+            this.router.navigate(['/viewtopic', response.id]);
+          } else {
+            this.router.navigate(['/viewforum', this.subforumId]);
+          }
         },
         error: (err) => {
           console.error('Failed to create episode', err);
