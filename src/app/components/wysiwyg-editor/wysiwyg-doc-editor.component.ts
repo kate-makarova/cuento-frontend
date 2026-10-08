@@ -661,10 +661,11 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
 
     const block = this.doc.children[this.cursor.anchor.path[0]];
     if (block) {
-      if (block.type === 'code')    active.add('code');
-      if (block.type === 'quote')   active.add('quote');
-      if (block.type === 'spoiler') active.add('spoiler');
-      if (block.type === 'align')   active.add(block.align);
+      if (block.type === 'code')      active.add('code');
+      if (block.type === 'quote')     active.add('quote');
+      if (block.type === 'spoiler')   active.add('spoiler');
+      if (block.type === 'npc-block') active.add('npc-block');
+      if (block.type === 'align')     active.add(block.align);
     }
 
     this.activeFormats.set(active);
@@ -1089,6 +1090,8 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
       if (block.type === 'quote') children = block.children;
     } else if (containerSelector.includes('wysiwyg-spoiler')) {
       if (block.type === 'spoiler') children = block.children;
+    } else if (containerSelector.includes('wysiwyg-npc-block')) {
+      if (block.type === 'npc-block') children = block.children;
     }
 
     if (!children) return;

@@ -458,6 +458,10 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
   // --- NPC panel ---
 
   toggleNpcPanel(): void {
+    if (this.editorMode() === 'wysiwyg' && this.wysiwygEditor?.activeFormats().has('npc-block')) {
+      this.wysiwygEditor.unwrapBlock('.wysiwyg-npc-block');
+      return;
+    }
     if (this.showNpcPanel()) {
       this.closeNpcPanel();
     } else {
