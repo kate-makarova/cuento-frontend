@@ -62,6 +62,8 @@ export interface ArcNpc {
   avatar: string | null;
   description: string | null;
   display_order: number;
+  arc?: { id: number; title: string } | null;
+  can_edit?: boolean;
 }
 
 export interface ArcFilterRequest {

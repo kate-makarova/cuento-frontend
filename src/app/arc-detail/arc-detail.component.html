@@ -1,4 +1,5 @@
 <div id="pun-arc-detail" class="main arc-detail">
+  <app-breadcrumbs [items]="breadcrumbs()"></app-breadcrumbs>
   @if (!loading()) {
     @if (arc(); as arc) {
       <div class="main-header">
@@ -74,7 +75,7 @@
           <div class="arc-npcs-header">
             <h2 i18n="@@arcdetail.npcsTitle">NPCs</h2>
             @if (canEdit()) {
-              <a class="button" routerLink="/npc/create" [queryParams]="{ arc_id: arc.id }" i18n="@@arcdetail.addNpc">Add NPC</a>
+              <a class="button" routerLink="/npc/create" [queryParams]="{ arc_id: arc.id, arc_title: arc.title }" i18n="@@arcdetail.addNpc">Add NPC</a>
             }
           </div>
           @if (npcs().length) {

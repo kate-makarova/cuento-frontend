@@ -2,12 +2,13 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { NpcService } from '../services/npc.service';
 import { ArcNpc } from '../models/StoryArc';
+import { BreadcrumbItem, BreadcrumbsComponent } from '../components/breadcrumbs/breadcrumbs.component';
 
 @Component({
   selector: 'app-npc-detail',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, BreadcrumbsComponent],
   templateUrl: './npc-detail.component.html',
   styleUrl: './npc-detail.component.css',
 })
@@ -16,6 +17,7 @@ export class NpcDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
 
   npc = signal<ArcNpc | null>(null);
+  breadcrumbs = signal<BreadcrumbItem[]>([]);
   loading = signal(true);
   error = signal(false);
 
@@ -26,6 +28,11 @@ export class NpcDetailComponent implements OnInit {
     this.npcService.getNpc(id).subscribe({
       next: (npc) => {
         this.npc.set(npc);
+        this.breadcrumbs.set([
+          { label: $localize`:@@npcdetail.breadcrumbArcList:Story Arcs`, link: '/arc-list' },
+          ...(npc.arc ? [{ label: npc.arc.title, link: `/arc/${npc.arc.id}` }] : []),
+          { label: npc.name },
+        ]);
         this.loading.set(false);
       },
       error: () => {

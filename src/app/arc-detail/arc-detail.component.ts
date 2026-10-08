@@ -5,12 +5,13 @@ import { forkJoin } from 'rxjs';
 import { ArcService } from '../services/arc.service';
 import { AuthService } from '../services/auth.service';
 import { ArcEpisode, ArcNpc, ArcStatus, StoryArc } from '../models/StoryArc';
+import { BreadcrumbItem, BreadcrumbsComponent } from '../components/breadcrumbs/breadcrumbs.component';
 
 @Component({
   selector: 'app-arc-detail',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink, DatePipe, BreadcrumbsComponent],
   templateUrl: './arc-detail.component.html',
   styleUrl: './arc-detail.component.css',
 })
@@ -19,6 +20,10 @@ export class ArcDetailComponent implements OnInit {
   private authService = inject(AuthService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+
+  breadcrumbs = signal<BreadcrumbItem[]>([
+    { label: $localize`:@@arcdetail.breadcrumbArcList:Story Arcs`, link: '/arc-list' },
+  ]);
 
   arc = signal<StoryArc | null>(null);
   episodes = signal<ArcEpisode[]>([]);
@@ -46,12 +51,16 @@ export class ArcDetailComponent implements OnInit {
     forkJoin({
       arc: this.arcService.getArc(id),
       episodes: this.arcService.getArcEpisodes(id),
-      npcs: this.arcService.getArcNpcs(id, 5),
+      npcs: this.arcService.getArcNpcs(id, 11),
     }).subscribe({
       next: ({ arc, episodes, npcs }) => {
         this.arc.set(arc);
         this.episodes.set(episodes);
         this.npcs.set(npcs);
+        this.breadcrumbs.update(crumbs => [
+          ...crumbs,
+          { label: arc.title },
+        ]);
         this.loading.set(false);
       },
       error: () => this.router.navigate(['/arc-list']),

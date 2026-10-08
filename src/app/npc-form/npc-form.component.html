@@ -1,4 +1,5 @@
 <div id="pun-npc-form" class="main npc-form">
+  <app-breadcrumbs [items]="breadcrumbs()"></app-breadcrumbs>
   @if (!loading()) {
     <div class="main-header">
       <h1>
@@ -43,7 +44,9 @@
       </div>
 
       <div class="form-actions">
-        <app-save-button [state]="saveState()" (clicked)="submit()"></app-save-button>
+        <app-save-button [state]="saveState()" (clicked)="submit()">
+          <span i18n="@@npcform.save">Save</span>
+        </app-save-button>
         @if (isEdit && npcId) {
           <a class="button" [routerLink]="['/npc', npcId]" i18n="@@common.cancel">Cancel</a>
         } @else if (arcId) {
