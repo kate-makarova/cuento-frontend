@@ -102,6 +102,58 @@
   vertical-align: middle;
 }
 
+/* NPC cards */
+
+.arc-npcs {
+  margin-bottom: 28px;
+}
+
+.arc-npcs-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.arc-npcs-header h2 {
+  margin: 0;
+}
+
+.npc-cards {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.npc-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  width: 80px;
+}
+
+.npc-card:hover .npc-name { text-decoration: underline; }
+
+.npc-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 4px;
+  object-fit: cover;
+  display: block;
+}
+
+.npc-avatar--placeholder {
+  background: var(--placeholder-bg, rgba(128, 128, 128, 0.15));
+}
+
+.npc-name {
+  font-size: 0.85rem;
+  text-align: center;
+  word-break: break-word;
+}
+
 /* Episodes table */
 
 .arc-episodes h2 {

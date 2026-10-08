@@ -1,0 +1,18 @@
+.npc-profile {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.npc-profile-avatar img {
+  display: block;
+  max-width: 200px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.npc-profile-description {
+  flex: 1;
+  line-height: 1.6;
+  white-space: pre-line;
+}

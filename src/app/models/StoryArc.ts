@@ -56,6 +56,14 @@ export interface ArcUpdateRequest {
   game_master_ids?: number[];
 }
 
+export interface ArcNpc {
+  id: number;
+  name: string;
+  avatar: string | null;
+  description: string | null;
+  display_order: number;
+}
+
 export interface ArcFilterRequest {
   statuses?: number[];
   faction_ids?: number[];

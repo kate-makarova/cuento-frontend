@@ -45,6 +45,7 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
 
   @Input() initialContent: string = '';
   @Input() isEpisode: boolean = false;
+  @Input() isGm: boolean = false;
   @Input() topicId: number | null = null;
   @Input() characterId: number | null = null;
   @Output() characterIdChange = new EventEmitter<number | null>();

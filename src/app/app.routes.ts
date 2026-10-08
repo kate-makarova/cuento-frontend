@@ -26,6 +26,8 @@ import { ActiveTopicsComponent } from './active-topics/active-topics.component';
 import { ArcListComponent } from './arc-list/arc-list.component';
 import { ArcFormComponent } from './arc-form/arc-form.component';
 import { ArcDetailComponent } from './arc-detail/arc-detail.component';
+import { NpcFormComponent } from './npc-form/npc-form.component';
+import { NpcDetailComponent } from './npc-detail/npc-detail.component';
 import { MaskPageComponent } from './mask-page/mask-page.component';
 import { RecoveryCodesComponent } from './recovery-codes/recovery-codes.component';
 import { SettingsRestorationCodesComponent } from './settings-restoration-codes/settings-restoration-codes.component';
@@ -230,6 +232,24 @@ export const routes: Routes = [
     component: ArcDetailComponent,
     title: 'Story Arc',
     data: { pageId: 'pun-arc-detail' }
+  },
+  {
+    path: 'npc/create',
+    component: NpcFormComponent,
+    title: 'Create NPC',
+    data: { pageId: 'pun-npc-create' }
+  },
+  {
+    path: 'npc/:id/edit',
+    component: NpcFormComponent,
+    title: 'Edit NPC',
+    data: { pageId: 'pun-npc-edit' }
+  },
+  {
+    path: 'npc/:id',
+    component: NpcDetailComponent,
+    title: 'NPC',
+    data: { pageId: 'pun-npc-detail' }
   },
   {
     path: 'active-topics',

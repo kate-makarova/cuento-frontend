@@ -35,6 +35,13 @@
           </div>
         </div>
 
+        @if (isGm) {
+          <div class="gm-actions">
+            <button type="button" class="button" i18n="@@postform.npcBlock">NPC block</button>
+            <button type="button" class="button" i18n="@@postform.hiddenMessage">Hidden message</button>
+          </div>
+        }
+
         <div class="editor-mode-bar">
           @if (topicId && isAuthenticated()) {
             <div class="draft-controls">

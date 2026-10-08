@@ -4,7 +4,7 @@ import { DatePipe } from '@angular/common';
 import { forkJoin } from 'rxjs';
 import { ArcService } from '../services/arc.service';
 import { AuthService } from '../services/auth.service';
-import { ArcEpisode, ArcStatus, StoryArc } from '../models/StoryArc';
+import { ArcEpisode, ArcNpc, ArcStatus, StoryArc } from '../models/StoryArc';
 
 @Component({
   selector: 'app-arc-detail',
@@ -22,6 +22,7 @@ export class ArcDetailComponent implements OnInit {
 
   arc = signal<StoryArc | null>(null);
   episodes = signal<ArcEpisode[]>([]);
+  npcs = signal<ArcNpc[]>([]);
   loading = signal(true);
 
   readonly ArcStatus = ArcStatus;
@@ -45,10 +46,12 @@ export class ArcDetailComponent implements OnInit {
     forkJoin({
       arc: this.arcService.getArc(id),
       episodes: this.arcService.getArcEpisodes(id),
+      npcs: this.arcService.getArcNpcs(id, 5),
     }).subscribe({
-      next: ({ arc, episodes }) => {
+      next: ({ arc, episodes, npcs }) => {
         this.arc.set(arc);
         this.episodes.set(episodes);
+        this.npcs.set(npcs);
         this.loading.set(false);
       },
       error: () => this.router.navigate(['/arc-list']),

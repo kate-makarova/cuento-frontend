@@ -1,0 +1,26 @@
+<div id="pun-npc-detail" class="main npc-detail">
+  @if (!loading()) {
+    @if (error()) {
+      <p i18n="@@npcdetail.error">Could not load NPC data.</p>
+    } @else if (npc(); as npc) {
+      <div class="main-header">
+        <h1>{{ npc.name }}</h1>
+        <div class="main-header-controls">
+          <a class="button" [routerLink]="['/npc', npc.id, 'edit']" i18n="@@npcdetail.edit">Edit</a>
+        </div>
+      </div>
+
+      <div class="npc-profile">
+        @if (npc.avatar) {
+          <div class="npc-profile-avatar">
+            <img [src]="npc.avatar" [alt]="npc.name" />
+          </div>
+        }
+
+        @if (npc.description) {
+          <div class="npc-profile-description">{{ npc.description }}</div>
+        }
+      </div>
+    }
+  }
+</div>

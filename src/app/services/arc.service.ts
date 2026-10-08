@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { ArcCreateRequest, ArcEpisode, ArcFilterRequest, ArcListResponse, ArcUpdateRequest, StoryArc } from '../models/StoryArc';
+import { ArcCreateRequest, ArcEpisode, ArcFilterRequest, ArcListResponse, ArcNpc, ArcUpdateRequest, StoryArc } from '../models/StoryArc';
 
 @Injectable({ providedIn: 'root' })
 export class ArcService {
@@ -39,5 +39,10 @@ export class ArcService {
 
   getArcEpisodes(id: number): Observable<ArcEpisode[]> {
     return this.apiService.get<ArcEpisode[]>(`arc/${id}/episodes`);
+  }
+
+  getArcNpcs(id: number, limit?: number): Observable<ArcNpc[]> {
+    const params = limit !== undefined ? `?number=${limit}` : '';
+    return this.apiService.get<ArcNpc[]>(`arc/${id}/npcs${params}`);
   }
 }

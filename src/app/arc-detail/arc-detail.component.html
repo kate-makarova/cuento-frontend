@@ -69,6 +69,31 @@
         </div>
       </div>
 
+      @if (npcs().length || canEdit()) {
+        <section class="arc-npcs">
+          <div class="arc-npcs-header">
+            <h2 i18n="@@arcdetail.npcsTitle">NPCs</h2>
+            @if (canEdit()) {
+              <a class="button" routerLink="/npc/create" [queryParams]="{ arc_id: arc.id }" i18n="@@arcdetail.addNpc">Add NPC</a>
+            }
+          </div>
+          @if (npcs().length) {
+          <div class="npc-cards">
+            @for (npc of npcs(); track npc.id) {
+              <a class="npc-card" [routerLink]="['/npc', npc.id]">
+                @if (npc.avatar) {
+                  <img class="npc-avatar" [src]="npc.avatar" [alt]="npc.name" />
+                } @else {
+                  <div class="npc-avatar npc-avatar--placeholder"></div>
+                }
+                <span class="npc-name">{{ npc.name }}</span>
+              </a>
+            }
+          </div>
+          }
+        </section>
+      }
+
       <section class="arc-episodes">
         <h2 i18n="@@arcdetail.episodesTitle">Episodes</h2>
 

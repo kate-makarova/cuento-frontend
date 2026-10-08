@@ -17,6 +17,9 @@ export interface Episode {
   warnings?: StandardWarning[];
   has_warnings?: boolean;
   warnings_consent?: boolean;
+  is_arc?: boolean;
+  arc?: { id: number; title: string } | null;
+  is_gm?: boolean;
 }
 
 export interface EpisodeFilterRequest {
