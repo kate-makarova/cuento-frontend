@@ -139,6 +139,8 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     return result;
   });
 
+  isSubscribed = signal<boolean>(false);
+
   editingPostId = signal<number | null>(null);
   editingPostProfileId = signal<number | null>(null);
   editingTopic = signal(false);
@@ -303,6 +305,13 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
         this.showPostForm.set(profilesReady);
       } else {
         this.showPostForm.set(true);
+      }
+    });
+
+    effect(() => {
+      const t = this.topic();
+      if (t.id !== 0 && t.is_subscribed !== undefined) {
+        this.isSubscribed.set(t.is_subscribed);
       }
     });
 
@@ -763,6 +772,17 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
         this.cancelEditTopic();
       },
       error: (err: any) => console.error('Failed to update wanted character', err)
+    });
+  }
+
+  toggleSubscription() {
+    const topicId = this.id();
+    if (!topicId) return;
+    const subscribing = !this.isSubscribed();
+    const endpoint = subscribing ? `topic/${topicId}/subscribe` : `topic/${topicId}/unsubscribe`;
+    this.apiService.post(endpoint, {}).subscribe({
+      next: () => this.isSubscribed.set(subscribing),
+      error: (err: any) => console.error('Failed to toggle subscription', err)
     });
   }
 

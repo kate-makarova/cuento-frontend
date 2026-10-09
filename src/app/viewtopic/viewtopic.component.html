@@ -404,6 +404,18 @@
   </app-post-sidebar>
   }
 
+  @if (authService.isAuthenticated()) {
+    <div class="topic-subscribe-bar">
+      <button type="button" class="button" (click)="toggleSubscription()">
+        @if (isSubscribed()) {
+          <ng-container i18n="@@viewtopic.unsubscribe">Unsubscribe from topic</ng-container>
+        } @else {
+          <ng-container i18n="@@viewtopic.subscribe">Subscribe to topic</ng-container>
+        }
+      </button>
+    </div>
+  }
+
   <div class="main-footer"></div>
 </div>
 }

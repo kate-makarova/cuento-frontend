@@ -34,6 +34,13 @@
     </div>
   }
 
+  @if (topicSubscriptionsNotifications().length > 0 && !isTypeDisabled('topic_subscriptions')) {
+    <div class="notification-block topic-subscriptions" (click)="openModal('topic_subscriptions')">
+      <span class="count">{{ topicSubscriptionsNotifications().length }}</span>
+      <span class="label" i18n="@@notifications.topicSubscriptions">Subscriptions</span>
+    </div>
+  }
+
   @if (accountUpdateNotifications().length > 0 && !isTypeDisabled('account_update')) {
     <div class="notification-block account-updates" (click)="openModal('account_update')">
       <span class="count">{{ accountUpdateNotifications().length }}</span>
@@ -184,6 +191,31 @@
                   }
                   @if (reaction?.url) {
                     <img [src]="'/reactions/' + reaction.url" class="currency-icon" alt="" />
+                  }
+                </span>
+              </div>
+              <button class="dismiss-button" (click)="dismissNotification(item, $event)">&times;</button>
+            </div>
+          }
+        </div>
+      }
+
+      @if (activeModal() === 'topic_subscriptions') {
+        <h2 i18n="@@notifications.topicSubscriptions">Subscriptions</h2>
+        <div class="feed-list">
+          @for (item of topicSubscriptionsNotifications(); track item.id) {
+            @let sub = $any(item.data);
+            <div class="feed-item">
+              <div class="feed-item-content">
+                <span class="date">{{ item.date_created | date:'yyyy-MM-dd HH:mm' }}</span>
+                <span>
+                  <ng-container i18n="@@notifications.topicSubscription.newPost">New post in </ng-container>
+                  @if (sub?.topic_id) {
+                    <a [routerLink]="['/viewtopic', sub.topic_id]"
+                       [queryParams]="{ post_id: sub.post_id }"
+                       (click)="onNotificationClick(item)">{{ sub.topic_name || item.title }}</a>
+                  } @else {
+                    {{ item.title }}
                   }
                 </span>
               </div>

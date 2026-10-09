@@ -61,6 +61,12 @@ export interface NotificationAccountUpdate {
 }
 
 
+export interface NotificationTopicSubscription {
+  topic_id: number;
+  topic_name: string;
+  post_id: number;
+}
+
 export interface NotificationReaction {
   post_id: number;
   topic_id: number;
@@ -95,7 +101,7 @@ export interface NotificationEpisodeStatusChange {
 export interface NotificationData {
   id: number;
   user_id: number;
-  type: 'system' | 'game' | 'mention' | 'direct_message' | 'account_update' | 'reaction' | 'auto_archiving' | 'episode_status_change' | 'absence_started';
+  type: 'system' | 'game' | 'mention' | 'direct_message' | 'account_update' | 'reaction' | 'auto_archiving' | 'episode_status_change' | 'absence_started' | 'topic_subscriptions';
   title: string;
   message: string;
   date_created: string;
@@ -103,7 +109,7 @@ export interface NotificationData {
   mention: NotificationMention | null;
   game: NotificationGame | null;
   direct_message: NotificationDirectMessage | null;
-  data: NotificationMention | NotificationGame | NotificationDirectMessage | NotificationAccountUpdate | NotificationReaction | NotificationAutoArchiving | NotificationEpisodeStatusChange | NotificationAbsenceStarted | null;
+  data: NotificationMention | NotificationGame | NotificationDirectMessage | NotificationAccountUpdate | NotificationReaction | NotificationAutoArchiving | NotificationEpisodeStatusChange | NotificationAbsenceStarted | NotificationTopicSubscription | null;
 }
 
 export interface NotificationEvent {
@@ -122,6 +128,7 @@ export interface UnreadNotificationsResponse {
   account_update: NotificationData[];
   episode_status_change: NotificationData[];
   absence_started?: NotificationData[];
+  topic_subscriptions?: NotificationData[];
 }
 
 export interface TopicViewersUpdateEvent {

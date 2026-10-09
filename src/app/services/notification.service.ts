@@ -86,6 +86,8 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
   public autoArchivingNotifications = this.autoArchivingNotificationsSignal.asReadonly();
   private accountUpdateNotificationsSignal = signal<NotificationData[]>([]);
   public accountUpdateNotifications = this.accountUpdateNotificationsSignal.asReadonly();
+  private topicSubscriptionsNotificationsSignal = signal<NotificationData[]>([]);
+  public topicSubscriptionsNotifications = this.topicSubscriptionsNotificationsSignal.asReadonly();
 
   // Subject for real-time toast notifications
   private notificationSubject = new Subject<NotificationData>();
@@ -156,6 +158,7 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
         this.reactionNotificationsSignal.set((response.reaction || []).map(n => ({ ...n, type: 'reaction' as const })));
         this.autoArchivingNotificationsSignal.set((response.auto_archiving || []).map(n => ({ ...n, type: 'auto_archiving' as const })));
         this.accountUpdateNotificationsSignal.set((response.account_update || []).map(n => ({ ...n, type: 'account_update' as const })));
+        this.topicSubscriptionsNotificationsSignal.set((response.topic_subscriptions || []).map(n => ({ ...n, type: 'topic_subscriptions' as const })));
         this.rebuildTriggers(response);
       },
       error: (err) => console.error('Failed to load unread notifications', err)
@@ -259,6 +262,8 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
       this.autoArchivingNotificationsSignal.update(current => current.filter(n => n.id !== id));
     } else if (notification.type === 'account_update') {
       this.accountUpdateNotificationsSignal.update(current => current.filter(n => n.id !== id));
+    } else if (notification.type === 'topic_subscriptions') {
+      this.topicSubscriptionsNotificationsSignal.update(current => current.filter(n => n.id !== id));
     }
   }
 
@@ -440,6 +445,8 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
           this.autoArchivingNotificationsSignal.update(current => [notificationData, ...current]);
         } else if (notificationData.type === 'account_update') {
           this.accountUpdateNotificationsSignal.update(current => [notificationData, ...current]);
+        } else if (notificationData.type === 'topic_subscriptions') {
+          this.topicSubscriptionsNotificationsSignal.update(current => [notificationData, ...current]);
         }
 
         if (!notifSetting?.disable_sound) {
