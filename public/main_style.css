@@ -2502,6 +2502,17 @@ span.mention {
   align-self: flex-start;
 }
 
+.toast-text-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.toast-text-link:hover {
+  text-decoration: underline;
+}
+
 .currency-icon {
   width: 1em;
   height: 1em;
