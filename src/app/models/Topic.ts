@@ -29,6 +29,7 @@ export interface Topic {
   can_edit?: boolean;
   not_viewed?: boolean;
   permissions?: SubforumPermissions | null;
+  is_subscribed?: boolean;
 }
 
 export enum TopicType {
