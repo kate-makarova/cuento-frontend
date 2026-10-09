@@ -62,7 +62,7 @@ export class RegisterComponent {
       this.authService.register(registerData).pipe(
         switchMap(() => this.authService.loginSilently({ username, password })),
         switchMap(() => from(this.authService.hashPassword(password))),
-        switchMap(hashedPassword => this.userService.generateAndSaveKeys(hashedPassword, codes))
+        switchMap(hashedPassword => this.userService.initialSetupAndSaveKeys(hashedPassword, codes))
       ).subscribe({
         next: () => {
           this.isLoading.set(false);
