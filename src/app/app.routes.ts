@@ -96,6 +96,12 @@ export const routes: Routes = [
     data: { pageId: 'pun-direct-chat' }
   },
   {
+    path: 'direct-chat/:chat_id',
+    component: DirectChatComponent,
+    canActivate: [privateKeyGuard],
+    data: { pageId: 'pun-direct-chat' }
+  },
+  {
     path: 'ai-chat',
     component: AiChatComponent,
     canActivate: [aiChatGuard],

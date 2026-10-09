@@ -78,7 +78,7 @@ export class DirectChatComponent implements OnInit, OnDestroy {
   private searchSubject = new Subject<string>();
 
   ngOnInit() {
-    const targetChatId = this.route.snapshot.queryParamMap.get('chat_id');
+    const targetChatId = this.route.snapshot.paramMap.get('chat_id');
 
     this.directChatService.resolvePrivateKey().subscribe(() => {
       this.directChatService.loadChatList();
