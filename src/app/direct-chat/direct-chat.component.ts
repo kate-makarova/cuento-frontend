@@ -24,6 +24,9 @@ export class DirectChatComponent implements OnInit, OnDestroy {
   private userService = inject(UserService);
   private route = inject(ActivatedRoute);
   private dmSub: Subscription | null = null;
+  private visibilityHandler = () => {
+    if (document.visibilityState === 'visible') this.directChatService.catchUp();
+  };
 
   @ViewChild('chatInput') messageField!: ElementRef<HTMLTextAreaElement>;
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef<HTMLDivElement>;
@@ -104,6 +107,8 @@ export class DirectChatComponent implements OnInit, OnDestroy {
       this.autocompleteResults = results;
     });
 
+    document.addEventListener('visibilitychange', this.visibilityHandler);
+
     this.dmSub = this.notificationService.directMessageCreated$.subscribe(event => {
       const openChatId = this.directChatService.currentChat()?.chat_id;
       if (openChatId === event.data.chat_id) {
@@ -115,6 +120,7 @@ export class DirectChatComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    document.removeEventListener('visibilitychange', this.visibilityHandler);
     this.dmSub?.unsubscribe();
   }
 

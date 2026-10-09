@@ -25,6 +25,8 @@ export class DirectChatService {
         this.privateKeySubject.next(key);
       }
     });
+
+    this.notificationService.wsConnected$.subscribe(() => this.catchUp());
   }
 
   private chatListSignal = signal<DirectChatListItem[]>([]);
@@ -178,6 +180,13 @@ export class DirectChatService {
         this.isLoadingNewerSignal.set(false);
       }
     });
+  }
+
+  catchUp(): void {
+    const chat = this.currentChatSignal();
+    const msgs = this.messagesSignal();
+    if (!chat || msgs.length === 0) return;
+    this.loadNewerMessages(chat.chat_id, msgs[msgs.length - 1].id);
   }
 
   loadChatList(): void {
