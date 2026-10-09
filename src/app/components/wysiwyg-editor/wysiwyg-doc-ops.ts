@@ -229,7 +229,12 @@ export function getMarksAtPoint(doc: DocModel, point: DocPoint): Mark[] {
   let remaining = point.offset;
   for (const node of para.children) {
     const len = node.type === 'text' ? node.text.length : 1;
-    if (remaining <= len) return node.type === 'text' ? node.marks : [];
+    if (remaining <= len) {
+      if (node.type !== 'text') return [];
+      // Cursor is at the exact end of this node: strip link so typing exits the link.
+      if (remaining === len) return node.marks.filter(m => m.type !== 'link');
+      return node.marks;
+    }
     remaining -= len;
   }
   return [];
