@@ -103,7 +103,12 @@ export class CharacterProfileComponent implements OnInit {
       this.selectedCharacterId = 'account';
       // Defer emit: firing during ngOnInit (which runs inside Angular's CD cycle) would
       // mutate parent state and trigger NG0100. A resolved promise fires after CD completes.
-      Promise.resolve().then(() => this.characterSelected.emit(null));
+      // Guard: the constructor effect may have already selected a character by the time
+      // this microtask fires (e.g. restoring savedTopicCharacter); only emit null if the
+      // selection is still 'account'.
+      Promise.resolve().then(() => {
+        if (this.selectedCharacterId === 'account') this.characterSelected.emit(null);
+      });
     } else {
       const chars = this.characters();
       if (chars.length > 0) {
@@ -113,7 +118,9 @@ export class CharacterProfileComponent implements OnInit {
         this.displayName = char.is_mask && char.mask_name ? char.mask_name : char.character_name;
         this.displayAvatar = char.avatar;
         this.customFields = this.processCustomFields(char.custom_fields);
-        Promise.resolve().then(() => this.characterSelected.emit(char.id));
+        Promise.resolve().then(() => {
+          if (this.selectedCharacterId === char.id) this.characterSelected.emit(char.id);
+        });
       }
     }
   }
