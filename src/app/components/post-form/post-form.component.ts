@@ -486,6 +486,27 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
     this.autosaveSubject.next(this.getValue());
   }
 
+  onBbKeyDown(event: KeyboardEvent): void {
+    if (!event.ctrlKey && !event.metaKey) return;
+    const keyChar = event.code?.startsWith('Key')
+      ? event.code.slice(3).toLowerCase()
+      : event.key.toLowerCase();
+    const tagMap: Record<string, string> = { b: 'b', i: 'i', u: 'u', s: 's' };
+    const tag = tagMap[keyChar];
+    if (!tag) return;
+    event.preventDefault();
+    const el = this.messageField?.nativeElement;
+    if (!el) return;
+    const start = el.selectionStart ?? 0;
+    const end = el.selectionEnd ?? 0;
+    const selected = el.value.substring(start, end);
+    const open = `[${tag}]`, close = `[/${tag}]`;
+    el.value = el.value.substring(0, start) + open + selected + close + el.value.substring(end);
+    const cursor = selected.length > 0 ? start + open.length + selected.length + close.length : start + open.length;
+    el.setSelectionRange(cursor, cursor);
+    el.focus();
+  }
+
   onTextareaInput(): void {
     this.notifyTyping();
     if (this.isEpisode) return;

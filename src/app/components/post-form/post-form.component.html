@@ -24,6 +24,7 @@
               #messageField
               rows="12"
               [hidden]="editorMode() !== 'bbcode'"
+              (keydown)="onBbKeyDown($event)"
               (input)="onTextareaInput()"
               (blur)="closeMention()"
               (paste)="onTextareaPaste($event)"
