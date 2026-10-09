@@ -98,6 +98,7 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
   private messageQueue: string[] = [];
   private explicitlyClosed = false;
   private heartbeatTimer: number | null = null;
+  private pongTimeout: number | null = null;
   private draftId: string | null = null;
   private draftInterval: number | null = null;
   private lastMsgId: number | null = null;
@@ -284,6 +285,7 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
       this.explicitlyClosed = true;
       if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
       if (this.heartbeatTimer) { clearInterval(this.heartbeatTimer); this.heartbeatTimer = null; }
+      if (this.pongTimeout) { clearTimeout(this.pongTimeout); this.pongTimeout = null; }
       this.ws.close();
     }
   }
@@ -334,7 +336,12 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
       this.processMessageQueue();
       this.sendDraftConfirmation();
       this.wsConnectedSubject.next();
-      this.heartbeatTimer = window.setInterval(() => this.sendMessage({ type: 'ping' }), 20000);
+      this.heartbeatTimer = window.setInterval(() => {
+        this.sendMessage({ type: 'ping' });
+        this.pongTimeout = window.setTimeout(() => {
+          if (this.ws) this.ws.close();
+        }, 5000);
+      }, 20000);
     };
 
     this.ws.onmessage = (event) => {
@@ -352,6 +359,7 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
     this.ws.onclose = () => {
       if (this.connectionTimeout) clearTimeout(this.connectionTimeout);
       if (this.heartbeatTimer) { clearInterval(this.heartbeatTimer); this.heartbeatTimer = null; }
+      if (this.pongTimeout) { clearTimeout(this.pongTimeout); this.pongTimeout = null; }
       this.ws = null;
       if (!this.explicitlyClosed) {
         this.handleConnectionFailure();
@@ -486,6 +494,7 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
         this.pageChangedSubject.next(notification as PageChangedEvent);
         break;
       case 'pong':
+        if (this.pongTimeout) { clearTimeout(this.pongTimeout); this.pongTimeout = null; }
         break;
       case 'user_refresh_required':
         this.authService.refreshToken().subscribe({
