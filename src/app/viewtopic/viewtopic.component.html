@@ -296,7 +296,7 @@
   </div>
   }
 
-  @if (topicService.hasNewPostsOnAnotherPage()) {
+  @if (hasNewPostsOnAnotherPage()) {
     <div class="new-posts-notice">
       <a [routerLink]="['/viewtopic', id()]" [queryParams]="{ page: totalPages() }" i18n="@@viewtopic.newPostsOnAnotherPage">There are new posts on another page</a>
     </div>
