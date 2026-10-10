@@ -166,6 +166,12 @@ export class AppComponent implements OnInit {
       }
     });
 
+    this.notificationService.wsConnected$.subscribe(() => {
+      if (this.authService.isAuthenticated()) {
+        this.notificationService.sendPageChange(this.currentPageType, this.currentPageNumId);
+      }
+    });
+
     this.sendInitialPageActivity();
 
     document.addEventListener('visibilitychange', () => {
