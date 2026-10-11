@@ -140,6 +140,8 @@ export const TRANSLATIONS_EN = {
   "admin.backup.gdriveLastRun": "Last backup: ",
   "admin.backup.gdriveColName": "File",
   "admin.backup.gdriveColDate": "Created",
+  "admin.backup.gdriveDownload": "Download",
+  "admin.backup.gdriveDownloadError": "Failed to download backup file.",
   "admin.calendars": "Calendars",
   "admin.characterClaims": "Character Claims",
   "admin.characterprofiletemplates": "Character Profile Template",

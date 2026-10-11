@@ -111,6 +111,22 @@ export class AdminBackupComponent implements OnInit {
     });
   }
 
+  downloadGDriveFile(fileId: string, filename: string) {
+    const token = this.authService.authToken();
+    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : new HttpHeaders();
+    this.http.get(`${environment.apiUrl}/admin/backup/gdrive/download/${fileId}`, { headers, responseType: 'blob' }).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+      },
+      error: () => alert($localize`:@@admin.backup.gdriveDownloadError:Failed to download backup file.`),
+    });
+  }
+
   downloadBackup() {
     this.downloadState.set('loading');
     const token = this.authService.authToken();

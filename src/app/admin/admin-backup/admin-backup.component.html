@@ -153,6 +153,7 @@
             <tr>
               <th i18n="@@admin.backup.gdriveColName">File</th>
               <th i18n="@@admin.backup.gdriveColDate">Created</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -160,6 +161,13 @@
               <tr>
                 <td>{{ b.name }}</td>
                 <td>{{ b.created_time | date:'yyyy-MM-dd HH:mm' }}</td>
+                <td>
+                  <button
+                    type="button"
+                    (click)="downloadGDriveFile(b.id, b.name)"
+                    i18n="@@admin.backup.gdriveDownload"
+                  >Download</button>
+                </td>
               </tr>
             }
           </tbody>
