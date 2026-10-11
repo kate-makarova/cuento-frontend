@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { GlobalSettingsService } from '../../services/global-settings.service';
+import { AuthService } from '../../services/auth.service';
 import { Setting } from '../../models/Setting';
 import { SaveButtonComponent } from '../save-button/save-button.component';
 
@@ -113,6 +114,8 @@ const SETTING_LABELS: Record<string, string> = {
 })
 export class AdminSettingsComponent implements OnInit {
   private globalSettingsService = inject(GlobalSettingsService);
+  private authService = inject(AuthService);
+  isSuperuser = this.authService.isSuperuser;
 
   settings = this.globalSettingsService.settings;
   settingLabels = SETTING_LABELS;
