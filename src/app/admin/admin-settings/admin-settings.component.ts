@@ -11,6 +11,7 @@ type SaveState = 'idle' | 'loading' | 'success' | 'error';
 interface SettingGroup {
   legend: string;
   names: string[];
+  superuserOnly?: boolean;
 }
 
 const GENERAL_SETTING_GROUPS: SettingGroup[] = [
@@ -21,6 +22,7 @@ const GENERAL_SETTING_GROUPS: SettingGroup[] = [
   {
     legend: $localize`:@@adminSettings.groupGithub:GitHub`,
     names: ['github_owner', 'github_repo', 'github_branch', 'github_token'],
+    superuserOnly: true,
   },
   {
     legend: $localize`:@@adminSettings.groupAutoArchiving:Auto archiving`,
@@ -29,6 +31,7 @@ const GENERAL_SETTING_GROUPS: SettingGroup[] = [
   {
     legend: $localize`:@@adminSettings.groupAi:AI`,
     names: ['ai_name', 'ai_model', 'ai_api_key'],
+    superuserOnly: true,
   },
   {
     legend: $localize`:@@adminSettings.groupClaimsFactions:Claims and factions`,
@@ -125,15 +128,17 @@ export class AdminSettingsComponent implements OnInit {
 
   get generalSettingGroups(): Array<{ legend: string; settings: Setting[]; saveState: ReturnType<typeof signal<SaveState>> }> {
     const all = this.settings();
+    const superuser = this.isSuperuser();
     return GENERAL_SETTING_GROUPS
       .map((group, i) => ({
         legend: group.legend,
+        superuserOnly: group.superuserOnly ?? false,
         saveState: this.groupSaveStates[i],
         settings: group.names
           .map(name => all.find(s => s.setting_name === name))
           .filter((s): s is Setting => s != null),
       }))
-      .filter(g => g.settings.length > 0);
+      .filter(g => g.settings.length > 0 && (!g.superuserOnly || superuser));
   }
 
   get imageUploadSettings(): Setting[] {
