@@ -47,6 +47,127 @@
     }
   </section>
 
+  @if (gdriveLoaded()) {
+    <section class="backup-block">
+      <h3 i18n="@@admin.backup.gdriveTitle">Google Drive Backup</h3>
+
+      <div class="backup-field">
+        <label i18n="@@admin.backup.gdriveKey">Service Account Key (JSON)</label>
+        <textarea
+          rows="4"
+          [value]="gdrive().service_account_key"
+          (input)="updateGdrive('service_account_key', $any($event.target).value)"
+          i18n-placeholder="@@admin.backup.gdriveKeyPlaceholder"
+          placeholder="Paste the contents of your service account JSON key file"
+          style="width:100%;font-family:monospace;font-size:0.85em"
+        ></textarea>
+      </div>
+
+      @if (gdrive().service_account_key) {
+        <div class="backup-field">
+          <label>
+            <input
+              type="checkbox"
+              [checked]="gdrive().enabled"
+              (change)="updateGdrive('enabled', $any($event.target).checked)"
+            />
+            <span i18n="@@admin.backup.gdriveEnabled"> Enable periodic backup</span>
+          </label>
+        </div>
+
+        @if (gdrive().enabled) {
+          <div class="backup-field">
+            <label i18n="@@admin.backup.gdriveFrequency">Frequency</label>
+            <select
+              [value]="gdrive().frequency"
+              (change)="updateGdrive('frequency', $any($event.target).value)"
+            >
+              <option value="daily" i18n="@@admin.backup.freqDaily">Daily</option>
+              <option value="weekly" i18n="@@admin.backup.freqWeekly">Weekly</option>
+              <option value="monthly" i18n="@@admin.backup.freqMonthly">Monthly</option>
+            </select>
+          </div>
+
+          <div class="backup-field">
+            <label i18n="@@admin.backup.gdriveKeep">Backups to keep</label>
+            <input
+              type="number"
+              min="1"
+              max="100"
+              [value]="gdrive().keep"
+              (input)="updateGdrive('keep', +$any($event.target).value)"
+              style="width:80px"
+            />
+          </div>
+        }
+      }
+
+      <div class="backup-actions">
+        <button
+          type="button"
+          class="button"
+          [disabled]="gdriveSaveState() === 'loading'"
+          (click)="saveGDriveSettings()"
+          i18n="@@common.save"
+        >Save</button>
+
+        @if (gdrive().service_account_key) {
+          <button
+            type="button"
+            class="button"
+            [disabled]="gdriveTriggerState() === 'loading'"
+            (click)="triggerGDriveBackup()"
+          >
+            @if (gdriveTriggerState() === 'loading') {
+              <span i18n="@@admin.backup.gdriveBacking">Backing up…</span>
+            } @else {
+              <span i18n="@@admin.backup.gdriveBackupNow">Back up now</span>
+            }
+          </button>
+        }
+      </div>
+
+      @if (gdriveSaveState() === 'success') {
+        <p class="success-msg" i18n="@@admin.backup.gdriveSaveSuccess">Settings saved.</p>
+      }
+      @if (gdriveSaveState() === 'error') {
+        <p class="error-msg" i18n="@@admin.backup.gdriveSaveError">Failed to save settings.</p>
+      }
+      @if (gdriveTriggerState() === 'success') {
+        <p class="success-msg" i18n="@@admin.backup.gdriveTriggerSuccess">Backup completed.</p>
+      }
+      @if (gdriveTriggerState() === 'error') {
+        <p class="error-msg" i18n="@@admin.backup.gdriveTriggerError">Backup failed. Check server logs.</p>
+      }
+
+      @if (gdrive().last_run) {
+        <p class="backup-last-run">
+          <ng-container i18n="@@admin.backup.gdriveLastRun">Last backup: </ng-container>
+          <strong>{{ gdrive().last_run | date:'yyyy-MM-dd HH:mm' }}</strong>
+        </p>
+      }
+
+      @if (gdrive().backups.length > 0) {
+        <table class="data-table" style="margin-top:1em">
+          <thead>
+            <tr>
+              <th i18n="@@admin.backup.gdriveColName">File</th>
+              <th i18n="@@admin.backup.gdriveColDate">Created</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (b of gdrive().backups; track b.id) {
+              <tr>
+                <td>{{ b.name }}</td>
+                <td>{{ b.created_time | date:'yyyy-MM-dd HH:mm' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </section>
+  }
+
 </div>
 
 @if (showConfirmModal) {
