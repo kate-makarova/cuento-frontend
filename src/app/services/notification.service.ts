@@ -86,6 +86,8 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
   public autoArchivingNotifications = this.autoArchivingNotificationsSignal.asReadonly();
   private accountUpdateNotificationsSignal = signal<NotificationData[]>([]);
   public accountUpdateNotifications = this.accountUpdateNotificationsSignal.asReadonly();
+  private topicSubscriptionsNotificationsSignal = signal<NotificationData[]>([]);
+  public topicSubscriptionsNotifications = this.topicSubscriptionsNotificationsSignal.asReadonly();
 
   // Subject for real-time toast notifications
   private notificationSubject = new Subject<NotificationData>();
@@ -98,6 +100,7 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
   private messageQueue: string[] = [];
   private explicitlyClosed = false;
   private heartbeatTimer: number | null = null;
+  private pongTimeout: number | null = null;
   private draftId: string | null = null;
   private draftInterval: number | null = null;
   private lastMsgId: number | null = null;
@@ -155,6 +158,7 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
         this.reactionNotificationsSignal.set((response.reaction || []).map(n => ({ ...n, type: 'reaction' as const })));
         this.autoArchivingNotificationsSignal.set((response.auto_archiving || []).map(n => ({ ...n, type: 'auto_archiving' as const })));
         this.accountUpdateNotificationsSignal.set((response.account_update || []).map(n => ({ ...n, type: 'account_update' as const })));
+        this.topicSubscriptionsNotificationsSignal.set((response.topic_subscriptions || []).map(n => ({ ...n, type: 'topic_subscriptions' as const })));
         this.rebuildTriggers(response);
       },
       error: (err) => console.error('Failed to load unread notifications', err)
@@ -258,6 +262,8 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
       this.autoArchivingNotificationsSignal.update(current => current.filter(n => n.id !== id));
     } else if (notification.type === 'account_update') {
       this.accountUpdateNotificationsSignal.update(current => current.filter(n => n.id !== id));
+    } else if (notification.type === 'topic_subscriptions') {
+      this.topicSubscriptionsNotificationsSignal.update(current => current.filter(n => n.id !== id));
     }
   }
 
@@ -284,6 +290,7 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
       this.explicitlyClosed = true;
       if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
       if (this.heartbeatTimer) { clearInterval(this.heartbeatTimer); this.heartbeatTimer = null; }
+      if (this.pongTimeout) { clearTimeout(this.pongTimeout); this.pongTimeout = null; }
       this.ws.close();
     }
   }
@@ -334,7 +341,12 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
       this.processMessageQueue();
       this.sendDraftConfirmation();
       this.wsConnectedSubject.next();
-      this.heartbeatTimer = window.setInterval(() => this.sendMessage({ type: 'ping' }), 20000);
+      this.heartbeatTimer = window.setInterval(() => {
+        this.sendMessage({ type: 'ping' });
+        this.pongTimeout = window.setTimeout(() => {
+          if (this.ws) this.ws.close();
+        }, 5000);
+      }, 20000);
     };
 
     this.ws.onmessage = (event) => {
@@ -352,6 +364,7 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
     this.ws.onclose = () => {
       if (this.connectionTimeout) clearTimeout(this.connectionTimeout);
       if (this.heartbeatTimer) { clearInterval(this.heartbeatTimer); this.heartbeatTimer = null; }
+      if (this.pongTimeout) { clearTimeout(this.pongTimeout); this.pongTimeout = null; }
       this.ws = null;
       if (!this.explicitlyClosed) {
         this.handleConnectionFailure();
@@ -432,6 +445,8 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
           this.autoArchivingNotificationsSignal.update(current => [notificationData, ...current]);
         } else if (notificationData.type === 'account_update') {
           this.accountUpdateNotificationsSignal.update(current => [notificationData, ...current]);
+        } else if (notificationData.type === 'topic_subscriptions') {
+          this.topicSubscriptionsNotificationsSignal.update(current => [notificationData, ...current]);
         }
 
         if (!notifSetting?.disable_sound) {
@@ -486,6 +501,7 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
         this.pageChangedSubject.next(notification as PageChangedEvent);
         break;
       case 'pong':
+        if (this.pongTimeout) { clearTimeout(this.pongTimeout); this.pongTimeout = null; }
         break;
       case 'user_refresh_required':
         this.authService.refreshToken().subscribe({

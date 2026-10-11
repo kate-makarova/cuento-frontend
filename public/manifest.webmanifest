@@ -1,7 +1,9 @@
 {
   "name": "Cuento",
   "short_name": "Cuento",
+  "id": "/",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",

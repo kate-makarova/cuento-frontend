@@ -27,6 +27,9 @@ export class EpisodeService {
   private subforumListSignal = signal<SubforumShort[]>([]);
   readonly subforumList = this.subforumListSignal.asReadonly();
 
+  private episodeSubforumListSignal = signal<SubforumShort[]>([]);
+  readonly episodeSubforumList = this.episodeSubforumListSignal.asReadonly();
+
   private episodeListPageSignal = signal<EpisodeListItem[]>([]);
   readonly episodeListPage = this.episodeListPageSignal.asReadonly();
 
@@ -42,6 +45,13 @@ export class EpisodeService {
         console.error('Failed to load subforum list', err);
       }
     })
+  }
+
+  loadEpisodeSubforumList() {
+    this.apiService.get<SubforumShort[]>('subforum/list-episode').subscribe({
+      next: (data) => this.episodeSubforumListSignal.set(data),
+      error: (err) => console.error('Failed to load episode subforums', err),
+    });
   }
 
   loadEpisodeListPage(page: number, request: EpisodeFilterRequest) {

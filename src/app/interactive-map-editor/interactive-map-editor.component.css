@@ -8,7 +8,7 @@
   position: fixed;
   inset: 0;
   background: #1e1e1e;
-  z-index: 999;
+  z-index: 9999;
 }
 
 /* ── Main container ── */

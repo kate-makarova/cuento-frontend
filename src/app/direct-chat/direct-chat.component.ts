@@ -1,4 +1,4 @@
-import {Component, ElementRef, effect, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, effect, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
 import {User} from '../models/User';
 import {DirectChat, DirectChatListItem} from '../models/DirectChat';
 import {DirectChatService} from '../services/direct-chat.service';
@@ -8,7 +8,7 @@ import {UserShort} from '../models/UserShort';
 
 import {FormsModule} from '@angular/forms';
 import {Subject, Subscription} from 'rxjs';
-import {debounceTime, distinctUntilChanged, switchMap} from 'rxjs/operators';
+import {debounceTime, distinctUntilChanged, switchMap, takeUntil} from 'rxjs/operators';
 import {ActivatedRoute} from '@angular/router';
 
 @Component({
@@ -24,6 +24,11 @@ export class DirectChatComponent implements OnInit, OnDestroy {
   private userService = inject(UserService);
   private route = inject(ActivatedRoute);
   private dmSub: Subscription | null = null;
+  private destroy$ = new Subject<void>();
+  isSending = signal(false);
+  private visibilityHandler = () => {
+    if (document.visibilityState === 'visible') this.directChatService.catchUp();
+  };
 
   @ViewChild('chatInput') messageField!: ElementRef<HTMLTextAreaElement>;
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef<HTMLDivElement>;
@@ -78,23 +83,16 @@ export class DirectChatComponent implements OnInit, OnDestroy {
   private searchSubject = new Subject<string>();
 
   ngOnInit() {
-    const targetChatId = this.route.snapshot.queryParamMap.get('chat_id');
+    const targetChatId = this.route.snapshot.paramMap.get('chat_id');
 
-    this.directChatService.resolvePrivateKey().subscribe(() => {
-      this.directChatService.loadChatList();
-    });
-
-    if (targetChatId) {
-      const unsub = effect(() => {
-        const list = this.directChatService.chatList();
-        if (list.length === 0) return;
+    this.directChatService.resolvePrivateKey().pipe(
+      switchMap(() => this.directChatService.loadChatList())
+    ).subscribe(list => {
+      if (targetChatId) {
         const chat = list.find(c => c.chat_id === +targetChatId);
-        if (chat) {
-          this.directChatService.loadDirectChat(chat.chat_id);
-          unsub.destroy();
-        }
-      });
-    }
+        if (chat) this.directChatService.loadDirectChat(chat.chat_id);
+      }
+    });
 
     this.searchSubject.pipe(
       debounceTime(300),
@@ -103,6 +101,12 @@ export class DirectChatComponent implements OnInit, OnDestroy {
     ).subscribe(results => {
       this.autocompleteResults = results;
     });
+
+    this.directChatService.ownMessageConfirmed$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.isSending.set(false);
+    });
+
+    document.addEventListener('visibilitychange', this.visibilityHandler);
 
     this.dmSub = this.notificationService.directMessageCreated$.subscribe(event => {
       const openChatId = this.directChatService.currentChat()?.chat_id;
@@ -115,7 +119,10 @@ export class DirectChatComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    document.removeEventListener('visibilitychange', this.visibilityHandler);
     this.dmSub?.unsubscribe();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onNewChatInput() {
@@ -172,14 +179,30 @@ export class DirectChatComponent implements OnInit, OnDestroy {
   handleSend() {
     const textarea = this.messageField.nativeElement;
     const content = textarea.value.trim();
-    if (!content) return;
+    if (!content || this.isSending()) return;
+
+    this.isSending.set(true);
 
     this.directChatService.sendMessage(content).subscribe({
-      next: (response) => {
+      next: () => {
         textarea.value = '';
-        this.directChatService.appendNewMessage(response);
+        // isSending stays true — cleared when WS confirms the message.
+        // Fallback: after 8s request a catchup; after 3s more, reload and clear.
+        setTimeout(() => {
+          if (!this.isSending()) return;
+          this.directChatService.catchUp();
+          setTimeout(() => {
+            if (this.isSending()) {
+              this.isSending.set(false);
+              this.directChatService.loadMessages(this.directChatService.currentChat()!.chat_id);
+            }
+          }, 3000);
+        }, 8000);
       },
-      error: (err) => console.error('Failed to send message', err)
+      error: (err) => {
+        this.isSending.set(false);
+        console.error('Failed to send message', err);
+      }
     });
   }
   onScroll() {

@@ -2,11 +2,11 @@
   <div class="character-selector">
     @if (authService.isAuthenticated()) {
       <select [(ngModel)]="selectedCharacterId" (change)="onSelect()" style="width: 100%; margin-bottom: 10px;">
-        @if (showAccount) {
+        @if (showAccount()) {
           <option value="account"><ng-container i18n="@@postform.account">Account</ng-container>: {{ accountName }}</option>
         }
         @for (char of characters(); track char.id) {
-          <option [value]="char.id">{{ char.is_mask && char.mask_name ? '🎭 ' + char.mask_name : char.character_name }}</option>
+          <option [ngValue]="char.id">{{ char.is_mask && char.mask_name ? '🎭 ' + char.mask_name : char.character_name }}</option>
         }
       </select>
     } @else {

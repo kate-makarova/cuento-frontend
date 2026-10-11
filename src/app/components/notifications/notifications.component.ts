@@ -24,6 +24,7 @@ export class NotificationsComponent implements OnInit {
   directMessageNotifications = this.notificationService.directMessageNotifications;
   reactionNotifications = this.notificationService.reactionNotifications;
   accountUpdateNotifications = this.notificationService.accountUpdateNotifications;
+  topicSubscriptionsNotifications = this.notificationService.topicSubscriptionsNotifications;
   dmNotifications = computed(() => this.directChatService.chatList().filter(c => c.unread_count > 0));
 
   activeModal = signal<string | null>(null);
@@ -46,6 +47,7 @@ export class NotificationsComponent implements OnInit {
       case 'direct_message': return this.directMessageNotifications;
       case 'reaction': return this.reactionNotifications;
       case 'account_update': return this.accountUpdateNotifications;
+      case 'topic_subscriptions': return this.topicSubscriptionsNotifications;
       case 'dm': return this.dmNotifications;
       default: return () => [];
     }

@@ -67,8 +67,13 @@ export class EpisodeCreateComponent implements OnInit {
   activeInputIndex: number | null = null;
 
   subforumId: number = 0;
+  needsSubforumSelection: boolean = false;
   subject: string = '';
   openToEveryone: boolean = false;
+
+  // Arc — set from query params on create, read-only
+  arcId: number | null = null;
+  arcTitle: string = '';
 
   // Rating — manual baseline set by the user directly in the dropdowns
   manualRatingLanguage: number = 0;
@@ -110,6 +115,10 @@ export class EpisodeCreateComponent implements OnInit {
     if (previewState?.formType === 'episode') {
       const p = previewState.formPayload;
       this.subject = p.name;
+      if (p.arc_id) {
+        this.arcId = p.arc_id;
+        this.arcTitle = p._arcTitle || '';
+      }
 
       this.characterControls.clear();
       this.selectedCharacterIds = [];
@@ -163,6 +172,13 @@ export class EpisodeCreateComponent implements OnInit {
       if (params['fid']) {
         this.subforumId = +params['fid'];
         this.forumService.loadSubforum(this.subforumId);
+      } else {
+        this.needsSubforumSelection = true;
+        this.episodeService.loadEpisodeSubforumList();
+      }
+      if (params['arc_id'] && !this.initialData) {
+        this.arcId = +params['arc_id'];
+        this.arcTitle = params['arc_title'] || '';
       }
     });
 
@@ -386,6 +402,10 @@ export class EpisodeCreateComponent implements OnInit {
       warning_ids: this.selectedWarnings.map(w => w.id),
     };
 
+    if (!this.formSubmit.observed && this.arcId !== null) {
+      request.arc_id = this.arcId;
+    }
+
     const isPreview = ((event as SubmitEvent).submitter as HTMLInputElement | null)?.name === 'preview';
 
     if (isPreview) {
@@ -410,7 +430,7 @@ export class EpisodeCreateComponent implements OnInit {
             } as Topic,
             posts: [],
             returnUrl: this.router.url,
-            formPayload: { ...request, _characterEntries: characterEntries, _maskEntries: maskEntries }
+            formPayload: { ...request, _characterEntries: characterEntries, _maskEntries: maskEntries, _arcTitle: this.arcTitle }
           });
           this.router.navigate(['/preview']);
         },
@@ -442,9 +462,12 @@ export class EpisodeCreateComponent implements OnInit {
       this.formSubmit.emit(request);
     } else {
       this.episodeService.createEpisode(request as CreateEpisodeRequest).subscribe({
-        next: (response) => {
-          console.log('Episode created successfully', response);
-          this.router.navigate(['/viewforum', this.subforumId]);
+        next: (response: any) => {
+          if (response?.topic_id) {
+            this.router.navigate(['/viewtopic', response.topic_id]);
+          } else {
+            this.router.navigate(['/viewforum', this.subforumId]);
+          }
         },
         error: (err) => {
           console.error('Failed to create episode', err);

@@ -5,7 +5,7 @@
 // Nothing here touches the DOM.
 
 import {
-  DocModel, BlockNode, ParagraphNode, AlignBlock, QuoteNode, SpoilerNode, CodeNode,
+  DocModel, BlockNode, ParagraphNode, AlignBlock, QuoteNode, SpoilerNode, CodeNode, NpcBlockNode, HideNode,
   InlineNode, TextNode, ImgNode, Mark, DocPoint, DocRange,
 } from './wysiwyg-doc-model';
 
@@ -229,7 +229,12 @@ export function getMarksAtPoint(doc: DocModel, point: DocPoint): Mark[] {
   let remaining = point.offset;
   for (const node of para.children) {
     const len = node.type === 'text' ? node.text.length : 1;
-    if (remaining <= len) return node.type === 'text' ? node.marks : [];
+    if (remaining <= len) {
+      if (node.type !== 'text') return [];
+      // Cursor is at the exact end of this node: strip link so typing exits the link.
+      if (remaining === len) return node.marks.filter(m => m.type !== 'link');
+      return node.marks;
+    }
     remaining -= len;
   }
   return [];
@@ -481,7 +486,7 @@ function normalize(nodes: InlineNode[]): InlineNode[] {
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────
 
-type ContainerBlock = AlignBlock | QuoteNode | SpoilerNode;
+type ContainerBlock = AlignBlock | QuoteNode | SpoilerNode | NpcBlockNode | HideNode;
 
 // Cursor-based ops only reach ParagraphNode children (cursor can't enter
 // non-paragraph children of a quote).  These helpers centralise the casts.

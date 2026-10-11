@@ -1,4 +1,4 @@
-import { Component, inject, Input, signal } from '@angular/core';
+import { Component, inject, Input, Output, EventEmitter, signal } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { ImageUploadComponent } from '../image-upload/image-upload.component';
@@ -20,6 +20,11 @@ export class BbToolbarComponent {
   @Input() editor: WysiwygDocEditorComponent | null = null;
   @Input() showSpoiler = true;
   @Input() showImageUpload = true;
+  @Input() isGm = false;
+  @Input() npcBlockActive = false;
+  @Input() hidePanelActive = false;
+  @Output() npcBlockClick = new EventEmitter<void>();
+  @Output() hiddenMessageClick = new EventEmitter<void>();
 
   activeArea: string | null = null;
   showSpoilerModal = false;

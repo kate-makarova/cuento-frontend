@@ -1,0 +1,114 @@
+<div id="pun-arc-list" class="main arc-list">
+  <div class="main-header">
+    <h1 i18n="@@arclist.title">Story Arcs</h1>
+    <div class="main-header-controls">
+      @if (canCreate) {
+        <a class="button" [routerLink]="['/arc/create']" i18n="@@arclist.create">Create</a>
+      }
+      <button class="button filter-toggle-btn" (click)="filtersOpen.set(!filtersOpen())">
+        <ng-container i18n="@@arclist.filters">Filters</ng-container>
+        <span class="filter-toggle-icon">{{ filtersOpen() ? '▲' : '▼' }}</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="dashboard-layout">
+    <aside class="filter-sidebar" [class.open]="filtersOpen()">
+      <div class="filter-sidebar-inner">
+
+        <div class="filter-group">
+          <h4 i18n="@@arclist.search">Search</h4>
+          <input
+            type="text"
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="onSearchInput()"
+            placeholder="Search arcs…"
+            i18n-placeholder="@@arclist.searchPlaceholder"
+          />
+        </div>
+
+        <div class="filter-group">
+          <h4 i18n="@@arclist.status">Status</h4>
+          <div class="checkbox-list">
+            @for (s of allStatuses; track s.value) {
+              <label>
+                <span class="checkbox-input">
+                  <input type="checkbox" [checked]="isStatusSelected(s.value)" (change)="toggleStatus(s.value)">
+                  {{ s.label }}
+                </span>
+              </label>
+            }
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <h4 i18n="@@arclist.factions">Factions</h4>
+          <div class="checkbox-list">
+            @for (faction of factions(); track faction.id) {
+              <label [style.padding-left.rem]="faction.level > 0 ? faction.level * 1.5 : 0">
+                <span class="checkbox-input">
+                  <input type="checkbox" [checked]="isFactionSelected(faction.id)" (change)="toggleFaction(faction.id)">
+                  {{ faction.name }}
+                </span>
+              </label>
+            }
+          </div>
+        </div>
+
+        <button class="button" (click)="applyFilters()" i18n="@@arclist.applyFilters">Apply Filters</button>
+      </div>
+    </aside>
+
+    <section class="content-area">
+      <div class="arc-cards">
+        @for (arc of arcs(); track arc.id) {
+          <div class="arc-card">
+            @if (arc.thumbnail_url || arc.image_url) {
+              <div class="arc-card-image">
+                <img [src]="arc.thumbnail_url ?? arc.image_url" [alt]="arc.title" />
+              </div>
+            } @else {
+              <div class="arc-card-image arc-card-image--placeholder"></div>
+            }
+            <div class="arc-card-body">
+              <div class="arc-card-title-row">
+                <a class="arc-card-title" [routerLink]="['/arc', arc.id]">{{ arc.title }}</a>
+                <span class="arc-status-badge status-{{ arc.status }}">{{ statusLabel(arc.status) }}</span>
+              </div>
+              @if (arc.factions?.length) {
+                <div class="arc-card-meta">
+                  @for (f of arc.factions; track f.id; let last = $last) {
+                    <span class="arc-faction-tag">{{ f.name }}</span>
+                  }
+                </div>
+              }
+              <div class="arc-card-episodes-gms">
+                <span><span class="arc-meta-label" i18n="@@arclist.episodes">Episodes:</span> {{ arc.episode_count }}</span>
+                @if (arc.game_masters?.length) {
+                  <span><span class="arc-meta-label" i18n="@@arclist.gm">GM:</span>
+                  @for (gm of arc.game_masters; track gm.id; let last = $last) {
+                    {{ gm.username }}@if (!last) {, }
+                  }</span>
+                }
+              </div>
+            </div>
+          </div>
+        }
+        @if (!arcs().length) {
+          <div class="arc-empty" i18n="@@arclist.empty">No story arcs found.</div>
+        }
+      </div>
+
+      @if (totalPages() > 1) {
+        <div class="pagination">
+          <button class="button" [disabled]="currentPage === 1" (click)="prevPage()" i18n="@@arclist.previous">Previous</button>
+          <span>
+            <ng-container i18n="@@arclist.page">Page</ng-container> {{ currentPage }}
+            <ng-container i18n="@@arclist.of">of</ng-container> {{ totalPages() }}
+          </span>
+          <button class="button" [disabled]="currentPage === totalPages()" (click)="nextPage()" i18n="@@arclist.next">Next</button>
+        </div>
+      }
+    </section>
+  </div>
+</div>
