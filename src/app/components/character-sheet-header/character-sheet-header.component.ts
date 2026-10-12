@@ -4,10 +4,11 @@ import { Character, CustomFieldsData, CustomFieldValue } from '../../models/Char
 import { FieldDisplayComponent } from '../field-display/field-display.component';
 import { AuthService } from '../../services/auth.service';
 import { CharacterService } from '../../services/character.service';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-character-sheet-header',
-  imports: [ FieldDisplayComponent],
+  imports: [ FieldDisplayComponent, RouterLink],
   templateUrl: './character-sheet-header.component.html',
   standalone: true,
 })
