@@ -42,6 +42,9 @@ function detectGuestLocale(): string | null {
 
 const storedLocale = localStorage.getItem('locale');
 const locale = storedLocale ?? detectGuestLocale();
+if (!storedLocale && locale) {
+  localStorage.setItem('locale', locale);
+}
 const locDef = LOCALES.find(d => d.code === locale);
 
 function registerCustomElements(appRef: ApplicationRef): void {
