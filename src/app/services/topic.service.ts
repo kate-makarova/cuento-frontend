@@ -121,32 +121,35 @@ export class TopicService {
     });
 
     this.notificationService.reactionCreated$.subscribe(event => {
-      const post = this.postsSignal().find(p => p.id === event.data.post_id);
-      if (!post) return;
+      const { post_id, reaction_id, url, user_id, user_name } = event.data;
 
-      const { reaction_id, url, user_id, user_name } = event.data;
-      const existing = (post.reactions ?? []).find(r => r.reaction_id === reaction_id);
+      const applyReaction = (reactions: Post['reactions']): Post['reactions'] => {
+        const existing = (reactions ?? []).find(r => r.reaction_id === reaction_id);
+        if (existing) {
+          return (reactions ?? []).map(r =>
+            r.reaction_id === reaction_id
+              ? { ...r, number: r.number + 1, users: [...r.users, { id: user_id, name: user_name }] }
+              : r
+          );
+        }
+        return [...(reactions ?? []), { reaction_id, url, number: 1, users: [{ id: user_id, name: user_name }] }];
+      };
 
-      if (existing) {
-        this.postsSignal.update(posts => posts.map(p => {
-          if (p.id !== event.data.post_id) return p;
-          return {
-            ...p,
-            reactions: (p.reactions ?? []).map(r =>
-              r.reaction_id === reaction_id
-                ? { ...r, number: r.number + 1, users: [...r.users, { id: user_id, name: user_name }] }
-                : r
-            )
-          };
-        }));
-      } else {
-        this.postsSignal.update(posts => posts.map(p => {
-          if (p.id !== event.data.post_id) return p;
-          return {
-            ...p,
-            reactions: [...(p.reactions ?? []), { reaction_id, url, number: 1, users: [{ id: user_id, name: user_name }] }]
-          };
-        }));
+      const inApiPosts = this.postsSignal().some(p => p.id === post_id);
+      if (inApiPosts) {
+        this.postsSignal.update(posts => posts.map(p =>
+          p.id === post_id ? { ...p, reactions: applyReaction(p.reactions) } : p
+        ));
+        return;
+      }
+
+      const inWsPosts = this.wsNewPostsSignal().some(e => e.post.id === post_id);
+      if (inWsPosts) {
+        this.wsNewPostsSignal.update(entries => entries.map(e =>
+          e.post.id === post_id
+            ? { ...e, post: { ...e.post, reactions: applyReaction(e.post.reactions) } }
+            : e
+        ));
       }
     });
   }
