@@ -16,6 +16,7 @@ export interface PostReaction {
 export interface Post {
   id: number;
   topic_id: number;
+  topic_name?: string;
   user_profile: UserProfile|null;
   use_character_profile: boolean;
   character_profile: CharacterProfile|null;

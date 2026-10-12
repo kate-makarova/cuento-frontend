@@ -1,0 +1,117 @@
+<app-breadcrumbs [items]="breadcrumbs()"></app-breadcrumbs>
+
+<div id="pun-main" class="main">
+  <div class="main-header">
+    <h1><span i18n="@@userPosts.heading">Posts by {{ username() }}</span></h1>
+  </div>
+
+  <div class="linkst">
+    <div class="inbox">
+      <p class="pagelink conl">
+        @if (visiblePages().length > 0) {
+          <span><ng-container i18n="@@viewtopic.pages">Pages</ng-container>:
+            @for (item of visiblePages(); track $index) {
+              @if (item.type === 'ellipsis') {
+                <span class="page-ellipsis">…</span>
+              } @else if (item.number === pageNumber()) {
+                <strong>{{ item.number }}</strong>
+              } @else {
+                <a [routerLink]="['/profile', id(), 'posts']" [queryParams]="{ page: item.number }">{{ item.number }}</a>
+              }
+            }
+          </span>
+        }
+      </p>
+    </div>
+  </div>
+
+  @for (post of posts(); track post.id; let isEven = $even) {
+    <div [id]="post.id" [class]="'post' + (isEven ? ' altstyle' : '')">
+      <h3>
+        <span class="post-meta">{{ post.date_created_localized }}</span>
+        @if (post.topic_name) {
+          <span class="post-topic-link">
+            <a [routerLink]="['/viewtopic', post.topic_id]">{{ post.topic_name }}</a>
+            <a [routerLink]="['/viewtopic', post.topic_id]" [fragment]="post.id.toString()" class="post-anchor-link">#{{ post.id }}</a>
+          </span>
+        }
+      </h3>
+      <div class="container">
+        <div class="post-main">
+          @if (!post.is_gm_post) {
+            <app-character-profile [post]="post"></app-character-profile>
+          }
+          <div class="post-body">
+            <div class="post-box">
+              <div class="post-content" appRouterLinks appCodeCopy [innerHTML]="post.content_html | safeHtml"></div>
+            </div>
+            @if (!post.is_gm_post) {
+              @if (post.use_character_profile && post.character_profile?.signature_html) {
+                <div class="post-signature" [innerHTML]="post.character_profile!.signature_html! | safeHtml"></div>
+              } @else if (!post.use_character_profile && post.user_profile?.signature_html) {
+                <div class="post-signature" [innerHTML]="post.user_profile!.signature_html! | safeHtml"></div>
+              }
+            }
+            @if (post.reactions?.length) {
+              <div class="post-reactions">
+                @for (reaction of post.reactions; track reaction.reaction_id) {
+                  <div class="reaction-chip">
+                    <img [src]="'/reactions/' + reaction.url" class="reaction-img" alt="" />
+                    <span class="reaction-count">{{ reaction.number }}</span>
+                    <div class="reaction-tooltip">
+                      @for (user of reaction.users; track user.id) {
+                        <a [routerLink]="['/profile', user.id]">{{ user.name }}</a>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+        <div class="post-footer">
+          <div class="conl">
+            @if (!post.is_gm_post) {
+              <p class="post-contacts">
+                @if (post.character_profile?.character_id) {
+                  <span><a [routerLink]="['/character', post.character_profile!.character_id]" i18n="@@viewtopic.character">Character</a></span>
+                }
+              </p>
+            }
+          </div>
+          <div class="conr">
+            <p class="post-links">
+              <span><a [routerLink]="['/viewtopic', post.topic_id]" [fragment]="post.id.toString()" i18n="@@userPosts.goToPost">Go to post</a></span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (posts().length === 0 && totalPosts() === 0) {
+    <div class="inbox">
+      <p i18n="@@userPosts.empty">No posts found.</p>
+    </div>
+  }
+
+  <div class="linksb">
+    <div class="inbox">
+      <p class="pagelink conl">
+        @if (visiblePages().length > 0) {
+          <span><ng-container i18n="@@viewtopic.pages">Pages</ng-container>:
+            @for (item of visiblePages(); track $index) {
+              @if (item.type === 'ellipsis') {
+                <span class="page-ellipsis">…</span>
+              } @else if (item.number === pageNumber()) {
+                <strong>{{ item.number }}</strong>
+              } @else {
+                <a [routerLink]="['/profile', id(), 'posts']" [queryParams]="{ page: item.number }">{{ item.number }}</a>
+              }
+            }
+          </span>
+        }
+      </p>
+    </div>
+  </div>
+</div>

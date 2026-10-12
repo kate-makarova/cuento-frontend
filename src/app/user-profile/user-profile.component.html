@@ -28,6 +28,7 @@
           }
         </div>
         <div class="profile-actions">
+          <a [routerLink]="['/profile', profile.user_id, 'posts']" i18n="@@userprofile.postsLink">Posts</a>
           @if (isOwnProfile()) {
             <a [routerLink]="['/character-profile-update', 0]" [queryParams]="{is_mask: true}" i18n="@@userprofile.addMask">Add a mask</a>
           }
