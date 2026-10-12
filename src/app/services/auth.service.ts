@@ -23,6 +23,7 @@ export class AuthService {
   isAuthenticated = computed(() => !!this.currentUser()?.id);
   authToken = signal<string | null>(null);
   isAdmin = computed(() => this.hasRole('admin'));
+  isSuperuser = computed(() => !!this.currentUser()?.is_superuser);
   lastAuthChange = signal<number>(0);
 
   isRefreshing = false;
