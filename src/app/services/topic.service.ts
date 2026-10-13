@@ -220,7 +220,21 @@ export class TopicService {
   }
 
   updateLocalPost(updatedPost: Post) {
-    this.postsSignal.update(posts => posts.map(p => p.id === updatedPost.id ? this.normalizePost({ can_edit: p.can_edit, ...updatedPost }) : p));
+    const inApiPosts = this.postsSignal().some(p => p.id === updatedPost.id);
+    if (inApiPosts) {
+      this.postsSignal.update(posts => posts.map(p =>
+        p.id === updatedPost.id ? this.normalizePost({ can_edit: p.can_edit, ...updatedPost }) : p
+      ));
+      return;
+    }
+    const inWsPosts = this.wsNewPostsSignal().some(e => e.post.id === updatedPost.id);
+    if (inWsPosts) {
+      this.wsNewPostsSignal.update(entries => entries.map(e =>
+        e.post.id === updatedPost.id
+          ? { ...e, post: this.normalizePost({ can_edit: e.post.can_edit, ...updatedPost }) }
+          : e
+      ));
+    }
   }
 
   updatePostReactions(postId: number, reactions: Post['reactions']) {
