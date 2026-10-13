@@ -12,6 +12,8 @@ import { Faction } from '../models/Faction';
 import { CharacterShort } from '../models/Character';
 import { WantedCharacter } from '../models/WantedCharacter';
 import { TopicService } from '../services/topic.service';
+import { TopicType, TopicStatus } from '../models/Topic';
+import { PreviewService } from '../services/preview.service';
 import { EntityDraftService } from '../services/entity-draft.service';
 
 @Component({
@@ -26,6 +28,7 @@ export class WantedCharacterCreateComponent implements OnInit, OnDestroy {
   private characterService = inject(CharacterService);
   private topicService = inject(TopicService);
   private forumService = inject(ForumService);
+  private previewService = inject(PreviewService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private entityDraftService = inject(EntityDraftService);
@@ -104,6 +107,18 @@ export class WantedCharacterCreateComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    const previewState = this.previewService.state();
+    if (previewState?.formType === 'wanted_character') {
+      const p = previewState.formPayload;
+      this.initialData = {
+        name: p.name,
+        factions: p.factions,
+        custom_fields: { custom_fields: p.custom_fields },
+        relations: p._relationItems ?? []
+      } as any;
+      this.previewService.clear();
+    }
+
     this.statusActive.set((this.initialData?.wanted_character_status ?? 1) === 0);
     this.wantedCharacterService.loadTemplate();
     this.route.queryParams.subscribe(params => {
@@ -283,13 +298,44 @@ export class WantedCharacterCreateComponent implements OnInit, OnDestroy {
 
     const relations = this.selectedRelationIds.filter((id): id is number => id !== null);
 
+    const relationItems = this.selectedRelationIds
+      .map((id, i) => id !== null ? { id, name: this.relationInputValues[i] } : null)
+      .filter((r): r is { id: number; name: string } => r !== null);
+
     const request = {
       subforum_id: this.subforumId,
       name: formData.get('req_name') as string,
       custom_fields: customFields,
       factions,
-      relations
+      relations,
+      _relationItems: relationItems
     };
+
+    const isPreview = ((event as SubmitEvent).submitter as HTMLInputElement | null)?.name === 'preview';
+
+    if (isPreview) {
+      this.wantedCharacterService.preview(request).subscribe({
+        next: (wantedCharacter: WantedCharacter) => {
+          this.previewService.set({
+            formType: 'wanted_character',
+            topic: {
+              id: 0, name: wantedCharacter.name, subforum_id: 0,
+              date_created: '', date_last_post: '', date_last_post_localized: null,
+              author_user_id: 0, author_username: '',
+              post_number: 0, last_post_author_user_id: null, last_post_author_username: null,
+              type: TopicType.wanted_character, status: TopicStatus.active,
+              episode: null, character: null, wanted_character: wantedCharacter
+            },
+            posts: [],
+            returnUrl: this.router.url,
+            formPayload: request
+          });
+          this.router.navigate(['/preview']);
+        },
+        error: (err: any) => console.error('Preview failed', err)
+      });
+      return;
+    }
 
     const deleteDraft = () => {
       const id = this.draftId();

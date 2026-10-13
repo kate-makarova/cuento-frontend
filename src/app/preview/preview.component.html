@@ -18,6 +18,9 @@
     @if (state()?.topic?.type === TopicType.character && state()?.topic?.character) {
       <app-character-sheet-header [character]="state()!.topic!.character!" [context]="'topic'"></app-character-sheet-header>
     }
+    @if (state()?.topic?.type === TopicType.wanted_character && state()?.topic?.wanted_character) {
+      <app-wanted-character-header [wantedCharacter]="state()!.topic!.wanted_character!"></app-wanted-character-header>
+    }
 
     @for (post of (state()?.posts ?? []); track $index; let i = $index; let isEven = $even) {
       <div class="post" [class.altstyle]="isEven">

@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { Topic } from '../models/Topic';
 import { Post } from '../models/Post';
 
-export type PreviewFormType = 'character' | 'episode' | 'topic' | 'post';
+export type PreviewFormType = 'character' | 'episode' | 'topic' | 'post' | 'wanted_character';
 
 export interface PreviewState {
   formType: PreviewFormType;
