@@ -20,6 +20,12 @@ export interface PostCreatedEvent {
   data: Post;
 }
 
+export interface TopicFullEvent {
+  type: 'topic_full';
+  msg_id?: number;
+  topic_id: number;
+}
+
 export interface PostUpdatedEvent {
   type: 'post_updated';
   msg_id?: number;

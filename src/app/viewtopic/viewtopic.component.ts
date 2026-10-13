@@ -28,6 +28,7 @@ import { WantedCharacterCreateComponent } from '../wanted-character-create/wante
 import { WantedCharacterService } from '../services/wanted-character.service';
 import { EpisodeService } from '../services/episode.service';
 import { PreviewService } from '../services/preview.service';
+import { NotificationService } from '../services/notification.service';
 import { LoreTopicHeaderComponent } from '../components/lore-topic-header/lore-topic-header.component';
 import { UserInfoComponent } from '../components/user-info/user-info.component';
 import { StandardWarning } from '../models/StandardWarning';
@@ -75,6 +76,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   authService = inject(AuthService);
   boardService = inject(BoardService);
   previewService = inject(PreviewService);
+  private notificationService = inject(NotificationService);
   router = inject(Router);
   route = inject(ActivatedRoute);
   private locale = inject(LOCALE_ID);
@@ -94,6 +96,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
   breadcrumbs: BreadcrumbItem[] = [];
   showPostForm = signal<boolean>(false);
+  keepFormForFullTopic = signal(false);
   profilesReady = signal(false);
   sidebarMode = signal(false);
   sidebarProfileCompact = signal(false);
@@ -306,7 +309,11 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
         return;
       }
 
-      if (t.status === TopicStatus.inactive || t.status === TopicStatus.full) {
+      if (t.status === TopicStatus.inactive) {
+        this.showPostForm.set(false);
+        return;
+      }
+      if (t.status === TopicStatus.full && !this.keepFormForFullTopic()) {
         this.showPostForm.set(false);
         return;
       }
@@ -389,6 +396,12 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       } else {
         setTimeout(() => document.getElementById(String(postId))?.scrollIntoView({ behavior: 'smooth' }));
       }
+    });
+
+    this.notificationService.topicFull$.pipe(takeUntil(this.destroy$)).subscribe(event => {
+      if (event.topic_id !== this.id()) return;
+      if (this.showPostForm()) this.keepFormForFullTopic.set(true);
+      this.topicService.updateTopicStatus(TopicStatus.full);
     });
 
     this.pageLoadedSubscription = this.topicService.pageLoaded$.subscribe(pageState => {
@@ -585,6 +598,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     }
 
     this.postForm.cancelPendingAutosave();
+    const savedMessage = message;
     this.postForm.clear();
 
     setTimeout(() => document.getElementById('post-pending')?.scrollIntoView({ behavior: 'smooth' }));
@@ -613,7 +627,14 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       },
       error: (err: any) => {
         this.isSubmitting.set(false);
-        console.error('Failed to create post', err);
+        const isTopicFull = err?.error?.error?.includes('post limit') || err?.status === 403 && err?.error?.error?.includes('post limit');
+        if (isTopicFull) {
+          this.keepFormForFullTopic.set(true);
+          this.topicService.updateTopicStatus(TopicStatus.full);
+          this.postForm.setValue(savedMessage);
+        } else {
+          console.error('Failed to create post', err);
+        }
       }
     });
   }
