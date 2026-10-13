@@ -9,3 +9,21 @@ export interface FieldTemplate {
   options?: Record<string, string>
 }
 
+export interface Block {
+  id: string;
+  label: string;
+  fields: string[];
+}
+
+export interface BlockSettingToggle {
+  machine_name: string;
+  label: string;
+  children: string[];
+}
+
+export interface TemplateConfig {
+  fields: FieldTemplate[];
+  blocks: Block[];
+  block_settings: BlockSettingToggle[];
+}
+
