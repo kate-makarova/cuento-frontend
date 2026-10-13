@@ -268,4 +268,4 @@ export interface PongEvent {
   msg_id?: number;
 }
 
-export type WebSocketEvent = TopicCreatedEvent | PostCreatedEvent | PostUpdatedEvent | NotificationEvent | TopicViewersUpdateEvent | DirectMessageCreatedEvent | ActiveUsersUpdateEvent | ActiveUsersActivityUpdateEvent | PanelReloadEvent | ReactionCreatedEvent | HealthUpdateEvent | UserRefreshRequiredEvent | DraftUpdatedEvent | AiMessageEvent | AiTaskDoneEvent | AiQueuePositionEvent | AiErrorEvent | PageChangedEvent | PongEvent;
+export type WebSocketEvent = TopicCreatedEvent | PostCreatedEvent | PostUpdatedEvent | NotificationEvent | TopicViewersUpdateEvent | DirectMessageCreatedEvent | ActiveUsersUpdateEvent | ActiveUsersActivityUpdateEvent | PanelReloadEvent | ReactionCreatedEvent | HealthUpdateEvent | UserRefreshRequiredEvent | DraftUpdatedEvent | AiMessageEvent | AiTaskDoneEvent | AiQueuePositionEvent | AiErrorEvent | PageChangedEvent | PongEvent | TopicFullEvent;
