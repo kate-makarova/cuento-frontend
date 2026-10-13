@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Subject } from 'rxjs';
-import { PostCreatedEvent, TopicCreatedEvent, NotificationEvent, WebSocketEvent, TopicViewersUpdateEvent, UnreadNotificationsResponse, NotificationData, NotificationMention, PostUpdatedEvent, DirectMessageCreatedEvent, ActiveUsersUpdateEvent, ActiveUsersActivityUpdateEvent, PanelReloadEvent, ReactionCreatedEvent, HealthUpdateEvent, UserRefreshRequiredEvent, DraftUpdatedEvent, AiMessageEvent, AiTaskDoneEvent, AiQueuePositionEvent, AiErrorEvent, PageChangedEvent } from '../models/event';
+import { PostCreatedEvent, TopicCreatedEvent, NotificationEvent, WebSocketEvent, TopicViewersUpdateEvent, UnreadNotificationsResponse, NotificationData, NotificationMention, PostUpdatedEvent, DirectMessageCreatedEvent, ActiveUsersUpdateEvent, ActiveUsersActivityUpdateEvent, PanelReloadEvent, ReactionCreatedEvent, HealthUpdateEvent, UserRefreshRequiredEvent, DraftUpdatedEvent, AiMessageEvent, AiTaskDoneEvent, AiQueuePositionEvent, AiErrorEvent, PageChangedEvent, TopicFullEvent } from '../models/event';
 import { AuthService } from './auth.service';
 import { ApiService } from './api.service';
 import { environment } from '../../environments/environment';
@@ -47,6 +47,9 @@ export class NotificationService {
 
   private reactionCreatedSubject = new Subject<ReactionCreatedEvent>();
   public reactionCreated$ = this.reactionCreatedSubject.asObservable();
+
+  private topicFullSubject = new Subject<TopicFullEvent>();
+  public topicFull$ = this.topicFullSubject.asObservable();
 
   private healthUpdateSubject = new Subject<HealthUpdateEvent>();
   public healthUpdate$ = this.healthUpdateSubject.asObservable();
@@ -478,6 +481,9 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
         break;
       case 'reaction_created':
         this.reactionCreatedSubject.next(notification as ReactionCreatedEvent);
+        break;
+      case 'topic_full':
+        this.topicFullSubject.next(notification as TopicFullEvent);
         break;
       case 'health_update':
         this.healthUpdateSubject.next(notification as HealthUpdateEvent);
