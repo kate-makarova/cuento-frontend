@@ -19,6 +19,7 @@ export interface BlockSettingToggle {
   machine_name: string;
   label: string;
   children: string[];
+  control_type: 'manual';
 }
 
 export interface TemplateConfig {
