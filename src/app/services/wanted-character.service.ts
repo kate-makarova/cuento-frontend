@@ -53,6 +53,10 @@ export class WantedCharacterService {
     return this.apiService.post('wanted-character/create', data);
   }
 
+  preview(data: any): Observable<WantedCharacter> {
+    return this.apiService.post<WantedCharacter>('wanted-character/preview', data);
+  }
+
   update(id: number, data: any): Observable<any> {
     return this.apiService.post(`wanted-character/update/${id}`, data);
   }
