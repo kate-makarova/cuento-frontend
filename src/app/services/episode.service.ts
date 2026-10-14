@@ -82,12 +82,8 @@ export class EpisodeService {
     });
   }
 
-  saveEpisodeTemplate(template: FieldTemplate[]) {
-    const payload: TemplateConfig = {
-      fields: template,
-      blocks: this.episodeTemplateBlocksSignal(),
-      block_settings: this.episodeTemplateBlockSettingsSignal()
-    };
+  saveEpisodeTemplate(fields: FieldTemplate[], blocks: Block[], blockSettings: BlockSettingToggle[]) {
+    const payload: TemplateConfig = { fields, blocks, block_settings: blockSettings };
     return this.apiService.post('template/episode/update', payload);
   }
 

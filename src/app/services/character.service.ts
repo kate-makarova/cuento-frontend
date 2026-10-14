@@ -67,12 +67,8 @@ export class CharacterService {
     })
   }
 
-  saveCharacterTemplate(template: FieldTemplate[]) {
-    const payload: TemplateConfig = {
-      fields: template,
-      blocks: this.characterTemplateBlocksSignal(),
-      block_settings: this.characterTemplateBlockSettingsSignal()
-    };
+  saveCharacterTemplate(fields: FieldTemplate[], blocks: Block[], blockSettings: BlockSettingToggle[]) {
+    const payload: TemplateConfig = { fields, blocks, block_settings: blockSettings };
     return this.apiService.post('template/character/update', payload);
   }
 
@@ -154,12 +150,8 @@ export class CharacterService {
     });
   }
 
-  saveCharacterProfileTemplate(template: FieldTemplate[]) {
-    const payload: TemplateConfig = {
-      fields: template,
-      blocks: this.characterProfileTemplateBlocksSignal(),
-      block_settings: this.characterProfileTemplateBlockSettingsSignal()
-    };
+  saveCharacterProfileTemplate(fields: FieldTemplate[], blocks: Block[], blockSettings: BlockSettingToggle[]) {
+    const payload: TemplateConfig = { fields, blocks, block_settings: blockSettings };
     return this.apiService.post('template/character_profile/update', payload);
   }
 
@@ -240,12 +232,8 @@ export class CharacterService {
     });
   }
 
-  saveWantedCharacterTemplate(template: FieldTemplate[]) {
-    const payload: TemplateConfig = {
-      fields: template,
-      blocks: this.wantedCharacterTemplateBlocksSignal(),
-      block_settings: this.wantedCharacterTemplateBlockSettingsSignal()
-    };
+  saveWantedCharacterTemplate(fields: FieldTemplate[], blocks: Block[], blockSettings: BlockSettingToggle[]) {
+    const payload: TemplateConfig = { fields, blocks, block_settings: blockSettings };
     return this.apiService.post('template/wanted_character/update', payload);
   }
 

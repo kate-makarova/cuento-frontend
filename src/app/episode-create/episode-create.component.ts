@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, OnInit, Input, Output, EventEmitter, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, Input, Output, EventEmitter, signal, untracked } from '@angular/core';
 import { FormArray, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 import { EpisodeService } from '../services/episode.service';
@@ -34,6 +34,28 @@ export class EpisodeCreateComponent implements OnInit {
   router = inject(Router);
   route = inject(ActivatedRoute);
   episodeTemplate = this.episodeService.episodeTemplate;
+  templateBlocks = this.episodeService.episodeTemplateBlocks;
+  templateBlockSettings = this.episodeService.episodeTemplateBlockSettings;
+  selectedBlocks = signal<Record<string, string>>({});
+
+  visibleFields = computed(() => {
+    const template = this.episodeTemplate();
+    const blocks = this.templateBlocks();
+    const toggles = this.templateBlockSettings();
+    if (toggles.length === 0) return template;
+    const hidden = new Set<string>();
+    for (const toggle of toggles) {
+      const selected = this.selectedBlocks()[toggle.machine_name] ?? toggle.children[0];
+      for (const childId of toggle.children) {
+        if (childId !== selected) {
+          const block = blocks.find(b => b.id === childId);
+          if (block) block.fields.forEach(f => hidden.add(f));
+        }
+      }
+    }
+    return template.filter(f => !hidden.has(f.machine_field_name));
+  });
+
   characterSuggestions = this.characterService.shortCharacterList;
   breadcrumbs: BreadcrumbItem[] = [];
   useRatingSystem = computed(() => this.boardService.board().use_rating_system === 'y');
@@ -164,6 +186,18 @@ export class EpisodeCreateComponent implements OnInit {
     }
 
     this.episodeService.loadEpisodeTemplate();
+
+    effect(() => {
+      const toggles = this.templateBlockSettings();
+      if (toggles.length === 0) return;
+      const existing = (this.initialData as any)?.custom_fields?.block_settings ?? {};
+      const init: Record<string, string> = {};
+      for (const toggle of toggles) {
+        init[toggle.machine_name] = existing[toggle.machine_name] ?? toggle.children[0];
+      }
+      this.selectedBlocks.set(init);
+    }, { allowSignalWrites: true });
+
     this.episodeService.getStandardWarnings().subscribe({
       next: (warnings) => this.availableWarnings.set(warnings),
       error: (err) => console.error('Failed to load standard warnings', err)
@@ -370,6 +404,22 @@ export class EpisodeCreateComponent implements OnInit {
     return null;
   }
 
+  onBlockToggle(toggleName: string, blockId: string) {
+    this.selectedBlocks.update(s => ({ ...s, [toggleName]: blockId }));
+  }
+
+  getBlock(blockId: string) {
+    return this.templateBlocks().find(b => b.id === blockId) ?? null;
+  }
+
+  collectBlockSettings(): Record<string, string> {
+    const result: Record<string, string> = {};
+    for (const toggle of this.templateBlockSettings()) {
+      result[toggle.machine_name] = this.selectedBlocks()[toggle.machine_name] ?? toggle.children[0];
+    }
+    return result;
+  }
+
   onSubmit(event: Event) {
     event.preventDefault();
     const form = event.target as HTMLFormElement;
@@ -400,6 +450,7 @@ export class EpisodeCreateComponent implements OnInit {
       rating_violence: this.ratingViolence,
       rating_sex: this.ratingSex,
       warning_ids: this.selectedWarnings.map(w => w.id),
+      block_settings: this.collectBlockSettings()
     };
 
     if (!this.formSubmit.observed && this.arcId !== null) {

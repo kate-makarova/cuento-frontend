@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, Input, Output, EventEmitter, signal, computed, ViewChild, ElementRef } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, Input, Output, EventEmitter, signal, computed, ViewChild, ElementRef, effect } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CharacterService } from '../services/character.service';
 import { TopicService } from '../services/topic.service';
@@ -46,6 +46,28 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
   router = inject(Router);
   route = inject(ActivatedRoute);
   characterTemplate = this.characterService.characterTemplate;
+  templateBlocks = this.characterService.characterTemplateBlocks;
+  templateBlockSettings = this.characterService.characterTemplateBlockSettings;
+
+  selectedBlocks = signal<Record<string, string>>({});
+
+  visibleFields = computed(() => {
+    const template = this.characterTemplate();
+    const blocks = this.templateBlocks();
+    const toggles = this.templateBlockSettings();
+    if (toggles.length === 0) return template;
+    const hidden = new Set<string>();
+    for (const toggle of toggles) {
+      const selected = this.selectedBlocks()[toggle.machine_name] ?? toggle.children[0];
+      for (const childId of toggle.children) {
+        if (childId !== selected) {
+          const block = blocks.find(b => b.id === childId);
+          if (block) block.fields.forEach(f => hidden.add(f));
+        }
+      }
+    }
+    return template.filter(f => !hidden.has(f.machine_field_name));
+  });
 
   @Input() initialData: Character | null = null;
   @Output() formSubmit = new EventEmitter<any>();
@@ -165,6 +187,19 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
     }
 
     this.characterService.loadCharacterTemplate();
+
+    // Initialize block toggle selections from entity data or defaults
+    effect(() => {
+      const toggles = this.templateBlockSettings();
+      if (toggles.length === 0) return;
+      const existing = this.initialData?.custom_fields?.block_settings ?? {};
+      const init: Record<string, string> = {};
+      for (const toggle of toggles) {
+        init[toggle.machine_name] = existing[toggle.machine_name] ?? toggle.children[0];
+      }
+      this.selectedBlocks.set(init);
+    }, { allowSignalWrites: true });
+
     this.route.queryParams.subscribe(params => {
       if (params['fid']) {
         this.subforumId = +params['fid'];
@@ -285,6 +320,22 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
     this.factionPaths = paths;
   }
 
+  onBlockToggle(toggleName: string, blockId: string) {
+    this.selectedBlocks.update(s => ({ ...s, [toggleName]: blockId }));
+  }
+
+  getBlock(blockId: string) {
+    return this.templateBlocks().find(b => b.id === blockId) ?? null;
+  }
+
+  collectBlockSettings(): Record<string, string> {
+    const result: Record<string, string> = {};
+    for (const toggle of this.templateBlockSettings()) {
+      result[toggle.machine_name] = this.selectedBlocks()[toggle.machine_name] ?? toggle.children[0];
+    }
+    return result;
+  }
+
   getFieldValue(machineName: string): any {
     if (this.initialData && this.initialData.custom_fields && this.initialData.custom_fields.custom_fields) {
       const field = this.initialData.custom_fields.custom_fields[machineName];
@@ -341,7 +392,8 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
       name: formData.get('req_name') as string,
       avatar: formData.get('req_avatar') as string,
       custom_fields: customFields,
-      factions: factions
+      factions: factions,
+      block_settings: this.collectBlockSettings()
     };
 
     const claimItem = this.selectedClaimItem();
