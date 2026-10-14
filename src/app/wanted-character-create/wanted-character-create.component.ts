@@ -74,10 +74,10 @@ export class WantedCharacterCreateComponent implements OnInit, OnDestroy {
       }
     });
   }
-  characterName: string = '';
+  characterName = signal<string>('');
   factionPaths: Faction[][] = [[]];
 
-  relationInputValues: string[] = [''];
+  relationInputValues = signal<string[]>(['']);
   selectedRelationIds: (number | null)[] = [null];
   activeRelationIndex: number | null = null;
   private relationSearchTimer: any = null;
@@ -162,9 +162,9 @@ export class WantedCharacterCreateComponent implements OnInit, OnDestroy {
     });
 
     if (this.initialData) {
-      this.characterName = this.initialData.name;
+      this.characterName.set(this.initialData.name);
       if (this.initialData.relations && this.initialData.relations.length > 0) {
-        this.relationInputValues = this.initialData.relations.map(r => r.name);
+        this.relationInputValues.set(this.initialData.relations.map(r => r.name));
         this.selectedRelationIds = this.initialData.relations.map(r => r.id);
       }
     } else {
@@ -197,10 +197,10 @@ export class WantedCharacterCreateComponent implements OnInit, OnDestroy {
       }
     }
     return {
-      name: formData ? (formData.get('req_name') as string) : this.characterName,
+      name: formData ? (formData.get('req_name') as string) : this.characterName(),
       factionPaths: this.factionPaths,
       relations: this.selectedRelationIds
-        .map((id, i) => id !== null ? { id, name: this.relationInputValues[i] } : null)
+        .map((id, i) => id !== null ? { id, name: this.relationInputValues()[i] } : null)
         .filter(Boolean),
       customFields,
     };
@@ -224,9 +224,9 @@ export class WantedCharacterCreateComponent implements OnInit, OnDestroy {
     this.entityDraftService.loadLatest('wanted_character').subscribe({
       next: draft => {
         const c = draft.content;
-        if (c.name) this.characterName = c.name;
+        if (c.name) this.characterName.set(c.name);
         if (c.relations?.length) {
-          this.relationInputValues = c.relations.map((r: any) => r.name);
+          this.relationInputValues.set(c.relations.map((r: any) => r.name));
           this.selectedRelationIds = c.relations.map((r: any) => r.id);
         }
         this.hasDraft.set(false);
@@ -259,7 +259,7 @@ export class WantedCharacterCreateComponent implements OnInit, OnDestroy {
   }
 
   onRelationInput(index: number, value: string) {
-    this.relationInputValues[index] = value;
+    this.relationInputValues.update(arr => { const copy = [...arr]; copy[index] = value; return copy; });
     this.selectedRelationIds[index] = null;
     clearTimeout(this.relationSearchTimer);
     if (value.length >= 2) {
@@ -274,19 +274,19 @@ export class WantedCharacterCreateComponent implements OnInit, OnDestroy {
   }
 
   selectRelation(index: number, char: CharacterShort) {
-    this.relationInputValues[index] = char.name;
+    this.relationInputValues.update(arr => { const copy = [...arr]; copy[index] = char.name; return copy; });
     this.selectedRelationIds[index] = char.id;
     this.activeRelationIndex = null;
     this.characterService.loadShortCharacterList('');
   }
 
   addRelationField() {
-    this.relationInputValues.push('');
+    this.relationInputValues.update(arr => [...arr, '']);
     this.selectedRelationIds.push(null);
   }
 
   removeRelationField(index: number) {
-    this.relationInputValues.splice(index, 1);
+    this.relationInputValues.update(arr => arr.filter((_, i) => i !== index));
     this.selectedRelationIds.splice(index, 1);
     if (this.activeRelationIndex === index) {
       this.activeRelationIndex = null;
@@ -348,7 +348,7 @@ export class WantedCharacterCreateComponent implements OnInit, OnDestroy {
     const relations = this.selectedRelationIds.filter((id): id is number => id !== null);
 
     const relationItems = this.selectedRelationIds
-      .map((id, i) => id !== null ? { id, name: this.relationInputValues[i] } : null)
+      .map((id, i) => id !== null ? { id, name: this.relationInputValues()[i] } : null)
       .filter((r): r is { id: number; name: string } => r !== null);
 
     const request = {
