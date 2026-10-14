@@ -3,14 +3,14 @@
     <app-short-text-field
       [fieldName]="field().human_field_name"
       [name]="field().machine_field_name"
-      [fieldValue()]="fieldValue()">
+      [fieldValue]="fieldValue()">
     </app-short-text-field>
   }
   @case ('long_text') {
     <app-long-text-field
       [fieldName]="field().human_field_name"
       [name]="field().machine_field_name"
-      [fieldValue()]="fieldValue()"
+      [fieldValue]="fieldValue()"
       [rows]="10">
     </app-long-text-field>
   }
@@ -18,14 +18,14 @@
     <app-number-field
       [fieldName]="field().human_field_name"
       [name]="field().machine_field_name"
-      [fieldValue()]="fieldValue()">
+      [fieldValue]="fieldValue()">
     </app-number-field>
   }
   @case ('image') {
     <app-image-field
       [fieldName]="field().human_field_name"
       [name]="field().machine_field_name"
-      [fieldValue()]="fieldValue()">
+      [fieldValue]="fieldValue()">
     </app-image-field>
   }
   @case ('cropped_image') {
@@ -33,7 +33,7 @@
       <app-cropped-image-field
         [fieldName]="field().human_field_name"
         [name]="field().machine_field_name"
-        [fieldValue()]="fieldValue()"
+        [fieldValue]="fieldValue()"
         [width]="field().width"
         [height]="field().height">
       </app-cropped-image-field>
@@ -43,7 +43,7 @@
     <app-free-format-date-field
       [fieldName]="field().human_field_name"
       [name]="field().machine_field_name"
-      [fieldValue()]="fieldValue()"
+      [fieldValue]="fieldValue()"
       [characterIds]="characterIds()">
     </app-free-format-date-field>
   }
@@ -51,7 +51,7 @@
     <app-select-field
       [fieldName]="field().human_field_name"
       [name]="field().machine_field_name"
-      [fieldValue()]="fieldValue()"
+      [fieldValue]="fieldValue()"
       contentFieldType="dropdown"
       [selectOptions]="field().options ?? {}">
     </app-select-field>
@@ -60,7 +60,7 @@
     <app-select-field
       [fieldName]="field().human_field_name"
       [name]="field().machine_field_name"
-      [fieldValue()]="fieldValue()"
+      [fieldValue]="fieldValue()"
       contentFieldType="radiobox"
       [selectOptions]="field().options ?? {}">
     </app-select-field>
