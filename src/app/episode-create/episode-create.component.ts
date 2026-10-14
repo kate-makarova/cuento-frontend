@@ -133,6 +133,17 @@ export class EpisodeCreateComponent implements OnInit, OnChanges {
         ];
       }
     });
+
+    effect(() => {
+      const toggles = this.templateBlockSettings();
+      if (toggles.length === 0) return;
+      const existing = this.episodeBlockSettings();
+      const init: Record<string, string> = {};
+      for (const toggle of toggles) {
+        init[toggle.machine_name] = existing[toggle.machine_name] ?? toggle.children[0];
+      }
+      this.selectedBlocks.set(init);
+    }, { allowSignalWrites: true });
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -196,17 +207,6 @@ export class EpisodeCreateComponent implements OnInit, OnChanges {
     }
 
     this.episodeService.loadEpisodeTemplate();
-
-    effect(() => {
-      const toggles = this.templateBlockSettings();
-      if (toggles.length === 0) return;
-      const existing = this.episodeBlockSettings();
-      const init: Record<string, string> = {};
-      for (const toggle of toggles) {
-        init[toggle.machine_name] = existing[toggle.machine_name] ?? toggle.children[0];
-      }
-      this.selectedBlocks.set(init);
-    }, { allowSignalWrites: true });
 
     this.episodeService.getStandardWarnings().subscribe({
       next: (warnings) => this.availableWarnings.set(warnings),
