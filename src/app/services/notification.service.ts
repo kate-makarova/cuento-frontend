@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Subject } from 'rxjs';
-import { PostCreatedEvent, TopicCreatedEvent, NotificationEvent, WebSocketEvent, TopicViewersUpdateEvent, UnreadNotificationsResponse, NotificationData, NotificationMention, PostUpdatedEvent, DirectMessageCreatedEvent, ActiveUsersUpdateEvent, ActiveUsersActivityUpdateEvent, PanelReloadEvent, ReactionCreatedEvent, HealthUpdateEvent, UserRefreshRequiredEvent, DraftUpdatedEvent, AiMessageEvent, AiTaskDoneEvent, AiQueuePositionEvent, AiErrorEvent, PageChangedEvent, TopicFullEvent } from '../models/event';
+import { PostCreatedEvent, TopicCreatedEvent, NotificationEvent, WebSocketEvent, TopicViewersUpdateEvent, UnreadNotificationsResponse, NotificationData, NotificationMention, NotificationReaction, PostUpdatedEvent, DirectMessageCreatedEvent, ActiveUsersUpdateEvent, ActiveUsersActivityUpdateEvent, PanelReloadEvent, ReactionCreatedEvent, HealthUpdateEvent, UserRefreshRequiredEvent, DraftUpdatedEvent, AiMessageEvent, AiTaskDoneEvent, AiQueuePositionEvent, AiErrorEvent, PageChangedEvent, TopicFullEvent } from '../models/event';
 import { AuthService } from './auth.service';
 import { ApiService } from './api.service';
 import { environment } from '../../environments/environment';
@@ -229,6 +229,25 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
     if (mentions.length === 0) return;
     for (const n of mentions) {
       const tid = ((n.mention ?? n.data) as NotificationMention | null)?.topic_id;
+      if (tid === topicId) this.dismissNotification(n);
+    }
+  }
+
+  public checkReactionsByPostIds(postIds: number[]): void {
+    const reactions = this.reactionNotificationsSignal();
+    if (reactions.length === 0) return;
+    const postIdSet = new Set(postIds);
+    for (const n of reactions) {
+      const postId = (n.data as NotificationReaction | null)?.post_id;
+      if (postId && postIdSet.has(postId)) this.dismissNotification(n);
+    }
+  }
+
+  public checkReactionsByTopicId(topicId: number): void {
+    const reactions = this.reactionNotificationsSignal();
+    if (reactions.length === 0) return;
+    for (const n of reactions) {
+      const tid = (n.data as NotificationReaction | null)?.topic_id;
       if (tid === topicId) this.dismissNotification(n);
     }
   }

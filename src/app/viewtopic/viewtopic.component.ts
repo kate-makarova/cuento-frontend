@@ -669,6 +669,11 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       payload.guest_name = this.guestName;
     }
 
+    const draftGroupId = this.postForm.currentDraftGroupId();
+    if (draftGroupId) {
+      payload.from_draft_id = draftGroupId;
+    }
+
     this.topicService.previewTopic(payload).subscribe({
       next: (previewPost: any) => {
         this.previewService.set({
