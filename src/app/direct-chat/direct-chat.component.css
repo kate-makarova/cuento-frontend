@@ -1,0 +1,31 @@
+.dm-sidebar-toggle {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .pm-sidebar {
+    display: none;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .dm-sidebar-active .pm-sidebar {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dm-sidebar-active .pm-history {
+    display: none;
+  }
+
+  .pm-history {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .dm-sidebar-toggle {
+    display: inline-flex;
+    align-items: center;
+  }
+}
