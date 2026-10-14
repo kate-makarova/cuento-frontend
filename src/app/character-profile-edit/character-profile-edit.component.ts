@@ -82,10 +82,6 @@ export class CharacterProfileEditComponent implements OnInit {
         }
       }
     }, { allowSignalWrites: true });
-  }
-
-  ngOnInit() {
-    this.characterService.loadCharacterProfileTemplate();
 
     effect(() => {
       const toggles = this.templateBlockSettings();
@@ -97,6 +93,11 @@ export class CharacterProfileEditComponent implements OnInit {
       }
       this.selectedBlocks.set(init);
     }, { allowSignalWrites: true });
+  }
+
+  ngOnInit() {
+    this.characterService.loadCharacterProfileTemplate();
+
     this.route.params.subscribe(params => {
       if (params['id']) {
         if (params['id'] === 'new' || params['id'] === '0') {

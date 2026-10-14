@@ -157,6 +157,19 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
     this.showClaimBlockedModal.set(false);
   }
 
+  constructor() {
+    effect(() => {
+      const toggles = this.templateBlockSettings();
+      if (toggles.length === 0) return;
+      const existing = this.initialData?.custom_fields?.block_settings ?? {};
+      const init: Record<string, string> = {};
+      for (const toggle of toggles) {
+        init[toggle.machine_name] = existing[toggle.machine_name] ?? toggle.children[0];
+      }
+      this.selectedBlocks.set(init);
+    }, { allowSignalWrites: true });
+  }
+
   ngOnDestroy() {
     this.claimSubscription?.unsubscribe();
     this.autosaveSub?.unsubscribe();
@@ -187,18 +200,6 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
     }
 
     this.characterService.loadCharacterTemplate();
-
-    // Initialize block toggle selections from entity data or defaults
-    effect(() => {
-      const toggles = this.templateBlockSettings();
-      if (toggles.length === 0) return;
-      const existing = this.initialData?.custom_fields?.block_settings ?? {};
-      const init: Record<string, string> = {};
-      for (const toggle of toggles) {
-        init[toggle.machine_name] = existing[toggle.machine_name] ?? toggle.children[0];
-      }
-      this.selectedBlocks.set(init);
-    }, { allowSignalWrites: true });
 
     this.route.queryParams.subscribe(params => {
       if (params['fid']) {
