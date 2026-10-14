@@ -14,6 +14,7 @@ export class LongTextFieldComponent {
   @Input() showFieldName: boolean = true;
   @Input() name: string | undefined;
   @Input() rows: number = 20;
+  @Input() showImageUpload: boolean = false;
 
   @ViewChild('textareaEl') messageField!: ElementRef<HTMLTextAreaElement>;
 }
