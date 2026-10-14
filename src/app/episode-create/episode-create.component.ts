@@ -94,6 +94,7 @@ export class EpisodeCreateComponent implements OnInit, OnChanges {
   needsSubforumSelection: boolean = false;
   subject = signal<string>('');
   openToEveryone: boolean = false;
+  private episodeBlockSettings = signal<Record<string, string>>({});
 
   // Arc — set from query params on create, read-only
   arcId: number | null = null;
@@ -199,7 +200,7 @@ export class EpisodeCreateComponent implements OnInit, OnChanges {
     effect(() => {
       const toggles = this.templateBlockSettings();
       if (toggles.length === 0) return;
-      const existing = (this.initialData as any)?.custom_fields?.block_settings ?? {};
+      const existing = this.episodeBlockSettings();
       const init: Record<string, string> = {};
       for (const toggle of toggles) {
         init[toggle.machine_name] = existing[toggle.machine_name] ?? toggle.children[0];
@@ -228,6 +229,7 @@ export class EpisodeCreateComponent implements OnInit, OnChanges {
   }
 
   populateForm(data: Episode) {
+    this.episodeBlockSettings.set(data.custom_fields?.block_settings ?? {});
     this.subject.set(data.name);
     this.openToEveryone = data.open_to_everyone ?? false;
     this.manualRatingLanguage = data.rating_language ?? 0;
