@@ -70,7 +70,11 @@ export type HideNode = {
   children: ParagraphNode[];
 };
 
-export type BlockNode = ParagraphNode | AlignBlock | QuoteNode | CodeNode | SpoilerNode | VideoNode | AudioNode | NpcBlockNode | HideNode;
+// Opaque passthrough for block tags the editor doesn't structurally understand
+// (e.g. [table]). The inner BB code is round-tripped verbatim.
+export type RawBlockNode = { type: 'raw'; tag: string; bb: string };
+
+export type BlockNode = ParagraphNode | AlignBlock | QuoteNode | CodeNode | SpoilerNode | VideoNode | AudioNode | NpcBlockNode | HideNode | RawBlockNode;
 
 export type DocModel = { children: BlockNode[] };
 
