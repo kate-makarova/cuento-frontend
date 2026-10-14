@@ -5,7 +5,7 @@
 // up to the nearest [data-doc-path] element and counting inline characters.
 
 import {
-  DocModel, BlockNode, ParagraphNode, InlineNode, Mark, NpcBlockNode, HideNode,
+  DocModel, BlockNode, ParagraphNode, InlineNode, Mark, NpcBlockNode, HideNode, RawBlockNode,
 } from './wysiwyg-doc-model';
 
 function audioEmbedHtml(url: string, sourceSite?: string): string {
@@ -128,6 +128,9 @@ export function renderBlock(block: BlockNode, blockIdx: number): string {
 
     case 'hide':
       return renderHideBlock(block, blockIdx);
+
+    case 'raw':
+      return renderRawBlock(block);
   }
 }
 
@@ -152,6 +155,10 @@ function renderNpcHeader(block: NpcBlockNode): string {
     }).join('');
   }
   return esc(block.npcIds.length > 0 ? `NPC: ${block.npcIds.join(', ')}` : 'NPC block');
+}
+
+function renderRawBlock(block: RawBlockNode): string {
+  return `<div class="wysiwyg-raw-block" contenteditable="false">[${esc(block.tag)}]</div>`;
 }
 
 function renderHideBlock(block: HideNode, blockIdx: number): string {
@@ -257,6 +264,8 @@ function renderBlockStatic(block: BlockNode): string {
         `</div>`
       );
     }
+    case 'raw':
+      return renderRawBlock(block);
   }
 }
 

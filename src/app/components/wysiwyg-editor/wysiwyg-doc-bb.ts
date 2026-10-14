@@ -4,7 +4,7 @@
 // serializeDoc : DocModel → string
 
 import {
-  DocModel, BlockNode, ParagraphNode, AlignBlock, QuoteNode, CodeNode, SpoilerNode, VideoNode, AudioNode, NpcBlockNode, HideNode,
+  DocModel, BlockNode, ParagraphNode, AlignBlock, QuoteNode, CodeNode, SpoilerNode, VideoNode, AudioNode, NpcBlockNode, HideNode, RawBlockNode,
   InlineNode, TextNode, Mark,
 } from './wysiwyg-doc-model';
 
@@ -54,7 +54,7 @@ function findMatchingClose(text: string, tag: string, from: number): number {
 function parseBlocks(text: string): BlockNode[] {
   const result: BlockNode[] = [];
   // Matches the opening tag of every block-level construct.
-  const blockOpen = /\[code\]|\[quote(?:=[^\]]*)?\]|\[spoiler(?:=[^\]]*)?\]|\[center\]|\[right\]|\[left\]|\[video\]|\[audio(?:\s[^\]]+)?\]|\[npc-block\]|\[hide(?:\s[^\]]+)?\]/gi;
+  const blockOpen = /\[code\]|\[quote(?:=[^\]]*)?\]|\[spoiler(?:=[^\]]*)?\]|\[center\]|\[right\]|\[left\]|\[video\]|\[audio(?:\s[^\]]+)?\]|\[npc-block\]|\[hide(?:\s[^\]]+)?\]|\[table\]/gi;
   let pos = 0;
 
   let m: RegExpExecArray | null;
@@ -130,6 +130,9 @@ function parseBlocks(text: string): BlockNode[] {
         result.push({ type: 'hide', userIds, children: paraLines(content) } as HideNode);
         break;
       }
+      case 'table':
+        result.push({ type: 'raw', tag: 'table', bb: content } as RawBlockNode);
+        break;
     }
   }
 
@@ -279,6 +282,8 @@ function serializeBlock(block: BlockNode): string {
       const usersAttr = block.userIds.length > 0 ? ` users=${block.userIds.join(',')}` : '';
       return `[hide${usersAttr}]${inner}[/hide]\n`;
     }
+    case 'raw':
+      return `[${block.tag}]${block.bb}[/${block.tag}]\n`;
   }
 }
 
