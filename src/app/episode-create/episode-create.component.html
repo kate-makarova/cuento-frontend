@@ -102,12 +102,12 @@
       <fieldset class="block-toggles">
         @for (toggle of templateBlockSettings(); track toggle.machine_name) {
           <div class="block-toggle">
-            <span class="toggle-label">{{ toggle.label }}</span>
+            <span class="toggle-label">{{ toggle.label || toggle.machine_name }}</span>
             @for (childId of toggle.children; track childId) {
               <button type="button"
                       [class.active]="(selectedBlocks()[toggle.machine_name] ?? toggle.children[0]) === childId"
                       (click)="onBlockToggle(toggle.machine_name, childId)">
-                {{ getBlock(childId)?.label ?? childId }}
+                {{ getBlock(childId)?.label || childId }}
               </button>
             }
           </div>

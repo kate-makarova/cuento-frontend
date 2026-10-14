@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, OnInit, Input, Output, EventEmitter, signal, untracked } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, OnChanges, SimpleChanges, Input, Output, EventEmitter, signal, untracked } from '@angular/core';
 import { FormArray, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 import { EpisodeService } from '../services/episode.service';
@@ -23,7 +23,7 @@ import { StandardWarning } from '../models/StandardWarning';
   imports: [ ReactiveFormsModule, FormsModule, FieldInputComponent, BreadcrumbsComponent],
   templateUrl: './episode-create.component.html',
 })
-export class EpisodeCreateComponent implements OnInit {
+export class EpisodeCreateComponent implements OnInit, OnChanges {
   episodeService = inject(EpisodeService);
   characterService = inject(CharacterService);
   topicService = inject(TopicService);
@@ -132,6 +132,12 @@ export class EpisodeCreateComponent implements OnInit {
     });
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['initialData'] && this.initialData) {
+      this.populateForm(this.initialData);
+    }
+  }
+
   ngOnInit() {
     const previewState = this.previewService.state();
     if (previewState?.formType === 'episode') {
@@ -216,9 +222,6 @@ export class EpisodeCreateComponent implements OnInit {
       }
     });
 
-    if (this.initialData) {
-      this.populateForm(this.initialData);
-    }
   }
 
   populateForm(data: Episode) {
