@@ -76,8 +76,8 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
   subforumId: number = 0;
   factionPaths: Faction[][] = [[]]; // Start with one empty path
 
-  characterName: string = '';
-  characterAvatar: string = '';
+  characterName = signal<string>('');
+  characterAvatar = signal<string>('');
 
   statusActive = signal(false);
   isPending = false;
@@ -236,8 +236,8 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
       }
     }
     return {
-      name: formData ? (formData.get('req_name') as string) : this.characterName,
-      avatar: formData ? (formData.get('req_avatar') as string) : this.characterAvatar,
+      name: formData ? (formData.get('req_name') as string) : this.characterName(),
+      avatar: formData ? (formData.get('req_avatar') as string) : this.characterAvatar(),
       factionPaths: this.factionPaths,
       claimType: this.claimType(),
       claimItem: this.selectedClaimItem(),
@@ -261,8 +261,8 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
     this.entityDraftService.loadLatest('character').subscribe({
       next: draft => {
         const c = draft.content;
-        if (c.name) this.characterName = c.name;
-        if (c.avatar) this.characterAvatar = c.avatar;
+        if (c.name) this.characterName.set(c.name);
+        if (c.avatar) this.characterAvatar.set(c.avatar);
         if (c.claimType) this.claimType.set(c.claimType);
         if (c.claimItem) { this.selectedClaimItem.set(c.claimItem); this.claimQuery.set(c.claimItem.name); }
         this.hasDraft.set(false);
@@ -312,8 +312,8 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
   }
 
   populateForm(data: Character) {
-    this.characterName = data.name;
-    this.characterAvatar = data.avatar || '';
+    this.characterName.set(data.name);
+    this.characterAvatar.set(data.avatar || '');
   }
 
   onFactionsChanged(paths: Faction[][]) {

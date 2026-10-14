@@ -56,9 +56,9 @@ export class CharacterProfileEditComponent implements OnInit {
   currentProfileData = signal<CharacterProfile | null>(null);
 
   characterId: number = 0;
-  characterName: string = '';
-  characterAvatar: string = '';
-  characterSignature: string = '';
+  characterName = signal<string>('');
+  characterAvatar = signal<string>('');
+  characterSignature = signal<string>('');
   isNewMask: boolean = false;
   saveState = signal<'idle' | 'loading' | 'success' | 'error'>('idle');
 
@@ -76,12 +76,12 @@ export class CharacterProfileEditComponent implements OnInit {
         const p = this.currentProfileData();
         if (p) {
           // If it's a mask, it might have mask_name. If it's a character, character_name.
-          this.characterName = p.character_name || (p as any).mask_name || '';
-          this.characterAvatar = p.avatar;
-          this.characterSignature = p.signature || '';
+          this.characterName.set(p.character_name || (p as any).mask_name || '');
+          this.characterAvatar.set(p.avatar);
+          this.characterSignature.set(p.signature || '');
         }
       }
-    });
+    }, { allowSignalWrites: true });
   }
 
   ngOnInit() {
@@ -102,8 +102,8 @@ export class CharacterProfileEditComponent implements OnInit {
         if (params['id'] === 'new' || params['id'] === '0') {
           this.isNewMask = true;
           this.characterId = 0;
-          this.characterName = '';
-          this.characterAvatar = '';
+          this.characterName.set('');
+          this.characterAvatar.set('');
           this.currentProfileData.set(null);
         } else {
           this.isNewMask = false;
@@ -165,7 +165,7 @@ export class CharacterProfileEditComponent implements OnInit {
     if (this.is_mask) {
       // Logic for Masks
       const payload: any = {
-        mask_name: this.characterName,
+        mask_name: this.characterName(),
         avatar,
         custom_fields: customFields,
         signature: this.signatureField.nativeElement.value,
