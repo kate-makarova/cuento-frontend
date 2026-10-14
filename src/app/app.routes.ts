@@ -23,6 +23,7 @@ import {PreviewComponent} from './preview/preview.component';
 import { UserListComponent } from './user-list/user-list.component';
 import { SettingsComponent } from './settings/settings.component';
 import { ActiveTopicsComponent } from './active-topics/active-topics.component';
+import { TopicSubscriptionsComponent } from './topic-subscriptions/topic-subscriptions.component';
 import { ArcListComponent } from './arc-list/arc-list.component';
 import { ArcFormComponent } from './arc-form/arc-form.component';
 import { ArcDetailComponent } from './arc-detail/arc-detail.component';
@@ -276,6 +277,12 @@ export const routes: Routes = [
     component: ActiveTopicsComponent,
     title: 'Active Topics',
     data: { pageId: 'pun-active-topics' }
+  },
+  {
+    path: 'subscriptions',
+    component: TopicSubscriptionsComponent,
+    title: 'My Subscriptions',
+    data: { pageId: 'pun-subscriptions' }
   },
   {
     path: 'active-users',
