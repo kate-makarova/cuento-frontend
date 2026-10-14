@@ -1,0 +1,64 @@
+<app-breadcrumbs [items]="breadcrumbs"></app-breadcrumbs>
+
+<div id="pun-main" class="main">
+  <div class="main-header">
+    <h1><span i18n="@@topicSubscriptions.pageTitle">My Subscriptions</span></h1>
+  </div>
+
+  <div id="vf" class="category">
+    <div class="main-content">
+      <div class="main-item">
+        @if (topics().length === 0) {
+          <p class="no-topics" i18n="@@topicSubscriptions.empty">You have no topic subscriptions.</p>
+        } @else {
+          <table cellspacing="0">
+            <thead>
+              <tr>
+                <th class="tcl" scope="col" i18n="@@activeTopics.colTopic">Topic</th>
+                <th class="tc2" scope="col" i18n="@@activeTopics.colSubforum">Subforum</th>
+                <th class="tcr" scope="col" i18n="@@activeTopics.colLastPost">Last post</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (topic of topics(); track topic.id; let isEven = $even) {
+                <tr [class.altstyle]="isEven" [class.new-posts]="topic.not_viewed">
+                  <td class="tcl">
+                    <div class="intd">
+                      <div class="icon">
+                        @if (topic.not_viewed) {
+                          <div class="nosize new-icon" i18n-title="@@activeTopics.newPostsTitle" title="New posts" i18n="@@activeTopics.new">New</div>
+                        } @else {
+                          <div class="nosize">1</div>
+                        }
+                      </div>
+                      <div class="tclcon">
+                        <h3>
+                          <a routerLink="/viewtopic/{{topic.id}}">{{topic.name}}</a>
+                          @if (topic.not_viewed && topic.last_viewed_id) {
+                            <a [routerLink]="['/viewtopic', topic.id]" [queryParams]="{ post_id: topic.last_viewed_id }" class="new-posts-link" i18n="@@activeTopics.newPostsLink">[new posts]</a>
+                          }
+                        </h3>
+                        <span class="byuser"><ng-container i18n="@@activeTopics.by">by</ng-container> <a routerLink="/profile/{{topic.author_user_id}}">{{topic.author_username}}</a></span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="tc2"><a routerLink="/viewforum/{{topic.subforum_id}}">{{topic.subforum_name}}</a></td>
+                  <td class="tcr">
+                    @if (topic.last_post_id) {
+                      <a [routerLink]="['/viewtopic', topic.id]" [queryParams]="{ post_id: topic.last_post_id }">{{topic.date_last_post_localized}}</a>
+                    } @else {
+                      <a routerLink="/viewtopic/{{topic.id}}">{{topic.date_last_post_localized}}</a>
+                    }
+                    <span class="byuser"><ng-container i18n="@@activeTopics.by">by</ng-container> {{topic.last_post_author_username}}</span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="main-footer"></div>
+</div>
