@@ -4,7 +4,7 @@
   </div>
 
   <div id="pm" class="category">
-    <div class="main-content pm-container">
+    <div class="main-content pm-container" [class.dm-sidebar-active]="showSidebar()">
       <div class="pm-sidebar">
         <div class="new-chat-block">
           <div class="new-chat-autocomplete">
@@ -49,6 +49,9 @@
         @if (currentChat()) {
           <div class="main-item">
             <div class="pm-chat-header">
+              <button type="button" class="button dm-sidebar-toggle" (click)="toggleSidebar()">
+                <i class="bi bi-list"></i>
+              </button>
               <button
                 type="button"
                 class="button pm-block-button"
@@ -126,7 +129,12 @@
             </div>
           </div>
         } @else {
-          <div class="pm-no-chat" i18n="@@directchat.selectChat">Select a chat from the list to start messaging</div>
+          <div class="pm-no-chat">
+            <button type="button" class="button dm-sidebar-toggle" (click)="toggleSidebar()">
+              <i class="bi bi-list"></i>
+            </button>
+            <span i18n="@@directchat.selectChat">Select a chat from the list to start messaging</span>
+          </div>
         }
       </div>
 

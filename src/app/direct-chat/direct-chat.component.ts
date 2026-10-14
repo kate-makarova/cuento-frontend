@@ -16,6 +16,7 @@ import {ActivatedRoute} from '@angular/router';
   host: { class: 'pun-page' },
   imports: [ FormsModule],
   templateUrl: './direct-chat.component.html',
+  styleUrl: './direct-chat.component.css',
   standalone: true,
 })
 export class DirectChatComponent implements OnInit, OnDestroy {
@@ -26,6 +27,7 @@ export class DirectChatComponent implements OnInit, OnDestroy {
   private dmSub: Subscription | null = null;
   private destroy$ = new Subject<void>();
   isSending = signal(false);
+  showSidebar = signal(true);
   private visibilityHandler = () => {
     if (document.visibilityState === 'visible') this.directChatService.catchUp();
   };
@@ -226,6 +228,11 @@ export class DirectChatComponent implements OnInit, OnDestroy {
 
   selectUser(chat: DirectChatListItem) {
     this.directChatService.loadDirectChat(chat.chat_id);
+    this.showSidebar.set(false);
+  }
+
+  toggleSidebar() {
+    this.showSidebar.update(v => !v);
   }
 
   get currentChatBlocked(): boolean {
