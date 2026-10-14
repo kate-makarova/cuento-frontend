@@ -1,0 +1,194 @@
+<div id="pun-main" class="main">
+  <div class="main-header">
+    <h1 i18n="@@userDashboard.title">My Dashboard</h1>
+  </div>
+
+  <!-- Tab nav -->
+  <nav class="dashboard-tabs">
+    <button class="dashboard-tab" [class.active]="activeTab() === 'game'" (click)="activeTab.set('game')"
+      i18n="@@userDashboard.tab.game">My Game</button>
+    <button class="dashboard-tab" [class.active]="activeTab() === 'world'" (click)="activeTab.set('world')"
+      i18n="@@userDashboard.tab.world">The World</button>
+    <button class="dashboard-tab" [class.active]="activeTab() === 'forum'" (click)="activeTab.set('forum')"
+      i18n="@@userDashboard.tab.forum">Forum</button>
+  </nav>
+
+  <!-- My Game tab: Chronicle + Active Episodes -->
+  @if (activeTab() === 'game') {
+
+    <!-- AI Weekly Chronicle -->
+    <section class="dashboard-section chronicle-section">
+      <div class="chronicle-header">
+        <h2 i18n="@@userDashboard.chronicle.title">Weekly Chronicle</h2>
+        <span class="chronicle-dates">
+          {{ chronicle.date_from | date:'MMM d' }} – {{ chronicle.date_to | date:'MMM d, y' }}
+        </span>
+      </div>
+      <div class="chronicle-body">
+        @for (paragraph of chronicle.text.split('\n\n'); track $index) {
+          <p>{{ paragraph }}</p>
+        }
+      </div>
+    </section>
+
+    <!-- Active episodes -->
+    <section class="dashboard-section">
+      <h2 i18n="@@userDashboard.activeEpisodes">Active Episodes</h2>
+      <div class="episode-cards">
+        @for (ep of episodes; track ep.id) {
+          <div class="episode-card" [class.my-turn]="ep.my_turn">
+            @if (ep.my_turn) {
+              <div class="my-turn-banner" i18n="@@userDashboard.myTurn">Your turn to write</div>
+            }
+            <a [routerLink]="['/viewtopic', ep.topic_id]" class="episode-card-image-link">
+              @if (ep.image_url) {
+                <img [src]="ep.image_url" [alt]="ep.name" class="episode-card-image">
+              } @else {
+                <div class="episode-card-image episode-card-image--placeholder"></div>
+              }
+            </a>
+            <div class="episode-card-body">
+              <a [routerLink]="['/viewtopic', ep.topic_id]" class="episode-card-title">{{ ep.name }}</a>
+              <div class="episode-card-subforum">{{ ep.subforum_name }}</div>
+              <div class="episode-card-meta">
+                <span><ng-container i18n="@@userDashboard.posts">Posts: </ng-container>{{ ep.post_count }}</span>
+                <span><ng-container i18n="@@userDashboard.lastPost">Last post: </ng-container>{{ ep.last_post_date | date:'yyyy-MM-dd' }}</span>
+              </div>
+              <div class="episode-card-characters">
+                @for (char of ep.characters; track char.id) {
+                  <a [routerLink]="['/character', char.id]" class="episode-card-character" [title]="char.name">
+                    @if (char.avatar) {
+                      <img [src]="char.avatar" [alt]="char.name" class="character-avatar">
+                    } @else {
+                      <span class="character-avatar character-avatar--placeholder">{{ char.name[0] }}</span>
+                    }
+                  </a>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+  }
+
+  <!-- The World tab: Bookmarks + Wanted + New in the world -->
+  @if (activeTab() === 'world') {
+
+    <div class="dashboard-main-row">
+
+      <!-- Bookmarked episodes -->
+      <section class="dashboard-section bookmarks-section">
+        <h2 i18n="@@userDashboard.bookmarks.title">Reading</h2>
+        <ul class="bookmark-list">
+          @for (ep of bookmarkedEpisodes; track ep.topic_id) {
+            <li class="bookmark-item" [class.bookmark-item--new]="ep.has_new_posts">
+              <a [routerLink]="['/viewtopic', ep.topic_id]" class="bookmark-image-link">
+                @if (ep.image_url) {
+                  <img [src]="ep.image_url" [alt]="ep.name" class="bookmark-image">
+                } @else {
+                  <div class="bookmark-image bookmark-image--placeholder"></div>
+                }
+              </a>
+              <div class="bookmark-info">
+                <a [routerLink]="['/viewtopic', ep.topic_id]" class="bookmark-title">{{ ep.name }}</a>
+                <span class="bookmark-characters">{{ ep.characters.join(', ') }}</span>
+              </div>
+              @if (ep.has_new_posts) {
+                <span class="bookmark-new-badge">
+                  +{{ ep.new_post_count }}
+                </span>
+              }
+            </li>
+          }
+        </ul>
+      </section>
+
+      <!-- Sidebar -->
+      <aside class="dashboard-sidebar">
+
+        <!-- Wanted character ideas -->
+        <section class="dashboard-section">
+          <h2 i18n="@@userDashboard.wanted.title">I want to play this</h2>
+          <ul class="wanted-list">
+            @for (idea of wantedCharacterIdeas; track idea.topic_id) {
+              <li class="wanted-item">
+                <a [routerLink]="['/viewtopic', idea.topic_id]" class="wanted-name">{{ idea.name }}</a>
+                <span class="wanted-meta">
+                  @if (idea.faction_name) {
+                    <span class="wanted-faction">{{ idea.faction_name }}</span> ·
+                  }
+                  {{ idea.author_username }} · {{ idea.date_created | date:'MMM d' }}
+                </span>
+              </li>
+            }
+          </ul>
+        </section>
+
+        <!-- New in the world -->
+        <section class="dashboard-section new-content-section">
+          <h2 i18n="@@userDashboard.newContent.title">New in the world</h2>
+
+          @if (newContent.characters.length) {
+            <div class="new-content-group">
+              <h4 class="new-content-label" i18n="@@userDashboard.newContent.characters">Characters</h4>
+              <ul class="new-content-list">
+                @for (item of newContent.characters; track item.topic_id) {
+                  <li><a [routerLink]="['/character', item.topic_id]">{{ item.name }}</a></li>
+                }
+              </ul>
+            </div>
+          }
+
+          @if (newContent.wanted_characters.length) {
+            <div class="new-content-group">
+              <h4 class="new-content-label" i18n="@@userDashboard.newContent.wantedCharacters">Wanted characters</h4>
+              <ul class="new-content-list">
+                @for (item of newContent.wanted_characters; track item.topic_id) {
+                  <li><a [routerLink]="['/viewtopic', item.topic_id]">{{ item.name }}</a></li>
+                }
+              </ul>
+            </div>
+          }
+
+          @if (newContent.lore_articles.length) {
+            <div class="new-content-group">
+              <h4 class="new-content-label" i18n="@@userDashboard.newContent.lore">Lore</h4>
+              <ul class="new-content-list">
+                @for (item of newContent.lore_articles; track item.topic_id) {
+                  <li><a [routerLink]="['/viewtopic', item.topic_id]">{{ item.name }}</a></li>
+                }
+              </ul>
+            </div>
+          }
+        </section>
+
+      </aside>
+    </div>
+
+  }
+
+  <!-- Forum tab: Active non-game topics -->
+  @if (activeTab() === 'forum') {
+
+    <section class="dashboard-section">
+      <h2 i18n="@@userDashboard.activeTopics">Active Topics</h2>
+      <ul class="topic-list">
+        @for (topic of activeTopics; track topic.topic_id) {
+          <li class="topic-item">
+            <span class="topic-info">
+              <a [routerLink]="['/viewtopic', topic.topic_id]" class="topic-link">{{ topic.topic_name }}</a>
+              <span class="topic-subforum">{{ topic.subforum_name }}</span>
+            </span>
+            <span class="topic-meta">
+              {{ topic.last_post_date | date:'yyyy-MM-dd' }} · <ng-container i18n="@@userDashboard.by">by </ng-container>{{ topic.last_post_by }}
+            </span>
+          </li>
+        }
+      </ul>
+    </section>
+
+  }
+
+</div>

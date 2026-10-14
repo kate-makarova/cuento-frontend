@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { FieldTemplate } from '../models/FieldTemplate';
+import { FieldTemplate, Block, BlockSettingToggle, TemplateConfig } from '../models/FieldTemplate';
 import { GetWantedCharacterListRequest, WantedCharacter, WantedCharacterListResponse } from '../models/WantedCharacter';
 import { Faction } from '../models/Faction';
 
@@ -11,6 +11,10 @@ export class WantedCharacterService {
 
   private templateSignal = signal<FieldTemplate[]>([]);
   readonly template = this.templateSignal.asReadonly();
+  private templateBlocksSignal = signal<Block[]>([]);
+  readonly templateBlocks = this.templateBlocksSignal.asReadonly();
+  private templateBlockSettingsSignal = signal<BlockSettingToggle[]>([]);
+  readonly templateBlockSettings = this.templateBlockSettingsSignal.asReadonly();
 
   private listSignal = signal<WantedCharacter[]>([]);
   readonly wantedCharacterList = this.listSignal.asReadonly();
@@ -39,8 +43,12 @@ export class WantedCharacterService {
   }
 
   loadTemplate(): void {
-    this.apiService.get<FieldTemplate[]>('template/wanted_character/get').subscribe({
-      next: (data) => this.templateSignal.set(data.sort((a, b) => a.order - b.order)),
+    this.apiService.get<TemplateConfig>('template/wanted_character/get').subscribe({
+      next: (data) => {
+        this.templateSignal.set((data.fields || []).sort((a, b) => a.order - b.order));
+        this.templateBlocksSignal.set(data.blocks || []);
+        this.templateBlockSettingsSignal.set(data.block_settings || []);
+      },
       error: (err) => console.error('Failed to load wanted character template', err)
     });
   }

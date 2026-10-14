@@ -1,4 +1,4 @@
-import { Component, effect, inject, OnInit, OnDestroy, Input, Output, EventEmitter, signal, ViewChild, ElementRef } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, OnDestroy, Input, Output, EventEmitter, signal, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
@@ -36,6 +36,28 @@ export class WantedCharacterCreateComponent implements OnInit, OnDestroy {
   @ViewChild('formEl') formEl?: ElementRef<HTMLFormElement>;
 
   template = this.wantedCharacterService.template;
+  templateBlocks = this.wantedCharacterService.templateBlocks;
+  templateBlockSettings = this.wantedCharacterService.templateBlockSettings;
+  selectedBlocks = signal<Record<string, string>>({});
+
+  visibleFields = computed(() => {
+    const template = this.template();
+    const blocks = this.templateBlocks();
+    const toggles = this.templateBlockSettings();
+    if (toggles.length === 0) return template;
+    const hidden = new Set<string>();
+    for (const toggle of toggles) {
+      const selected = this.selectedBlocks()[toggle.machine_name] ?? toggle.children[0];
+      for (const childId of toggle.children) {
+        if (childId !== selected) {
+          const block = blocks.find(b => b.id === childId);
+          if (block) block.fields.forEach(f => hidden.add(f));
+        }
+      }
+    }
+    return template.filter(f => !hidden.has(f.machine_field_name));
+  });
+
   characterSuggestions = this.characterService.shortCharacterList;
   subforumId: number = 0;
   breadcrumbs: BreadcrumbItem[] = [];
@@ -121,6 +143,17 @@ export class WantedCharacterCreateComponent implements OnInit, OnDestroy {
 
     this.statusActive.set((this.initialData?.wanted_character_status ?? 1) === 0);
     this.wantedCharacterService.loadTemplate();
+
+    effect(() => {
+      const toggles = this.templateBlockSettings();
+      if (toggles.length === 0) return;
+      const existing = (this.initialData as any)?.custom_fields?.block_settings ?? {};
+      const init: Record<string, string> = {};
+      for (const toggle of toggles) {
+        init[toggle.machine_name] = existing[toggle.machine_name] ?? toggle.children[0];
+      }
+      this.selectedBlocks.set(init);
+    }, { allowSignalWrites: true });
     this.route.queryParams.subscribe(params => {
       if (params['fid']) {
         this.subforumId = +params['fid'];
@@ -263,6 +296,22 @@ export class WantedCharacterCreateComponent implements OnInit, OnDestroy {
     }
   }
 
+  onBlockToggle(toggleName: string, blockId: string) {
+    this.selectedBlocks.update(s => ({ ...s, [toggleName]: blockId }));
+  }
+
+  getBlock(blockId: string) {
+    return this.templateBlocks().find(b => b.id === blockId) ?? null;
+  }
+
+  collectBlockSettings(): Record<string, string> {
+    const result: Record<string, string> = {};
+    for (const toggle of this.templateBlockSettings()) {
+      result[toggle.machine_name] = this.selectedBlocks()[toggle.machine_name] ?? toggle.children[0];
+    }
+    return result;
+  }
+
   onSubmit(event: Event) {
     event.preventDefault();
     const form = event.target as HTMLFormElement;
@@ -308,7 +357,8 @@ export class WantedCharacterCreateComponent implements OnInit, OnDestroy {
       custom_fields: customFields,
       factions,
       relations,
-      _relationItems: relationItems
+      _relationItems: relationItems,
+      block_settings: this.collectBlockSettings()
     };
 
     const isPreview = ((event as SubmitEvent).submitter as HTMLInputElement | null)?.name === 'preview';

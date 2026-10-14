@@ -73,8 +73,24 @@
       </div>
     </fieldset>
 
+    @if (templateBlockSettings().length > 0) {
+      <fieldset class="block-toggles">
+        @for (toggle of templateBlockSettings(); track toggle.machine_name) {
+          <div class="block-toggle">
+            <span class="toggle-label">{{ toggle.label }}</span>
+            @for (childId of toggle.children; track childId) {
+              <button type="button"
+                      [class.active]="(selectedBlocks()[toggle.machine_name] ?? toggle.children[0]) === childId"
+                      (click)="onBlockToggle(toggle.machine_name, childId)">
+                {{ getBlock(childId)?.label ?? childId }}
+              </button>
+            }
+          </div>
+        }
+      </fieldset>
+    }
     <fieldset>
-      @for (field of template(); track field.order) {
+      @for (field of visibleFields(); track field.order) {
         <div class="fs-box hashelp">
           <p class="inputfield required">
             <app-field-input [field]="field" [fieldValue]="getFieldValue(field.machine_field_name)"></app-field-input>

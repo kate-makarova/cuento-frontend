@@ -1,13 +1,14 @@
 import { Component, inject, OnInit, effect, signal } from '@angular/core';
 import { CharacterService } from '../../services/character.service';
 import { FieldTemplateRowComponent, FieldTemplateForm } from '../field-template-row/field-template-row.component';
-
+import { BlockSettingsEditorComponent } from '../block-settings-editor/block-settings-editor.component';
+import { Block, BlockSettingToggle } from '../../models/FieldTemplate';
 import { SaveButtonComponent } from '../save-button/save-button.component';
 
 @Component({
   selector: 'app-character-profile-template-edit',
   host: { class: 'pun-page' },
-  imports: [FieldTemplateRowComponent, SaveButtonComponent],
+  imports: [FieldTemplateRowComponent, SaveButtonComponent, BlockSettingsEditorComponent],
   templateUrl: './character-profile-template-edit.component.html',
   standalone: true,
   styleUrl: './character-profile-template-edit.component.css'
@@ -15,6 +16,8 @@ import { SaveButtonComponent } from '../save-button/save-button.component';
 export class CharacterProfileTemplateEditComponent implements OnInit {
   characterService = inject(CharacterService);
   fields: FieldTemplateForm[] = [];
+  blocks: Block[] = [];
+  blockSettings: BlockSettingToggle[] = [];
   saveState = signal<'idle' | 'loading' | 'success' | 'error'>('idle');
   schemaConflicts = signal<{ machineName: string; existingType: string; newType: string }[]>([]);
 
@@ -25,10 +28,14 @@ export class CharacterProfileTemplateEditComponent implements OnInit {
   constructor() {
     effect(() => {
       const template = this.characterService.characterProfileTemplate();
+      const blocks = this.characterService.characterProfileTemplateBlocks();
+      const blockSettings = this.characterService.characterProfileTemplateBlockSettings();
       if (template.length > 0 && !this.templateLoaded) {
         this.templateLoaded = true;
         this.fields = template.map((field, index) => ({ ...field, id: index }));
         this.addEmptyField();
+        this.blocks = [...blocks];
+        this.blockSettings = [...blockSettings];
       }
     });
   }
@@ -60,6 +67,10 @@ export class CharacterProfileTemplateEditComponent implements OnInit {
     this.schemaConflicts.set([]);
   }
 
+  private normalizeFieldType(fieldType: string): string {
+    return fieldType === 'select' ? 'int' : fieldType;
+  }
+
   saveTemplate() {
     const data = this.fields.filter(field => field.machine_field_name !== '');
     const schemaMap = new Map(this.characterService.characterProfileDbSchema().map(s => [s.machine_name, s.field_type]));
@@ -67,7 +78,7 @@ export class CharacterProfileTemplateEditComponent implements OnInit {
     const conflicts = data
       .filter(field => {
         const existingType = schemaMap.get(field.machine_field_name);
-        return existingType !== undefined && existingType !== field.field_type;
+        return existingType !== undefined && existingType !== this.normalizeFieldType(field.field_type);
       })
       .map(field => ({
         machineName: field.machine_field_name,
@@ -82,7 +93,7 @@ export class CharacterProfileTemplateEditComponent implements OnInit {
 
     this.schemaConflicts.set([]);
     this.saveState.set('loading');
-    this.characterService.saveCharacterProfileTemplate(data).subscribe({
+    this.characterService.saveCharacterProfileTemplate(data, this.blocks, this.blockSettings).subscribe({
       next: () => { this.saveState.set('success'); setTimeout(() => this.saveState.set('idle'), 3000); },
       error: () => { this.saveState.set('error'); setTimeout(() => this.saveState.set('idle'), 3000); }
     });
