@@ -304,7 +304,6 @@ export class BbToolbarComponent {
   onInsertImage(url: string) {
     if (this.editor) {
       this.editor.insertHtmlAtCursor(`<img src="${url}" style="max-width:100%">`);
-      this.activeArea = null;
       return;
     }
     if (!this.textarea) return;

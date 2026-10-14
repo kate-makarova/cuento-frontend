@@ -73,6 +73,17 @@ export class WantedCharacterCreateComponent implements OnInit, OnDestroy {
         ];
       }
     });
+
+    effect(() => {
+      const toggles = this.templateBlockSettings();
+      if (toggles.length === 0) return;
+      const existing = (this.initialData as any)?.custom_fields?.block_settings ?? {};
+      const init: Record<string, string> = {};
+      for (const toggle of toggles) {
+        init[toggle.machine_name] = existing[toggle.machine_name] ?? toggle.children[0];
+      }
+      this.selectedBlocks.set(init);
+    }, { allowSignalWrites: true });
   }
   characterName = signal<string>('');
   factionPaths: Faction[][] = [[]];
@@ -144,16 +155,6 @@ export class WantedCharacterCreateComponent implements OnInit, OnDestroy {
     this.statusActive.set((this.initialData?.wanted_character_status ?? 1) === 0);
     this.wantedCharacterService.loadTemplate();
 
-    effect(() => {
-      const toggles = this.templateBlockSettings();
-      if (toggles.length === 0) return;
-      const existing = (this.initialData as any)?.custom_fields?.block_settings ?? {};
-      const init: Record<string, string> = {};
-      for (const toggle of toggles) {
-        init[toggle.machine_name] = existing[toggle.machine_name] ?? toggle.children[0];
-      }
-      this.selectedBlocks.set(init);
-    }, { allowSignalWrites: true });
     this.route.queryParams.subscribe(params => {
       if (params['fid']) {
         this.subforumId = +params['fid'];
