@@ -82,6 +82,8 @@ export class EpisodeCreateComponent implements OnInit, OnChanges {
 
   // Character inputs
   characterControls = new FormArray([new FormControl('')]);
+  private characterControlsVersion = signal(0);
+  characterControlsList = computed(() => { this.characterControlsVersion(); return this.characterControls.controls; });
   selectedCharacterIds: (number | null)[] = [null];
   validCharacterIds: number[] = [];
 
@@ -90,7 +92,7 @@ export class EpisodeCreateComponent implements OnInit, OnChanges {
 
   subforumId: number = 0;
   needsSubforumSelection: boolean = false;
-  subject: string = '';
+  subject = signal<string>('');
   openToEveryone: boolean = false;
 
   // Arc — set from query params on create, read-only
@@ -142,7 +144,7 @@ export class EpisodeCreateComponent implements OnInit, OnChanges {
     const previewState = this.previewService.state();
     if (previewState?.formType === 'episode') {
       const p = previewState.formPayload;
-      this.subject = p.name;
+      this.subject.set(p.name);
       if (p.arc_id) {
         this.arcId = p.arc_id;
         this.arcTitle = p._arcTitle || '';
@@ -162,6 +164,7 @@ export class EpisodeCreateComponent implements OnInit, OnChanges {
         this.selectedCharacterIds.push(null);
         this.setupAutocomplete(0);
       }
+      this.characterControlsVersion.update(v => v + 1);
 
       this.maskControls.clear();
       this.selectedMaskIds = [];
@@ -225,7 +228,7 @@ export class EpisodeCreateComponent implements OnInit, OnChanges {
   }
 
   populateForm(data: Episode) {
-    this.subject = data.name;
+    this.subject.set(data.name);
     this.openToEveryone = data.open_to_everyone ?? false;
     this.manualRatingLanguage = data.rating_language ?? 0;
     this.manualRatingViolence = data.rating_violence ?? 0;
@@ -251,6 +254,7 @@ export class EpisodeCreateComponent implements OnInit, OnChanges {
       this.selectedCharacterIds.push(null);
       this.setupAutocomplete(0);
     }
+    this.characterControlsVersion.update(v => v + 1);
     this.syncValidCharacterIds();
 
     if (data.masks && data.masks.length > 0) {
@@ -293,12 +297,14 @@ export class EpisodeCreateComponent implements OnInit, OnChanges {
     this.characterControls.push(new FormControl(''));
     this.selectedCharacterIds.push(null);
     this.setupAutocomplete(this.characterControls.length - 1);
+    this.characterControlsVersion.update(v => v + 1);
   }
 
   removeCharacterField(index: number) {
     if (this.characterControls.length > 1) {
       this.characterControls.removeAt(index);
       this.selectedCharacterIds.splice(index, 1);
+      this.characterControlsVersion.update(v => v + 1);
 
       if (this.activeInputIndex === index) {
         this.activeInputIndex = null;

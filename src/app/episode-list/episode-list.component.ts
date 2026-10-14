@@ -116,6 +116,11 @@ export class EpisodeListComponent implements OnInit {
       this.order.set(orderParam.split(','));
     }
 
+    const columnsParam = params.get('columns');
+    if (columnsParam) {
+      this.visibleColumns.set(columnsParam.split(','));
+    }
+
     const characterIds = params.get('characters');
     if (characterIds) {
       const ids = characterIds.split(',').map(Number).filter(n => !isNaN(n));
@@ -147,6 +152,7 @@ export class EpisodeListComponent implements OnInit {
     this.visibleColumns.update(cols =>
       cols.includes(key) ? cols.filter(c => c !== key) : [...cols, key]
     );
+    this.updateUrlParams();
   }
 
   protected toggleForum(id: number): void {
@@ -269,6 +275,7 @@ export class EpisodeListComponent implements OnInit {
     if (this.order().length > 0) {
       queryParams['order'] = this.order().join(',');
     }
+    queryParams['columns'] = this.visibleColumns().join(',');
 
     this.router.navigate([], {
       relativeTo: this.route,
