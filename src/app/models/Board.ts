@@ -23,6 +23,7 @@ export interface Board {
   use_image_proxy?: string;
   user_avatar_width?: number;
   user_avatar_height?: number;
+  user_avatar_less?: string;
   character_avatar_width?: number;
   character_avatar_height?: number;
 }

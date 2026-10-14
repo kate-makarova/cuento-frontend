@@ -17,7 +17,7 @@ interface SettingGroup {
 const GENERAL_SETTING_GROUPS: SettingGroup[] = [
   {
     legend: $localize`:@@adminSettings.groupGeneral:General`,
-    names: ['site_name', 'domain', 'posts_per_page', 'visual_navlinks_after_header_panel', 'global_free_format_date_id', 'user_avatar_width', 'user_avatar_height', 'character_avatar_width', 'character_avatar_height'],
+    names: ['site_name', 'domain', 'posts_per_page', 'visual_navlinks_after_header_panel', 'global_free_format_date_id', 'user_avatar_width', 'user_avatar_height', 'user_avatar_less', 'character_avatar_width', 'character_avatar_height'],
   },
   {
     legend: $localize`:@@adminSettings.groupGithub:GitHub`,
@@ -73,6 +73,7 @@ const SETTING_LABELS: Record<string, string> = {
   visual_navlinks_after_header_panel: $localize`:@@adminSettings.visual_navlinks_after_header_panel:Render navlinks after header panel`,
   user_avatar_width: $localize`:@@adminSettings.user_avatar_width:Avatar width`,
   user_avatar_height: $localize`:@@adminSettings.user_avatar_height:Avatar height`,
+  user_avatar_less: $localize`:@@adminSettings.user_avatar_less:Allow smaller user avatar (y/n)`,
   character_avatar_width: $localize`:@@adminSettings.character_avatar_width:Character sheet avatar width`,
   character_avatar_height: $localize`:@@adminSettings.character_avatar_height:Character sheet avatar height`,
 
