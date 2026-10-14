@@ -25,6 +25,7 @@ export class BoardService {
     use_image_proxy: 'n',
     user_avatar_width: undefined,
     user_avatar_height: undefined,
+    user_avatar_less: 'n',
     character_avatar_width: undefined,
     character_avatar_height: undefined
   });
