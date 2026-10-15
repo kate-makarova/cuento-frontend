@@ -80,7 +80,10 @@ interface OverallStats {
 }
 
 function fmtDate(d: Date): string {
-  return d.toISOString().slice(0, 10);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
 }
 
 function subDays(d: Date, n: number): Date {
@@ -366,7 +369,10 @@ export class GameStatsComponent implements OnInit, AfterViewInit, OnDestroy {
         indexAxis: 'y',
         responsive: true,
         plugins: { legend: { display: false } },
-        scales: { x: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'Posts' } } },
+        scales: {
+          x: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'Posts' } },
+          y: { ticks: { autoSkip: false } },
+        },
       },
     });
   }
@@ -388,7 +394,10 @@ export class GameStatsComponent implements OnInit, AfterViewInit, OnDestroy {
         indexAxis: 'y',
         responsive: true,
         plugins: { legend: { display: false } },
-        scales: { x: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'Posts' } } },
+        scales: {
+          x: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'Posts' } },
+          y: { ticks: { autoSkip: false } },
+        },
       },
     });
   }
