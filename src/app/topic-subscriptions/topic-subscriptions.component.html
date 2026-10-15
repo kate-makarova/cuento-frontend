@@ -16,6 +16,7 @@
               <tr>
                 <th class="tcl" scope="col" i18n="@@activeTopics.colTopic">Topic</th>
                 <th class="tc2" scope="col" i18n="@@activeTopics.colSubforum">Subforum</th>
+                <th class="tc2" scope="col" i18n="@@activeTopics.colReplies">Replies</th>
                 <th class="tcr" scope="col" i18n="@@activeTopics.colLastPost">Last post</th>
               </tr>
             </thead>
@@ -43,6 +44,7 @@
                     </div>
                   </td>
                   <td class="tc2"><a routerLink="/viewforum/{{topic.subforum_id}}">{{topic.subforum_name}}</a></td>
+                  <td class="tc2">{{topic.post_number}}</td>
                   <td class="tcr">
                     @if (topic.last_post_id) {
                       <a [routerLink]="['/viewtopic', topic.id]" [queryParams]="{ post_id: topic.last_post_id }">{{topic.date_last_post_localized}}</a>
