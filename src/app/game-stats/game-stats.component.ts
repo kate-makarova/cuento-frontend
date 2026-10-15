@@ -26,13 +26,6 @@ Chart.register(
 type Period = 'week_to_date' | 'month_to_date' | 'last_week' | 'last_month' | 'custom';
 
 export interface PeriodOption { value: Period; label: string; }
-export const PERIOD_OPTIONS: PeriodOption[] = [
-  { value: 'week_to_date',  label: 'Week to date' },
-  { value: 'month_to_date', label: 'Month to date' },
-  { value: 'last_week',     label: 'Last week' },
-  { value: 'last_month',    label: 'Last month' },
-  { value: 'custom',        label: 'Custom' },
-];
 
 const OPEN_COLOR      = '#52c97e';
 const FINISHED_COLOR  = '#5289c9';
@@ -132,7 +125,13 @@ export class GameStatsComponent implements OnInit, AfterViewInit, OnDestroy {
   private factionEpChart:     Chart | null = null;
   private factionPostsChart:  Chart | null = null;
 
-  readonly periodOptions = PERIOD_OPTIONS;
+  readonly periodOptions: PeriodOption[] = [
+    { value: 'week_to_date',  label: $localize`:@@gameStats.periodWeekToDate:Week to date` },
+    { value: 'month_to_date', label: $localize`:@@gameStats.periodMonthToDate:Month to date` },
+    { value: 'last_week',     label: $localize`:@@gameStats.periodLastWeek:Last week` },
+    { value: 'last_month',    label: $localize`:@@gameStats.periodLastMonth:Last month` },
+    { value: 'custom',        label: $localize`:@@gameStats.periodCustom:Custom` },
+  ];
   readonly period    = signal<Period>('month_to_date');
   readonly customFrom = signal<string>(fmtDate(subDays(new Date(), 30)));
   readonly customTo   = signal<string>(fmtDate(new Date()));
@@ -330,12 +329,13 @@ export class GameStatsComponent implements OnInit, AfterViewInit, OnDestroy {
   // --- Chart builders (initial render) ---
 
   private buildActivityChart(): Chart {
+    const posts = $localize`:@@gameStats.chartPosts:Posts`;
     return new Chart(this.activityCanvas.nativeElement, {
       type: 'line',
       data: {
         labels: [],
         datasets: [{
-          label: 'Posts',
+          label: posts,
           data: [],
           borderColor: '#7c52e0',
           backgroundColor: 'rgba(124,82,224,0.12)',
@@ -347,18 +347,19 @@ export class GameStatsComponent implements OnInit, AfterViewInit, OnDestroy {
       options: {
         responsive: true,
         plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, title: { display: true, text: 'Posts' } } },
+        scales: { y: { beginAtZero: true, title: { display: true, text: posts } } },
       },
     });
   }
 
   private buildTopWritersChart(): Chart {
+    const posts = $localize`:@@gameStats.chartPosts:Posts`;
     return new Chart(this.topWritersCanvas.nativeElement, {
       type: 'bar',
       data: {
         labels: [],
         datasets: [{
-          label: 'Posts',
+          label: posts,
           data: [],
           backgroundColor: 'rgba(124,82,224,0.75)',
           borderColor: '#7c52e0',
@@ -370,7 +371,7 @@ export class GameStatsComponent implements OnInit, AfterViewInit, OnDestroy {
         responsive: true,
         plugins: { legend: { display: false } },
         scales: {
-          x: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'Posts' } },
+          x: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: posts } },
           y: { ticks: { autoSkip: false } },
         },
       },
@@ -378,12 +379,13 @@ export class GameStatsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private buildTopCharsChart(): Chart {
+    const posts = $localize`:@@gameStats.chartPosts:Posts`;
     return new Chart(this.topCharsCanvas.nativeElement, {
       type: 'bar',
       data: {
         labels: [],
         datasets: [{
-          label: 'Posts',
+          label: posts,
           data: [],
           backgroundColor: 'rgba(82,201,168,0.75)',
           borderColor: '#52c9a8',
@@ -395,7 +397,7 @@ export class GameStatsComponent implements OnInit, AfterViewInit, OnDestroy {
         responsive: true,
         plugins: { legend: { display: false } },
         scales: {
-          x: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'Posts' } },
+          x: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: posts } },
           y: { ticks: { autoSkip: false } },
         },
       },
@@ -408,9 +410,9 @@ export class GameStatsComponent implements OnInit, AfterViewInit, OnDestroy {
       data: {
         labels: [],
         datasets: [
-          { label: 'Created',  data: [], backgroundColor: OPEN_COLOR,      stack: 'ep' },
-          { label: 'Finished', data: [], backgroundColor: FINISHED_COLOR,  stack: 'ep' },
-          { label: 'Archived', data: [], backgroundColor: ABANDONED_COLOR, stack: 'ep' },
+          { label: $localize`:@@gameStats.chartCreated:Created`,  data: [], backgroundColor: OPEN_COLOR,      stack: 'ep' },
+          { label: $localize`:@@gameStats.chartFinished:Finished`, data: [], backgroundColor: FINISHED_COLOR,  stack: 'ep' },
+          { label: $localize`:@@gameStats.chartArchived:Archived`, data: [], backgroundColor: ABANDONED_COLOR, stack: 'ep' },
         ],
       },
       options: {
@@ -418,19 +420,20 @@ export class GameStatsComponent implements OnInit, AfterViewInit, OnDestroy {
         plugins: { legend: { position: 'top' } },
         scales: {
           x: { stacked: true },
-          y: { stacked: true, beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'Episodes' } },
+          y: { stacked: true, beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: $localize`:@@gameStats.chartEpisodes:Episodes` } },
         },
       },
     });
   }
 
   private buildFactionPostsChart(): Chart {
+    const posts = $localize`:@@gameStats.chartPosts:Posts`;
     return new Chart(this.factionPostsCanvas.nativeElement, {
       type: 'bar',
       data: {
         labels: [],
         datasets: [{
-          label: 'Posts',
+          label: posts,
           data: [],
           backgroundColor: 'rgba(224,140,82,0.75)',
           borderColor: '#e08c52',
@@ -440,7 +443,7 @@ export class GameStatsComponent implements OnInit, AfterViewInit, OnDestroy {
       options: {
         responsive: true,
         plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'Posts' } } },
+        scales: { y: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: posts } } },
       },
     });
   }
