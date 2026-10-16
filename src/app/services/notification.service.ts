@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Subject } from 'rxjs';
-import { PostCreatedEvent, TopicCreatedEvent, NotificationEvent, WebSocketEvent, TopicViewersUpdateEvent, UnreadNotificationsResponse, NotificationData, NotificationMention, NotificationReaction, PostUpdatedEvent, DirectMessageCreatedEvent, ActiveUsersUpdateEvent, ActiveUsersActivityUpdateEvent, PanelReloadEvent, ReactionCreatedEvent, HealthUpdateEvent, UserRefreshRequiredEvent, DraftUpdatedEvent, AiMessageEvent, AiTaskDoneEvent, AiQueuePositionEvent, AiErrorEvent, PageChangedEvent, TopicFullEvent } from '../models/event';
+import { PostCreatedEvent, TopicCreatedEvent, NotificationEvent, WebSocketEvent, TopicViewersUpdateEvent, UnreadNotificationsResponse, NotificationData, NotificationMention, NotificationReaction, NotificationDirectMessage, PostUpdatedEvent, DirectMessageCreatedEvent, ActiveUsersUpdateEvent, ActiveUsersActivityUpdateEvent, PanelReloadEvent, ReactionCreatedEvent, HealthUpdateEvent, UserRefreshRequiredEvent, DraftUpdatedEvent, AiMessageEvent, AiTaskDoneEvent, AiQueuePositionEvent, AiErrorEvent, PageChangedEvent, TopicFullEvent } from '../models/event';
 import { AuthService } from './auth.service';
 import { ApiService } from './api.service';
 import { environment } from '../../environments/environment';
@@ -172,6 +172,10 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
     return ((n.mention ?? n.data) as NotificationMention | null)?.post_id ?? undefined;
   }
 
+  private dmChatId(n: NotificationData): number | undefined {
+    return ((n.direct_message ?? n.data) as NotificationDirectMessage | null)?.chat_id ?? undefined;
+  }
+
   private rebuildTriggers(response: UnreadNotificationsResponse): void {
     this.mentionPostTriggers.clear();
     this.gameTopicTriggers.clear();
@@ -184,7 +188,8 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
       if (n.game?.topic_id) this.gameTopicTriggers.set(n.game.topic_id, n);
     }
     for (const n of response.direct_message || []) {
-      if (n.direct_message?.chat_id) this.dmChatTriggers.set(n.direct_message.chat_id, n);
+      const chatId = this.dmChatId(n);
+      if (chatId) this.dmChatTriggers.set(chatId, n);
     }
   }
 
@@ -194,8 +199,9 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
       if (postId) this.mentionPostTriggers.set(postId, n);
     } else if (n.type === 'game' && n.game?.topic_id) {
       this.gameTopicTriggers.set(n.game.topic_id, n);
-    } else if (n.type === 'direct_message' && n.direct_message?.chat_id) {
-      this.dmChatTriggers.set(n.direct_message.chat_id, n);
+    } else if (n.type === 'direct_message') {
+      const chatId = this.dmChatId(n);
+      if (chatId) this.dmChatTriggers.set(chatId, n);
     }
   }
 
@@ -205,8 +211,9 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
       if (postId) this.mentionPostTriggers.delete(postId);
     } else if (n.type === 'game' && n.game?.topic_id) {
       this.gameTopicTriggers.delete(n.game.topic_id);
-    } else if (n.type === 'direct_message' && n.direct_message?.chat_id) {
-      this.dmChatTriggers.delete(n.direct_message.chat_id);
+    } else if (n.type === 'direct_message') {
+      const chatId = this.dmChatId(n);
+      if (chatId) this.dmChatTriggers.delete(chatId);
     }
   }
 
@@ -256,7 +263,7 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
     const notifications = this.directMessageNotificationsSignal();
     if (notifications.length === 0) return;
     for (const n of notifications) {
-      if (n.direct_message?.chat_id === chatId) this.dismissNotification(n);
+      if (this.dmChatId(n) === chatId) this.dismissNotification(n);
     }
   }
 
