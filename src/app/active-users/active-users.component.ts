@@ -53,7 +53,7 @@ export class ActiveUsersComponent implements OnInit, OnDestroy {
 
     this.notificationService.activeUsersActivityUpdate$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(event => this.users.set(event.data));
+      .subscribe(event => this.users.set(this.sortByDate(event.data)));
   }
 
   ngOnDestroy() {
@@ -64,8 +64,12 @@ export class ActiveUsersComponent implements OnInit, OnDestroy {
 
   private fetchActiveUsers() {
     this.apiService.get<ActiveUserInfo[]>('active-users/activity').subscribe(users => {
-      this.users.set(users);
+      this.users.set(this.sortByDate(users));
     });
+  }
+
+  private sortByDate(users: ActiveUserInfo[]): ActiveUserInfo[] {
+    return [...users].sort((a, b) => b.last_active.localeCompare(a.last_active));
   }
 
   pageLabel(user: ActiveUserInfo): string {
