@@ -817,6 +817,40 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     });
   }
 
+  claimWantedCharacter() {
+    const wc = this.topic().wanted_character;
+    if (!wc) return;
+    this.wantedCharacterService.createClaimRecord(wc.id).subscribe({
+      next: () => {
+        if (this.id()) this.topicService.loadTopic(this.id()!).subscribe({ next: (data) => this.topicService.setTopic(data) });
+      },
+      error: (err: any) => console.error('Failed to claim wanted character', err)
+    });
+  }
+
+  revokeWantedCharacterClaim() {
+    const record = this.topic().wanted_character?.claim_record;
+    if (!record) return;
+    this.wantedCharacterService.revokeClaimRecord(record.id).subscribe({
+      next: () => {
+        if (this.id()) this.topicService.loadTopic(this.id()!).subscribe({ next: (data) => this.topicService.setTopic(data) });
+      },
+      error: (err: any) => console.error('Failed to revoke claim', err)
+    });
+  }
+
+  canRevokeWantedCharacterClaim(): boolean {
+    const record = this.topic().wanted_character?.claim_record;
+    if (!record) return false;
+    const userId = this.authService.currentUser()?.id;
+    if (userId && userId === record.claim_author_id) return true;
+    if (record.is_guest && record.guest_hash) {
+      const match = document.cookie.split('; ').find(c => c.startsWith(`claim_hash_${record.guest_hash}=`));
+      return match != null;
+    }
+    return false;
+  }
+
   toggleSubscription() {
     const topicId = this.id();
     if (!topicId) return;

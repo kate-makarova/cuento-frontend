@@ -117,7 +117,13 @@
         (cancel)="cancelEditTopic()">
       </app-wanted-character-create>
     } @else {
-      <app-wanted-character-header [wantedCharacter]="topic().wanted_character"></app-wanted-character-header>
+      <app-wanted-character-header
+        [wantedCharacter]="topic().wanted_character"
+        [isAuthenticated]="authService.isAuthenticated()"
+        [canRevoke]="canRevokeWantedCharacterClaim()"
+        (claim)="claimWantedCharacter()"
+        (revoke)="revokeWantedCharacterClaim()">
+      </app-wanted-character-header>
     }
   }
   @if(isLore()) {
