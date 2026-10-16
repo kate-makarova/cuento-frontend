@@ -26,7 +26,17 @@ export class DirectChatService {
       }
     });
 
-    this.notificationService.wsConnected$.subscribe(() => this.catchUp());
+    this.notificationService.wsConnected$.subscribe(() => {
+      this.catchUp();
+      // Re-announce the open chat after AppComponent's generic page_change fires.
+      // AppComponent always sends 'direct-chat'/0 (from the route data) on reconnect,
+      // which would overwrite the specific chat context. Deferring here ensures this
+      // correct announcement wins.
+      const chat = this.currentChatSignal();
+      if (chat) {
+        setTimeout(() => this.notificationService.sendPageChange('direct_chat', chat.chat_id), 0);
+      }
+    });
   }
 
   private chatListSignal = signal<DirectChatListItem[]>([]);
