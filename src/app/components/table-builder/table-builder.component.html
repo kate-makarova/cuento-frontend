@@ -1,0 +1,38 @@
+<div class="table-builder-inputs">
+  <label i18n="@@tableBuilder.columns">
+    Columns
+    <input type="number" [(ngModel)]="cols" min="1" max="12" (ngModelChange)="onDimensionChange()" />
+  </label>
+  <label i18n="@@tableBuilder.rows">
+    Rows
+    <input type="number" [(ngModel)]="rows" min="1" max="12" (ngModelChange)="onDimensionChange()" />
+  </label>
+
+  <div class="table-builder-tools">
+    <button
+      type="button"
+      [class.active]="tool === 'pencil'"
+      (click)="tool = 'pencil'"
+      title="Draw border"
+      i18n-title="@@tableBuilder.pencil">
+      <i class="bi bi-pencil-fill"></i>
+    </button>
+    <button
+      type="button"
+      [class.active]="tool === 'eraser'"
+      (click)="tool = 'eraser'"
+      title="Erase border"
+      i18n-title="@@tableBuilder.eraser">
+      <i class="bi bi-eraser-fill"></i>
+    </button>
+  </div>
+</div>
+
+<div class="table-builder-canvas-wrapper">
+  <canvas #tableCanvas (click)="onCanvasClick($event)"></canvas>
+</div>
+
+<div class="table-builder-actions">
+  <button type="button" class="button btn-primary" (click)="onInsert()" i18n="@@tableBuilder.insert">Insert</button>
+  <button type="button" class="button" (click)="close.emit()" i18n="@@tableBuilder.cancel">Cancel</button>
+</div>
