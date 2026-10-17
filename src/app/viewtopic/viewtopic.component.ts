@@ -586,15 +586,9 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       payload.is_gm_post = true;
       payload.use_character_profile = false;
     } else {
-      let characterProfileId: number | null = null;
-      if (this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any) {
-        const profile = this.userCharacterProfiles().find(p => p.id === this.selectedCharacterId);
-        if (profile) {
-          characterProfileId = profile.id;
-        }
-      }
-      payload.use_character_profile = this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any;
-      payload.character_profile_id = characterProfileId;
+      const useCharacter = this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any;
+      payload.use_character_profile = useCharacter;
+      payload.character_profile_id = useCharacter ? this.selectedCharacterId : null;
     }
 
     if (!this.authService.isAuthenticated()) {
@@ -663,15 +657,9 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       payload.is_gm_post = true;
       payload.use_character_profile = false;
     } else {
-      let characterProfileId: number | null = null;
-      if (this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any) {
-        const profile = this.userCharacterProfiles().find(p => p.id === this.selectedCharacterId);
-        if (profile) {
-          characterProfileId = profile.id;
-        }
-      }
-      payload.use_character_profile = this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any;
-      payload.character_profile_id = characterProfileId;
+      const useCharacter = this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any;
+      payload.use_character_profile = useCharacter;
+      payload.character_profile_id = useCharacter ? this.selectedCharacterId : null;
     }
 
     if (!this.authService.isAuthenticated()) {
