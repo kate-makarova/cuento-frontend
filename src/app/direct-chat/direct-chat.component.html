@@ -106,7 +106,7 @@
                       <div class="message-body">
                         <div class="message-box">
                           <div class="message-content">
-                            <p [innerHTML]="highlightMatch(msg.text)"></p>
+                            <p [innerHTML]="renderMessage(msg.text) | safeHtml"></p>
                           </div>
                         </div>
                         <p class="message-metadata"><span>{{ msg.time }}</span></p>
@@ -124,15 +124,13 @@
 
             <div class="pm-input">
               <div id="pm-form-buttons">
-                <table cellspacing="0" cellpadding="0">
-                  <tbody>
-                  <tr>
-                    <td title="Bold" (click)="insertTag('b')"><i class="bi bi-type-bold"></i></td>
-                    <td title="Italic" (click)="insertTag('i')"><i class="bi bi-type-italic"></i></td>
-                    <td title="Strikethrough" (click)="insertTag('s')"><i class="bi bi-type-strikethrough"></i></td>
-                  </tr>
-                  </tbody>
-                </table>
+                <app-bb-toolbar
+                  [textarea]="messageField?.nativeElement ?? null"
+                  [showImageUpload]="false"
+                  [showVideo]="false"
+                  [showAudio]="false"
+                  [isGm]="false">
+                </app-bb-toolbar>
               </div>
               <div class="textarea-wrapper">
                 <textarea #chatInput (keydown.enter)="handleSend()" placeholder="Ваше сообщение..."></textarea>
