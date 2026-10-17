@@ -48,27 +48,42 @@
       <div class="pm-history">
         @if (currentChat()) {
           <div class="main-item">
-            <div class="pm-chat-header">
-              <button type="button" class="button dm-sidebar-toggle" (click)="toggleSidebar()">
-                <i class="bi bi-list"></i>
-              </button>
-              <button
-                type="button"
-                class="button pm-block-button"
-                [class.pm-unblock-button]="currentChatBlocked"
-                (click)="toggleBlock()"
-              >
+            <div class="pm-chat-fixed-header" [class.is-collapsed]="headerCollapsed()">
+              <div class="pm-header-bar">
+                <button type="button" class="button dm-sidebar-toggle" (click)="toggleSidebar()">
+                  <i class="bi bi-list"></i>
+                </button>
+                <div class="pm-partner-summary" (click)="toggleHeaderCollapsed()">
+                  <div class="pm-partner-avatar-wrap">
+                    @if (currentChatPartner?.avatar) {
+                      <img [src]="currentChatPartner!.avatar!" [alt]="currentChatPartner!.username" class="pm-partner-avatar">
+                    } @else {
+                      <div class="pm-partner-avatar pm-partner-avatar--placeholder">{{ (currentChatPartner?.username ?? '?')[0] }}</div>
+                    }
+                    <span class="pm-status-dot" [class.pm-status-dot--online]="isChatPartnerOnline"></span>
+                  </div>
+                  <span class="pm-partner-name">{{ currentChatPartner?.username }}</span>
+                </div>
+                <i class="bi bi-chevron-down pm-header-chevron" [class.pm-header-chevron--up]="!headerCollapsed()"></i>
+              </div>
+              <div class="pm-header-expanded">
+                <button
+                  type="button"
+                  class="button pm-block-button"
+                  [class.pm-unblock-button]="currentChatBlocked"
+                  (click)="toggleBlock()">
+                  @if (currentChatBlocked) {
+                    <i class="bi bi-slash-circle-fill"></i>
+                    <span i18n="@@directchat.unblock">Unblock</span>
+                  } @else {
+                    <i class="bi bi-slash-circle"></i>
+                    <span i18n="@@directchat.block">Block</span>
+                  }
+                </button>
                 @if (currentChatBlocked) {
-                  <i class="bi bi-slash-circle-fill"></i>
-                  <span i18n="@@directchat.unblock">Unblock</span>
-                } @else {
-                  <i class="bi bi-slash-circle"></i>
-                  <span i18n="@@directchat.block">Block</span>
+                  <span class="pm-blocked-notice" i18n="@@directchat.blockedNotice">You are not receiving new messages from this chat.</span>
                 }
-              </button>
-              @if (currentChatBlocked) {
-                <span class="pm-blocked-notice" i18n="@@directchat.blockedNotice">You are not receiving new messages from this chat.</span>
-              }
+              </div>
             </div>
             <div class="history-scroll" #scrollContainer (scroll)="onScroll()">
               @if (isLoadingOlder()) {

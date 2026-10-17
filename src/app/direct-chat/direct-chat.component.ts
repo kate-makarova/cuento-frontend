@@ -1,6 +1,6 @@
 import {Component, effect, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
 import {User} from '../models/User';
-import {DirectChat, DirectChatListItem} from '../models/DirectChat';
+import {DirectChat, DirectChatListItem, DirectChatParticipant} from '../models/DirectChat';
 import {DirectChatService} from '../services/direct-chat.service';
 import {NotificationService} from '../services/notification.service';
 import {UserService} from '../services/user.service';
@@ -28,6 +28,8 @@ export class DirectChatComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   isSending = signal(false);
   showSidebar = signal(true);
+  headerCollapsed = signal(typeof window !== 'undefined' && window.innerWidth < 768);
+  private onlineUserIds = signal<Set<number>>(new Set());
   private visibilityHandler = () => {
     if (document.visibilityState === 'visible') this.directChatService.catchUp();
   };
@@ -117,6 +119,10 @@ export class DirectChatComponent implements OnInit, OnDestroy {
       } else {
         this.directChatService.incrementUnreadCount(event.data.chat_id);
       }
+    });
+
+    this.notificationService.activeUsersUpdate$.pipe(takeUntil(this.destroy$)).subscribe(event => {
+      this.onlineUserIds.set(new Set(event.data.map(u => u.id)));
     });
   }
 
@@ -229,6 +235,7 @@ export class DirectChatComponent implements OnInit, OnDestroy {
   selectUser(chat: DirectChatListItem) {
     this.directChatService.loadDirectChat(chat.chat_id);
     this.showSidebar.set(false);
+    this.headerCollapsed.set(window.innerWidth < 768);
   }
 
   toggleSidebar() {
@@ -248,6 +255,23 @@ export class DirectChatComponent implements OnInit, OnDestroy {
       : this.directChatService.blockChat(chatId);
     action$.subscribe({ error: (err) => console.error('Block/unblock failed', err) });
   }
+  get currentChatPartner(): DirectChatParticipant | null {
+    const chat = this.currentChat();
+    if (!chat) return null;
+    const listItem = this.chatList().find(c => c.chat_id === chat.chat_id);
+    if (!listItem) return null;
+    return chat.participants.find(p => p.id === listItem.user_id) ?? null;
+  }
+
+  get isChatPartnerOnline(): boolean {
+    const partner = this.currentChatPartner;
+    return partner !== null && this.onlineUserIds().has(partner.id);
+  }
+
+  toggleHeaderCollapsed() {
+    this.headerCollapsed.update(v => !v);
+  }
+
   toggleSearch() {}
   onSearch(event: Event) {}
   highlightMatch(text: string): string {
