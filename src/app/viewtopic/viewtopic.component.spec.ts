@@ -5,7 +5,7 @@ import { ForumService } from '../services/forum.service';
 import { CharacterService } from '../services/character.service';
 import { AuthService } from '../services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { of } from 'rxjs';
+import { of, Subject, EMPTY } from 'rxjs';
 import { signal, WritableSignal } from '@angular/core';
 import { Topic, TopicType, TopicStatus } from '../models/Topic';
 import { Post } from '../models/Post';
@@ -53,6 +53,7 @@ describe('ViewtopicComponent', () => {
     subforum_id: 1,
     date_created: '2023-01-01',
     date_last_post: '2023-01-02',
+    date_last_post_localized: null,
     author_user_id: 1,
     author_username: 'User1',
     post_number: 20,
@@ -62,12 +63,13 @@ describe('ViewtopicComponent', () => {
     status: TopicStatus.active,
     episode: null,
     character: null,
+    wanted_character: null,
     can_edit: true
   };
 
   const mockPosts: Post[] = [
-    { id: 1, topic_id: 1, user_profile: { user_id: 1, user_name: 'User1', avatar: '' }, use_character_profile: false, character_profile: null, content: 'Post 1', content_html: 'Post 1', date_created: '2023-01-01', can_edit: true },
-    { id: 2, topic_id: 1, user_profile: { user_id: 2, user_name: 'User2', avatar: '' }, use_character_profile: false, character_profile: null, content: 'Post 2', content_html: 'Post 2', date_created: '2023-01-02', can_edit: false }
+    { id: 1, topic_id: 1, user_profile: { user_id: 1, user_name: 'User1', avatar: '', total_posts: 0, total_general_posts: 0 }, use_character_profile: false, character_profile: null, content: 'Post 1', content_html: 'Post 1', date_created: '2023-01-01', date_created_localized: '2023-01-01', author_user_id: 1, author_user_name: 'User1', can_edit: true },
+    { id: 2, topic_id: 1, user_profile: { user_id: 2, user_name: 'User2', avatar: '', total_posts: 0, total_general_posts: 0 }, use_character_profile: false, character_profile: null, content: 'Post 2', content_html: 'Post 2', date_created: '2023-01-02', date_created_localized: '2023-01-02', author_user_id: 2, author_user_name: 'User2', can_edit: false }
   ];
 
   beforeEach(async () => {
@@ -75,21 +77,26 @@ describe('ViewtopicComponent', () => {
     postsSignal = signal(mockPosts);
     currentPageSignal = signal({ page: 1, topicId: 1 });
 
-    topicServiceSpy = jasmine.createSpyObj('TopicService', ['loadTopic', 'loadPosts', 'createPost', 'updatePost', 'updateLocalPost', 'updateTopic', 'updateLocalTopic'], {
+    topicServiceSpy = jasmine.createSpyObj('TopicService', ['loadTopic', 'loadPosts', 'createPost', 'updatePost', 'updateLocalPost', 'updateTopic', 'updateLocalTopic', 'clear', 'removeLocalPost'], {
       topic: topicSignal,
       posts: postsSignal,
-      currentPage: currentPageSignal
+      currentPage: currentPageSignal,
+      wsNewPosts: signal([]),
+      ownPostAdded$: new Subject<{ postId: number; page: number }>(),
+      pageLoaded$: new Subject<{ page: number; topicId: number }>()
     });
     forumServiceSpy = jasmine.createSpyObj('ForumService', ['loadSubforum'], {
       subforum: signal(null)
     });
-    characterServiceSpy = jasmine.createSpyObj('CharacterService', ['loadUserCharacterProfilesForTopic', 'loadUserCharacterProfiles', 'loadShortCharacterList'], {
+    characterServiceSpy = jasmine.createSpyObj('CharacterService', ['loadUserCharacterProfilesForTopic', 'loadUserCharacterProfiles', 'loadShortCharacterList', 'clearUserCharacterProfiles'], {
       userCharacterProfiles: signal([])
     });
-    authServiceSpy = jasmine.createSpyObj('AuthService', [], {
+    authServiceSpy = jasmine.createSpyObj('AuthService', ['hasPermission'], {
       currentUser: signal({ id: 1, username: 'User1', avatar: '', roles: [] }),
-      isAdmin: signal(false)
+      isAdmin: signal(false),
+      isAuthenticated: signal(true)
     });
+    authServiceSpy.hasPermission.and.returnValue(false);
 
     await TestBed.configureTestingModule({
       imports: [ViewtopicComponent, CommonModule, RouterTestingModule, HttpClientTestingModule],
@@ -117,10 +124,17 @@ describe('ViewtopicComponent', () => {
     fixture = TestBed.createComponent(ViewtopicComponent);
     component = fixture.componentInstance;
 
+    topicServiceSpy.loadTopic.and.returnValue(EMPTY);
+    characterServiceSpy.loadUserCharacterProfilesForTopic.and.returnValue(EMPTY);
+
     // Set inputs manually since we are not running a real router navigation
     fixture.componentRef.setInput('id', 1);
-    fixture.componentRef.setInput('pageNumber', 1);
+    fixture.componentRef.setInput('page', 1);
 
+    fixture.detectChanges();
+
+    // Simulate topic loaded: id must match input to make isTopicLoading() false
+    topicSignal.set({ ...mockTopic, id: 1 });
     fixture.detectChanges();
   });
 
@@ -162,12 +176,11 @@ describe('ViewtopicComponent', () => {
   });
 
   it('should show edit link for topic header when can_edit is true', () => {
-    // Ensure topic is loaded and has can_edit = true
     topicSignal.set({ ...mockTopic, id: 1, can_edit: true });
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    const headerEdit = compiled.querySelector('.main-header a');
-    expect(headerEdit?.textContent).toContain('[Edit]');
+    const headerEdit = compiled.querySelector('.main-header a.topic-edit');
+    expect(headerEdit?.textContent?.trim()).toContain('Edit');
   });
 
   it('should toggle edit mode for topic', () => {
