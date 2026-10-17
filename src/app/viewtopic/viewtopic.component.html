@@ -279,7 +279,7 @@
         </div>
         <div class="conr">
           <p class="post-links">
-            <span><a href="#" [class.disabled]="editingPostId() === post.id" (click)="editingPostId() === post.id ? $event.preventDefault() : quotePost(post, $event)" i18n-title="@@viewtopic.quote" title="Quote">
+            <span><a href="#" [class.disabled]="editingPostId() === post.id" (pointerdown)="saveSelection()" (click)="editingPostId() === post.id ? $event.preventDefault() : quotePost(post, $event)" i18n-title="@@viewtopic.quote" title="Quote">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg>
               <span i18n="@@viewtopic.quote">Quote</span>
             </a></span>
