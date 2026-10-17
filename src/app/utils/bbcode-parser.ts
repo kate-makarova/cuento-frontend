@@ -224,8 +224,8 @@ function renderTokens(tokens: Token[]): string {
 
 function closeTag(tag: string, value: string, rawAttrs: string, inner: string): string {
   switch (tag) {
-    case 'b': return `<strong>${inner}</strong>`;
-    case 'i': return `<em>${inner}</em>`;
+    case 'b': return `<b>${inner}</b>`;
+    case 'i': return `<i>${inner}</i>`;
     case 'u': return `<u>${inner}</u>`;
     case 's': return `<s>${inner}</s>`;
 
