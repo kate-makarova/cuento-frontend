@@ -60,7 +60,10 @@ export class RegisterComponent {
 
       const codes = this.userService.generateRecoveryCodes();
 
-      this.authService.register({ ...registerData, interface_language: this.locale }).pipe(
+      const timezone = this.authService.currentUser()?.interface_timezone
+        ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+      this.authService.register({ ...registerData, interface_language: this.locale, interface_timezone: timezone }).pipe(
         switchMap(() => this.authService.loginSilently({ username, password })),
         switchMap(() => from(this.authService.hashPassword(password))),
         switchMap(hashedPassword => this.userService.initialSetupAndSaveKeys(hashedPassword, codes))

@@ -193,7 +193,7 @@ export class AuthService {
       id: 0,
       username: this.isRussianLocale() ? 'Гость' : 'Guest',
       avatar: "",
-      interface_timezone: "UTC",
+      interface_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       interface_language: "en-US",
       interface_font_size: 1,
       roles: [{
