@@ -28,4 +28,21 @@
     display: inline-flex;
     align-items: center;
   }
+
+  /* Mobile header collapse */
+  .pm-header-chevron {
+    display: inline-block;
+  }
+
+  .pm-partner-summary {
+    cursor: pointer;
+  }
+
+  .pm-chat-fixed-header.is-collapsed .pm-partner-name {
+    display: none;
+  }
+
+  .pm-chat-fixed-header.is-collapsed .pm-header-expanded {
+    display: none;
+  }
 }

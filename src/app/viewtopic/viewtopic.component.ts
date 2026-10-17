@@ -97,6 +97,10 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   breadcrumbs: BreadcrumbItem[] = [];
   showPostForm = signal<boolean>(false);
   keepFormForFullTopic = signal(false);
+  hasPreviewRestore = computed(() => {
+    const s = this.previewService.state();
+    return s?.formType === 'post' && !!s.formPayload?.content;
+  });
   profilesReady = signal(false);
   sidebarMode = signal(false);
   sidebarProfileCompact = signal(false);
@@ -341,8 +345,13 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
         if (state?.formType === 'post' && state.formPayload?.content) {
           setTimeout(() => {
             if (this.postForm) {
+              const mode = state.formPayload.editorMode;
+              if (mode === 'wysiwyg' || mode === 'bbcode') {
+                this.postForm.editorMode.set(mode);
+              }
               this.postForm.setValue(state.formPayload.content);
               this.previewService.clear();
+              document.getElementById('post-form')?.scrollIntoView({ behavior: 'smooth' });
             }
           });
         }
@@ -682,7 +691,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
           posts: this.currentPagePosts(),
           previewPost: previewPost,
           returnUrl: this.router.url,
-          formPayload: { ...payload }
+          formPayload: { ...payload, editorMode: this.postForm.editorMode() }
         });
         this.router.navigate(['/preview']);
       },
