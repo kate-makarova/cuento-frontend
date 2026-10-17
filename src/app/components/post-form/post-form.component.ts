@@ -46,6 +46,7 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   @Input() initialContent: string = '';
+  @Input() skipDraftAutoLoad = false;
   @Input() isEpisode: boolean = false;
   @Input() isGm: boolean = false;
   @Input() arcId: number | null = null;
@@ -148,7 +149,7 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
 
   ngOnInit() {
     if (this.topicId && this.authService.isAuthenticated()) {
-      this.loadDrafts(true);
+      this.loadDrafts(!this.skipDraftAutoLoad);
       this.autosaveSub = this.autosaveSubject.pipe(debounceTime(3000)).subscribe(content => {
         this.autosaveStatus.set('saving');
         this.saveAutoDraft(content);
