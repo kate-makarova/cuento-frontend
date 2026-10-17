@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ViewChild, AfterViewInit, inject, OnDestroy, OnInit, signal, computed, ElementRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, AfterViewInit, inject, OnDestroy, OnInit, signal, computed, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { Subject, Subscription, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { UserService } from '../../services/user.service';
@@ -55,6 +55,7 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
   @Input() characterId: number | null = null;
   @Output() characterIdChange = new EventEmitter<number | null>();
 
+  private cdr = inject(ChangeDetectorRef);
   private userService = inject(UserService);
   private authService = inject(AuthService);
   private imageService = inject(ImageService);
@@ -216,6 +217,7 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
     if (this.initialContent) {
       this.setValue(this.initialContent);
     }
+    this.cdr.detectChanges();
   }
 
   ngOnDestroy() {
