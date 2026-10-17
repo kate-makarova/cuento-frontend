@@ -74,7 +74,22 @@ export type HideNode = {
 // (e.g. [table]). The inner BB code is round-tripped verbatim.
 export type RawBlockNode = { type: 'raw'; tag: string; bb: string };
 
-export type BlockNode = ParagraphNode | AlignBlock | QuoteNode | CodeNode | SpoilerNode | VideoNode | AudioNode | NpcBlockNode | HideNode | RawBlockNode;
+export type GridItemMeta = { col: number; colSpan: number };
+export type GridNode = {
+  type: 'grid';
+  columns: number;
+  cellMeta: GridItemMeta[];
+  children: ParagraphNode[];
+};
+
+export type TableCellMeta = { colSpan: number; rowSpan: number; isFirstInRow: boolean };
+export type TableNode = {
+  type: 'table';
+  cellMeta: TableCellMeta[];
+  children: ParagraphNode[];
+};
+
+export type BlockNode = ParagraphNode | AlignBlock | QuoteNode | CodeNode | SpoilerNode | VideoNode | AudioNode | NpcBlockNode | HideNode | RawBlockNode | GridNode | TableNode;
 
 export type DocModel = { children: BlockNode[] };
 

@@ -4,7 +4,7 @@
 // serializeDoc : DocModel → string
 
 import {
-  DocModel, BlockNode, ParagraphNode, AlignBlock, QuoteNode, CodeNode, SpoilerNode, VideoNode, AudioNode, NpcBlockNode, HideNode, RawBlockNode,
+  DocModel, BlockNode, ParagraphNode, AlignBlock, QuoteNode, CodeNode, SpoilerNode, VideoNode, AudioNode, NpcBlockNode, HideNode, RawBlockNode, GridNode, TableNode, GridItemMeta, TableCellMeta,
   InlineNode, TextNode, Mark,
 } from './wysiwyg-doc-model';
 
@@ -51,10 +51,75 @@ function findMatchingClose(text: string, tag: string, from: number): number {
   return -1;
 }
 
+function parseGridContent(content: string, columns: number): GridNode {
+  const re = /\[grid-item\b([^\]]*)\]/gi;
+  let m: RegExpExecArray | null;
+  const cellMeta: GridItemMeta[] = [];
+  const children: ParagraphNode[] = [];
+
+  while ((m = re.exec(content)) !== null) {
+    const attrStr = m[1];
+    const colM    = attrStr.match(/\bcol="(\d+)"/i);
+    const spanM   = attrStr.match(/\bcol-span="(\d+)"/i);
+    const col     = colM  ? parseInt(colM[1])  : 1;
+    const colSpan = spanM ? parseInt(spanM[1]) : 1;
+
+    const after    = m.index + m[0].length;
+    const closeIdx = content.toLowerCase().indexOf('[/grid-item]', after);
+    if (closeIdx === -1) continue;
+
+    const raw  = content.slice(after, closeIdx).replace(/^\n+|\n+$/, '');
+    const para: ParagraphNode = { type: 'paragraph', children: raw ? parseInline(raw) : [] };
+    cellMeta.push({ col, colSpan });
+    children.push(para);
+  }
+
+  if (children.length === 0) {
+    cellMeta.push({ col: 1, colSpan: 1 });
+    children.push({ type: 'paragraph', children: [] });
+  }
+
+  return { type: 'grid', columns, cellMeta, children };
+}
+
+function parseTableContent(content: string): TableNode {
+  const cellMeta: TableCellMeta[] = [];
+  const children: ParagraphNode[] = [];
+  const trRe = /\[tr\]([\s\S]*?)\[\/tr\]/gi;
+  let trMatch: RegExpExecArray | null;
+
+  while ((trMatch = trRe.exec(content)) !== null) {
+    const rowContent = trMatch[1];
+    let isFirstInRow = true;
+    const tdRe = /\[td\b([^\]]*)\]([\s\S]*?)\[\/td\]/gi;
+    let tdMatch: RegExpExecArray | null;
+
+    while ((tdMatch = tdRe.exec(rowContent)) !== null) {
+      const attrStr    = tdMatch[1];
+      const colSpanM   = attrStr.match(/\bcolspan="(\d+)"/i);
+      const rowSpanM   = attrStr.match(/\browspan="(\d+)"/i);
+      const colSpan    = colSpanM ? parseInt(colSpanM[1]) : 1;
+      const rowSpan    = rowSpanM ? parseInt(rowSpanM[1]) : 1;
+      const raw        = tdMatch[2].replace(/^\n+|\n+$/, '');
+      const para: ParagraphNode = { type: 'paragraph', children: raw ? parseInline(raw) : [] };
+      cellMeta.push({ colSpan, rowSpan, isFirstInRow });
+      children.push(para);
+      isFirstInRow = false;
+    }
+  }
+
+  if (children.length === 0) {
+    cellMeta.push({ colSpan: 1, rowSpan: 1, isFirstInRow: true });
+    children.push({ type: 'paragraph', children: [] });
+  }
+
+  return { type: 'table', cellMeta, children };
+}
+
 function parseBlocks(text: string): BlockNode[] {
   const result: BlockNode[] = [];
   // Matches the opening tag of every block-level construct.
-  const blockOpen = /\[code\]|\[quote(?:=[^\]]*)?\]|\[spoiler(?:=[^\]]*)?\]|\[center\]|\[right\]|\[left\]|\[video\]|\[audio(?:\s[^\]]+)?\]|\[npc-block\]|\[hide(?:\s[^\]]+)?\]|\[table\]/gi;
+  const blockOpen = /\[code\]|\[quote(?:=[^\]]*)?\]|\[spoiler(?:=[^\]]*)?\]|\[center\]|\[right\]|\[left\]|\[video\]|\[audio(?:\s[^\]]+)?\]|\[npc-block\]|\[hide(?:\s[^\]]+)?\]|\[table\]|\[grid(?:\s[^\]]+)?\]/gi;
   let pos = 0;
 
   let m: RegExpExecArray | null;
@@ -131,8 +196,14 @@ function parseBlocks(text: string): BlockNode[] {
         break;
       }
       case 'table':
-        result.push({ type: 'raw', tag: 'table', bb: content } as RawBlockNode);
+        result.push(parseTableContent(content));
         break;
+      case 'grid': {
+        const colsM = m[0].match(/columns="(\d+)"/i);
+        const cols  = colsM ? parseInt(colsM[1]) : 1;
+        result.push(parseGridContent(content, cols));
+        break;
+      }
     }
   }
 
@@ -281,6 +352,32 @@ function serializeBlock(block: BlockNode): string {
       const inner = block.children.map(serializeParaContent).join('\n');
       const usersAttr = block.userIds.length > 0 ? ` users=${block.userIds.join(',')}` : '';
       return `[hide${usersAttr}]${inner}[/hide]\n`;
+    }
+    case 'grid': {
+      const items = block.children.map((para, i) => {
+        const { col, colSpan } = block.cellMeta[i];
+        return `[grid-item col="${col}" col-span="${colSpan}"]${serializeParaContent(para)}[/grid-item]`;
+      }).join('');
+      return `[grid columns="${block.columns}"]${items}[/grid]\n`;
+    }
+    case 'table': {
+      let out = '[table]\n';
+      let rowOpen = false;
+      for (let i = 0; i < block.children.length; i++) {
+        const { colSpan, rowSpan, isFirstInRow } = block.cellMeta[i];
+        if (isFirstInRow) {
+          if (rowOpen) out += '[/tr]\n';
+          out += '[tr]';
+          rowOpen = true;
+        }
+        let attrs = '';
+        if (colSpan > 1) attrs += ` colspan="${colSpan}"`;
+        if (rowSpan > 1) attrs += ` rowspan="${rowSpan}"`;
+        out += `[td${attrs}]${serializeParaContent(block.children[i])}[/td]`;
+      }
+      if (rowOpen) out += '[/tr]\n';
+      out += '[/table]\n';
+      return out;
     }
     case 'raw':
       return `[${block.tag}]${block.bb}[/${block.tag}]\n`;

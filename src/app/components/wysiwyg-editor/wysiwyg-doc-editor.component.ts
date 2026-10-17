@@ -666,6 +666,8 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
       if (block.type === 'spoiler')   active.add('spoiler');
       if (block.type === 'npc-block') active.add('npc-block');
       if (block.type === 'hide')      active.add('hide');
+      if (block.type === 'grid')      active.add('grid');
+      if (block.type === 'table')     active.add('table');
       if (block.type === 'align')     active.add(block.align);
     }
 
@@ -1077,7 +1079,7 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
         result += isLast ? block.text.slice(0, cursor.offset) : block.text + '\n';
       } else if (block.type === 'paragraph') {
         result += isLast ? this.paraTextTo(block, cursor.offset) : this.paraText(block) + '\n';
-      } else if (block.type === 'align' || block.type === 'quote' || block.type === 'spoiler') {
+      } else if (block.type === 'align' || block.type === 'quote' || block.type === 'spoiler' || block.type === 'grid' || block.type === 'table') {
         const allChildren = block.children;
         const paraIdx = isLast ? (cursor.path[1] ?? 0) : allChildren.length - 1;
         for (let pi = 0; pi <= paraIdx; pi++) {

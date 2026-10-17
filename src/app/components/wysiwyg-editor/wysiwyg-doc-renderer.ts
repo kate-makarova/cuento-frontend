@@ -5,7 +5,7 @@
 // up to the nearest [data-doc-path] element and counting inline characters.
 
 import {
-  DocModel, BlockNode, ParagraphNode, InlineNode, Mark, NpcBlockNode, HideNode, RawBlockNode,
+  DocModel, BlockNode, ParagraphNode, InlineNode, Mark, NpcBlockNode, HideNode, RawBlockNode, GridNode, TableNode,
 } from './wysiwyg-doc-model';
 
 function audioEmbedHtml(url: string, sourceSite?: string): string {
@@ -129,6 +129,12 @@ export function renderBlock(block: BlockNode, blockIdx: number): string {
     case 'hide':
       return renderHideBlock(block, blockIdx);
 
+    case 'grid':
+      return renderGrid(block, blockIdx);
+
+    case 'table':
+      return renderTable(block, blockIdx);
+
     case 'raw':
       return renderRawBlock(block);
   }
@@ -155,6 +161,41 @@ function renderNpcHeader(block: NpcBlockNode): string {
     }).join('');
   }
   return esc(block.npcIds.length > 0 ? `NPC: ${block.npcIds.join(', ')}` : 'NPC block');
+}
+
+function renderGrid(block: GridNode, blockIdx: number): string {
+  const cols = block.columns;
+  const style = `display:grid;grid-template-columns:repeat(${cols},1fr)`;
+  const cells = block.children.map((para, i) => {
+    const { col, colSpan } = block.cellMeta[i];
+    const cellStyle = `grid-column:${col}/span ${colSpan};min-width:0`;
+    const content = para.children.length > 0 ? para.children.map(renderInline).join('') : '<br>';
+    return `<div class="wysiwyg-grid-item" style="${cellStyle}"><div data-doc-path="${blockIdx},${i}">${content}</div></div>`;
+  }).join('');
+  return `<div class="wysiwyg-grid" data-doc-path="${blockIdx}" style="${style}">${cells}</div>`;
+}
+
+function renderTable(block: TableNode, blockIdx: number): string {
+  let html = `<table class="wysiwyg-table" data-doc-path="${blockIdx}"><tbody>`;
+  let rowOpen = false;
+  for (let i = 0; i < block.children.length; i++) {
+    const { colSpan, rowSpan, isFirstInRow } = block.cellMeta[i];
+    if (isFirstInRow) {
+      if (rowOpen) html += '</tr>';
+      html += '<tr>';
+      rowOpen = true;
+    }
+    let attrs = '';
+    if (colSpan > 1) attrs += ` colspan="${colSpan}"`;
+    if (rowSpan > 1) attrs += ` rowspan="${rowSpan}"`;
+    const content = block.children[i].children.length > 0
+      ? block.children[i].children.map(renderInline).join('')
+      : '<br>';
+    html += `<td${attrs}><div data-doc-path="${blockIdx},${i}">${content}</div></td>`;
+  }
+  if (rowOpen) html += '</tr>';
+  html += '</tbody></table>';
+  return html;
 }
 
 function renderRawBlock(block: RawBlockNode): string {
@@ -264,9 +305,43 @@ function renderBlockStatic(block: BlockNode): string {
         `</div>`
       );
     }
+    case 'grid': {
+      const cols = block.columns;
+      const style = `display:grid;grid-template-columns:repeat(${cols},1fr)`;
+      const cells = block.children.map((para, i) => {
+        const { col, colSpan } = block.cellMeta[i];
+        const cellStyle = `grid-column:${col}/span ${colSpan};min-width:0`;
+        const content = para.children.length > 0 ? para.children.map(renderInline).join('') : '<br>';
+        return `<div class="wysiwyg-grid-item" style="${cellStyle}"><div>${content}</div></div>`;
+      }).join('');
+      return `<div class="wysiwyg-grid" style="${style}">${cells}</div>`;
+    }
+    case 'table': {
+      let html = '<table class="wysiwyg-table"><tbody>';
+      let rowOpen = false;
+      for (let i = 0; i < block.children.length; i++) {
+        const { colSpan, rowSpan, isFirstInRow } = block.cellMeta[i];
+        if (isFirstInRow) {
+          if (rowOpen) html += '</tr>';
+          html += '<tr>';
+          rowOpen = true;
+        }
+        let attrs = '';
+        if (colSpan > 1) attrs += ` colspan="${colSpan}"`;
+        if (rowSpan > 1) attrs += ` rowspan="${rowSpan}"`;
+        const content = block.children[i].children.length > 0
+          ? block.children[i].children.map(renderInline).join('')
+          : '<br>';
+        html += `<td${attrs}><div>${content}</div></td>`;
+      }
+      if (rowOpen) html += '</tr>';
+      html += '</tbody></table>';
+      return html;
+    }
     case 'raw':
       return renderRawBlock(block);
   }
+  return '';
 }
 
 // ─── Inline rendering ────────────────────────────────────────────────────────
