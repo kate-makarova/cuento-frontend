@@ -512,17 +512,17 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     });
   }
 
+  private savedSelection = '';
+
+  saveSelection() {
+    this.savedSelection = window.getSelection()?.toString().trim() ?? '';
+  }
+
   quotePost(post: Post, event: Event) {
     event.preventDefault();
 
-    let quoteContent = '';
-    const selection = window.getSelection();
-
-    if (selection && selection.toString().trim().length > 0) {
-      quoteContent = selection.toString().trim();
-    } else {
-      quoteContent = post.content;
-    }
+    const quoteContent = this.savedSelection.length > 0 ? this.savedSelection : post.content;
+    this.savedSelection = '';
 
     const authorName = post.use_character_profile && post.character_profile
       ? post.character_profile.character_name
