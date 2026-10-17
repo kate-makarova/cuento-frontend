@@ -21,6 +21,8 @@ export class BbToolbarComponent {
   @Input() editor: WysiwygDocEditorComponent | null = null;
   @Input() showSpoiler = true;
   @Input() showImageUpload = true;
+  @Input() showVideo = true;
+  @Input() showAudio = true;
   @Input() isGm = false;
   @Input() npcBlockActive = false;
   @Input() hidePanelActive = false;

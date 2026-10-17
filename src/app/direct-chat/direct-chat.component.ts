@@ -10,11 +10,14 @@ import {FormsModule} from '@angular/forms';
 import {Subject, Subscription} from 'rxjs';
 import {debounceTime, distinctUntilChanged, switchMap, takeUntil} from 'rxjs/operators';
 import {ActivatedRoute} from '@angular/router';
+import {SafeHtmlPipe} from '../pipes/safe-html.pipe';
+import {parseBBCode} from '../utils/bbcode-parser';
+import {BbToolbarComponent} from '../components/bb-toolbar/bb-toolbar.component';
 
 @Component({
   selector: 'app-direct-chat',
   host: { class: 'pun-page' },
-  imports: [ FormsModule],
+  imports: [ FormsModule, SafeHtmlPipe, BbToolbarComponent],
   templateUrl: './direct-chat.component.html',
   styleUrl: './direct-chat.component.css',
   standalone: true,
@@ -164,26 +167,6 @@ export class DirectChatComponent implements OnInit, OnDestroy {
     });
   }
 
-  insertTag(tag: string) {
-    const textarea = this.messageField.nativeElement;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const text = textarea.value;
-
-    const tagBase = tag.split('=')[0];
-    const openTag = `[${tag}]`;
-    const closeTag = `[/${tagBase}]`;
-
-    const selectedText = text.substring(start, end);
-    const replacement = openTag + selectedText + closeTag;
-
-    textarea.value = text.substring(0, start) + replacement + text.substring(end);
-    textarea.focus();
-
-    const newPos = start + openTag.length + selectedText.length;
-    textarea.setSelectionRange(newPos, newPos);
-  }
-
   handleSend() {
     const textarea = this.messageField.nativeElement;
     const content = textarea.value.trim();
@@ -274,15 +257,7 @@ export class DirectChatComponent implements OnInit, OnDestroy {
 
   toggleSearch() {}
   onSearch(event: Event) {}
-  highlightMatch(text: string): string {
-    let result = text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/\[b\]([\s\S]*?)\[\/b\]/gi, '<strong>$1</strong>')
-      .replace(/\[i\]([\s\S]*?)\[\/i\]/gi, '<em>$1</em>')
-      .replace(/\[s\]([\s\S]*?)\[\/s\]/gi, '<s>$1</s>')
-      .replace(/\n/g, '<br>');
-    return result;
+  renderMessage(text: string): string {
+    return parseBBCode(text);
   }
 }

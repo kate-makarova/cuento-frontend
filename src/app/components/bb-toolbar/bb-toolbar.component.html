@@ -28,8 +28,12 @@
     }
   </span>
   <span title="Smile" i18n-title="@@postform.smile" (click)="toggleArea('smile')"><i class="bi bi-emoji-smile"></i></span>
-  <span title="Video" i18n-title="@@postform.video" (click)="toggleArea('video')"><i class="bi bi-camera-video"></i></span>
-  <span title="Audio" i18n-title="@@postform.audio" (click)="toggleArea('audio')"><i class="bi bi-music-note"></i></span>
+  @if (showVideo) {
+    <span title="Video" i18n-title="@@postform.video" (click)="toggleArea('video')"><i class="bi bi-camera-video"></i></span>
+  }
+  @if (showAudio) {
+    <span title="Audio" i18n-title="@@postform.audio" (click)="toggleArea('audio')"><i class="bi bi-music-note"></i></span>
+  }
   @if (showImageUpload) {
     <span title="Upload image" i18n-title="@@postform.uploadImage" (click)="toggleArea('image')"><i class="bi bi-image"></i></span>
   }
