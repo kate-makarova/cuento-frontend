@@ -83,11 +83,14 @@ export class GridBuilderComponent implements AfterViewInit {
     this.initGrid();
   }
 
-  onDimensionChange() {
-    if (!this.ready) return;
-    this.rows = Math.max(1, Math.min(12, this.rows || 1));
-    this.cols = Math.max(1, Math.min(12, this.cols || 1));
-    this.initGrid();
+  onColsChange(val: any) {
+    this.cols = Math.max(1, Math.min(12, +val || 1));
+    if (this.ready) this.initGrid();
+  }
+
+  onRowsChange(val: any) {
+    this.rows = Math.max(1, Math.min(12, +val || 1));
+    if (this.ready) this.initGrid();
   }
 
   private initGrid() {
