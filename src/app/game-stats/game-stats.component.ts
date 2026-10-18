@@ -140,6 +140,8 @@ export class GameStatsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.getDateRange(this.period(), this.customFrom(), this.customTo())
   );
 
+  private readonly tzOffset = new Date().getTimezoneOffset();
+
   readonly periodRangeLabel = computed(() => {
     const { from, to } = this.config();
     const opts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' };
@@ -196,7 +198,7 @@ export class GameStatsComponent implements OnInit, AfterViewInit, OnDestroy {
     const { from, to } = this.config();
     this.overallStats.set(null);
     this.apiService.get<OverallStats>(
-      `stats/overall?date_from=${fmtDate(from)}&date_to=${fmtDate(to)}`
+      `stats/overall?date_from=${fmtDate(from)}&date_to=${fmtDate(to)}&tz_offset=${this.tzOffset}`
     ).subscribe({
       next: data => this.overallStats.set(data),
       error: err => console.error('Failed to load overall stats', err),
@@ -210,7 +212,7 @@ export class GameStatsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.activityChart!.data.datasets[0].data = [];
     this.activityChart!.update('none');
     this.apiService.get<WritingActivityPoint[]>(
-      `stats/writing-activity?date_from=${fmtDate(from)}&date_to=${fmtDate(to)}`
+      `stats/writing-activity?date_from=${fmtDate(from)}&date_to=${fmtDate(to)}&tz_offset=${this.tzOffset}`
     ).subscribe({
       next: points => {
         this.activityChart!.data.labels = points.map(p => {
@@ -231,7 +233,7 @@ export class GameStatsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.topWritersChart!.data.datasets[0].data = [];
     this.topWritersChart!.update('none');
     this.apiService.get<TopWriter[]>(
-      `stats/top-writers?date_from=${fmtDate(from)}&date_to=${fmtDate(to)}`
+      `stats/top-writers?date_from=${fmtDate(from)}&date_to=${fmtDate(to)}&tz_offset=${this.tzOffset}`
     ).subscribe({
       next: rows => {
         this.topWritersChart!.data.labels = rows.map(r => r.username);
@@ -248,7 +250,7 @@ export class GameStatsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.topCharsChart!.data.datasets[0].data = [];
     this.topCharsChart!.update('none');
     this.apiService.get<TopCharacter[]>(
-      `stats/top-characters?date_from=${fmtDate(from)}&date_to=${fmtDate(to)}`
+      `stats/top-characters?date_from=${fmtDate(from)}&date_to=${fmtDate(to)}&tz_offset=${this.tzOffset}`
     ).subscribe({
       next: rows => {
         this.topCharsChart!.data.labels = rows.map(r => r.name);
@@ -265,7 +267,7 @@ export class GameStatsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.factionEpChart!.data.datasets.forEach(ds => ds.data = []);
     this.factionEpChart!.update('none');
     this.apiService.get<FactionEpisodes[]>(
-      `stats/episodes-by-faction?date_from=${fmtDate(from)}&date_to=${fmtDate(to)}`
+      `stats/episodes-by-faction?date_from=${fmtDate(from)}&date_to=${fmtDate(to)}&tz_offset=${this.tzOffset}`
     ).subscribe({
       next: rows => {
         this.factionEpChart!.data.labels = rows.map(r => r.name);
@@ -284,7 +286,7 @@ export class GameStatsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.factionPostsChart!.data.datasets[0].data = [];
     this.factionPostsChart!.update('none');
     this.apiService.get<FactionPosts[]>(
-      `stats/posts-by-faction?date_from=${fmtDate(from)}&date_to=${fmtDate(to)}`
+      `stats/posts-by-faction?date_from=${fmtDate(from)}&date_to=${fmtDate(to)}&tz_offset=${this.tzOffset}`
     ).subscribe({
       next: rows => {
         this.factionPostsChart!.data.labels = rows.map(r => r.name);
