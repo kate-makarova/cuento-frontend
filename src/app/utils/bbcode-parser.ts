@@ -405,6 +405,7 @@ const ALLOWED_STYLE_PROPS: Record<string, ((v: string) => boolean) | true> = {
   'gap':             true,
   'line-height':     true,
   'float':           v => ['left','right','none'].includes(v),
+  'transform':       v => /^(?:(?:rotate|scale[XY]?|skew[XY]?)\([-\d.,\s%degratun]+\)\s*)+$/i.test(v),
 };
 
 const UNSAFE_CSS_RE = /javascript\s*:|expression\s*\(|behavior\s*:|vbscript\s*:|-moz-binding/i;
