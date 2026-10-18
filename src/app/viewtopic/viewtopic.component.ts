@@ -430,6 +430,12 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
           ...(currentPostId ? { fragment: String(currentPostId) } : {})
         });
       }
+
+      // anchorScrolling fires before posts render; scroll manually after DOM update
+      const fragment = currentPostId ? String(currentPostId) : this.route.snapshot.fragment;
+      if (fragment) {
+        setTimeout(() => document.getElementById(fragment)?.scrollIntoView({ behavior: 'smooth' }));
+      }
     });
   }
 
