@@ -1,11 +1,11 @@
 <div class="table-builder-inputs">
-  <label i18n="@@tableBuilder.columns">
-    Columns
-    <input type="number" [(ngModel)]="cols" min="1" max="12" (ngModelChange)="onDimensionChange()" />
+  <label>
+    <span i18n="@@tableBuilder.columns">Columns</span>
+    <input type="number" [ngModel]="cols" (ngModelChange)="onColsChange($event)" min="1" max="12" />
   </label>
-  <label i18n="@@tableBuilder.rows">
-    Rows
-    <input type="number" [(ngModel)]="rows" min="1" max="12" (ngModelChange)="onDimensionChange()" />
+  <label>
+    <span i18n="@@tableBuilder.rows">Rows</span>
+    <input type="number" [ngModel]="rows" (ngModelChange)="onRowsChange($event)" min="1" max="12" />
   </label>
 
   <div class="table-builder-tools">
