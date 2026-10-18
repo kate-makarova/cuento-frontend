@@ -43,6 +43,35 @@
   </section>
 
   <section class="reactions-section">
+    <h3 i18n="@@admin.reactions.bulkUpload">Bulk upload (ZIP)</h3>
+    <div class="upload-row">
+      <label class="upload-label">
+        <input
+          type="file"
+          accept=".zip"
+          class="file-input"
+          (change)="onBulkFileSelected($event)"
+          [disabled]="bulkUploadState() === 'loading'"
+        />
+        <span class="btn-upload" [class]="'btn-upload--' + bulkUploadState()">
+          @switch (bulkUploadState()) {
+            @case ('loading') { <span class="spinner"></span> }
+            @case ('success') { <span i18n="@@common.uploaded">Uploaded</span> }
+            @case ('error') { <span i18n="@@common.uploadFailed">Failed</span> }
+            @default { <span i18n="@@admin.reactions.bulkUploadButton">Upload ZIP</span> }
+          }
+        </span>
+      </label>
+    </div>
+    @if (bulkUploadState() === 'loading' && bulkTotal() > 0) {
+      <div class="bulk-progress">
+        <progress [value]="bulkCompleted()" [max]="bulkTotal()"></progress>
+        <span class="bulk-progress-label">{{ bulkCompleted() }} / {{ bulkTotal() }}</span>
+      </div>
+    }
+  </section>
+
+  <section class="reactions-section">
     <h3 i18n="@@admin.reactions.upload">Upload new reaction</h3>
     <div class="upload-row">
       <label class="upload-label">
