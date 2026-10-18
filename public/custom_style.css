@@ -2104,6 +2104,25 @@ app-root.dark #color-area td.toolbar-active {
   background: #0069d9;
 }
 
+.bulk-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.bulk-progress progress {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bulk-progress-label {
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+
 .preview {
   border: 1px solid #ddd;
 }

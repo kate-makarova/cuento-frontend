@@ -87,6 +87,42 @@
     </table>
   </section>
 
+  <!-- Bulk upload -->
+  <section class="reactions-section">
+    <h3 i18n="@@admin.smiles.bulkUpload">Bulk upload (ZIP)</h3>
+    <div class="upload-row">
+      <select [(ngModel)]="bulkCategoryId">
+        <option [ngValue]="null" i18n="@@admin.smiles.noCategory">— None —</option>
+        @for (category of categories(); track category.id) {
+          <option [ngValue]="category.id">{{ category.name }}</option>
+        }
+      </select>
+      <label class="upload-label">
+        <input
+          type="file"
+          accept=".zip"
+          class="file-input"
+          (change)="onBulkFileSelected($event)"
+          [disabled]="bulkUploadState() === 'loading'"
+        />
+        <span class="btn-upload" [class]="'btn-upload--' + bulkUploadState()">
+          @switch (bulkUploadState()) {
+            @case ('loading') { <span class="spinner"></span> }
+            @case ('success') { <span i18n="@@common.uploaded">Uploaded</span> }
+            @case ('error') { <span i18n="@@common.uploadFailed">Failed</span> }
+            @default { <span i18n="@@admin.smiles.bulkUploadButton">Upload ZIP</span> }
+          }
+        </span>
+      </label>
+    </div>
+    @if (bulkUploadState() === 'loading' && bulkTotal() > 0) {
+      <div class="bulk-progress">
+        <progress [value]="bulkCompleted()" [max]="bulkTotal()"></progress>
+        <span class="bulk-progress-label">{{ bulkCompleted() }} / {{ bulkTotal() }}</span>
+      </div>
+    }
+  </section>
+
   <!-- Upload -->
   <section class="reactions-section">
     <h3 i18n="@@admin.smiles.upload">Upload new smile</h3>
