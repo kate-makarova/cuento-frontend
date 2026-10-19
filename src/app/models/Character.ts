@@ -58,6 +58,7 @@ export interface CustomFieldValue {
 export interface CustomFieldsData {
   custom_fields: { [key: string]: CustomFieldValue };
   field_config: FieldTemplate[];
+  block_settings?: Record<string, string>;
 }
 
 export interface CharacterProfile {

@@ -23,6 +23,7 @@ import {PreviewComponent} from './preview/preview.component';
 import { UserListComponent } from './user-list/user-list.component';
 import { SettingsComponent } from './settings/settings.component';
 import { ActiveTopicsComponent } from './active-topics/active-topics.component';
+import { TopicSubscriptionsComponent } from './topic-subscriptions/topic-subscriptions.component';
 import { ArcListComponent } from './arc-list/arc-list.component';
 import { ArcFormComponent } from './arc-form/arc-form.component';
 import { ArcDetailComponent } from './arc-detail/arc-detail.component';
@@ -40,6 +41,8 @@ import { CharacterFieldListComponent } from './character-field-list/character-fi
 import { ActiveUsersComponent } from './active-users/active-users.component';
 import { SearchComponent } from './search/search.component';
 import { PostPageComponent } from './post-page/post-page.component';
+import { UserPostsComponent } from './user-posts/user-posts.component';
+import { CharacterPostsComponent } from './character-posts/character-posts.component';
 import { LorePageComponent } from './lore-page/lore-page.component';
 import { LoreNavigationEditComponent } from './lore-navigation-edit/lore-navigation-edit.component';
 import { NotFoundComponent } from './error-pages/not-found/not-found.component';
@@ -174,6 +177,12 @@ export const routes: Routes = [
     data: { pageId: 'pun-profile' }
   },
   {
+    path: 'profile/:id/posts',
+    component: UserPostsComponent,
+    title: 'User Posts',
+    data: { pageId: 'pun-user-posts' }
+  },
+  {
     path: 'profile/:user_id/transactions',
     component: TransactionsComponent,
     title: 'Transactions',
@@ -184,6 +193,12 @@ export const routes: Routes = [
     component: CharacterviewComponent,
     title: 'Character',
     data: { pageId: 'pun-character' }
+  },
+  {
+    path: 'character/:id/posts',
+    component: CharacterPostsComponent,
+    title: 'Character Posts',
+    data: { pageId: 'pun-character-posts' }
   },
   {
     path: 'character-list',
@@ -262,6 +277,12 @@ export const routes: Routes = [
     component: ActiveTopicsComponent,
     title: 'Active Topics',
     data: { pageId: 'pun-active-topics' }
+  },
+  {
+    path: 'subscriptions',
+    component: TopicSubscriptionsComponent,
+    title: 'My Subscriptions',
+    data: { pageId: 'pun-subscriptions' }
   },
   {
     path: 'active-users',

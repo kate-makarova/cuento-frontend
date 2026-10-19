@@ -5,7 +5,7 @@
 // Nothing here touches the DOM.
 
 import {
-  DocModel, BlockNode, ParagraphNode, AlignBlock, QuoteNode, SpoilerNode, CodeNode, NpcBlockNode, HideNode,
+  DocModel, BlockNode, ParagraphNode, AlignBlock, QuoteNode, SpoilerNode, CodeNode, NpcBlockNode, HideNode, GridNode, TableNode,
   InlineNode, TextNode, ImgNode, Mark, DocPoint, DocRange,
 } from './wysiwyg-doc-model';
 
@@ -113,6 +113,9 @@ export function splitParagraph(doc: DocModel, point: DocPoint): OpResult {
 
   if (path.length === 2) {
     const container = doc.children[path[0]] as ContainerBlock;
+    if (container.type === 'grid' || container.type === 'table') {
+      return { doc, cursor: point };
+    }
     const para = cItems(container)[path[1]] as ParagraphNode;
     const [before, after] = splitAt(para.children, point.offset);
     const a: ParagraphNode = { type: 'paragraph', children: normalize(before) };
@@ -153,8 +156,11 @@ export function mergeParagraphWithPrevious(doc: DocModel, point: DocPoint): OpRe
   }
 
   if (path.length === 2) {
-    if (path[1] === 0) return { doc, cursor: point };
     const container = doc.children[path[0]] as ContainerBlock;
+    if (container.type === 'grid' || container.type === 'table') {
+      return { doc, cursor: point };
+    }
+    if (path[1] === 0) return { doc, cursor: point };
     const items = cItems(container);
     const prev = items[path[1] - 1] as ParagraphNode;
     const curr = items[path[1]] as ParagraphNode;
@@ -486,7 +492,7 @@ function normalize(nodes: InlineNode[]): InlineNode[] {
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────
 
-type ContainerBlock = AlignBlock | QuoteNode | SpoilerNode | NpcBlockNode | HideNode;
+type ContainerBlock = AlignBlock | QuoteNode | SpoilerNode | NpcBlockNode | HideNode | GridNode | TableNode;
 
 // Cursor-based ops only reach ParagraphNode children (cursor can't enter
 // non-paragraph children of a quote).  These helpers centralise the casts.
@@ -522,6 +528,9 @@ function crossParaDelete(doc: DocModel, anchor: DocPoint, focus: DocPoint): OpRe
   // Same depth, both in containers of the same block
   if (anchor.path.length === 2 && focus.path.length === 2 && anchor.path[0] === focus.path[0]) {
     const container = doc.children[anchor.path[0]] as ContainerBlock;
+    if (container.type === 'grid' || container.type === 'table') {
+      return { doc, cursor: anchor };
+    }
     const items     = cItems(container);
     const firstPara = items[anchor.path[1]] as ParagraphNode;
     const lastPara  = items[focus.path[1]]  as ParagraphNode;

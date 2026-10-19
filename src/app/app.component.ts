@@ -448,7 +448,20 @@ export class AppComponent implements OnInit {
     fetch('/manifest.webmanifest')
       .then(r => r.json())
       .then((base: Record<string, unknown>) => {
-        const manifest = { ...base, name: siteName, short_name: siteName };
+        const origin = window.location.origin;
+        const toAbs = (val: unknown) =>
+          typeof val === 'string' ? new URL(val, origin + '/').href : val;
+        const icons = (base['icons'] as Array<Record<string, unknown>> | undefined)
+          ?.map(icon => ({ ...icon, src: toAbs(icon['src']) }));
+        const manifest = {
+          ...base,
+          name: siteName,
+          short_name: siteName,
+          start_url: toAbs(base['start_url']),
+          scope: toAbs(base['scope']),
+          ...(base['id'] !== undefined ? { id: toAbs(base['id']) } : {}),
+          ...(icons ? { icons } : {}),
+        };
         if (this.manifestBlobUrl) URL.revokeObjectURL(this.manifestBlobUrl);
         this.manifestBlobUrl = URL.createObjectURL(
           new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' })

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, LOCALE_ID } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth.service';
@@ -18,6 +18,7 @@ export class RegisterComponent {
   private authService = inject(AuthService);
   private userService = inject(UserService);
   private router = inject(Router);
+  private locale = inject(LOCALE_ID);
 
   isLoading = signal(false);
   errorMessage = signal<string | null>(null);
@@ -59,7 +60,10 @@ export class RegisterComponent {
 
       const codes = this.userService.generateRecoveryCodes();
 
-      this.authService.register(registerData).pipe(
+      const timezone = this.authService.currentUser()?.interface_timezone
+        ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+      this.authService.register({ ...registerData, interface_language: this.locale, interface_timezone: timezone }).pipe(
         switchMap(() => this.authService.loginSilently({ username, password })),
         switchMap(() => from(this.authService.hashPassword(password))),
         switchMap(hashedPassword => this.userService.initialSetupAndSaveKeys(hashedPassword, codes))

@@ -1896,6 +1896,32 @@ spoiler-box .spoiler-content {
   padding: 8px 10px;
 }
 
+.wysiwyg-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 4px 0;
+}
+
+.wysiwyg-table td {
+  border: 1px solid #aaa;
+  padding: 4px;
+  vertical-align: top;
+}
+
+.wysiwyg-grid {
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid #ccc;
+  max-width: 100%;
+  margin: 4px 0;
+}
+
+.wysiwyg-grid-item {
+  border: 1px solid #ddd;
+  padding: 4px;
+  min-width: 0;
+}
+
 .widget-grid {
   display: grid;
 }
@@ -2762,15 +2788,6 @@ app-number-field-display:host {
   font-size: 0.8em;
   opacity: 0.7;
   vertical-align: middle;
-}
-
-.pm-chat-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 6px 10px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  min-height: 38px;
 }
 
 .pm-block-button {

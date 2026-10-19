@@ -2,7 +2,7 @@ import { Injectable, signal, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { shareReplay } from 'rxjs/operators';
 import { ApiService } from './api.service';
-import { FieldTemplate } from "../models/FieldTemplate";
+import { FieldTemplate, Block, BlockSettingToggle, TemplateConfig } from "../models/FieldTemplate";
 import { Faction } from "../models/Faction";
 import { CharacterShort, CharacterProfile, CreateCharacterRequest, Character, CharacterListItem } from "../models/Character";
 import { ClaimAutocompleteItem } from "../models/CharacterClaim";
@@ -13,6 +13,10 @@ export class CharacterService {
   private apiService = inject(ApiService);
   private characterTemplateSignal = signal<FieldTemplate[]>([]);
   readonly characterTemplate = this.characterTemplateSignal.asReadonly();
+  private characterTemplateBlocksSignal = signal<Block[]>([]);
+  readonly characterTemplateBlocks = this.characterTemplateBlocksSignal.asReadonly();
+  private characterTemplateBlockSettingsSignal = signal<BlockSettingToggle[]>([]);
+  readonly characterTemplateBlockSettings = this.characterTemplateBlockSettingsSignal.asReadonly();
   private characterListSignal = signal<Faction[]>([]);
   readonly characterList = this.characterListSignal.asReadonly();
   private shortCharacterListSignal = signal<CharacterShort[]>([]);
@@ -28,6 +32,10 @@ export class CharacterService {
   }
   private characterProfileTemplateSignal = signal<FieldTemplate[]>([]);
   readonly characterProfileTemplate = this.characterProfileTemplateSignal.asReadonly();
+  private characterProfileTemplateBlocksSignal = signal<Block[]>([]);
+  readonly characterProfileTemplateBlocks = this.characterProfileTemplateBlocksSignal.asReadonly();
+  private characterProfileTemplateBlockSettingsSignal = signal<BlockSettingToggle[]>([]);
+  readonly characterProfileTemplateBlockSettings = this.characterProfileTemplateBlockSettingsSignal.asReadonly();
 
   readonly characterSignal = signal<Character | null>(null);
   readonly character = this.characterSignal.asReadonly();
@@ -36,10 +44,11 @@ export class CharacterService {
   readonly characterProfile = this.characterProfileSignal.asReadonly();
 
   loadCharacterTemplate(): void {
-    this.apiService.get<FieldTemplate[]>('template/character/get').subscribe({
+    this.apiService.get<TemplateConfig>('template/character/get').subscribe({
       next: (data) => {
-        const sortedData = data.sort((a, b) => a.order - b.order);
-        this.characterTemplateSignal.set(sortedData);
+        this.characterTemplateSignal.set((data.fields || []).sort((a, b) => a.order - b.order));
+        this.characterTemplateBlocksSignal.set(data.blocks || []);
+        this.characterTemplateBlockSettingsSignal.set(data.block_settings || []);
       },
       error: (err) => {
         console.error('Failed to load character template', err);
@@ -58,8 +67,9 @@ export class CharacterService {
     })
   }
 
-  saveCharacterTemplate(template: FieldTemplate[]) {
-    return this.apiService.post('template/character/update', template);
+  saveCharacterTemplate(fields: FieldTemplate[], blocks: Block[], blockSettings: BlockSettingToggle[]) {
+    const payload: TemplateConfig = { fields, blocks, block_settings: blockSettings };
+    return this.apiService.post('template/character/update', payload);
   }
 
   searchCharacters(term: string): Observable<CharacterShort[]> {
@@ -128,10 +138,11 @@ export class CharacterService {
   }
 
   loadCharacterProfileTemplate(): void {
-    this.apiService.get<FieldTemplate[]>('template/character_profile/get').subscribe({
+    this.apiService.get<TemplateConfig>('template/character_profile/get').subscribe({
       next: (data) => {
-        const sortedData = data.sort((a, b) => a.order - b.order);
-        this.characterProfileTemplateSignal.set(sortedData);
+        this.characterProfileTemplateSignal.set((data.fields || []).sort((a, b) => a.order - b.order));
+        this.characterProfileTemplateBlocksSignal.set(data.blocks || []);
+        this.characterProfileTemplateBlockSettingsSignal.set(data.block_settings || []);
       },
       error: (err) => {
         console.error('Failed to load character profile template', err);
@@ -139,8 +150,9 @@ export class CharacterService {
     });
   }
 
-  saveCharacterProfileTemplate(template: FieldTemplate[]) {
-    return this.apiService.post('template/character_profile/update', template);
+  saveCharacterProfileTemplate(fields: FieldTemplate[], blocks: Block[], blockSettings: BlockSettingToggle[]) {
+    const payload: TemplateConfig = { fields, blocks, block_settings: blockSettings };
+    return this.apiService.post('template/character_profile/update', payload);
   }
 
 
@@ -204,16 +216,25 @@ export class CharacterService {
 
   private wantedCharacterTemplateSignal = signal<FieldTemplate[]>([]);
   readonly wantedCharacterTemplate = this.wantedCharacterTemplateSignal.asReadonly();
+  private wantedCharacterTemplateBlocksSignal = signal<Block[]>([]);
+  readonly wantedCharacterTemplateBlocks = this.wantedCharacterTemplateBlocksSignal.asReadonly();
+  private wantedCharacterTemplateBlockSettingsSignal = signal<BlockSettingToggle[]>([]);
+  readonly wantedCharacterTemplateBlockSettings = this.wantedCharacterTemplateBlockSettingsSignal.asReadonly();
 
   loadWantedCharacterTemplate(): void {
-    this.apiService.get<FieldTemplate[]>('template/wanted_character/get').subscribe({
-      next: (data) => this.wantedCharacterTemplateSignal.set(data.sort((a, b) => a.order - b.order)),
+    this.apiService.get<TemplateConfig>('template/wanted_character/get').subscribe({
+      next: (data) => {
+        this.wantedCharacterTemplateSignal.set((data.fields || []).sort((a, b) => a.order - b.order));
+        this.wantedCharacterTemplateBlocksSignal.set(data.blocks || []);
+        this.wantedCharacterTemplateBlockSettingsSignal.set(data.block_settings || []);
+      },
       error: (err) => console.error('Failed to load wanted character template', err)
     });
   }
 
-  saveWantedCharacterTemplate(template: FieldTemplate[]) {
-    return this.apiService.post('template/wanted_character/update', template);
+  saveWantedCharacterTemplate(fields: FieldTemplate[], blocks: Block[], blockSettings: BlockSettingToggle[]) {
+    const payload: TemplateConfig = { fields, blocks, block_settings: blockSettings };
+    return this.apiService.post('template/wanted_character/update', payload);
   }
 
   private characterDbSchemaSignal = signal<{ machine_name: string; field_type: string }[]>([]);

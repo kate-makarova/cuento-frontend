@@ -7,13 +7,14 @@ import { TopicService } from '../services/topic.service';
 import { CharacterProfileComponent } from '../components/character-profile/character-profile.component';
 import { EpisodeHeaderComponent } from '../components/episode-header/episode-header.component';
 import { CharacterSheetHeaderComponent } from '../components/character-sheet-header/character-sheet-header.component';
+import { WantedCharacterHeaderComponent } from '../components/wanted-character-header/wanted-character-header.component';
 import { SafeHtmlPipe } from '../pipes/safe-html.pipe';
 import { RouterLinksDirective } from '../directives/router-links.directive';
 
 @Component({
   selector: 'app-preview',
   host: { class: 'pun-page' },
-  imports: [ CharacterProfileComponent, EpisodeHeaderComponent, CharacterSheetHeaderComponent, SafeHtmlPipe, RouterLinksDirective],
+  imports: [ CharacterProfileComponent, EpisodeHeaderComponent, CharacterSheetHeaderComponent, WantedCharacterHeaderComponent, SafeHtmlPipe, RouterLinksDirective],
   standalone: true,
   templateUrl: './preview.component.html',
 })

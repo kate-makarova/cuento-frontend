@@ -34,14 +34,18 @@ const ANGULAR_LOCALES: Record<string, () => Promise<any>> = {
 
 function detectGuestLocale(): string | null {
   const languages: readonly string[] = navigator.languages?.length ? navigator.languages : [navigator.language];
-  for (const def of LOCALES) {
-    if (languages.some(l => def.langPrefixes.some(p => l.startsWith(p)))) return def.code;
+  for (const lang of languages) {
+    const match = LOCALES.find(def => def.langPrefixes.some(p => lang.startsWith(p)));
+    if (match) return match.code;
   }
   return null;
 }
 
 const storedLocale = localStorage.getItem('locale');
 const locale = storedLocale ?? detectGuestLocale();
+if (!storedLocale && locale) {
+  localStorage.setItem('locale', locale);
+}
 const locDef = LOCALES.find(d => d.code === locale);
 
 function registerCustomElements(appRef: ApplicationRef): void {

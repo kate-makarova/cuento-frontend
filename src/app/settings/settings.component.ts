@@ -107,6 +107,7 @@ export class SettingsComponent implements OnInit {
 
   get avatarWidth(): number { return this.boardService.board().user_avatar_width ?? 100; }
   get avatarHeight(): number { return this.boardService.board().user_avatar_height ?? 100; }
+  get avatarLess(): boolean { return this.boardService.board().user_avatar_less === 'y'; }
 
   language: string = 'en-CA';
   availableLocales = signal<Array<{ code: string; human_name: string }>>([

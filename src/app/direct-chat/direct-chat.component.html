@@ -4,7 +4,7 @@
   </div>
 
   <div id="pm" class="category">
-    <div class="main-content pm-container">
+    <div class="main-content pm-container" [class.dm-sidebar-active]="showSidebar()">
       <div class="pm-sidebar">
         <div class="new-chat-block">
           <div class="new-chat-autocomplete">
@@ -48,24 +48,42 @@
       <div class="pm-history">
         @if (currentChat()) {
           <div class="main-item">
-            <div class="pm-chat-header">
-              <button
-                type="button"
-                class="button pm-block-button"
-                [class.pm-unblock-button]="currentChatBlocked"
-                (click)="toggleBlock()"
-              >
+            <div class="pm-chat-fixed-header" [class.is-collapsed]="headerCollapsed()">
+              <div class="pm-header-bar">
+                <button type="button" class="button dm-sidebar-toggle" (click)="toggleSidebar()">
+                  <i class="bi bi-list"></i>
+                </button>
+                <div class="pm-partner-summary" (click)="toggleHeaderCollapsed()">
+                  <div class="pm-partner-avatar-wrap">
+                    @if (currentChatPartner?.avatar) {
+                      <img [src]="currentChatPartner!.avatar!" [alt]="currentChatPartner!.username" class="pm-partner-avatar">
+                    } @else {
+                      <div class="pm-partner-avatar pm-partner-avatar--placeholder">{{ (currentChatPartner?.username ?? '?')[0] }}</div>
+                    }
+                    <span class="pm-status-dot" [class.pm-status-dot--online]="isChatPartnerOnline"></span>
+                  </div>
+                  <span class="pm-partner-name">{{ currentChatPartner?.username }}</span>
+                </div>
+                <i class="bi bi-chevron-down pm-header-chevron" [class.pm-header-chevron--up]="!headerCollapsed()"></i>
+              </div>
+              <div class="pm-header-expanded">
+                <button
+                  type="button"
+                  class="button pm-block-button"
+                  [class.pm-unblock-button]="currentChatBlocked"
+                  (click)="toggleBlock()">
+                  @if (currentChatBlocked) {
+                    <i class="bi bi-slash-circle-fill"></i>
+                    <span i18n="@@directchat.unblock">Unblock</span>
+                  } @else {
+                    <i class="bi bi-slash-circle"></i>
+                    <span i18n="@@directchat.block">Block</span>
+                  }
+                </button>
                 @if (currentChatBlocked) {
-                  <i class="bi bi-slash-circle-fill"></i>
-                  <span i18n="@@directchat.unblock">Unblock</span>
-                } @else {
-                  <i class="bi bi-slash-circle"></i>
-                  <span i18n="@@directchat.block">Block</span>
+                  <span class="pm-blocked-notice" i18n="@@directchat.blockedNotice">You are not receiving new messages from this chat.</span>
                 }
-              </button>
-              @if (currentChatBlocked) {
-                <span class="pm-blocked-notice" i18n="@@directchat.blockedNotice">You are not receiving new messages from this chat.</span>
-              }
+              </div>
             </div>
             <div class="history-scroll" #scrollContainer (scroll)="onScroll()">
               @if (isLoadingOlder()) {
@@ -88,7 +106,7 @@
                       <div class="message-body">
                         <div class="message-box">
                           <div class="message-content">
-                            <p [innerHTML]="highlightMatch(msg.text)"></p>
+                            <p [innerHTML]="renderMessage(msg.text) | safeHtml"></p>
                           </div>
                         </div>
                         <p class="message-metadata"><span>{{ msg.time }}</span></p>
@@ -106,15 +124,13 @@
 
             <div class="pm-input">
               <div id="pm-form-buttons">
-                <table cellspacing="0" cellpadding="0">
-                  <tbody>
-                  <tr>
-                    <td title="Bold" (click)="insertTag('b')"><i class="bi bi-type-bold"></i></td>
-                    <td title="Italic" (click)="insertTag('i')"><i class="bi bi-type-italic"></i></td>
-                    <td title="Strikethrough" (click)="insertTag('s')"><i class="bi bi-type-strikethrough"></i></td>
-                  </tr>
-                  </tbody>
-                </table>
+                <app-bb-toolbar
+                  [textarea]="messageField?.nativeElement ?? null"
+                  [showImageUpload]="false"
+                  [showVideo]="false"
+                  [showAudio]="false"
+                  [isGm]="false">
+                </app-bb-toolbar>
               </div>
               <div class="textarea-wrapper">
                 <textarea #chatInput (keydown.enter)="handleSend()" placeholder="Ваше сообщение..."></textarea>
@@ -126,7 +142,12 @@
             </div>
           </div>
         } @else {
-          <div class="pm-no-chat" i18n="@@directchat.selectChat">Select a chat from the list to start messaging</div>
+          <div class="pm-no-chat">
+            <button type="button" class="button dm-sidebar-toggle" (click)="toggleSidebar()">
+              <i class="bi bi-list"></i>
+            </button>
+            <span i18n="@@directchat.selectChat">Select a chat from the list to start messaging</span>
+          </div>
         }
       </div>
 

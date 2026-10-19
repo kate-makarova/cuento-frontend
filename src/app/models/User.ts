@@ -22,6 +22,7 @@ export interface User {
   roles: Role[];
   notification_settings?: UserNotificationSetting[];
   currency_amount?: number;
+  is_superuser?: boolean;
 }
 export interface Role {
   id: number;

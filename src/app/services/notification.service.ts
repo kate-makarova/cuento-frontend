@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Subject } from 'rxjs';
-import { PostCreatedEvent, TopicCreatedEvent, NotificationEvent, WebSocketEvent, TopicViewersUpdateEvent, UnreadNotificationsResponse, NotificationData, NotificationMention, PostUpdatedEvent, DirectMessageCreatedEvent, ActiveUsersUpdateEvent, ActiveUsersActivityUpdateEvent, PanelReloadEvent, ReactionCreatedEvent, HealthUpdateEvent, UserRefreshRequiredEvent, DraftUpdatedEvent, AiMessageEvent, AiTaskDoneEvent, AiQueuePositionEvent, AiErrorEvent, PageChangedEvent } from '../models/event';
+import { PostCreatedEvent, TopicCreatedEvent, NotificationEvent, WebSocketEvent, TopicViewersUpdateEvent, UnreadNotificationsResponse, NotificationData, NotificationMention, NotificationReaction, NotificationDirectMessage, PostUpdatedEvent, DirectMessageCreatedEvent, ActiveUsersUpdateEvent, ActiveUsersActivityUpdateEvent, PanelReloadEvent, ReactionCreatedEvent, HealthUpdateEvent, UserRefreshRequiredEvent, DraftUpdatedEvent, AiMessageEvent, AiTaskDoneEvent, AiQueuePositionEvent, AiErrorEvent, PageChangedEvent, TopicFullEvent } from '../models/event';
 import { AuthService } from './auth.service';
 import { ApiService } from './api.service';
 import { environment } from '../../environments/environment';
@@ -47,6 +47,9 @@ export class NotificationService {
 
   private reactionCreatedSubject = new Subject<ReactionCreatedEvent>();
   public reactionCreated$ = this.reactionCreatedSubject.asObservable();
+
+  private topicFullSubject = new Subject<TopicFullEvent>();
+  public topicFull$ = this.topicFullSubject.asObservable();
 
   private healthUpdateSubject = new Subject<HealthUpdateEvent>();
   public healthUpdate$ = this.healthUpdateSubject.asObservable();
@@ -169,6 +172,10 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
     return ((n.mention ?? n.data) as NotificationMention | null)?.post_id ?? undefined;
   }
 
+  private dmChatId(n: NotificationData): number | undefined {
+    return ((n.direct_message ?? n.data) as NotificationDirectMessage | null)?.chat_id ?? undefined;
+  }
+
   private rebuildTriggers(response: UnreadNotificationsResponse): void {
     this.mentionPostTriggers.clear();
     this.gameTopicTriggers.clear();
@@ -181,7 +188,8 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
       if (n.game?.topic_id) this.gameTopicTriggers.set(n.game.topic_id, n);
     }
     for (const n of response.direct_message || []) {
-      if (n.direct_message?.chat_id) this.dmChatTriggers.set(n.direct_message.chat_id, n);
+      const chatId = this.dmChatId(n);
+      if (chatId) this.dmChatTriggers.set(chatId, n);
     }
   }
 
@@ -191,8 +199,9 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
       if (postId) this.mentionPostTriggers.set(postId, n);
     } else if (n.type === 'game' && n.game?.topic_id) {
       this.gameTopicTriggers.set(n.game.topic_id, n);
-    } else if (n.type === 'direct_message' && n.direct_message?.chat_id) {
-      this.dmChatTriggers.set(n.direct_message.chat_id, n);
+    } else if (n.type === 'direct_message') {
+      const chatId = this.dmChatId(n);
+      if (chatId) this.dmChatTriggers.set(chatId, n);
     }
   }
 
@@ -202,8 +211,9 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
       if (postId) this.mentionPostTriggers.delete(postId);
     } else if (n.type === 'game' && n.game?.topic_id) {
       this.gameTopicTriggers.delete(n.game.topic_id);
-    } else if (n.type === 'direct_message' && n.direct_message?.chat_id) {
-      this.dmChatTriggers.delete(n.direct_message.chat_id);
+    } else if (n.type === 'direct_message') {
+      const chatId = this.dmChatId(n);
+      if (chatId) this.dmChatTriggers.delete(chatId);
     }
   }
 
@@ -230,11 +240,30 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
     }
   }
 
+  public checkReactionsByPostIds(postIds: number[]): void {
+    const reactions = this.reactionNotificationsSignal();
+    if (reactions.length === 0) return;
+    const postIdSet = new Set(postIds);
+    for (const n of reactions) {
+      const postId = (n.data as NotificationReaction | null)?.post_id;
+      if (postId && postIdSet.has(postId)) this.dismissNotification(n);
+    }
+  }
+
+  public checkReactionsByTopicId(topicId: number): void {
+    const reactions = this.reactionNotificationsSignal();
+    if (reactions.length === 0) return;
+    for (const n of reactions) {
+      const tid = (n.data as NotificationReaction | null)?.topic_id;
+      if (tid === topicId) this.dismissNotification(n);
+    }
+  }
+
   public checkChatId(chatId: number): void {
     const notifications = this.directMessageNotificationsSignal();
     if (notifications.length === 0) return;
     for (const n of notifications) {
-      if (n.direct_message?.chat_id === chatId) this.dismissNotification(n);
+      if (this.dmChatId(n) === chatId) this.dismissNotification(n);
     }
   }
 
@@ -478,6 +507,9 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
         break;
       case 'reaction_created':
         this.reactionCreatedSubject.next(notification as ReactionCreatedEvent);
+        break;
+      case 'topic_full':
+        this.topicFullSubject.next(notification as TopicFullEvent);
         break;
       case 'health_update':
         this.healthUpdateSubject.next(notification as HealthUpdateEvent);

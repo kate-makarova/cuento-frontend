@@ -1,0 +1,135 @@
+.dm-sidebar-toggle {
+  display: none;
+}
+
+.pm-chat-fixed-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.pm-header-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  min-height: 44px;
+}
+
+.pm-partner-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.pm-partner-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.pm-partner-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.pm-partner-avatar--placeholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.85em;
+  background-color: #c4bba8;
+  color: #fff;
+}
+
+.pm-status-dot {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background-color: #aaa;
+  box-shadow: 0 0 0 2px #fff;
+}
+
+.pm-status-dot--online {
+  background-color: #27ae60;
+}
+
+.pm-partner-name {
+  font-weight: 600;
+  font-size: 0.95em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pm-header-chevron {
+  display: none;
+  font-size: 0.8em;
+  opacity: 0.5;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.pm-header-chevron--up {
+  transform: rotate(180deg);
+}
+
+.pm-header-expanded {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px 8px;
+}
+
+@media (max-width: 767px) {
+  .pm-sidebar {
+    display: none;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .dm-sidebar-active .pm-sidebar {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dm-sidebar-active .pm-history {
+    display: none;
+  }
+
+  .pm-history {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .dm-sidebar-toggle {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .pm-header-chevron {
+    display: inline-block;
+  }
+
+  .pm-partner-summary {
+    cursor: pointer;
+  }
+
+  .pm-chat-fixed-header.is-collapsed .pm-partner-name {
+    display: none;
+  }
+
+  .pm-chat-fixed-header.is-collapsed .pm-header-expanded {
+    display: none;
+  }
+}

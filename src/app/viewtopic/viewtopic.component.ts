@@ -28,6 +28,7 @@ import { WantedCharacterCreateComponent } from '../wanted-character-create/wante
 import { WantedCharacterService } from '../services/wanted-character.service';
 import { EpisodeService } from '../services/episode.service';
 import { PreviewService } from '../services/preview.service';
+import { NotificationService } from '../services/notification.service';
 import { LoreTopicHeaderComponent } from '../components/lore-topic-header/lore-topic-header.component';
 import { UserInfoComponent } from '../components/user-info/user-info.component';
 import { StandardWarning } from '../models/StandardWarning';
@@ -75,6 +76,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   authService = inject(AuthService);
   boardService = inject(BoardService);
   previewService = inject(PreviewService);
+  private notificationService = inject(NotificationService);
   router = inject(Router);
   route = inject(ActivatedRoute);
   private locale = inject(LOCALE_ID);
@@ -94,6 +96,11 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
   breadcrumbs: BreadcrumbItem[] = [];
   showPostForm = signal<boolean>(false);
+  keepFormForFullTopic = signal(false);
+  hasPreviewRestore = computed(() => {
+    const s = this.previewService.state();
+    return s?.formType === 'post' && !!s.formPayload?.content;
+  });
   profilesReady = signal(false);
   sidebarMode = signal(false);
   sidebarProfileCompact = signal(false);
@@ -306,7 +313,11 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
         return;
       }
 
-      if (t.status === TopicStatus.inactive || t.status === TopicStatus.full) {
+      if (t.status === TopicStatus.inactive) {
+        this.showPostForm.set(false);
+        return;
+      }
+      if (t.status === TopicStatus.full && !this.keepFormForFullTopic()) {
         this.showPostForm.set(false);
         return;
       }
@@ -334,8 +345,13 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
         if (state?.formType === 'post' && state.formPayload?.content) {
           setTimeout(() => {
             if (this.postForm) {
+              const mode = state.formPayload.editorMode;
+              if (mode === 'wysiwyg' || mode === 'bbcode') {
+                this.postForm.editorMode.set(mode);
+              }
               this.postForm.setValue(state.formPayload.content);
               this.previewService.clear();
+              document.getElementById('post-form')?.scrollIntoView({ behavior: 'smooth' });
             }
           });
         }
@@ -391,6 +407,12 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       }
     });
 
+    this.notificationService.topicFull$.pipe(takeUntil(this.destroy$)).subscribe(event => {
+      if (event.topic_id !== this.id()) return;
+      if (this.showPostForm()) this.keepFormForFullTopic.set(true);
+      this.topicService.updateTopicStatus(TopicStatus.full);
+    });
+
     this.pageLoadedSubscription = this.topicService.pageLoaded$.subscribe(pageState => {
       const topicId = this.id();
       // Only sync if the page state is for the current topic
@@ -407,6 +429,12 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
           replaceUrl: true,
           ...(currentPostId ? { fragment: String(currentPostId) } : {})
         });
+      }
+
+      // anchorScrolling fires before posts render; scroll manually after DOM update
+      const fragment = currentPostId ? String(currentPostId) : this.route.snapshot.fragment;
+      if (fragment) {
+        setTimeout(() => document.getElementById(fragment)?.scrollIntoView({ behavior: 'smooth' }));
       }
     });
   }
@@ -490,17 +518,17 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     });
   }
 
+  private savedSelection = '';
+
+  saveSelection() {
+    this.savedSelection = window.getSelection()?.toString().trim() ?? '';
+  }
+
   quotePost(post: Post, event: Event) {
     event.preventDefault();
 
-    let quoteContent = '';
-    const selection = window.getSelection();
-
-    if (selection && selection.toString().trim().length > 0) {
-      quoteContent = selection.toString().trim();
-    } else {
-      quoteContent = post.content;
-    }
+    const quoteContent = this.savedSelection.length > 0 ? this.savedSelection : post.content;
+    this.savedSelection = '';
 
     const authorName = post.use_character_profile && post.character_profile
       ? post.character_profile.character_name
@@ -564,15 +592,9 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       payload.is_gm_post = true;
       payload.use_character_profile = false;
     } else {
-      let characterProfileId: number | null = null;
-      if (this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any) {
-        const profile = this.userCharacterProfiles().find(p => p.id === this.selectedCharacterId);
-        if (profile) {
-          characterProfileId = profile.id;
-        }
-      }
-      payload.use_character_profile = this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any;
-      payload.character_profile_id = characterProfileId;
+      const useCharacter = this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any;
+      payload.use_character_profile = useCharacter;
+      payload.character_profile_id = useCharacter ? this.selectedCharacterId : null;
     }
 
     if (!this.authService.isAuthenticated()) {
@@ -585,6 +607,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     }
 
     this.postForm.cancelPendingAutosave();
+    const savedMessage = message;
     this.postForm.clear();
 
     setTimeout(() => document.getElementById('post-pending')?.scrollIntoView({ behavior: 'smooth' }));
@@ -613,7 +636,14 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       },
       error: (err: any) => {
         this.isSubmitting.set(false);
-        console.error('Failed to create post', err);
+        const isTopicFull = err?.error?.error?.includes('post limit') || err?.status === 403 && err?.error?.error?.includes('post limit');
+        if (isTopicFull) {
+          this.keepFormForFullTopic.set(true);
+          this.topicService.updateTopicStatus(TopicStatus.full);
+          this.postForm.setValue(savedMessage);
+        } else {
+          console.error('Failed to create post', err);
+        }
       }
     });
   }
@@ -633,19 +663,18 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       payload.is_gm_post = true;
       payload.use_character_profile = false;
     } else {
-      let characterProfileId: number | null = null;
-      if (this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any) {
-        const profile = this.userCharacterProfiles().find(p => p.id === this.selectedCharacterId);
-        if (profile) {
-          characterProfileId = profile.id;
-        }
-      }
-      payload.use_character_profile = this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any;
-      payload.character_profile_id = characterProfileId;
+      const useCharacter = this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any;
+      payload.use_character_profile = useCharacter;
+      payload.character_profile_id = useCharacter ? this.selectedCharacterId : null;
     }
 
     if (!this.authService.isAuthenticated()) {
       payload.guest_name = this.guestName;
+    }
+
+    const draftGroupId = this.postForm.currentDraftGroupId();
+    if (draftGroupId) {
+      payload.from_draft_id = draftGroupId;
     }
 
     this.topicService.previewTopic(payload).subscribe({
@@ -656,7 +685,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
           posts: this.currentPagePosts(),
           previewPost: previewPost,
           returnUrl: this.router.url,
-          formPayload: { ...payload }
+          formPayload: { ...payload, editorMode: this.postForm.editorMode() }
         });
         this.router.navigate(['/preview']);
       },
@@ -789,6 +818,40 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       },
       error: (err: any) => console.error('Failed to update wanted character', err)
     });
+  }
+
+  claimWantedCharacter() {
+    const wc = this.topic().wanted_character;
+    if (!wc) return;
+    this.wantedCharacterService.createClaimRecord(wc.id).subscribe({
+      next: () => {
+        if (this.id()) this.topicService.loadTopic(this.id()!).subscribe({ next: (data) => this.topicService.setTopic(data) });
+      },
+      error: (err: any) => console.error('Failed to claim wanted character', err)
+    });
+  }
+
+  revokeWantedCharacterClaim() {
+    const record = this.topic().wanted_character?.claim_record;
+    if (!record) return;
+    this.wantedCharacterService.revokeClaimRecord(record.id).subscribe({
+      next: () => {
+        if (this.id()) this.topicService.loadTopic(this.id()!).subscribe({ next: (data) => this.topicService.setTopic(data) });
+      },
+      error: (err: any) => console.error('Failed to revoke claim', err)
+    });
+  }
+
+  canRevokeWantedCharacterClaim(): boolean {
+    const record = this.topic().wanted_character?.claim_record;
+    if (!record) return false;
+    const userId = this.authService.currentUser()?.id;
+    if (userId && userId === record.claim_author_id) return true;
+    if (record.is_guest && record.guest_hash) {
+      const match = document.cookie.split('; ').find(c => c.startsWith(`claim_hash_${record.guest_hash}=`));
+      return match != null;
+    }
+    return false;
   }
 
   toggleSubscription() {

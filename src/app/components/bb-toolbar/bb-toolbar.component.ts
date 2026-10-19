@@ -3,6 +3,7 @@ import { Component, inject, Input, Output, EventEmitter, signal } from '@angular
 import { FormsModule } from '@angular/forms';
 import { ImageUploadComponent } from '../image-upload/image-upload.component';
 import { GridBuilderComponent } from '../grid-builder/grid-builder.component';
+import { TableBuilderComponent } from '../table-builder/table-builder.component';
 import { ApiService } from '../../services/api.service';
 import { SmileCategoryWithSmiles } from '../../models/Smile';
 import { WysiwygDocEditorComponent } from '../wysiwyg-editor/wysiwyg-doc-editor.component';
@@ -10,7 +11,7 @@ import { WysiwygDocEditorComponent } from '../wysiwyg-editor/wysiwyg-doc-editor.
 @Component({
   selector: 'app-bb-toolbar',
   standalone: true,
-  imports: [FormsModule, ImageUploadComponent, GridBuilderComponent],
+  imports: [FormsModule, ImageUploadComponent, GridBuilderComponent, TableBuilderComponent],
   templateUrl: './bb-toolbar.component.html',
 })
 export class BbToolbarComponent {
@@ -20,6 +21,8 @@ export class BbToolbarComponent {
   @Input() editor: WysiwygDocEditorComponent | null = null;
   @Input() showSpoiler = true;
   @Input() showImageUpload = true;
+  @Input() showVideo = true;
+  @Input() showAudio = true;
   @Input() isGm = false;
   @Input() npcBlockActive = false;
   @Input() hidePanelActive = false;
@@ -286,7 +289,24 @@ export class BbToolbarComponent {
 
   insertGrid(bbCode: string) {
     if (this.editor) {
-      this.editor.insertTextAtCursor(bbCode);
+      this.editor.insertBbCodeBlocks(bbCode);
+      this.activeArea = null;
+      this.editor.focus();
+      return;
+    }
+    if (!this.textarea) return;
+    const textarea = this.textarea;
+    const start = textarea.selectionStart;
+    const text = textarea.value;
+    textarea.value = text.substring(0, start) + bbCode + text.substring(start);
+    this.activeArea = null;
+    textarea.focus();
+    textarea.setSelectionRange(start + bbCode.length, start + bbCode.length);
+  }
+
+  insertTable(bbCode: string) {
+    if (this.editor) {
+      this.editor.insertBbCodeBlocks(bbCode);
       this.activeArea = null;
       this.editor.focus();
       return;
@@ -304,7 +324,6 @@ export class BbToolbarComponent {
   onInsertImage(url: string) {
     if (this.editor) {
       this.editor.insertHtmlAtCursor(`<img src="${url}" style="max-width:100%">`);
-      this.activeArea = null;
       return;
     }
     if (!this.textarea) return;

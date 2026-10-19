@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
 import { of } from 'rxjs';
 import { PostFormComponent } from './post-form.component';
@@ -18,14 +19,14 @@ describe('PostFormComponent', () => {
   let fixture: ComponentFixture<PostFormComponent>;
   let textarea: HTMLTextAreaElement;
 
-  const mockAuthService = { currentUser: () => ({ editor_type: 2 }) }; // 2 = bbcode
+  const mockAuthService = { currentUser: () => ({ editor_type: 1 }) }; // 1 = bbcode
   const mockBoardService = { board: signal({ use_image_uploading: 'n' }) };
   const mockUserService = { searchUsers: () => of([]) };
   const mockImageService = {};
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PostFormComponent],
+      imports: [PostFormComponent, HttpClientTestingModule],
       providers: [
         { provide: AuthService, useValue: mockAuthService },
         { provide: BoardService, useValue: mockBoardService },

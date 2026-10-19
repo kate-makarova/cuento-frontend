@@ -14,6 +14,9 @@ export class ForumService {
   private activeTopicsCountSignal = signal<number>(0);
   readonly activeTopicsCount = this.activeTopicsCountSignal.asReadonly();
 
+  private subscribedTopicsSignal = signal<Topic[]>([]);
+  readonly subscribedTopics = this.subscribedTopicsSignal.asReadonly();
+
   private subforumSignal = signal<Subforum>({
     id: 0,
     name: '',
@@ -77,6 +80,13 @@ export class ForumService {
       error: (err) => {
         console.error('Failed to load active topics', err);
       }
+    });
+  }
+
+  loadSubscribedTopics() {
+    this.apiService.get<Topic[]>('user/subscribed-topics').subscribe({
+      next: (data) => this.subscribedTopicsSignal.set(data),
+      error: (err) => console.error('Failed to load subscribed topics', err)
     });
   }
 

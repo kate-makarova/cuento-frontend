@@ -18,6 +18,7 @@ const PAGE_TYPE_NAMES: Record<string, string> = {
   'episode-list': $localize`:@@activeUsers.page.episodeList:Episode List`,
   'wanted-character-list': $localize`:@@activeUsers.page.wantedCharacterList:Wanted Character List`,
   'user-list': $localize`:@@activeUsers.page.userList:User List`,
+  'absence-list': $localize`:@@activeUsers.page.absenceList:Absence List`,
   'active-topics': $localize`:@@activeUsers.page.activeTopics:Active Topics`,
   'direct-chat': $localize`:@@activeUsers.page.directChat:Direct Chat`,
   'active-users': $localize`:@@activeUsers.page.activeUsers:Active Users`,
@@ -52,7 +53,7 @@ export class ActiveUsersComponent implements OnInit, OnDestroy {
 
     this.notificationService.activeUsersActivityUpdate$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(event => this.users.set(event.data));
+      .subscribe(event => this.users.set(this.sortByDate(event.data)));
   }
 
   ngOnDestroy() {
@@ -63,8 +64,12 @@ export class ActiveUsersComponent implements OnInit, OnDestroy {
 
   private fetchActiveUsers() {
     this.apiService.get<ActiveUserInfo[]>('active-users/activity').subscribe(users => {
-      this.users.set(users);
+      this.users.set(this.sortByDate(users));
     });
+  }
+
+  private sortByDate(users: ActiveUserInfo[]): ActiveUserInfo[] {
+    return [...users].sort((a, b) => b.last_active.localeCompare(a.last_active));
   }
 
   pageLabel(user: ActiveUserInfo): string {
@@ -87,6 +92,7 @@ export class ActiveUsersComponent implements OnInit, OnDestroy {
       case 'episode-list': return ['/episode-list'];
       case 'wanted-character-list': return ['/wanted-character-list'];
       case 'user-list': return ['/user-list'];
+      case 'absence-list': return ['/absence-list'];
       case 'active-topics': return ['/active-topics'];
       case 'direct-chat': return ['/direct-chat'];
       case 'active-users': return ['/active-users'];
