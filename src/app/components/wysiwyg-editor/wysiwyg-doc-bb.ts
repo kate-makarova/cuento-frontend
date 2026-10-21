@@ -4,7 +4,7 @@
 // serializeDoc : DocModel → string
 
 import {
-  DocModel, BlockNode, ParagraphNode, AlignBlock, QuoteNode, CodeNode, SpoilerNode, VideoNode, AudioNode, NpcBlockNode, HideNode, RawBlockNode, GridNode, TableNode, GridItemMeta, TableCellMeta,
+  DocModel, BlockNode, ParagraphNode, AlignBlock, QuoteNode, CodeNode, SpoilerNode, VideoNode, AudioNode, NpcBlockNode, HideNode, DivNode, RawBlockNode, GridNode, TableNode, GridItemMeta, TableCellMeta,
   InlineNode, TextNode, Mark,
 } from './wysiwyg-doc-model';
 
@@ -32,11 +32,11 @@ function findMatchingClose(text: string, tag: string, from: number): number {
 
     if (nextClose === -1) return -1;
 
+    const ch = lower[nextOpen + openPrefix.length];
     const isValidOpen =
       nextOpen !== -1 &&
       nextOpen < nextClose &&
-      (lower[nextOpen + openPrefix.length] === ']' ||
-       lower[nextOpen + openPrefix.length] === '=');
+      (ch === ']' || ch === '=' || ch === ' ');
 
     if (isValidOpen) {
       depth++;
@@ -119,7 +119,7 @@ function parseTableContent(content: string): TableNode {
 function parseBlocks(text: string): BlockNode[] {
   const result: BlockNode[] = [];
   // Matches the opening tag of every block-level construct.
-  const blockOpen = /\[code\]|\[quote(?:=[^\]]*)?\]|\[spoiler(?:=[^\]]*)?\]|\[center\]|\[right\]|\[left\]|\[video\]|\[audio(?:\s[^\]]+)?\]|\[npc-block\]|\[hide(?:\s[^\]]+)?\]|\[table\]|\[grid(?:\s[^\]]+)?\]/gi;
+  const blockOpen = /\[code\]|\[quote(?:=[^\]]*)?\]|\[spoiler(?:=[^\]]*)?\]|\[center\]|\[right\]|\[left\]|\[video\]|\[audio(?:\s[^\]]+)?\]|\[npc-block\]|\[hide(?:\s[^\]]+)?\]|\[table\]|\[grid(?:\s[^\]]+)?\]|\[div\b[^\]]*\]/gi;
   let pos = 0;
 
   let m: RegExpExecArray | null;
@@ -171,7 +171,7 @@ function parseBlocks(text: string): BlockNode[] {
         break;
       }
       case 'spoiler':
-        result.push({ type: 'spoiler', title: attr, children: paraLines(content) });
+        result.push({ type: 'spoiler', title: attr, children: parseBlocks(content) });
         break;
       case 'video':
         result.push({ type: 'video', url: content } as VideoNode);
@@ -184,7 +184,7 @@ function parseBlocks(text: string): BlockNode[] {
       case 'center':
       case 'right':
       case 'left':
-        result.push({ type: 'align', align: tag as AlignBlock['align'], children: paraLines(content) });
+        result.push({ type: 'align', align: tag as AlignBlock['align'], children: parseBlocks(content) });
         break;
       case 'npc-block':
         result.push(parseNpcBlock(content));
@@ -192,7 +192,20 @@ function parseBlocks(text: string): BlockNode[] {
       case 'hide': {
         const usersMatch = m[0].match(/\busers=([\d,]+)/);
         const userIds = usersMatch ? usersMatch[1].split(',').map(Number).filter(n => !isNaN(n) && n > 0) : [];
-        result.push({ type: 'hide', userIds, children: paraLines(content) } as HideNode);
+        result.push({ type: 'hide', userIds, children: parseBlocks(content) } as HideNode);
+        break;
+      }
+      case 'div': {
+        const idM    = m[0].match(/\bid="([^"]*)"/i);
+        const classM = m[0].match(/\bclass="([^"]*)"/i);
+        const styleM = m[0].match(/\bstyle="([^"]*)"/i);
+        result.push({
+          type: 'div',
+          ...(idM    && { id:        idM[1]    }),
+          ...(classM && { className: classM[1] }),
+          ...(styleM && { style:     styleM[1] }),
+          children: parseBlocks(content),
+        } as DivNode);
         break;
       }
       case 'table':
@@ -224,7 +237,7 @@ function parseNpcBlock(content: string): NpcBlockNode {
   }
   const bodyMatch = content.match(/\[npc-body\]([\s\S]*?)\[\/npc-body\]/i);
   const bodyText = bodyMatch ? bodyMatch[1].replace(/^\n+|\n+$/, '') : '';
-  const children = bodyText ? paraLines(bodyText) : [{ type: 'paragraph' as const, children: [] }];
+  const children = bodyText ? parseBlocks(bodyText) : [{ type: 'paragraph' as const, children: [] }];
   return { type: 'npc-block', npcIds, children };
 }
 
@@ -313,7 +326,9 @@ function serializeBlock(block: BlockNode): string {
     case 'paragraph':
       return serializeParaContent(block) + '\n';
     case 'align': {
-      const inner = block.children.map(serializeParaContent).join('\n');
+      const inner = block.children.map(child =>
+        child.type === 'paragraph' ? serializeParaContent(child) : serializeBlock(child).replace(/\n$/, '')
+      ).join('\n');
       return `[${block.align}]${inner}[/${block.align}]\n`;
     }
     case 'code':
@@ -332,7 +347,9 @@ function serializeBlock(block: BlockNode): string {
         : `[quote]${inner}[/quote]\n`;
     }
     case 'spoiler': {
-      const inner = block.children.map(serializeParaContent).join('\n');
+      const inner = block.children.map(child =>
+        child.type === 'paragraph' ? serializeParaContent(child) : serializeBlock(child).replace(/\n$/, '')
+      ).join('\n');
       return block.title
         ? `[spoiler=${block.title}]${inner}[/spoiler]\n`
         : `[spoiler]${inner}[/spoiler]\n`;
@@ -345,13 +362,27 @@ function serializeBlock(block: BlockNode): string {
         : `[audio]${block.url}[/audio]\n`;
     case 'npc-block': {
       const npcTags = block.npcIds.map(id => `[npc id=${id}]`).join('');
-      const inner = block.children.map(serializeParaContent).join('\n');
+      const inner = block.children.map(child =>
+        child.type === 'paragraph' ? serializeParaContent(child) : serializeBlock(child).replace(/\n$/, '')
+      ).join('\n');
       return `[npc-block][npc-header]${npcTags}[/npc-header][npc-body]${inner}[/npc-body][/npc-block]\n`;
     }
     case 'hide': {
-      const inner = block.children.map(serializeParaContent).join('\n');
+      const inner = block.children.map(child =>
+        child.type === 'paragraph' ? serializeParaContent(child) : serializeBlock(child).replace(/\n$/, '')
+      ).join('\n');
       const usersAttr = block.userIds.length > 0 ? ` users=${block.userIds.join(',')}` : '';
       return `[hide${usersAttr}]${inner}[/hide]\n`;
+    }
+    case 'div': {
+      let attrs = '';
+      if (block.id)        attrs += ` id="${block.id}"`;
+      if (block.className) attrs += ` class="${block.className}"`;
+      if (block.style)     attrs += ` style="${block.style}"`;
+      const inner = block.children.map(child =>
+        child.type === 'paragraph' ? serializeParaContent(child) : serializeBlock(child).replace(/\n$/, '')
+      ).join('\n');
+      return `[div${attrs}]${inner}[/div]\n`;
     }
     case 'grid': {
       const items = block.children.map((cellBlocks, i) => {

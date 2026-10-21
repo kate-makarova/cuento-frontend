@@ -1079,7 +1079,7 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
         result += isLast ? block.text.slice(0, cursor.offset) : block.text + '\n';
       } else if (block.type === 'paragraph') {
         result += isLast ? this.paraTextTo(block, cursor.offset) : this.paraText(block) + '\n';
-      } else if (block.type === 'align' || block.type === 'quote' || block.type === 'spoiler') {
+      } else if (block.type === 'align' || block.type === 'quote' || block.type === 'spoiler' || block.type === 'hide' || block.type === 'npc-block' || block.type === 'div') {
         const allChildren = block.children;
         const paraIdx = isLast ? (cursor.path[1] ?? 0) : allChildren.length - 1;
         for (let pi = 0; pi <= paraIdx; pi++) {

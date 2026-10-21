@@ -5,7 +5,7 @@
 // Nothing here touches the DOM.
 
 import {
-  DocModel, BlockNode, ParagraphNode, AlignBlock, QuoteNode, SpoilerNode, CodeNode, NpcBlockNode, HideNode, GridNode, TableNode,
+  DocModel, BlockNode, ParagraphNode, AlignBlock, QuoteNode, SpoilerNode, CodeNode, NpcBlockNode, HideNode, DivNode, GridNode, TableNode,
   InlineNode, TextNode, ImgNode, Mark, DocPoint, DocRange,
 } from './wysiwyg-doc-model';
 
@@ -162,8 +162,9 @@ export function mergeParagraphWithPrevious(doc: DocModel, point: DocPoint): OpRe
     }
     if (path[1] === 0) return { doc, cursor: point };
     const items = cItems(container);
-    const prev = items[path[1] - 1] as ParagraphNode;
-    const curr = items[path[1]] as ParagraphNode;
+    const prev = items[path[1] - 1];
+    const curr = items[path[1]];
+    if (prev?.type !== 'paragraph' || curr?.type !== 'paragraph') return { doc, cursor: point };
 
     const joinOffset = inlineLen(prev.children);
     const merged: ParagraphNode = {
@@ -492,7 +493,7 @@ function normalize(nodes: InlineNode[]): InlineNode[] {
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────
 
-type ContainerBlock = AlignBlock | QuoteNode | SpoilerNode | NpcBlockNode | HideNode | GridNode | TableNode;
+type ContainerBlock = AlignBlock | QuoteNode | SpoilerNode | NpcBlockNode | HideNode | DivNode | GridNode | TableNode;
 
 // Cursor-based ops only reach ParagraphNode children (cursor can't enter
 // non-paragraph children of a quote).  These helpers centralise the casts.

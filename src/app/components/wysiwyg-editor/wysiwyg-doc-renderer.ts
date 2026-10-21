@@ -5,7 +5,7 @@
 // up to the nearest [data-doc-path] element and counting inline characters.
 
 import {
-  DocModel, BlockNode, ParagraphNode, InlineNode, Mark, NpcBlockNode, HideNode, RawBlockNode, GridNode, TableNode,
+  DocModel, BlockNode, ParagraphNode, InlineNode, Mark, NpcBlockNode, HideNode, DivNode, RawBlockNode, GridNode, TableNode,
 } from './wysiwyg-doc-model';
 
 function audioEmbedHtml(url: string, sourceSite?: string): string {
@@ -77,9 +77,12 @@ export function renderBlock(block: BlockNode, blockIdx: number): string {
       return renderPara(block, [blockIdx]);
 
     case 'align':
-      // Each child paragraph becomes its own aligned div at the top level.
       return block.children
-        .map((p, pi) => renderPara(p, [blockIdx, pi], block.align))
+        .map((child, pi) =>
+          child.type === 'paragraph'
+            ? renderPara(child, [blockIdx, pi], block.align)
+            : renderBlockStatic(child)
+        )
         .join('');
 
     case 'code': {
@@ -104,7 +107,9 @@ export function renderBlock(block: BlockNode, blockIdx: number): string {
     case 'spoiler': {
       const title = esc(block.title ?? 'Spoiler');
       const inner = block.children
-        .map((p, pi) => renderPara(p, [blockIdx, pi]))
+        .map((child, pi) =>
+          child.type === 'paragraph' ? renderPara(child, [blockIdx, pi]) : renderBlockStatic(child)
+        )
         .join('');
       return (
         `<div class="wysiwyg-spoiler" data-doc-path="${blockIdx}">` +
@@ -135,6 +140,18 @@ export function renderBlock(block: BlockNode, blockIdx: number): string {
     case 'table':
       return renderTable(block, blockIdx);
 
+    case 'div': {
+      const classAttr = block.className ? `wysiwyg-div ${esc(block.className)}` : 'wysiwyg-div';
+      const idAttr    = block.id    ? ` id="${esc(block.id)}"`      : '';
+      const styleAttr = block.style ? ` style="${esc(block.style)}"` : '';
+      const inner = block.children
+        .map((child, pi) =>
+          child.type === 'paragraph' ? renderPara(child, [blockIdx, pi]) : renderBlockStatic(child)
+        )
+        .join('');
+      return `<div class="${classAttr}"${idAttr}${styleAttr} data-doc-path="${blockIdx}">${inner}</div>`;
+    }
+
     case 'raw':
       return renderRawBlock(block);
   }
@@ -142,7 +159,9 @@ export function renderBlock(block: BlockNode, blockIdx: number): string {
 
 function renderNpcBlock(block: NpcBlockNode, blockIdx: number): string {
   const header = renderNpcHeader(block);
-  const inner = block.children.map((p, pi) => renderPara(p, [blockIdx, pi])).join('');
+  const inner = block.children.map((child, pi) =>
+    child.type === 'paragraph' ? renderPara(child, [blockIdx, pi]) : renderBlockStatic(child)
+  ).join('');
   return (
     `<div class="wysiwyg-npc-block" data-doc-path="${blockIdx}">` +
       `<div class="wysiwyg-npc-header" contenteditable="false">${header}</div>` +
@@ -206,7 +225,9 @@ function renderRawBlock(block: RawBlockNode): string {
 
 function renderHideBlock(block: HideNode, blockIdx: number): string {
   const header = renderHideHeader(block);
-  const inner = block.children.map((p, pi) => renderPara(p, [blockIdx, pi])).join('');
+  const inner = block.children.map((child, pi) =>
+    child.type === 'paragraph' ? renderPara(child, [blockIdx, pi]) : renderBlockStatic(child)
+  ).join('');
   return (
     `<div class="wysiwyg-hide" data-doc-path="${blockIdx}">` +
       `<div class="wysiwyg-hide-header" contenteditable="false">${header}</div>` +
@@ -268,8 +289,9 @@ function renderBlockStatic(block: BlockNode): string {
       return `<div class="wysiwyg-spoiler"><div class="wysiwyg-spoiler-header">${title}</div><div class="wysiwyg-spoiler-content">${inner}</div></div>`;
     }
     case 'align': {
-      return block.children.map(p => {
-        const content = p.children.length > 0 ? p.children.map(renderInline).join('') : '<br>';
+      return block.children.map(b => {
+        if (b.type !== 'paragraph') return renderBlockStatic(b);
+        const content = b.children.length > 0 ? b.children.map(renderInline).join('') : '<br>';
         return `<div style="text-align:${block.align}">${content}</div>`;
       }).join('');
     }
@@ -283,10 +305,9 @@ function renderBlockStatic(block: BlockNode): string {
       return `<div class="wysiwyg-audio" contenteditable="false">${audioEmbedHtml(block.url, block.sourceSite)}</div>`;
     case 'npc-block': {
       const header = renderNpcHeader(block);
-      const inner = block.children.map(p => {
-        const content = p.children.length > 0 ? p.children.map(renderInline).join('') : '<br>';
-        return `<div>${content}</div>`;
-      }).join('');
+      const inner = block.children.map(b =>
+        b.type === 'paragraph' ? renderParaStatic(b) : renderBlockStatic(b)
+      ).join('');
       return (
         `<div class="wysiwyg-npc-block">` +
           `<div class="wysiwyg-npc-header" contenteditable="false">${header}</div>` +
@@ -296,16 +317,24 @@ function renderBlockStatic(block: BlockNode): string {
     }
     case 'hide': {
       const header = renderHideHeader(block);
-      const inner = block.children.map(p => {
-        const content = p.children.length > 0 ? p.children.map(renderInline).join('') : '<br>';
-        return `<div>${content}</div>`;
-      }).join('');
+      const inner = block.children.map(b =>
+        b.type === 'paragraph' ? renderParaStatic(b) : renderBlockStatic(b)
+      ).join('');
       return (
         `<div class="wysiwyg-hide">` +
           `<div class="wysiwyg-hide-header" contenteditable="false">${header}</div>` +
           `<div class="wysiwyg-hide-body">${inner}</div>` +
         `</div>`
       );
+    }
+    case 'div': {
+      const classAttr = block.className ? `wysiwyg-div ${esc(block.className)}` : 'wysiwyg-div';
+      const idAttr    = block.id    ? ` id="${esc(block.id)}"`      : '';
+      const styleAttr = block.style ? ` style="${esc(block.style)}"` : '';
+      const inner = block.children.map(b =>
+        b.type === 'paragraph' ? renderParaStatic(b) : renderBlockStatic(b)
+      ).join('');
+      return `<div class="${classAttr}"${idAttr}${styleAttr}>${inner}</div>`;
     }
     case 'grid': {
       const cols = block.columns;
