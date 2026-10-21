@@ -79,14 +79,14 @@ export type GridNode = {
   type: 'grid';
   columns: number;
   cellMeta: GridItemMeta[];
-  children: ParagraphNode[];
+  children: BlockNode[][];
 };
 
 export type TableCellMeta = { colSpan: number; rowSpan: number; isFirstInRow: boolean };
 export type TableNode = {
   type: 'table';
   cellMeta: TableCellMeta[];
-  children: ParagraphNode[];
+  children: BlockNode[][];
 };
 
 export type BlockNode = ParagraphNode | AlignBlock | QuoteNode | CodeNode | SpoilerNode | VideoNode | AudioNode | NpcBlockNode | HideNode | RawBlockNode | GridNode | TableNode;

@@ -166,11 +166,13 @@ function renderNpcHeader(block: NpcBlockNode): string {
 function renderGrid(block: GridNode, blockIdx: number): string {
   const cols = block.columns;
   const style = `display:grid;grid-template-columns:repeat(${cols},1fr)`;
-  const cells = block.children.map((para, i) => {
+  const cells = block.children.map((cellBlocks, i) => {
     const { col, colSpan } = block.cellMeta[i];
     const cellStyle = `grid-column:${col}/span ${colSpan};min-width:0`;
-    const content = para.children.length > 0 ? para.children.map(renderInline).join('') : '<br>';
-    return `<div class="wysiwyg-grid-item" style="${cellStyle}"><div data-doc-path="${blockIdx},${i}">${content}</div></div>`;
+    const content = cellBlocks.map((b, j) =>
+      b.type === 'paragraph' ? renderPara(b, [blockIdx, i, j]) : renderBlockStatic(b)
+    ).join('');
+    return `<div class="wysiwyg-grid-item" style="${cellStyle}">${content}</div>`;
   }).join('');
   return `<div class="wysiwyg-grid" data-doc-path="${blockIdx}" style="${style}">${cells}</div>`;
 }
@@ -188,10 +190,10 @@ function renderTable(block: TableNode, blockIdx: number): string {
     let attrs = '';
     if (colSpan > 1) attrs += ` colspan="${colSpan}"`;
     if (rowSpan > 1) attrs += ` rowspan="${rowSpan}"`;
-    const content = block.children[i].children.length > 0
-      ? block.children[i].children.map(renderInline).join('')
-      : '<br>';
-    html += `<td${attrs}><div data-doc-path="${blockIdx},${i}">${content}</div></td>`;
+    const content = block.children[i].map((b, j) =>
+      b.type === 'paragraph' ? renderPara(b, [blockIdx, i, j]) : renderBlockStatic(b)
+    ).join('');
+    html += `<td${attrs}>${content}</td>`;
   }
   if (rowOpen) html += '</tr>';
   html += '</tbody></table>';
@@ -308,11 +310,13 @@ function renderBlockStatic(block: BlockNode): string {
     case 'grid': {
       const cols = block.columns;
       const style = `display:grid;grid-template-columns:repeat(${cols},1fr)`;
-      const cells = block.children.map((para, i) => {
+      const cells = block.children.map((cellBlocks, i) => {
         const { col, colSpan } = block.cellMeta[i];
         const cellStyle = `grid-column:${col}/span ${colSpan};min-width:0`;
-        const content = para.children.length > 0 ? para.children.map(renderInline).join('') : '<br>';
-        return `<div class="wysiwyg-grid-item" style="${cellStyle}"><div>${content}</div></div>`;
+        const content = cellBlocks.map(b =>
+          b.type === 'paragraph' ? renderParaStatic(b) : renderBlockStatic(b)
+        ).join('');
+        return `<div class="wysiwyg-grid-item" style="${cellStyle}">${content}</div>`;
       }).join('');
       return `<div class="wysiwyg-grid" style="${style}">${cells}</div>`;
     }
@@ -329,10 +333,10 @@ function renderBlockStatic(block: BlockNode): string {
         let attrs = '';
         if (colSpan > 1) attrs += ` colspan="${colSpan}"`;
         if (rowSpan > 1) attrs += ` rowspan="${rowSpan}"`;
-        const content = block.children[i].children.length > 0
-          ? block.children[i].children.map(renderInline).join('')
-          : '<br>';
-        html += `<td${attrs}><div>${content}</div></td>`;
+        const content = block.children[i].map(b =>
+          b.type === 'paragraph' ? renderParaStatic(b) : renderBlockStatic(b)
+        ).join('');
+        html += `<td${attrs}>${content}</td>`;
       }
       if (rowOpen) html += '</tr>';
       html += '</tbody></table>';

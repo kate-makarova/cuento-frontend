@@ -587,7 +587,13 @@ function getPara(doc: DocModel, path: number[]): ParagraphNode | null {
   if (path.length === 2) {
     const container = doc.children[path[0]];
     if (!('children' in container)) return null;
-    const b = (container as ContainerBlock).children[path[1]];
+    const b = cItems(container as ContainerBlock)[path[1]];
+    return b?.type === 'paragraph' ? b : null;
+  }
+  if (path.length === 3) {
+    const outer = doc.children[path[0]];
+    if (outer.type !== 'grid' && outer.type !== 'table') return null;
+    const b = (outer.children as BlockNode[][])[path[1]]?.[path[2]];
     return b?.type === 'paragraph' ? b : null;
   }
   return null;
@@ -627,6 +633,19 @@ function updatePara(
     const { para, cursor } = fn(cItems(container)[path[1]] as ParagraphNode, point.offset);
     const newChildren = replaceAt(cItems(container), path[1], para);
     return { doc: { children: replaceBlock(doc, path[0], withChildren(container, newChildren)) }, cursor };
+  }
+
+  if (path.length === 3) {
+    const outer = doc.children[path[0]];
+    if (outer.type !== 'grid' && outer.type !== 'table') return { doc, cursor: point };
+    const cells = outer.children as BlockNode[][];
+    const cell = cells[path[1]];
+    const innerBlock = cell?.[path[2]];
+    if (!innerBlock || innerBlock.type !== 'paragraph') return { doc, cursor: point };
+    const { para, cursor } = fn(innerBlock, point.offset);
+    const newCell = replaceAt(cell, path[2], para);
+    const newOuter = { ...outer, children: replaceAt(cells, path[1], newCell) } as BlockNode;
+    return { doc: { children: replaceBlock(doc, path[0], newOuter) }, cursor };
   }
 
   return { doc, cursor: point };
