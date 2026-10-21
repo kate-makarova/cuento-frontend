@@ -1079,7 +1079,7 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
         result += isLast ? block.text.slice(0, cursor.offset) : block.text + '\n';
       } else if (block.type === 'paragraph') {
         result += isLast ? this.paraTextTo(block, cursor.offset) : this.paraText(block) + '\n';
-      } else if (block.type === 'align' || block.type === 'quote' || block.type === 'spoiler' || block.type === 'grid' || block.type === 'table') {
+      } else if (block.type === 'align' || block.type === 'quote' || block.type === 'spoiler') {
         const allChildren = block.children;
         const paraIdx = isLast ? (cursor.path[1] ?? 0) : allChildren.length - 1;
         for (let pi = 0; pi <= paraIdx; pi++) {
@@ -1087,6 +1087,13 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
           if (child.type !== 'paragraph') continue;
           const isLastPara = isLast && pi === paraIdx;
           result += isLastPara ? this.paraTextTo(child, cursor.offset) : this.paraText(child) + '\n';
+        }
+      } else if (block.type === 'grid' || block.type === 'table') {
+        if (isLast) {
+          const cellIdx = cursor.path[1] ?? 0;
+          const paraIdx = cursor.path[2] ?? 0;
+          const para = block.children[cellIdx]?.[paraIdx];
+          if (para?.type === 'paragraph') result += this.paraTextTo(para, cursor.offset);
         }
       }
     }

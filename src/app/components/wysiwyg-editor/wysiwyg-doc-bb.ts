@@ -55,7 +55,7 @@ function parseGridContent(content: string, columns: number): GridNode {
   const re = /\[grid-item\b([^\]]*)\]/gi;
   let m: RegExpExecArray | null;
   const cellMeta: GridItemMeta[] = [];
-  const children: ParagraphNode[] = [];
+  const children: BlockNode[][] = [];
 
   while ((m = re.exec(content)) !== null) {
     const attrStr = m[1];
@@ -68,15 +68,15 @@ function parseGridContent(content: string, columns: number): GridNode {
     const closeIdx = content.toLowerCase().indexOf('[/grid-item]', after);
     if (closeIdx === -1) continue;
 
-    const raw  = content.slice(after, closeIdx).replace(/^\n+|\n+$/, '');
-    const para: ParagraphNode = { type: 'paragraph', children: raw ? parseInline(raw) : [] };
+    const raw    = content.slice(after, closeIdx).replace(/^\n+|\n+$/, '');
+    const blocks = raw ? parseBlocks(raw) : [{ type: 'paragraph' as const, children: [] }];
     cellMeta.push({ col, colSpan });
-    children.push(para);
+    children.push(blocks);
   }
 
   if (children.length === 0) {
     cellMeta.push({ col: 1, colSpan: 1 });
-    children.push({ type: 'paragraph', children: [] });
+    children.push([{ type: 'paragraph', children: [] }]);
   }
 
   return { type: 'grid', columns, cellMeta, children };
@@ -84,7 +84,7 @@ function parseGridContent(content: string, columns: number): GridNode {
 
 function parseTableContent(content: string): TableNode {
   const cellMeta: TableCellMeta[] = [];
-  const children: ParagraphNode[] = [];
+  const children: BlockNode[][] = [];
   const trRe = /\[tr\]([\s\S]*?)\[\/tr\]/gi;
   let trMatch: RegExpExecArray | null;
 
@@ -95,22 +95,22 @@ function parseTableContent(content: string): TableNode {
     let tdMatch: RegExpExecArray | null;
 
     while ((tdMatch = tdRe.exec(rowContent)) !== null) {
-      const attrStr    = tdMatch[1];
-      const colSpanM   = attrStr.match(/\bcolspan="(\d+)"/i);
-      const rowSpanM   = attrStr.match(/\browspan="(\d+)"/i);
-      const colSpan    = colSpanM ? parseInt(colSpanM[1]) : 1;
-      const rowSpan    = rowSpanM ? parseInt(rowSpanM[1]) : 1;
-      const raw        = tdMatch[2].replace(/^\n+|\n+$/, '');
-      const para: ParagraphNode = { type: 'paragraph', children: raw ? parseInline(raw) : [] };
+      const attrStr  = tdMatch[1];
+      const colSpanM = attrStr.match(/\bcolspan="(\d+)"/i);
+      const rowSpanM = attrStr.match(/\browspan="(\d+)"/i);
+      const colSpan  = colSpanM ? parseInt(colSpanM[1]) : 1;
+      const rowSpan  = rowSpanM ? parseInt(rowSpanM[1]) : 1;
+      const raw      = tdMatch[2].replace(/^\n+|\n+$/, '');
+      const blocks   = raw ? parseBlocks(raw) : [{ type: 'paragraph' as const, children: [] }];
       cellMeta.push({ colSpan, rowSpan, isFirstInRow });
-      children.push(para);
+      children.push(blocks);
       isFirstInRow = false;
     }
   }
 
   if (children.length === 0) {
     cellMeta.push({ colSpan: 1, rowSpan: 1, isFirstInRow: true });
-    children.push({ type: 'paragraph', children: [] });
+    children.push([{ type: 'paragraph', children: [] }]);
   }
 
   return { type: 'table', cellMeta, children };
@@ -354,9 +354,10 @@ function serializeBlock(block: BlockNode): string {
       return `[hide${usersAttr}]${inner}[/hide]\n`;
     }
     case 'grid': {
-      const items = block.children.map((para, i) => {
+      const items = block.children.map((cellBlocks, i) => {
         const { col, colSpan } = block.cellMeta[i];
-        return `[grid-item col="${col}" col-span="${colSpan}"]${serializeParaContent(para)}[/grid-item]`;
+        const inner = cellBlocks.map(b => serializeBlock(b)).join('');
+        return `[grid-item col="${col}" col-span="${colSpan}"]${inner}[/grid-item]`;
       }).join('');
       return `[grid columns="${block.columns}"]${items}[/grid]\n`;
     }
@@ -373,7 +374,8 @@ function serializeBlock(block: BlockNode): string {
         let attrs = '';
         if (colSpan > 1) attrs += ` colspan="${colSpan}"`;
         if (rowSpan > 1) attrs += ` rowspan="${rowSpan}"`;
-        out += `[td${attrs}]${serializeParaContent(block.children[i])}[/td]`;
+        const inner = block.children[i].map(b => serializeBlock(b)).join('');
+        out += `[td${attrs}]${inner}[/td]`;
       }
       if (rowOpen) out += '[/tr]\n';
       out += '[/table]\n';
