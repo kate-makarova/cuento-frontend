@@ -110,6 +110,12 @@ export class AiChatComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.subs.forEach(s => s.unsubscribe());
+    this.clearSession();
+  }
+
+  clearSession() {
+    this.apiService.post('ai-chat/clear', { session_id: this.sessionId }).subscribe();
+    this.sessionId = crypto.randomUUID();
   }
 
   insertTag(tag: string) {
