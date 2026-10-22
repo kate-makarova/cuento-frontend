@@ -3,6 +3,7 @@ import { AiSource } from './event';
 export class Message {
   id: number;
   text: string;
+  html?: string;
   time: string;
   isMe: boolean;
   username: string;

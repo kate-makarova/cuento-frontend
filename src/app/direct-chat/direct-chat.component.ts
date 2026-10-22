@@ -11,7 +11,6 @@ import {Subject, Subscription} from 'rxjs';
 import {debounceTime, distinctUntilChanged, switchMap, takeUntil} from 'rxjs/operators';
 import {ActivatedRoute} from '@angular/router';
 import {SafeHtmlPipe} from '../pipes/safe-html.pipe';
-import {parseBBCode} from '../utils/bbcode-parser';
 import {BbToolbarComponent} from '../components/bb-toolbar/bb-toolbar.component';
 
 @Component({
@@ -257,7 +256,4 @@ export class DirectChatComponent implements OnInit, OnDestroy {
 
   toggleSearch() {}
   onSearch(event: Event) {}
-  renderMessage(text: string): string {
-    return parseBBCode(text);
-  }
 }

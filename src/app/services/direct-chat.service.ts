@@ -7,6 +7,7 @@ import { DirectChatListItem, DirectChatResponse, DirectMessageRaw } from '../mod
 import { Message } from '../models/Message';
 import { Observable, Subject, from, of, ReplaySubject } from 'rxjs';
 import { take, switchMap, tap } from 'rxjs/operators';
+import { parseBBCode } from '../utils/bbcode-parser';
 
 @Injectable({ providedIn: 'root' })
 export class DirectChatService {
@@ -124,9 +125,22 @@ export class DirectChatService {
       this.base64ToBuffer(msg.ciphertext)
     );
 
+    const raw = new TextDecoder().decode(plaintext);
+    let text: string;
+    let html: string;
+    try {
+      const parsed = JSON.parse(raw);
+      text = parsed.text;
+      html = parsed.html;
+    } catch {
+      text = raw;
+      html = parseBBCode(raw);
+    }
+
     return {
       id: msg.id,
-      text: new TextDecoder().decode(plaintext),
+      text,
+      html,
       time: new Date(msg.date_send).toLocaleString(),
       isMe: msg.user_id === currentUserId,
       username: msg.username,
@@ -282,7 +296,7 @@ export class DirectChatService {
     const ciphertext = await crypto.subtle.encrypt(
       { name: 'AES-GCM', iv },
       aesKey,
-      new TextEncoder().encode(content)
+      new TextEncoder().encode(JSON.stringify({ text: content, html: parseBBCode(content) }))
     );
 
     const rawAesKey = await crypto.subtle.exportKey('raw', aesKey);
