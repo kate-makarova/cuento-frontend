@@ -47,9 +47,45 @@
     <span title="Hidden message" i18n-title="@@postform.hiddenMessage" (click)="hiddenMessageClick.emit()" [class.toolbar-active]="hidePanelActive || isFormatActive('hide')"><i class="bi bi-lock"></i></span>
   }
   @if (showProofread) {
-    <span title="Proofread" i18n-title="@@postform.proofread" (click)="proofread()" [class.toolbar-active]="proofreadLoading()"><i class="bi bi-magic"></i></span>
+    <span title="Proofread" i18n-title="@@postform.proofread" (click)="proofread()" [class.toolbar-active]="proofreadLoading()">
+      @if (proofreadLoading()) {
+        <i class="bi bi-arrow-repeat proofread-spinner"></i>
+      } @else {
+        <i class="bi bi-magic"></i>
+      }
+    </span>
   }
 </div>
+
+@if (proofreadResult(); as result) {
+  <div class="proofread-panel">
+    <div class="proofread-panel-header">
+      <span i18n="@@postform.proofreadResult">Proofreading result</span>
+      <button type="button" class="proofread-dismiss" (click)="dismissProofread()" title="Dismiss" i18n-title="@@postform.proofreadDismiss">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+    <div class="proofread-text">{{ result.text }}</div>
+    @if (result.fixes.length > 0) {
+      <details class="proofread-fixes-details">
+        <summary i18n="@@postform.proofreadFixes">{{ result.fixes.length }} correction(s)</summary>
+        <ul class="proofread-fixes">
+          @for (fix of result.fixes; track $index) {
+            <li>{{ fix }}</li>
+          }
+        </ul>
+      </details>
+    } @else {
+      <p class="proofread-no-fixes" i18n="@@postform.proofreadNoFixes">No corrections needed.</p>
+    }
+    <div class="proofread-actions">
+      @if (result.fixes.length > 0) {
+        <button type="button" class="button" (click)="acceptProofread()" i18n="@@postform.proofreadAccept">Apply corrections</button>
+      }
+      <button type="button" class="button" (click)="dismissProofread()" i18n="@@postform.proofreadDismiss2">OK</button>
+    </div>
+  </div>
+}
 
 <div id="tags" (mousedown)="$event.preventDefault()">
   @if (activeArea === 'font') {

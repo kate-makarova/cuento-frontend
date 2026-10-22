@@ -13,6 +13,7 @@ import { WysiwygDocEditorComponent } from '../wysiwyg-editor/wysiwyg-doc-editor.
   standalone: true,
   imports: [FormsModule, ImageUploadComponent, GridBuilderComponent, TableBuilderComponent],
   templateUrl: './bb-toolbar.component.html',
+  styleUrl: './bb-toolbar.component.css',
 })
 export class BbToolbarComponent {
   private apiService = inject(ApiService);
@@ -42,6 +43,7 @@ export class BbToolbarComponent {
   audioSource = '';
 
   proofreadLoading = signal(false);
+  proofreadResult = signal<{ text: string; fixes: string[] } | null>(null);
   smileCategories = signal<SmileCategoryWithSmiles[]>([]);
   private smilesLoaded = false;
 
@@ -341,18 +343,30 @@ export class BbToolbarComponent {
   proofread() {
     const content = this.editor ? this.editor.getValue() : (this.textarea?.value ?? '');
     if (!content.trim() || this.proofreadLoading()) return;
+    this.proofreadResult.set(null);
     this.proofreadLoading.set(true);
-    this.apiService.post<{ text: string }>('ai/proofread', { text: content }).subscribe({
+    this.apiService.post<{ text: string; fixes: string[] }>('ai/proofread', { text: content }).subscribe({
       next: (res) => {
-        if (this.editor) {
-          this.editor.setValue(res.text);
-        } else if (this.textarea) {
-          this.textarea.value = res.text;
-        }
+        this.proofreadResult.set(res);
         this.proofreadLoading.set(false);
       },
       error: () => this.proofreadLoading.set(false),
     });
+  }
+
+  acceptProofread() {
+    const result = this.proofreadResult();
+    if (!result) return;
+    if (this.editor) {
+      this.editor.setValue(result.text);
+    } else if (this.textarea) {
+      this.textarea.value = result.text;
+    }
+    this.proofreadResult.set(null);
+  }
+
+  dismissProofread() {
+    this.proofreadResult.set(null);
   }
 
   insertSmile(url: string) {
