@@ -1,43 +1,137 @@
 <h2 i18n="@@adminAiModels.title">AI Models</h2>
 
-<table>
-  <thead>
-    <tr>
-      <th i18n="@@adminAiModels.colName">Name</th>
-      <th i18n="@@adminAiModels.colMachineName">Machine name</th>
-      <th i18n="@@adminAiModels.colProtocol">Protocol</th>
-      <th i18n="@@adminAiModels.colSize">Size</th>
-      <th i18n="@@adminAiModels.colActive">Active</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    @for (model of models(); track model.id) {
-      <tr>
-        <td>{{ model.name }}</td>
-        <td><code>{{ model.machine_name }}</code></td>
-        <td>{{ protocolNames[model.protocol_type] ?? model.protocol_type }}</td>
-        <td>{{ sizeNames[model.size] ?? model.size }}</td>
-        <td>
-          @if (model.is_active) {
-            <span class="badge badge--active" i18n="@@common.yes">Yes</span>
-          } @else {
-            <span class="badge badge--inactive" i18n="@@common.no">No</span>
-          }
-        </td>
-        <td class="actions">
-          <a [routerLink]="['/admin/ai-model', model.id]" i18n="@@common.edit">Edit</a>
-          <button class="btn-delete" (click)="deleteModel(model.id)" i18n="@@common.delete">Delete</button>
-        </td>
-      </tr>
-    } @empty {
-      <tr>
-        <td colspan="6" i18n="@@adminAiModels.empty">No AI models configured.</td>
-      </tr>
-    }
-  </tbody>
-</table>
+<section class="pool-config">
+  <h3 i18n="@@adminAiModels.poolConfig">Model Pool Configuration</h3>
 
-<div class="list-actions">
-  <a routerLink="/admin/ai-model/new" class="btn-secondary" i18n="@@adminAiModels.addModel">Add Model</a>
-</div>
+  @if (poolStatus(); as status) {
+    <div class="pool-status-row">
+      <span i18n="@@adminAiModels.currentSource">Active pool:</span>
+      @if (status.source === 'openrouter') {
+        <span class="badge badge--active">OpenRouter</span>
+      } @else {
+        <span class="badge badge--inactive">Database</span>
+      }
+    </div>
+  }
+
+  <form class="pool-form" (submit)="switchPool(); $event.preventDefault()">
+    <div class="field-row">
+      <label for="pool-source" i18n="@@adminAiModels.poolSource">Source</label>
+      <select id="pool-source" [(ngModel)]="formSource" name="formSource" (ngModelChange)="onSourceChange()">
+        <option value="db" i18n="@@adminAiModels.sourceDb">Database (own models)</option>
+        <option value="openrouter" i18n="@@adminAiModels.sourceOpenRouter">OpenRouter</option>
+      </select>
+    </div>
+
+    @if (formSource === 'openrouter') {
+      <div class="field-row">
+        <label for="pool-api-key" i18n="@@adminAiModels.openRouterApiKey">OpenRouter API key</label>
+        <input id="pool-api-key" type="text" [(ngModel)]="formApiKey" name="formApiKey" autocomplete="off" />
+      </div>
+      <div class="field-row field-row--checkbox">
+        <label>
+          <input type="checkbox" [(ngModel)]="formFreeOnly" name="formFreeOnly" />
+          <span i18n="@@adminAiModels.freeOnly">Use free models only</span>
+        </label>
+      </div>
+    }
+
+    <div class="form-actions">
+      <app-save-button type="submit" [state]="poolSwitchState()">
+        <span i18n="@@adminAiModels.applyPool">Apply</span>
+      </app-save-button>
+    </div>
+  </form>
+</section>
+
+<section class="available-models">
+  <h3 i18n="@@adminAiModels.availableModels">Available Models</h3>
+  <p class="section-hint" i18n="@@adminAiModels.availableModelsHint">
+    Fetches the list of models currently reachable by the active pool. For OpenRouter this calls their API live.
+  </p>
+
+  <button type="button" class="btn-secondary" (click)="checkAvailableModels()" [disabled]="availableModelsLoading()">
+    @if (availableModelsLoading()) {
+      <span i18n="@@adminAiModels.checking">Checking…</span>
+    } @else {
+      <span i18n="@@adminAiModels.checkModels">Check available models</span>
+    }
+  </button>
+
+  @if (availableModelsError()) {
+    <p class="error-msg">{{ availableModelsError() }}</p>
+  }
+
+  @if (availableModelsSource() === 'db') {
+    <p i18n="@@adminAiModels.dbPoolHint">The pool is using the database. Active models are listed in the table below.</p>
+  }
+
+  @if (availableModels().length > 0) {
+    <table class="available-models-table">
+      <thead>
+        <tr>
+          <th i18n="@@adminAiModels.colModelId">Model ID</th>
+          <th i18n="@@adminAiModels.colContextLen">Context</th>
+          <th i18n="@@adminAiModels.colModality">Modality</th>
+          <th i18n="@@adminAiModels.colPrice">Price (prompt)</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (m of availableModels(); track m.id) {
+          <tr>
+            <td><code>{{ m.id }}</code></td>
+            <td>{{ m.context_length | number }}</td>
+            <td>{{ m.modality }}</td>
+            <td [class.free-price]="formatPrice(m.price_prompt) === 'free'">{{ formatPrice(m.price_prompt) }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>
+
+<section class="db-models">
+  <h3 i18n="@@adminAiModels.dbModels">Database Models</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th i18n="@@adminAiModels.colName">Name</th>
+        <th i18n="@@adminAiModels.colMachineName">Machine name</th>
+        <th i18n="@@adminAiModels.colProtocol">Protocol</th>
+        <th i18n="@@adminAiModels.colSize">Size</th>
+        <th i18n="@@adminAiModels.colActive">Active</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (model of models(); track model.id) {
+        <tr>
+          <td>{{ model.name }}</td>
+          <td><code>{{ model.machine_name }}</code></td>
+          <td>{{ protocolNames[model.protocol_type] ?? model.protocol_type }}</td>
+          <td>{{ sizeNames[model.size] ?? model.size }}</td>
+          <td>
+            @if (model.is_active) {
+              <span class="badge badge--active" i18n="@@common.yes">Yes</span>
+            } @else {
+              <span class="badge badge--inactive" i18n="@@common.no">No</span>
+            }
+          </td>
+          <td class="actions">
+            <a [routerLink]="['/admin/ai-model', model.id]" i18n="@@common.edit">Edit</a>
+            <button class="btn-delete" (click)="deleteModel(model.id)" i18n="@@common.delete">Delete</button>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="6" i18n="@@adminAiModels.empty">No AI models configured.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <div class="list-actions">
+    <a routerLink="/admin/ai-model/new" class="btn-secondary" i18n="@@adminAiModels.addModel">Add Model</a>
+  </div>
+</section>

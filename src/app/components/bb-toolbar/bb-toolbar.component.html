@@ -46,6 +46,9 @@
     <span title="NPC block" i18n-title="@@postform.npcBlock" (click)="npcBlockClick.emit()" [class.toolbar-active]="npcBlockActive || isFormatActive('npc-block')"><i class="bi bi-person-fill"></i></span>
     <span title="Hidden message" i18n-title="@@postform.hiddenMessage" (click)="hiddenMessageClick.emit()" [class.toolbar-active]="hidePanelActive || isFormatActive('hide')"><i class="bi bi-lock"></i></span>
   }
+  @if (showProofread) {
+    <span title="Proofread" i18n-title="@@postform.proofread" (click)="proofread()" [class.toolbar-active]="proofreadLoading()"><i class="bi bi-magic"></i></span>
+  }
 </div>
 
 <div id="tags" (mousedown)="$event.preventDefault()">

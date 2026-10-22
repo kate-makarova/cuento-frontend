@@ -31,8 +31,14 @@ export class AiChatComponent implements OnInit, OnDestroy {
   queuePosition = signal<number | null>(null);
 
   private currentUser = this.authService.currentUser;
-  private messageIdCounter = 0;
+  private localIdCounter = 0;
   private sessionId = crypto.randomUUID();
+
+  private uniqueSources(sources?: AiSource[]): AiSource[] | undefined {
+    if (!sources) return undefined;
+    const seen = new Set<number>();
+    return sources.filter(s => s.post_id == null || (!seen.has(s.post_id) && !!seen.add(s.post_id)));
+  }
 
   private isProgrammaticScroll = false;
 
@@ -54,13 +60,13 @@ export class AiChatComponent implements OnInit, OnDestroy {
       next: (history) => {
         const user = this.currentUser();
         const messages = history.map(msg => new Message(
-          ++this.messageIdCounter,
+          msg.id,
           msg.content,
           new Date(msg.date_created).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           msg.role === 'user',
           msg.role === 'user' ? (user?.username ?? 'You') : 'AI',
           msg.role === 'user' ? (user?.avatar ?? null) : null,
-          msg.sources
+          this.uniqueSources(msg.sources)
         ));
         this.messages.set(messages);
       },
@@ -68,14 +74,15 @@ export class AiChatComponent implements OnInit, OnDestroy {
     });
 
     const appendAiMessage = (data: AiMessageData) => {
+      if (this.messages().some(m => m.id === data.id)) return;
       const aiMessage = new Message(
-        ++this.messageIdCounter,
+        data.id,
         data.content,
         new Date(data.date_created).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         false,
         'AI',
         null,
-        data.sources
+        this.uniqueSources(data.sources)
       );
       this.messages.update(msgs => [...msgs, aiMessage]);
       this.isLoading.set(false);
@@ -96,7 +103,7 @@ export class AiChatComponent implements OnInit, OnDestroy {
         this.isLoading.set(false);
         this.queuePosition.set(null);
         const systemMessage = new Message(
-          ++this.messageIdCounter,
+          --this.localIdCounter,
           'An error occurred while processing your request. Please try again.',
           new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           false,
@@ -147,7 +154,7 @@ export class AiChatComponent implements OnInit, OnDestroy {
     const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     const userMessage = new Message(
-      ++this.messageIdCounter,
+      --this.localIdCounter,
       content,
       now,
       true,
@@ -170,7 +177,7 @@ export class AiChatComponent implements OnInit, OnDestroy {
         this.isLoading.set(false);
         if (err?.status === 503) {
           const systemMessage = new Message(
-            ++this.messageIdCounter,
+            --this.localIdCounter,
             'AI is currently unavailable. Please try again later.',
             new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             false,

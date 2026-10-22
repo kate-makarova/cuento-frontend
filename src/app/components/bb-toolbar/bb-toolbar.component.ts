@@ -26,6 +26,7 @@ export class BbToolbarComponent {
   @Input() isGm = false;
   @Input() npcBlockActive = false;
   @Input() hidePanelActive = false;
+  @Input() showProofread = false;
   @Output() npcBlockClick = new EventEmitter<void>();
   @Output() hiddenMessageClick = new EventEmitter<void>();
 
@@ -40,6 +41,7 @@ export class BbToolbarComponent {
   private audioInsertPos = 0;
   audioSource = '';
 
+  proofreadLoading = signal(false);
   smileCategories = signal<SmileCategoryWithSmiles[]>([]);
   private smilesLoaded = false;
 
@@ -334,6 +336,23 @@ export class BbToolbarComponent {
     textarea.value = text.substring(0, start) + tag + text.substring(start);
     textarea.focus();
     textarea.setSelectionRange(start + tag.length, start + tag.length);
+  }
+
+  proofread() {
+    const content = this.editor ? this.editor.getValue() : (this.textarea?.value ?? '');
+    if (!content.trim() || this.proofreadLoading()) return;
+    this.proofreadLoading.set(true);
+    this.apiService.post<{ text: string }>('ai/proofread', { text: content }).subscribe({
+      next: (res) => {
+        if (this.editor) {
+          this.editor.setValue(res.text);
+        } else if (this.textarea) {
+          this.textarea.value = res.text;
+        }
+        this.proofreadLoading.set(false);
+      },
+      error: () => this.proofreadLoading.set(false),
+    });
   }
 
   insertSmile(url: string) {
