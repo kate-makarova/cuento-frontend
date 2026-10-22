@@ -23,6 +23,12 @@ import {PreviewComponent} from './preview/preview.component';
 import { UserListComponent } from './user-list/user-list.component';
 import { SettingsComponent } from './settings/settings.component';
 import { ActiveTopicsComponent } from './active-topics/active-topics.component';
+import { TopicSubscriptionsComponent } from './topic-subscriptions/topic-subscriptions.component';
+import { ArcListComponent } from './arc-list/arc-list.component';
+import { ArcFormComponent } from './arc-form/arc-form.component';
+import { ArcDetailComponent } from './arc-detail/arc-detail.component';
+import { NpcFormComponent } from './npc-form/npc-form.component';
+import { NpcDetailComponent } from './npc-detail/npc-detail.component';
 import { MaskPageComponent } from './mask-page/mask-page.component';
 import { RecoveryCodesComponent } from './recovery-codes/recovery-codes.component';
 import { SettingsRestorationCodesComponent } from './settings-restoration-codes/settings-restoration-codes.component';
@@ -35,11 +41,14 @@ import { CharacterFieldListComponent } from './character-field-list/character-fi
 import { ActiveUsersComponent } from './active-users/active-users.component';
 import { SearchComponent } from './search/search.component';
 import { PostPageComponent } from './post-page/post-page.component';
+import { UserPostsComponent } from './user-posts/user-posts.component';
+import { CharacterPostsComponent } from './character-posts/character-posts.component';
 import { LorePageComponent } from './lore-page/lore-page.component';
 import { LoreNavigationEditComponent } from './lore-navigation-edit/lore-navigation-edit.component';
 import { NotFoundComponent } from './error-pages/not-found/not-found.component';
 import { ForbiddenComponent } from './error-pages/forbidden/forbidden.component';
 import { ServerErrorComponent } from './error-pages/server-error/server-error.component';
+
 
 
 export const routes: Routes = [
@@ -85,6 +94,12 @@ export const routes: Routes = [
   },
   {
     path: 'direct-chat',
+    component: DirectChatComponent,
+    canActivate: [privateKeyGuard],
+    data: { pageId: 'pun-direct-chat' }
+  },
+  {
+    path: 'direct-chat/:chat_id',
     component: DirectChatComponent,
     canActivate: [privateKeyGuard],
     data: { pageId: 'pun-direct-chat' }
@@ -162,6 +177,12 @@ export const routes: Routes = [
     data: { pageId: 'pun-profile' }
   },
   {
+    path: 'profile/:id/posts',
+    component: UserPostsComponent,
+    title: 'User Posts',
+    data: { pageId: 'pun-user-posts' }
+  },
+  {
     path: 'profile/:user_id/transactions',
     component: TransactionsComponent,
     title: 'Transactions',
@@ -172,6 +193,12 @@ export const routes: Routes = [
     component: CharacterviewComponent,
     title: 'Character',
     data: { pageId: 'pun-character' }
+  },
+  {
+    path: 'character/:id/posts',
+    component: CharacterPostsComponent,
+    title: 'Character Posts',
+    data: { pageId: 'pun-character-posts' }
   },
   {
     path: 'character-list',
@@ -204,10 +231,58 @@ export const routes: Routes = [
     data: { pageId: 'pun-wanted-character-list' }
   },
   {
+    path: 'arc-list',
+    component: ArcListComponent,
+    title: 'Story Arcs',
+    data: { pageId: 'pun-arc-list' }
+  },
+  {
+    path: 'arc/create',
+    component: ArcFormComponent,
+    title: 'Create Story Arc',
+    data: { pageId: 'pun-arc-create' }
+  },
+  {
+    path: 'arc/:id/edit',
+    component: ArcFormComponent,
+    title: 'Edit Story Arc',
+    data: { pageId: 'pun-arc-edit' }
+  },
+  {
+    path: 'arc/:id',
+    component: ArcDetailComponent,
+    title: 'Story Arc',
+    data: { pageId: 'pun-arc-detail' }
+  },
+  {
+    path: 'npc/create',
+    component: NpcFormComponent,
+    title: 'Create NPC',
+    data: { pageId: 'pun-npc-create' }
+  },
+  {
+    path: 'npc/:id/edit',
+    component: NpcFormComponent,
+    title: 'Edit NPC',
+    data: { pageId: 'pun-npc-edit' }
+  },
+  {
+    path: 'npc/:id',
+    component: NpcDetailComponent,
+    title: 'NPC',
+    data: { pageId: 'pun-npc-detail' }
+  },
+  {
     path: 'active-topics',
     component: ActiveTopicsComponent,
     title: 'Active Topics',
     data: { pageId: 'pun-active-topics' }
+  },
+  {
+    path: 'subscriptions',
+    component: TopicSubscriptionsComponent,
+    title: 'My Subscriptions',
+    data: { pageId: 'pun-subscriptions' }
   },
   {
     path: 'active-users',
@@ -336,6 +411,11 @@ export const routes: Routes = [
         path: 'topic-commander',
         loadComponent: () => import('./admin/topic-commander/topic-commander.component').then(m => m.TopicCommanderComponent),
         title: 'Admin - Topic Commander'
+      },
+      {
+        path: 'move-posts',
+        loadComponent: () => import('./admin/admin-move-posts/admin-move-posts.component').then(m => m.AdminMovePostsComponent),
+        title: 'Admin - Move Posts'
       },
       {
         path: 'users',
@@ -612,6 +692,21 @@ export const routes: Routes = [
     path: 'lore/:id/navigation-edit',
     component: LoreNavigationEditComponent,
     data: { pageId: 'pun-lore-navigation-edit' }
+  },
+  {
+    path: 'interactive-map/:id',
+    loadComponent: () => import('./interactive-map/interactive-map.component').then(m => m.InteractiveMapComponent),
+    data: { pageId: 'pun-interactive-map', noWrapper: true }
+  },
+  {
+    path: 'interactive-map-editor',
+    loadComponent: () => import('./interactive-map-editor/interactive-map-editor.component').then(m => m.InteractiveMapEditorComponent),
+    data: { pageId: 'pun-interactive-map-editor', noWrapper: true }
+  },
+  {
+    path: 'interactive-map-editor/:id',
+    loadComponent: () => import('./interactive-map-editor/interactive-map-editor.component').then(m => m.InteractiveMapEditorComponent),
+    data: { pageId: 'pun-interactive-map-editor', noWrapper: true }
   },
   {
     path: '403',

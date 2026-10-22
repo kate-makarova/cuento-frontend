@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, OnInit, Input, Output, EventEmitter, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, OnChanges, SimpleChanges, Input, Output, EventEmitter, signal, untracked } from '@angular/core';
 import { FormArray, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 import { EpisodeService } from '../services/episode.service';
@@ -23,7 +23,7 @@ import { StandardWarning } from '../models/StandardWarning';
   imports: [ ReactiveFormsModule, FormsModule, FieldInputComponent, BreadcrumbsComponent],
   templateUrl: './episode-create.component.html',
 })
-export class EpisodeCreateComponent implements OnInit {
+export class EpisodeCreateComponent implements OnInit, OnChanges {
   episodeService = inject(EpisodeService);
   characterService = inject(CharacterService);
   topicService = inject(TopicService);
@@ -34,6 +34,28 @@ export class EpisodeCreateComponent implements OnInit {
   router = inject(Router);
   route = inject(ActivatedRoute);
   episodeTemplate = this.episodeService.episodeTemplate;
+  templateBlocks = this.episodeService.episodeTemplateBlocks;
+  templateBlockSettings = this.episodeService.episodeTemplateBlockSettings;
+  selectedBlocks = signal<Record<string, string>>({});
+
+  visibleFields = computed(() => {
+    const template = this.episodeTemplate();
+    const blocks = this.templateBlocks();
+    const toggles = this.templateBlockSettings();
+    if (toggles.length === 0) return template;
+    const hidden = new Set<string>();
+    for (const toggle of toggles) {
+      const selected = this.selectedBlocks()[toggle.machine_name] ?? toggle.children[0];
+      for (const childId of toggle.children) {
+        if (childId !== selected) {
+          const block = blocks.find(b => b.id === childId);
+          if (block) block.fields.forEach(f => hidden.add(f));
+        }
+      }
+    }
+    return template.filter(f => !hidden.has(f.machine_field_name));
+  });
+
   characterSuggestions = this.characterService.shortCharacterList;
   breadcrumbs: BreadcrumbItem[] = [];
   useRatingSystem = computed(() => this.boardService.board().use_rating_system === 'y');
@@ -60,6 +82,8 @@ export class EpisodeCreateComponent implements OnInit {
 
   // Character inputs
   characterControls = new FormArray([new FormControl('')]);
+  private characterControlsVersion = signal(0);
+  characterControlsList = computed(() => { this.characterControlsVersion(); return this.characterControls.controls; });
   selectedCharacterIds: (number | null)[] = [null];
   validCharacterIds: number[] = [];
 
@@ -67,8 +91,14 @@ export class EpisodeCreateComponent implements OnInit {
   activeInputIndex: number | null = null;
 
   subforumId: number = 0;
-  subject: string = '';
+  needsSubforumSelection: boolean = false;
+  subject = signal<string>('');
   openToEveryone: boolean = false;
+  private episodeBlockSettings = signal<Record<string, string>>({});
+
+  // Arc — set from query params on create, read-only
+  arcId: number | null = null;
+  arcTitle: string = '';
 
   // Rating — manual baseline set by the user directly in the dropdowns
   manualRatingLanguage: number = 0;
@@ -103,13 +133,34 @@ export class EpisodeCreateComponent implements OnInit {
         ];
       }
     });
+
+    effect(() => {
+      const toggles = this.templateBlockSettings();
+      if (toggles.length === 0) return;
+      const existing = this.episodeBlockSettings();
+      const init: Record<string, string> = {};
+      for (const toggle of toggles) {
+        init[toggle.machine_name] = existing[toggle.machine_name] ?? toggle.children[0];
+      }
+      this.selectedBlocks.set(init);
+    }, { allowSignalWrites: true });
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['initialData'] && this.initialData) {
+      this.populateForm(this.initialData);
+    }
   }
 
   ngOnInit() {
     const previewState = this.previewService.state();
     if (previewState?.formType === 'episode') {
       const p = previewState.formPayload;
-      this.subject = p.name;
+      this.subject.set(p.name);
+      if (p.arc_id) {
+        this.arcId = p.arc_id;
+        this.arcTitle = p._arcTitle || '';
+      }
 
       this.characterControls.clear();
       this.selectedCharacterIds = [];
@@ -125,6 +176,7 @@ export class EpisodeCreateComponent implements OnInit {
         this.selectedCharacterIds.push(null);
         this.setupAutocomplete(0);
       }
+      this.characterControlsVersion.update(v => v + 1);
 
       this.maskControls.clear();
       this.selectedMaskIds = [];
@@ -155,6 +207,7 @@ export class EpisodeCreateComponent implements OnInit {
     }
 
     this.episodeService.loadEpisodeTemplate();
+
     this.episodeService.getStandardWarnings().subscribe({
       next: (warnings) => this.availableWarnings.set(warnings),
       error: (err) => console.error('Failed to load standard warnings', err)
@@ -163,16 +216,21 @@ export class EpisodeCreateComponent implements OnInit {
       if (params['fid']) {
         this.subforumId = +params['fid'];
         this.forumService.loadSubforum(this.subforumId);
+      } else {
+        this.needsSubforumSelection = true;
+        this.episodeService.loadEpisodeSubforumList();
+      }
+      if (params['arc_id'] && !this.initialData) {
+        this.arcId = +params['arc_id'];
+        this.arcTitle = params['arc_title'] || '';
       }
     });
 
-    if (this.initialData) {
-      this.populateForm(this.initialData);
-    }
   }
 
   populateForm(data: Episode) {
-    this.subject = data.name;
+    this.episodeBlockSettings.set(data.custom_fields?.block_settings ?? {});
+    this.subject.set(data.name);
     this.openToEveryone = data.open_to_everyone ?? false;
     this.manualRatingLanguage = data.rating_language ?? 0;
     this.manualRatingViolence = data.rating_violence ?? 0;
@@ -198,6 +256,7 @@ export class EpisodeCreateComponent implements OnInit {
       this.selectedCharacterIds.push(null);
       this.setupAutocomplete(0);
     }
+    this.characterControlsVersion.update(v => v + 1);
     this.syncValidCharacterIds();
 
     if (data.masks && data.masks.length > 0) {
@@ -240,12 +299,14 @@ export class EpisodeCreateComponent implements OnInit {
     this.characterControls.push(new FormControl(''));
     this.selectedCharacterIds.push(null);
     this.setupAutocomplete(this.characterControls.length - 1);
+    this.characterControlsVersion.update(v => v + 1);
   }
 
   removeCharacterField(index: number) {
     if (this.characterControls.length > 1) {
       this.characterControls.removeAt(index);
       this.selectedCharacterIds.splice(index, 1);
+      this.characterControlsVersion.update(v => v + 1);
 
       if (this.activeInputIndex === index) {
         this.activeInputIndex = null;
@@ -354,6 +415,22 @@ export class EpisodeCreateComponent implements OnInit {
     return null;
   }
 
+  onBlockToggle(toggleName: string, blockId: string) {
+    this.selectedBlocks.update(s => ({ ...s, [toggleName]: blockId }));
+  }
+
+  getBlock(blockId: string) {
+    return this.templateBlocks().find(b => b.id === blockId) ?? null;
+  }
+
+  collectBlockSettings(): Record<string, string> {
+    const result: Record<string, string> = {};
+    for (const toggle of this.templateBlockSettings()) {
+      result[toggle.machine_name] = this.selectedBlocks()[toggle.machine_name] ?? toggle.children[0];
+    }
+    return result;
+  }
+
   onSubmit(event: Event) {
     event.preventDefault();
     const form = event.target as HTMLFormElement;
@@ -384,7 +461,12 @@ export class EpisodeCreateComponent implements OnInit {
       rating_violence: this.ratingViolence,
       rating_sex: this.ratingSex,
       warning_ids: this.selectedWarnings.map(w => w.id),
+      block_settings: this.collectBlockSettings()
     };
+
+    if (!this.formSubmit.observed && this.arcId !== null) {
+      request.arc_id = this.arcId;
+    }
 
     const isPreview = ((event as SubmitEvent).submitter as HTMLInputElement | null)?.name === 'preview';
 
@@ -410,7 +492,7 @@ export class EpisodeCreateComponent implements OnInit {
             } as Topic,
             posts: [],
             returnUrl: this.router.url,
-            formPayload: { ...request, _characterEntries: characterEntries, _maskEntries: maskEntries }
+            formPayload: { ...request, _characterEntries: characterEntries, _maskEntries: maskEntries, _arcTitle: this.arcTitle }
           });
           this.router.navigate(['/preview']);
         },
@@ -442,9 +524,12 @@ export class EpisodeCreateComponent implements OnInit {
       this.formSubmit.emit(request);
     } else {
       this.episodeService.createEpisode(request as CreateEpisodeRequest).subscribe({
-        next: (response) => {
-          console.log('Episode created successfully', response);
-          this.router.navigate(['/viewforum', this.subforumId]);
+        next: (response: any) => {
+          if (response?.topic_id) {
+            this.router.navigate(['/viewtopic', response.topic_id]);
+          } else {
+            this.router.navigate(['/viewforum', this.subforumId]);
+          }
         },
         error: (err) => {
           console.error('Failed to create episode', err);

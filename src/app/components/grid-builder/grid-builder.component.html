@@ -1,11 +1,11 @@
 <div class="grid-builder-inputs">
-  <label i18n="@@gridBuilder.columns">
-    Columns
-    <input type="number" [(ngModel)]="cols" min="1" max="12" (ngModelChange)="onDimensionChange()" />
+  <label>
+    <span i18n="@@gridBuilder.columns">Columns</span>
+    <input type="number" [ngModel]="cols" (ngModelChange)="onColsChange($event)" (mousedown)="$event.stopPropagation()" min="1" max="12" />
   </label>
-  <label i18n="@@gridBuilder.rows">
-    Rows
-    <input type="number" [(ngModel)]="rows" min="1" max="12" (ngModelChange)="onDimensionChange()" />
+  <label>
+    <span i18n="@@gridBuilder.rows">Rows</span>
+    <input type="number" [ngModel]="rows" (ngModelChange)="onRowsChange($event)" (mousedown)="$event.stopPropagation()" min="1" max="12" />
   </label>
 
   <div class="grid-builder-tools">

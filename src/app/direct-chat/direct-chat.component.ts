@@ -1,6 +1,6 @@
-import {Component, ElementRef, effect, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, effect, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
 import {User} from '../models/User';
-import {DirectChat, DirectChatListItem} from '../models/DirectChat';
+import {DirectChat, DirectChatListItem, DirectChatParticipant} from '../models/DirectChat';
 import {DirectChatService} from '../services/direct-chat.service';
 import {NotificationService} from '../services/notification.service';
 import {UserService} from '../services/user.service';
@@ -8,14 +8,18 @@ import {UserShort} from '../models/UserShort';
 
 import {FormsModule} from '@angular/forms';
 import {Subject, Subscription} from 'rxjs';
-import {debounceTime, distinctUntilChanged, switchMap} from 'rxjs/operators';
+import {debounceTime, distinctUntilChanged, switchMap, takeUntil} from 'rxjs/operators';
 import {ActivatedRoute} from '@angular/router';
+import {SafeHtmlPipe} from '../pipes/safe-html.pipe';
+import {parseBBCode} from '../utils/bbcode-parser';
+import {BbToolbarComponent} from '../components/bb-toolbar/bb-toolbar.component';
 
 @Component({
   selector: 'app-direct-chat',
   host: { class: 'pun-page' },
-  imports: [ FormsModule],
+  imports: [ FormsModule, SafeHtmlPipe, BbToolbarComponent],
   templateUrl: './direct-chat.component.html',
+  styleUrl: './direct-chat.component.css',
   standalone: true,
 })
 export class DirectChatComponent implements OnInit, OnDestroy {
@@ -24,6 +28,14 @@ export class DirectChatComponent implements OnInit, OnDestroy {
   private userService = inject(UserService);
   private route = inject(ActivatedRoute);
   private dmSub: Subscription | null = null;
+  private destroy$ = new Subject<void>();
+  isSending = signal(false);
+  showSidebar = signal(true);
+  headerCollapsed = signal(typeof window !== 'undefined' && window.innerWidth < 768);
+  private onlineUserIds = signal<Set<number>>(new Set());
+  private visibilityHandler = () => {
+    if (document.visibilityState === 'visible') this.directChatService.catchUp();
+  };
 
   @ViewChild('chatInput') messageField!: ElementRef<HTMLTextAreaElement>;
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef<HTMLDivElement>;
@@ -78,23 +90,16 @@ export class DirectChatComponent implements OnInit, OnDestroy {
   private searchSubject = new Subject<string>();
 
   ngOnInit() {
-    const targetChatId = this.route.snapshot.queryParamMap.get('chat_id');
+    const targetChatId = this.route.snapshot.paramMap.get('chat_id');
 
-    this.directChatService.resolvePrivateKey().subscribe(() => {
-      this.directChatService.loadChatList();
-    });
-
-    if (targetChatId) {
-      const unsub = effect(() => {
-        const list = this.directChatService.chatList();
-        if (list.length === 0) return;
+    this.directChatService.resolvePrivateKey().pipe(
+      switchMap(() => this.directChatService.loadChatList())
+    ).subscribe(list => {
+      if (targetChatId) {
         const chat = list.find(c => c.chat_id === +targetChatId);
-        if (chat) {
-          this.directChatService.loadDirectChat(chat.chat_id);
-          unsub.destroy();
-        }
-      });
-    }
+        if (chat) this.directChatService.loadDirectChat(chat.chat_id);
+      }
+    });
 
     this.searchSubject.pipe(
       debounceTime(300),
@@ -104,6 +109,12 @@ export class DirectChatComponent implements OnInit, OnDestroy {
       this.autocompleteResults = results;
     });
 
+    this.directChatService.ownMessageConfirmed$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.isSending.set(false);
+    });
+
+    document.addEventListener('visibilitychange', this.visibilityHandler);
+
     this.dmSub = this.notificationService.directMessageCreated$.subscribe(event => {
       const openChatId = this.directChatService.currentChat()?.chat_id;
       if (openChatId === event.data.chat_id) {
@@ -112,10 +123,17 @@ export class DirectChatComponent implements OnInit, OnDestroy {
         this.directChatService.incrementUnreadCount(event.data.chat_id);
       }
     });
+
+    this.notificationService.activeUsersUpdate$.pipe(takeUntil(this.destroy$)).subscribe(event => {
+      this.onlineUserIds.set(new Set(event.data.map(u => u.id)));
+    });
   }
 
   ngOnDestroy() {
+    document.removeEventListener('visibilitychange', this.visibilityHandler);
     this.dmSub?.unsubscribe();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onNewChatInput() {
@@ -149,34 +167,33 @@ export class DirectChatComponent implements OnInit, OnDestroy {
     });
   }
 
-  insertTag(tag: string) {
-    const textarea = this.messageField.nativeElement;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const text = textarea.value;
-
-    const tagBase = tag.split('=')[0];
-    const openTag = `[${tag}]`;
-    const closeTag = `[/${tagBase}]`;
-
-    const selectedText = text.substring(start, end);
-    const replacement = openTag + selectedText + closeTag;
-
-    textarea.value = text.substring(0, start) + replacement + text.substring(end);
-    textarea.focus();
-
-    const newPos = start + openTag.length + selectedText.length;
-    textarea.setSelectionRange(newPos, newPos);
-  }
-
   handleSend() {
     const textarea = this.messageField.nativeElement;
     const content = textarea.value.trim();
-    if (!content) return;
+    if (!content || this.isSending()) return;
+
+    this.isSending.set(true);
 
     this.directChatService.sendMessage(content).subscribe({
-      next: () => { textarea.value = ''; },
-      error: (err) => console.error('Failed to send message', err)
+      next: () => {
+        textarea.value = '';
+        // isSending stays true — cleared when WS confirms the message.
+        // Fallback: after 8s request a catchup; after 3s more, reload and clear.
+        setTimeout(() => {
+          if (!this.isSending()) return;
+          this.directChatService.catchUp();
+          setTimeout(() => {
+            if (this.isSending()) {
+              this.isSending.set(false);
+              this.directChatService.loadMessages(this.directChatService.currentChat()!.chat_id);
+            }
+          }, 3000);
+        }, 8000);
+      },
+      error: (err) => {
+        this.isSending.set(false);
+        console.error('Failed to send message', err);
+      }
     });
   }
   onScroll() {
@@ -200,6 +217,12 @@ export class DirectChatComponent implements OnInit, OnDestroy {
 
   selectUser(chat: DirectChatListItem) {
     this.directChatService.loadDirectChat(chat.chat_id);
+    this.showSidebar.set(false);
+    this.headerCollapsed.set(window.innerWidth < 768);
+  }
+
+  toggleSidebar() {
+    this.showSidebar.update(v => !v);
   }
 
   get currentChatBlocked(): boolean {
@@ -215,17 +238,26 @@ export class DirectChatComponent implements OnInit, OnDestroy {
       : this.directChatService.blockChat(chatId);
     action$.subscribe({ error: (err) => console.error('Block/unblock failed', err) });
   }
+  get currentChatPartner(): DirectChatParticipant | null {
+    const chat = this.currentChat();
+    if (!chat) return null;
+    const listItem = this.chatList().find(c => c.chat_id === chat.chat_id);
+    if (!listItem) return null;
+    return chat.participants.find(p => p.id === listItem.user_id) ?? null;
+  }
+
+  get isChatPartnerOnline(): boolean {
+    const partner = this.currentChatPartner;
+    return partner !== null && this.onlineUserIds().has(partner.id);
+  }
+
+  toggleHeaderCollapsed() {
+    this.headerCollapsed.update(v => !v);
+  }
+
   toggleSearch() {}
   onSearch(event: Event) {}
-  highlightMatch(text: string): string {
-    let result = text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/\[b\]([\s\S]*?)\[\/b\]/gi, '<strong>$1</strong>')
-      .replace(/\[i\]([\s\S]*?)\[\/i\]/gi, '<em>$1</em>')
-      .replace(/\[s\]([\s\S]*?)\[\/s\]/gi, '<s>$1</s>')
-      .replace(/\n/g, '<br>');
-    return result;
+  renderMessage(text: string): string {
+    return parseBBCode(text);
   }
 }

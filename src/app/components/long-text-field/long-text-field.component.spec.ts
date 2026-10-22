@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { LongTextFieldComponent } from './long-text-field.component';
 
@@ -8,7 +9,7 @@ describe('LongTextFieldComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LongTextFieldComponent]
+      imports: [LongTextFieldComponent, HttpClientTestingModule]
     })
     .compileComponents();
 

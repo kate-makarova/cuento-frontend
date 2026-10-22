@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 import { SettingsComponent } from './settings.component';
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
@@ -13,15 +15,17 @@ describe('SettingsComponent', () => {
   let userServiceSpy: jasmine.SpyObj<UserService>;
 
   beforeEach(async () => {
-    authServiceSpy = jasmine.createSpyObj('AuthService', ['currentUser', 'hashPassword', 'updateUser']);
-    authServiceSpy.currentUser.and.returnValue({ id: 1, username: 'TestUser', avatar: 'avatar.png', interface_language: 'en-US', interface_timezone: 'UTC', roles: [] });
+    authServiceSpy = jasmine.createSpyObj('AuthService', ['hashPassword', 'updateUser'], {
+      currentUser: signal({ id: 1, username: 'TestUser', avatar: 'avatar.png', interface_language: 'en-US', interface_timezone: 'UTC', interface_font_size: 1, roles: [] }),
+      authToken: signal(null)
+    });
     authServiceSpy.hashPassword.and.returnValue(Promise.resolve('hashedPassword'));
 
     userServiceSpy = jasmine.createSpyObj('UserService', ['updateUserSettings']);
-    userServiceSpy.updateUserSettings.and.returnValue(of({ id: 1, username: 'TestUser', avatar: 'avatar.png', interface_language: 'en-US', interface_timezone: 'UTC', roles: [] }));
+    userServiceSpy.updateUserSettings.and.returnValue(of({ id: 1, username: 'TestUser', avatar: 'avatar.png', interface_language: 'en-US', interface_timezone: 'UTC', interface_font_size: 1, roles: [] }));
 
     await TestBed.configureTestingModule({
-      imports: [SettingsComponent, FormsModule],
+      imports: [SettingsComponent, FormsModule, HttpClientTestingModule, RouterTestingModule],
       providers: [
         { provide: AuthService, useValue: authServiceSpy },
         { provide: UserService, useValue: userServiceSpy }
@@ -45,7 +49,8 @@ describe('SettingsComponent', () => {
   });
 
   it('should call updateUserSettings on submit', () => {
-    component.onSubmit(new Event('submit'));
+    const form = fixture.nativeElement.querySelector('form') as HTMLFormElement;
+    form.dispatchEvent(new Event('submit'));
     expect(userServiceSpy.updateUserSettings).toHaveBeenCalled();
   });
 });

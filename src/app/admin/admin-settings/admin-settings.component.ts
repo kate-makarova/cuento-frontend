@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { GlobalSettingsService } from '../../services/global-settings.service';
+import { AuthService } from '../../services/auth.service';
 import { Setting } from '../../models/Setting';
 import { SaveButtonComponent } from '../save-button/save-button.component';
 
@@ -10,16 +11,18 @@ type SaveState = 'idle' | 'loading' | 'success' | 'error';
 interface SettingGroup {
   legend: string;
   names: string[];
+  superuserOnly?: boolean;
 }
 
 const GENERAL_SETTING_GROUPS: SettingGroup[] = [
   {
     legend: $localize`:@@adminSettings.groupGeneral:General`,
-    names: ['site_name', 'domain', 'posts_per_page', 'visual_navlinks_after_header_panel', 'global_free_format_date_id', 'user_avatar_width', 'user_avatar_height', 'character_avatar_width', 'character_avatar_height'],
+    names: ['site_name', 'domain', 'posts_per_page', 'visual_navlinks_after_header_panel', 'global_free_format_date_id', 'user_avatar_width', 'user_avatar_height', 'user_avatar_less', 'character_avatar_width', 'character_avatar_height'],
   },
   {
     legend: $localize`:@@adminSettings.groupGithub:GitHub`,
     names: ['github_owner', 'github_repo', 'github_branch', 'github_token'],
+    superuserOnly: true,
   },
   {
     legend: $localize`:@@adminSettings.groupAutoArchiving:Auto archiving`,
@@ -67,6 +70,7 @@ const SETTING_LABELS: Record<string, string> = {
   visual_navlinks_after_header_panel: $localize`:@@adminSettings.visual_navlinks_after_header_panel:Render navlinks after header panel`,
   user_avatar_width: $localize`:@@adminSettings.user_avatar_width:Avatar width`,
   user_avatar_height: $localize`:@@adminSettings.user_avatar_height:Avatar height`,
+  user_avatar_less: $localize`:@@adminSettings.user_avatar_less:Allow smaller user avatar (y/n)`,
   character_avatar_width: $localize`:@@adminSettings.character_avatar_width:Character sheet avatar width`,
   character_avatar_height: $localize`:@@adminSettings.character_avatar_height:Character sheet avatar height`,
 
@@ -111,6 +115,9 @@ const SETTING_LABELS: Record<string, string> = {
 })
 export class AdminSettingsComponent implements OnInit {
   private globalSettingsService = inject(GlobalSettingsService);
+  private authService = inject(AuthService);
+  isSuperuser = this.authService.isSuperuser;
+
   settings = this.globalSettingsService.settings;
   settingLabels = SETTING_LABELS;
 
@@ -120,15 +127,17 @@ export class AdminSettingsComponent implements OnInit {
 
   get generalSettingGroups(): Array<{ legend: string; settings: Setting[]; saveState: ReturnType<typeof signal<SaveState>> }> {
     const all = this.settings();
+    const superuser = this.isSuperuser();
     return GENERAL_SETTING_GROUPS
       .map((group, i) => ({
         legend: group.legend,
+        superuserOnly: group.superuserOnly ?? false,
         saveState: this.groupSaveStates[i],
         settings: group.names
           .map(name => all.find(s => s.setting_name === name))
           .filter((s): s is Setting => s != null),
       }))
-      .filter(g => g.settings.length > 0);
+      .filter(g => g.settings.length > 0 && (!g.superuserOnly || superuser));
   }
 
   get superadminSettings(): Setting[] {

@@ -1,0 +1,45 @@
+.gm-search {
+  position: relative;
+}
+
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+}
+
+.tag i {
+  cursor: pointer;
+  font-style: normal;
+  opacity: 0.6;
+  margin-left: 2px;
+}
+
+.tag i:hover {
+  opacity: 1;
+}
+
+.tag-avatar {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.suggestion-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}

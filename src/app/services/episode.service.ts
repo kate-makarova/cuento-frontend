@@ -3,7 +3,7 @@ import {EpisodeListItem, EpisodeFilterRequest} from '../models/Episode';
 import {ApiService} from './api.service';
 import {TopicType, TopicStatus} from '../models/Topic';
 import {SubforumShort} from '../models/Subforum';
-import {FieldTemplate} from '../models/FieldTemplate';
+import {FieldTemplate, Block, BlockSettingToggle, TemplateConfig} from '../models/FieldTemplate';
 import {StandardWarning} from '../models/StandardWarning';
 
 @Injectable({ providedIn: 'root' })
@@ -27,11 +27,18 @@ export class EpisodeService {
   private subforumListSignal = signal<SubforumShort[]>([]);
   readonly subforumList = this.subforumListSignal.asReadonly();
 
+  private episodeSubforumListSignal = signal<SubforumShort[]>([]);
+  readonly episodeSubforumList = this.episodeSubforumListSignal.asReadonly();
+
   private episodeListPageSignal = signal<EpisodeListItem[]>([]);
   readonly episodeListPage = this.episodeListPageSignal.asReadonly();
 
   private episodeTemplateSignal = signal<FieldTemplate[]>([]);
   readonly episodeTemplate = this.episodeTemplateSignal.asReadonly();
+  private episodeTemplateBlocksSignal = signal<Block[]>([]);
+  readonly episodeTemplateBlocks = this.episodeTemplateBlocksSignal.asReadonly();
+  private episodeTemplateBlockSettingsSignal = signal<BlockSettingToggle[]>([]);
+  readonly episodeTemplateBlockSettings = this.episodeTemplateBlockSettingsSignal.asReadonly();
 
   loadSubforumList() {
     this.apiService.get<SubforumShort[]>('subforum/list-short').subscribe({
@@ -42,6 +49,13 @@ export class EpisodeService {
         console.error('Failed to load subforum list', err);
       }
     })
+  }
+
+  loadEpisodeSubforumList() {
+    this.apiService.get<SubforumShort[]>('subforum/list-episode').subscribe({
+      next: (data) => this.episodeSubforumListSignal.set(data),
+      error: (err) => console.error('Failed to load episode subforums', err),
+    });
   }
 
   loadEpisodeListPage(page: number, request: EpisodeFilterRequest) {
@@ -56,10 +70,11 @@ export class EpisodeService {
   }
 
   loadEpisodeTemplate(): void {
-    this.apiService.get<FieldTemplate[]>('template/episode/get').subscribe({
+    this.apiService.get<TemplateConfig>('template/episode/get').subscribe({
       next: (data) => {
-        const sortedData = data.sort((a, b) => a.order - b.order);
-        this.episodeTemplateSignal.set(sortedData);
+        this.episodeTemplateSignal.set((data.fields || []).sort((a, b) => a.order - b.order));
+        this.episodeTemplateBlocksSignal.set(data.blocks || []);
+        this.episodeTemplateBlockSettingsSignal.set(data.block_settings || []);
       },
       error: (err) => {
         console.error('Failed to load episode template', err);
@@ -67,8 +82,9 @@ export class EpisodeService {
     });
   }
 
-  saveEpisodeTemplate(template: FieldTemplate[]) {
-    return this.apiService.post('template/episode/update', template);
+  saveEpisodeTemplate(fields: FieldTemplate[], blocks: Block[], blockSettings: BlockSettingToggle[]) {
+    const payload: TemplateConfig = { fields, blocks, block_settings: blockSettings };
+    return this.apiService.post('template/episode/update', payload);
   }
 
   private episodeDbSchemaSignal = signal<{ machine_name: string; field_type: string }[]>([]);

@@ -1,0 +1,197 @@
+<div class="nc-shell">
+  <div class="nc-titlebar" i18n="@@movePostsAdmin.title">Move Posts</div>
+
+  <div class="nc-toolbar">
+    <div class="nc-toolbar-left">
+      <button
+        class="nc-btn"
+        [class.nc-btn--active]="canMove()"
+        [disabled]="!canMove()"
+        (click)="movePosts()"
+        i18n="@@movePostsAdmin.move"
+      >Move &rarr;</button>
+      @if (statusMessage) {
+        <span class="nc-status" [class.nc-status--error]="statusError">{{ statusMessage }}</span>
+      }
+    </div>
+  </div>
+
+  <div class="nc-panels">
+
+    <!-- LEFT PANEL: donor -->
+    <div class="nc-panel">
+      <div class="nc-panel-header">
+        @if (left.view === 'posts' && left.openTopic) {
+          <span class="nc-breadcrumb">{{ left.openSubforum?.name }}</span>
+          <span class="nc-sep">/</span>
+          <span>{{ left.openTopic.name }}</span>
+        } @else if (left.view === 'topics' && left.openSubforum) {
+          {{ left.openSubforum.name }}
+        } @else {
+          <ng-container i18n="@@movePostsAdmin.subforums">Subforums</ng-container>
+        }
+      </div>
+
+      <div class="nc-panel-body">
+        @if (left.loading) {
+          <div class="nc-loading" i18n="@@movePostsAdmin.loading">Loading...</div>
+
+        } @else if (left.view === 'posts') {
+          <div class="nc-row nc-row--back" (click)="backToTopics(left)">
+            <span class="nc-back">[..]</span>
+          </div>
+          @for (post of left.posts; track post.id; let i = $index) {
+            <div
+              class="nc-post-row"
+              [class.nc-post-row--selected]="left.selectedPostIds.has(post.id)"
+              (click)="togglePost(left, post)"
+            >
+              <div class="nc-post-meta">
+                <span class="nc-checkbox">{{ left.selectedPostIds.has(post.id) ? '[x]' : '[ ]' }}</span>
+                <span class="nc-post-num">#{{ postIndex(left, i) }}</span>
+                <span class="nc-post-author">{{ post.author_user_name }}</span>
+                <span class="nc-post-date">{{ post.date_created_localized }}</span>
+              </div>
+              <div class="nc-post-preview">{{ previewContent(post.content) }}</div>
+            </div>
+          }
+          @if (left.posts.length === 0) {
+            <div class="nc-empty" i18n="@@movePostsAdmin.noPosts">No posts</div>
+          }
+          @if (left.postTotalPages > 1) {
+            <div class="nc-pagination">
+              <button class="nc-btn nc-btn--active nc-btn--page" [disabled]="left.postPage <= 1" (click)="fetchPosts(left, left.postPage - 1)">&lsaquo;</button>
+              <span class="nc-page-info">{{ left.postPage }} / {{ left.postTotalPages }}</span>
+              <button class="nc-btn nc-btn--active nc-btn--page" [disabled]="left.postPage >= left.postTotalPages" (click)="fetchPosts(left, left.postPage + 1)">&rsaquo;</button>
+            </div>
+          }
+
+        } @else if (left.view === 'topics') {
+          <div class="nc-row nc-row--back" (click)="backToSubforums(left)">
+            <span class="nc-back">[..]</span>
+          </div>
+          @for (topic of left.topics; track topic.id) {
+            <div class="nc-row nc-row--topic" (click)="openTopic(left, topic)">
+              <span class="nc-arrow">&rsaquo;</span>
+              <span class="nc-topic-name">{{ topic.name }}</span>
+              <span class="nc-topic-meta">{{ topic.post_number }}</span>
+            </div>
+          }
+          @if (left.topics.length === 0) {
+            <div class="nc-empty" i18n="@@movePostsAdmin.noTopics">No topics</div>
+          }
+          @if (left.topicTotalPages > 1) {
+            <div class="nc-pagination">
+              <button class="nc-btn nc-btn--active nc-btn--page" [disabled]="left.topicPage <= 1" (click)="fetchTopics(left, left.topicPage - 1)">&lsaquo;</button>
+              <span class="nc-page-info">{{ left.topicPage }} / {{ left.topicTotalPages }}</span>
+              <button class="nc-btn nc-btn--active nc-btn--page" [disabled]="left.topicPage >= left.topicTotalPages" (click)="fetchTopics(left, left.topicPage + 1)">&rsaquo;</button>
+            </div>
+          }
+
+        } @else {
+          @for (category of categories; track category.id) {
+            <div class="nc-category">{{ category.name }}</div>
+            @for (subforum of category.subforums; track subforum.id) {
+              <div class="nc-row nc-row--subforum" (click)="openSubforum(left, subforum)">
+                <span class="nc-arrow">&rsaquo;</span>
+                <span class="nc-subforum-name">{{ subforum.name }}</span>
+                <span class="nc-subforum-meta">{{ subforum.topic_number }}</span>
+              </div>
+            }
+          }
+        }
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL: target -->
+    <div class="nc-panel">
+      <div class="nc-panel-header">
+        @if (right.view === 'posts' && right.openTopic) {
+          <span class="nc-breadcrumb">{{ right.openSubforum?.name }}</span>
+          <span class="nc-sep">/</span>
+          <span>{{ right.openTopic.name }}</span>
+        } @else if (right.view === 'topics' && right.openSubforum) {
+          {{ right.openSubforum.name }}
+        } @else {
+          <ng-container i18n="@@movePostsAdmin.subforums">Subforums</ng-container>
+        }
+      </div>
+
+      <div class="nc-panel-body">
+        @if (right.loading) {
+          <div class="nc-loading" i18n="@@movePostsAdmin.loading">Loading...</div>
+
+        } @else if (right.view === 'posts') {
+          <div class="nc-row nc-row--back" (click)="backToTopics(right)">
+            <span class="nc-back">[..]</span>
+          </div>
+          @for (item of getInterleavedPosts(); track item.post.id) {
+            @if (item.type === 'incoming') {
+              <div class="nc-post-row nc-post-row--incoming">
+                <div class="nc-post-meta">
+                  <span class="nc-incoming-arrow">&rarr;</span>
+                  <span class="nc-post-author">{{ item.post.author_user_name }}</span>
+                  <span class="nc-post-date">{{ item.post.date_created_localized }}</span>
+                </div>
+                <div class="nc-post-preview">{{ previewContent(item.post.content) }}</div>
+              </div>
+            } @else {
+              <div class="nc-post-row">
+                <div class="nc-post-meta">
+                  <span class="nc-post-author">{{ item.post.author_user_name }}</span>
+                  <span class="nc-post-date">{{ item.post.date_created_localized }}</span>
+                </div>
+                <div class="nc-post-preview">{{ previewContent(item.post.content) }}</div>
+              </div>
+            }
+          }
+          @if (right.posts.length === 0 && left.selectedPostIds.size === 0) {
+            <div class="nc-empty" i18n="@@movePostsAdmin.noPosts">No posts</div>
+          }
+          @if (right.postTotalPages > 1) {
+            <div class="nc-pagination">
+              <button class="nc-btn nc-btn--active nc-btn--page" [disabled]="right.postPage <= 1" (click)="fetchPosts(right, right.postPage - 1)">&lsaquo;</button>
+              <span class="nc-page-info">{{ right.postPage }} / {{ right.postTotalPages }}</span>
+              <button class="nc-btn nc-btn--active nc-btn--page" [disabled]="right.postPage >= right.postTotalPages" (click)="fetchPosts(right, right.postPage + 1)">&rsaquo;</button>
+            </div>
+          }
+
+        } @else if (right.view === 'topics') {
+          <div class="nc-row nc-row--back" (click)="backToSubforums(right)">
+            <span class="nc-back">[..]</span>
+          </div>
+          @for (topic of right.topics; track topic.id) {
+            <div class="nc-row nc-row--topic" (click)="openTopic(right, topic)">
+              <span class="nc-arrow">&rsaquo;</span>
+              <span class="nc-topic-name">{{ topic.name }}</span>
+              <span class="nc-topic-meta">{{ topic.post_number }}</span>
+            </div>
+          }
+          @if (right.topics.length === 0) {
+            <div class="nc-empty" i18n="@@movePostsAdmin.noTopics">No topics</div>
+          }
+          @if (right.topicTotalPages > 1) {
+            <div class="nc-pagination">
+              <button class="nc-btn nc-btn--active nc-btn--page" [disabled]="right.topicPage <= 1" (click)="fetchTopics(right, right.topicPage - 1)">&lsaquo;</button>
+              <span class="nc-page-info">{{ right.topicPage }} / {{ right.topicTotalPages }}</span>
+              <button class="nc-btn nc-btn--active nc-btn--page" [disabled]="right.topicPage >= right.topicTotalPages" (click)="fetchTopics(right, right.topicPage + 1)">&rsaquo;</button>
+            </div>
+          }
+
+        } @else {
+          @for (category of categories; track category.id) {
+            <div class="nc-category">{{ category.name }}</div>
+            @for (subforum of category.subforums; track subforum.id) {
+              <div class="nc-row nc-row--subforum" (click)="openSubforum(right, subforum)">
+                <span class="nc-arrow">&rsaquo;</span>
+                <span class="nc-subforum-name">{{ subforum.name }}</span>
+                <span class="nc-subforum-meta">{{ subforum.topic_number }}</span>
+              </div>
+            }
+          }
+        }
+      </div>
+    </div>
+
+  </div>
+</div>

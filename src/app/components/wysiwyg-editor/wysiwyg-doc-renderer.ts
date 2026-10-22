@@ -5,8 +5,44 @@
 // up to the nearest [data-doc-path] element and counting inline characters.
 
 import {
-  DocModel, BlockNode, ParagraphNode, InlineNode, Mark,
+  DocModel, BlockNode, ParagraphNode, InlineNode, Mark, NpcBlockNode, HideNode, DivNode, RawBlockNode, GridNode, TableNode,
 } from './wysiwyg-doc-model';
+
+function audioEmbedHtml(url: string, sourceSite?: string): string {
+  try {
+    switch (sourceSite) {
+      case 'soundcloud': {
+        const u = new URL(url);
+        if (u.hostname === 'soundcloud.com' || u.hostname === 'www.soundcloud.com') {
+          const embed = `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%23ff5500&auto_play=false`;
+          return `<iframe src="${esc(embed)}" width="100%" height="166" frameborder="0" allow="autoplay" loading="lazy"></iframe>`;
+        }
+        break;
+      }
+      case 'spotify': {
+        const u = new URL(url);
+        if (u.hostname === 'open.spotify.com') {
+          const embedPath = u.pathname.replace(/^\/(track|album|playlist|episode)\//, '/embed/$1/');
+          const embed = `https://open.spotify.com${embedPath}`;
+          return `<iframe src="${esc(embed)}" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+        }
+        break;
+      }
+      case 'archive': {
+        const u = new URL(url);
+        if (u.hostname === 'archive.org') {
+          const m = u.pathname.match(/^\/(details|download)\/(.+)/);
+          if (m) {
+            const embed = `https://archive.org/embed/${m[2]}`;
+            return `<iframe src="${esc(embed)}" width="100%" height="60" frameborder="0" loading="lazy"></iframe>`;
+          }
+        }
+        break;
+      }
+    }
+  } catch { /* fall through */ }
+  return `<audio controls src="${esc(safeSrc(url))}" style="width:100%"></audio>`;
+}
 
 function youtubeEmbedUrl(url: string): string | null {
   try {
@@ -41,9 +77,12 @@ export function renderBlock(block: BlockNode, blockIdx: number): string {
       return renderPara(block, [blockIdx]);
 
     case 'align':
-      // Each child paragraph becomes its own aligned div at the top level.
       return block.children
-        .map((p, pi) => renderPara(p, [blockIdx, pi], block.align))
+        .map((child, pi) =>
+          child.type === 'paragraph'
+            ? renderPara(child, [blockIdx, pi], block.align)
+            : renderBlockStatic(child)
+        )
         .join('');
 
     case 'code': {
@@ -68,7 +107,9 @@ export function renderBlock(block: BlockNode, blockIdx: number): string {
     case 'spoiler': {
       const title = esc(block.title ?? 'Spoiler');
       const inner = block.children
-        .map((p, pi) => renderPara(p, [blockIdx, pi]))
+        .map((child, pi) =>
+          child.type === 'paragraph' ? renderPara(child, [blockIdx, pi]) : renderBlockStatic(child)
+        )
         .join('');
       return (
         `<div class="wysiwyg-spoiler" data-doc-path="${blockIdx}">` +
@@ -83,7 +124,128 @@ export function renderBlock(block: BlockNode, blockIdx: number): string {
       if (!embedUrl) return `<div class="wysiwyg-video" contenteditable="false"></div>`;
       return `<div class="wysiwyg-video" contenteditable="false"><iframe src="${esc(embedUrl)}" width="560" height="315" frameborder="0" allowfullscreen loading="lazy"></iframe></div>`;
     }
+
+    case 'audio':
+      return `<div class="wysiwyg-audio" contenteditable="false">${audioEmbedHtml(block.url, block.sourceSite)}</div>`;
+
+    case 'npc-block':
+      return renderNpcBlock(block, blockIdx);
+
+    case 'hide':
+      return renderHideBlock(block, blockIdx);
+
+    case 'grid':
+      return renderGrid(block, blockIdx);
+
+    case 'table':
+      return renderTable(block, blockIdx);
+
+    case 'div': {
+      const classAttr = block.className ? `wysiwyg-div ${esc(block.className)}` : 'wysiwyg-div';
+      const idAttr    = block.id    ? ` id="${esc(block.id)}"`      : '';
+      const styleAttr = block.style ? ` style="${esc(block.style)}"` : '';
+      const inner = block.children
+        .map((child, pi) =>
+          child.type === 'paragraph' ? renderPara(child, [blockIdx, pi]) : renderBlockStatic(child)
+        )
+        .join('');
+      return `<div class="${classAttr}"${idAttr}${styleAttr} data-doc-path="${blockIdx}">${inner}</div>`;
+    }
+
+    case 'raw':
+      return renderRawBlock(block);
   }
+}
+
+function renderNpcBlock(block: NpcBlockNode, blockIdx: number): string {
+  const header = renderNpcHeader(block);
+  const inner = block.children.map((child, pi) =>
+    child.type === 'paragraph' ? renderPara(child, [blockIdx, pi]) : renderBlockStatic(child)
+  ).join('');
+  return (
+    `<div class="wysiwyg-npc-block" data-doc-path="${blockIdx}">` +
+      `<div class="wysiwyg-npc-header" contenteditable="false">${header}</div>` +
+      `<div class="wysiwyg-npc-body">${inner}</div>` +
+    `</div>`
+  );
+}
+
+function renderNpcHeader(block: NpcBlockNode): string {
+  if (block.npcs && block.npcs.length > 0) {
+    return block.npcs.map(npc => {
+      const avatar = npc.avatar
+        ? `<img class="wysiwyg-npc-avatar" src="${esc(safeSrc(npc.avatar))}" alt="${esc(npc.name)}">`
+        : `<span class="wysiwyg-npc-avatar wysiwyg-npc-avatar--placeholder"></span>`;
+      return `<a class="wysiwyg-npc-link" href="/npc/${npc.id}" target="_blank">${avatar}<span class="wysiwyg-npc-name">${esc(npc.name)}</span></a>`;
+    }).join('');
+  }
+  return esc(block.npcIds.length > 0 ? `NPC: ${block.npcIds.join(', ')}` : 'NPC block');
+}
+
+function renderGrid(block: GridNode, blockIdx: number): string {
+  const cols = block.columns;
+  const style = `display:grid;grid-template-columns:repeat(${cols},1fr)`;
+  const cells = block.children.map((cellBlocks, i) => {
+    const { col, colSpan } = block.cellMeta[i];
+    const cellStyle = `grid-column:${col}/span ${colSpan};min-width:0`;
+    const content = cellBlocks.map((b, j) =>
+      b.type === 'paragraph' ? renderPara(b, [blockIdx, i, j]) : renderBlockStatic(b)
+    ).join('');
+    return `<div class="wysiwyg-grid-item" style="${cellStyle}">${content}</div>`;
+  }).join('');
+  return `<div class="wysiwyg-grid" data-doc-path="${blockIdx}" style="${style}">${cells}</div>`;
+}
+
+function renderTable(block: TableNode, blockIdx: number): string {
+  let html = `<table class="wysiwyg-table" data-doc-path="${blockIdx}"><tbody>`;
+  let rowOpen = false;
+  for (let i = 0; i < block.children.length; i++) {
+    const { colSpan, rowSpan, isFirstInRow } = block.cellMeta[i];
+    if (isFirstInRow) {
+      if (rowOpen) html += '</tr>';
+      html += '<tr>';
+      rowOpen = true;
+    }
+    let attrs = '';
+    if (colSpan > 1) attrs += ` colspan="${colSpan}"`;
+    if (rowSpan > 1) attrs += ` rowspan="${rowSpan}"`;
+    const content = block.children[i].map((b, j) =>
+      b.type === 'paragraph' ? renderPara(b, [blockIdx, i, j]) : renderBlockStatic(b)
+    ).join('');
+    html += `<td${attrs}>${content}</td>`;
+  }
+  if (rowOpen) html += '</tr>';
+  html += '</tbody></table>';
+  return html;
+}
+
+function renderRawBlock(block: RawBlockNode): string {
+  return `<div class="wysiwyg-raw-block" contenteditable="false">[${esc(block.tag)}]</div>`;
+}
+
+function renderHideBlock(block: HideNode, blockIdx: number): string {
+  const header = renderHideHeader(block);
+  const inner = block.children.map((child, pi) =>
+    child.type === 'paragraph' ? renderPara(child, [blockIdx, pi]) : renderBlockStatic(child)
+  ).join('');
+  return (
+    `<div class="wysiwyg-hide" data-doc-path="${blockIdx}">` +
+      `<div class="wysiwyg-hide-header" contenteditable="false">${header}</div>` +
+      `<div class="wysiwyg-hide-body">${inner}</div>` +
+    `</div>`
+  );
+}
+
+function renderHideHeader(block: HideNode): string {
+  const prefix = 'Visible to: ';
+  if (block.users && block.users.length > 0) {
+    const links = block.users.map(u =>
+      `<a class="wysiwyg-hide-user-link" href="/profile/${u.id}" target="_blank">${esc(u.username)}</a>`
+    ).join(', ');
+    return esc(prefix) + links;
+  }
+  if (block.userIds.length > 0) return esc(`${prefix}${block.userIds.join(', ')}`);
+  return esc('Hidden');
 }
 
 // ─── Paragraph rendering ─────────────────────────────────────────────────────
@@ -127,8 +289,9 @@ function renderBlockStatic(block: BlockNode): string {
       return `<div class="wysiwyg-spoiler"><div class="wysiwyg-spoiler-header">${title}</div><div class="wysiwyg-spoiler-content">${inner}</div></div>`;
     }
     case 'align': {
-      return block.children.map(p => {
-        const content = p.children.length > 0 ? p.children.map(renderInline).join('') : '<br>';
+      return block.children.map(b => {
+        if (b.type !== 'paragraph') return renderBlockStatic(b);
+        const content = b.children.length > 0 ? b.children.map(renderInline).join('') : '<br>';
         return `<div style="text-align:${block.align}">${content}</div>`;
       }).join('');
     }
@@ -137,7 +300,81 @@ function renderBlockStatic(block: BlockNode): string {
       if (!embedUrl) return `<div class="wysiwyg-video" contenteditable="false"></div>`;
       return `<div class="wysiwyg-video" contenteditable="false"><iframe src="${esc(embedUrl)}" width="560" height="315" frameborder="0" allowfullscreen loading="lazy"></iframe></div>`;
     }
+
+    case 'audio':
+      return `<div class="wysiwyg-audio" contenteditable="false">${audioEmbedHtml(block.url, block.sourceSite)}</div>`;
+    case 'npc-block': {
+      const header = renderNpcHeader(block);
+      const inner = block.children.map(b =>
+        b.type === 'paragraph' ? renderParaStatic(b) : renderBlockStatic(b)
+      ).join('');
+      return (
+        `<div class="wysiwyg-npc-block">` +
+          `<div class="wysiwyg-npc-header" contenteditable="false">${header}</div>` +
+          `<div class="wysiwyg-npc-body">${inner}</div>` +
+        `</div>`
+      );
+    }
+    case 'hide': {
+      const header = renderHideHeader(block);
+      const inner = block.children.map(b =>
+        b.type === 'paragraph' ? renderParaStatic(b) : renderBlockStatic(b)
+      ).join('');
+      return (
+        `<div class="wysiwyg-hide">` +
+          `<div class="wysiwyg-hide-header" contenteditable="false">${header}</div>` +
+          `<div class="wysiwyg-hide-body">${inner}</div>` +
+        `</div>`
+      );
+    }
+    case 'div': {
+      const classAttr = block.className ? `wysiwyg-div ${esc(block.className)}` : 'wysiwyg-div';
+      const idAttr    = block.id    ? ` id="${esc(block.id)}"`      : '';
+      const styleAttr = block.style ? ` style="${esc(block.style)}"` : '';
+      const inner = block.children.map(b =>
+        b.type === 'paragraph' ? renderParaStatic(b) : renderBlockStatic(b)
+      ).join('');
+      return `<div class="${classAttr}"${idAttr}${styleAttr}>${inner}</div>`;
+    }
+    case 'grid': {
+      const cols = block.columns;
+      const style = `display:grid;grid-template-columns:repeat(${cols},1fr)`;
+      const cells = block.children.map((cellBlocks, i) => {
+        const { col, colSpan } = block.cellMeta[i];
+        const cellStyle = `grid-column:${col}/span ${colSpan};min-width:0`;
+        const content = cellBlocks.map(b =>
+          b.type === 'paragraph' ? renderParaStatic(b) : renderBlockStatic(b)
+        ).join('');
+        return `<div class="wysiwyg-grid-item" style="${cellStyle}">${content}</div>`;
+      }).join('');
+      return `<div class="wysiwyg-grid" style="${style}">${cells}</div>`;
+    }
+    case 'table': {
+      let html = '<table class="wysiwyg-table"><tbody>';
+      let rowOpen = false;
+      for (let i = 0; i < block.children.length; i++) {
+        const { colSpan, rowSpan, isFirstInRow } = block.cellMeta[i];
+        if (isFirstInRow) {
+          if (rowOpen) html += '</tr>';
+          html += '<tr>';
+          rowOpen = true;
+        }
+        let attrs = '';
+        if (colSpan > 1) attrs += ` colspan="${colSpan}"`;
+        if (rowSpan > 1) attrs += ` rowspan="${rowSpan}"`;
+        const content = block.children[i].map(b =>
+          b.type === 'paragraph' ? renderParaStatic(b) : renderBlockStatic(b)
+        ).join('');
+        html += `<td${attrs}>${content}</td>`;
+      }
+      if (rowOpen) html += '</tr>';
+      html += '</tbody></table>';
+      return html;
+    }
+    case 'raw':
+      return renderRawBlock(block);
   }
+  return '';
 }
 
 // ─── Inline rendering ────────────────────────────────────────────────────────

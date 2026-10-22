@@ -1,5 +1,5 @@
-import { Component, Input, Output, EventEmitter, ViewChild, AfterViewInit, inject, OnDestroy, OnInit, signal, computed, ElementRef } from '@angular/core';
-import { Subject, Subscription } from 'rxjs';
+import { Component, Input, Output, EventEmitter, ViewChild, AfterViewInit, inject, OnDestroy, OnInit, signal, computed, ElementRef, ChangeDetectorRef } from '@angular/core';
+import { Subject, Subscription, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
@@ -7,7 +7,9 @@ import { ImageService } from '../../services/image.service';
 import { BoardService } from '../../services/board.service';
 import { ApiService } from '../../services/api.service';
 import { CharacterService } from '../../services/character.service';
+import { ArcService } from '../../services/arc.service';
 import { UserShort } from '../../models/UserShort';
+import { ArcNpc } from '../../models/StoryArc';
 
 import { BbToolbarComponent } from '../bb-toolbar/bb-toolbar.component';
 import { WysiwygDocEditorComponent } from '../wysiwyg-editor/wysiwyg-doc-editor.component';
@@ -44,17 +46,23 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   @Input() initialContent: string = '';
+  @Input() skipDraftAutoLoad = false;
   @Input() isEpisode: boolean = false;
+  @Input() isGm: boolean = false;
+  @Input() arcId: number | null = null;
+  @Input() episodeId: number | null = null;
   @Input() topicId: number | null = null;
   @Input() characterId: number | null = null;
   @Output() characterIdChange = new EventEmitter<number | null>();
 
+  private cdr = inject(ChangeDetectorRef);
   private userService = inject(UserService);
   private authService = inject(AuthService);
   private imageService = inject(ImageService);
   private boardService = inject(BoardService);
   private apiService = inject(ApiService);
   private characterService = inject(CharacterService);
+  private arcService = inject(ArcService);
 
   editorMode = signal<EditorMode>(
     this.authService.currentUser()?.editor_type === 1 ? 'bbcode' : 'wysiwyg'
@@ -79,6 +87,32 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
   private mentionSubject = new Subject<string>();
   private mentionSub: Subscription;
 
+  // Hide panel state
+  showHidePanel = signal(false);
+  hideSearch = signal('');
+  hideSearchResults = signal<UserShort[]>([]);
+  selectedHideUsers = signal<UserShort[]>([]);
+  showHideDropdown = signal(false);
+  filteredHideResults = computed(() => {
+    const selectedIds = new Set(this.selectedHideUsers().map(u => u.id));
+    return this.hideSearchResults().filter(u => !selectedIds.has(u.id));
+  });
+  private hideSearchSubject = new Subject<string>();
+  private hideSearchSub?: Subscription;
+
+  // NPC panel state
+  showNpcPanel = signal(false);
+  npcSearch = signal('');
+  npcSearchResults = signal<ArcNpc[]>([]);
+  selectedNpcs = signal<ArcNpc[]>([]);
+  showNpcDropdown = signal(false);
+  filteredNpcResults = computed(() => {
+    const selectedIds = new Set(this.selectedNpcs().map(n => n.id));
+    return this.npcSearchResults().filter(n => !selectedIds.has(n.id));
+  });
+  private npcSearchSubject = new Subject<string>();
+  private npcSearchSub?: Subscription;
+
   // Autosave
   private autosaveSubject = new Subject<string>();
   private autosaveSub?: Subscription;
@@ -92,13 +126,31 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
     ).subscribe(results => {
       this.mentionResults = results;
     });
+
+    this.npcSearchSub = this.npcSearchSubject.pipe(
+      debounceTime(200),
+      distinctUntilChanged(),
+      switchMap(term => this.arcId != null ? this.arcService.searchNpcs(this.arcId, term) : of([]))
+    ).subscribe(results => {
+      this.npcSearchResults.set(results);
+    });
+
+    this.hideSearchSub = this.hideSearchSubject.pipe(
+      debounceTime(200),
+      distinctUntilChanged(),
+      switchMap(term => term.length >= 1 && this.episodeId != null
+        ? this.apiService.get<UserShort[]>(`user/autocomplete/${encodeURIComponent(term)}?episode_id=${this.episodeId}`)
+        : of([]))
+    ).subscribe(results => {
+      this.hideSearchResults.set(results);
+    });
   }
 
   protected isAuthenticated = this.authService.isAuthenticated;
 
   ngOnInit() {
     if (this.topicId && this.authService.isAuthenticated()) {
-      this.loadDrafts(true);
+      this.loadDrafts(!this.skipDraftAutoLoad);
       this.autosaveSub = this.autosaveSubject.pipe(debounceTime(3000)).subscribe(content => {
         this.autosaveStatus.set('saving');
         this.saveAutoDraft(content);
@@ -165,11 +217,14 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
     if (this.initialContent) {
       this.setValue(this.initialContent);
     }
+    this.cdr.detectChanges();
   }
 
   ngOnDestroy() {
     this.mentionSub.unsubscribe();
     this.autosaveSub?.unsubscribe();
+    this.npcSearchSub?.unsubscribe();
+    this.hideSearchSub?.unsubscribe();
     if (this.savedClearTimer) clearTimeout(this.savedClearTimer);
   }
 
@@ -335,6 +390,65 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
     }
   }
 
+  toggleHidePanel(): void {
+    if (this.editorMode() === 'wysiwyg' && this.wysiwygEditor?.activeFormats().has('hide')) {
+      this.wysiwygEditor.unwrapBlock('.wysiwyg-hide');
+      return;
+    }
+    if (this.showHidePanel()) {
+      this.closeHidePanel();
+    } else {
+      this.showHidePanel.set(true);
+      this.hideSearch.set('');
+      this.selectedHideUsers.set([]);
+      this.hideSearchSubject.next('');
+      this.showHideDropdown.set(false);
+    }
+  }
+
+  closeHidePanel(): void {
+    this.showHidePanel.set(false);
+    this.hideSearch.set('');
+    this.hideSearchResults.set([]);
+    this.selectedHideUsers.set([]);
+    this.showHideDropdown.set(false);
+  }
+
+  onHideSearchChange(value: string): void {
+    this.hideSearch.set(value);
+    this.hideSearchSubject.next(value);
+    this.showHideDropdown.set(true);
+  }
+
+  onHideSearchFocus(): void { this.showHideDropdown.set(true); }
+
+  onHideSearchBlur(): void {
+    setTimeout(() => this.showHideDropdown.set(false), 150);
+  }
+
+  selectHideUser(user: UserShort): void {
+    this.selectedHideUsers.update(list => [...list, user]);
+    this.hideSearch.set('');
+    this.hideSearchResults.set([]);
+    this.showHideDropdown.set(false);
+  }
+
+  removeHideUser(user: UserShort): void {
+    this.selectedHideUsers.update(list => list.filter(u => u.id !== user.id));
+  }
+
+  insertHideBlock(): void {
+    const users = this.selectedHideUsers();
+    if (!users.length) return;
+    if (this.editorMode() === 'wysiwyg' && this.wysiwygEditor) {
+      this.wysiwygEditor.insertHideBlockDirect(users.map(u => ({ id: u.id, username: u.username })));
+    } else {
+      const ids = users.map(u => u.id).join(',');
+      this.appendBbCode(`[hide users=${ids}][/hide]`);
+    }
+    this.closeHidePanel();
+  }
+
   appendBbCode(bbCode: string): void {
     if (this.editorMode() === 'wysiwyg') {
       this.wysiwygEditor?.insertBbCodeBlocks(bbCode);
@@ -373,6 +487,27 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
     if (this.savedClearTimer) { clearTimeout(this.savedClearTimer); this.savedClearTimer = null; }
     this.autosaveStatus.set('typing');
     this.autosaveSubject.next(this.getValue());
+  }
+
+  onBbKeyDown(event: KeyboardEvent): void {
+    if (!event.ctrlKey && !event.metaKey) return;
+    const keyChar = event.code?.startsWith('Key')
+      ? event.code.slice(3).toLowerCase()
+      : event.key.toLowerCase();
+    const tagMap: Record<string, string> = { b: 'b', i: 'i', u: 'u', s: 's' };
+    const tag = tagMap[keyChar];
+    if (!tag) return;
+    event.preventDefault();
+    const el = this.messageField?.nativeElement;
+    if (!el) return;
+    const start = el.selectionStart ?? 0;
+    const end = el.selectionEnd ?? 0;
+    const selected = el.value.substring(start, end);
+    const open = `[${tag}]`, close = `[/${tag}]`;
+    el.value = el.value.substring(0, start) + open + selected + close + el.value.substring(end);
+    const cursor = selected.length > 0 ? start + open.length + selected.length + close.length : start + open.length;
+    el.setSelectionRange(cursor, cursor);
+    el.focus();
   }
 
   onTextareaInput(): void {
@@ -422,6 +557,73 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
     }
     this.mentionResults = [];
     this.mentionAtPos = -1;
+  }
+
+  // --- NPC panel ---
+
+  toggleNpcPanel(): void {
+    if (this.editorMode() === 'wysiwyg' && this.wysiwygEditor?.activeFormats().has('npc-block')) {
+      this.wysiwygEditor.unwrapBlock('.wysiwyg-npc-block');
+      return;
+    }
+    if (this.showNpcPanel()) {
+      this.closeNpcPanel();
+    } else {
+      this.showNpcPanel.set(true);
+      this.npcSearch.set('');
+      this.selectedNpcs.set([]);
+      this.npcSearchSubject.next('');
+      this.showNpcDropdown.set(true);
+    }
+  }
+
+  closeNpcPanel(): void {
+    this.showNpcPanel.set(false);
+    this.npcSearch.set('');
+    this.npcSearchResults.set([]);
+    this.selectedNpcs.set([]);
+    this.showNpcDropdown.set(false);
+  }
+
+  onNpcSearchChange(value: string): void {
+    this.npcSearch.set(value);
+    this.npcSearchSubject.next(value);
+    this.showNpcDropdown.set(true);
+  }
+
+  onNpcSearchFocus(): void {
+    this.showNpcDropdown.set(true);
+    if (!this.npcSearchResults().length) {
+      this.npcSearchSubject.next(this.npcSearch());
+    }
+  }
+
+  onNpcSearchBlur(): void {
+    setTimeout(() => this.showNpcDropdown.set(false), 150);
+  }
+
+  selectNpc(npc: ArcNpc): void {
+    if (!this.selectedNpcs().some(n => n.id === npc.id)) {
+      this.selectedNpcs.update(list => [...list, npc]);
+    }
+    this.showNpcDropdown.set(false);
+  }
+
+  removeNpc(npc: ArcNpc): void {
+    this.selectedNpcs.update(list => list.filter(n => n.id !== npc.id));
+  }
+
+  insertNpcBlock(): void {
+    const npcs = this.selectedNpcs();
+    if (!npcs.length) return;
+    if (this.editorMode() === 'wysiwyg' && this.wysiwygEditor) {
+      this.wysiwygEditor.insertNpcBlockDirect(npcs.map(n => ({ id: n.id, name: n.name, avatar: n.avatar })));
+    } else {
+      const npcTags = npcs.map(n => `[npc id=${n.id}]`).join('');
+      const bb = `[npc-block][npc-header]${npcTags}[/npc-header][npc-body][/npc-body][/npc-block]`;
+      this.appendBbCode(bb);
+    }
+    this.closeNpcPanel();
   }
 
   closeMention() {

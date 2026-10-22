@@ -28,6 +28,7 @@ import { WantedCharacterCreateComponent } from '../wanted-character-create/wante
 import { WantedCharacterService } from '../services/wanted-character.service';
 import { EpisodeService } from '../services/episode.service';
 import { PreviewService } from '../services/preview.service';
+import { NotificationService } from '../services/notification.service';
 import { LoreTopicHeaderComponent } from '../components/lore-topic-header/lore-topic-header.component';
 import { UserInfoComponent } from '../components/user-info/user-info.component';
 import { StandardWarning } from '../models/StandardWarning';
@@ -75,6 +76,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   authService = inject(AuthService);
   boardService = inject(BoardService);
   previewService = inject(PreviewService);
+  private notificationService = inject(NotificationService);
   router = inject(Router);
   route = inject(ActivatedRoute);
   private locale = inject(LOCALE_ID);
@@ -85,7 +87,6 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   postId = input<number | undefined, unknown>(undefined, { transform: numberAttribute, alias: 'post_id' });
 
   topic = this.topicService.topic;
-  posts = this.topicService.posts;
   subforum = this.forumService.subforum;
   userCharacterProfiles = this.characterService.userCharacterProfiles;
 
@@ -95,14 +96,39 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
   breadcrumbs: BreadcrumbItem[] = [];
   showPostForm = signal<boolean>(false);
+  keepFormForFullTopic = signal(false);
+  hasPreviewRestore = computed(() => {
+    const s = this.previewService.state();
+    return s?.formType === 'post' && !!s.formPayload?.content;
+  });
+  profilesReady = signal(false);
   sidebarMode = signal(false);
   sidebarProfileCompact = signal(false);
-  loadProfiles = true;
-  showAccount = true;
+  readonly showAccountInForm = computed(() => this.topic().type !== TopicType.episode);
+  readonly isProfilesLoading = computed(() => {
+    const t = this.topic();
+    return t.id !== 0 &&
+      (t.type === TopicType.episode || t.type === TopicType.general) &&
+      !this.profilesReady() &&
+      (t.permissions?.subforum_post ?? false);
+  });
   savedTopicCharacter = signal<number | undefined>(undefined);
   isTopicLoading = computed(() => !!this.id() && this.topic().id !== this.id());
 
   postsPerPage = computed(() => this.boardService.board().posts_per_page || 15);
+
+  currentPagePosts = computed(() => {
+    const page = this.pageNumber();
+    const apiPosts = this.topicService.posts();
+    const wsPosts = this.topicService.wsNewPosts()
+      .filter(e => e.page === page)
+      .map(e => e.post);
+    return [...apiPosts, ...wsPosts];
+  });
+
+  hasNewPostsOnAnotherPage = computed(() =>
+    this.topicService.wsNewPosts().some(e => e.page !== this.pageNumber())
+  );
 
   totalPages = computed(() => {
     const totalPosts = this.topic()?.post_number || 0;
@@ -132,6 +158,8 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     return result;
   });
 
+  isSubscribed = signal<boolean>(false);
+
   editingPostId = signal<number | null>(null);
   editingPostProfileId = signal<number | null>(null);
   editingTopic = signal(false);
@@ -148,6 +176,10 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   readonly isEpisodeParticipant = computed(() =>
     (this.topic().can_edit ?? false) || this.userCharacterProfiles().length > 0
   );
+
+  isGmPostMode = signal(false);
+  readonly showGmToggle = computed(() => this.topic().episode?.is_gm ?? false);
+  readonly effectiveGmPost = computed(() => this.isGmPostMode());
 
   get shouldBlur(): boolean {
     if (this.blurAcknowledged()) return false;
@@ -247,18 +279,20 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
         if (currentTopicId && t.id === currentTopicId && this.lastLoadedProfilesForTopicId !== currentTopicId) {
           if (t.type === TopicType.character) {
-            this.loadProfiles = false;
-            this.showAccount = true;
             this.lastLoadedProfilesForTopicId = currentTopicId;
           } else if (t.type === TopicType.episode) {
-            this.loadProfiles = false;
-            this.showAccount = false;
-            this.characterService.loadUserCharacterProfilesForTopic(currentTopicId);
+            this.profilesReady.set(false);
+            this.characterService.loadUserCharacterProfilesForTopic(currentTopicId).subscribe({
+              next: () => this.profilesReady.set(true),
+              error: () => this.profilesReady.set(true),
+            });
             this.lastLoadedProfilesForTopicId = currentTopicId;
           } else if (t.type === TopicType.general) {
-            this.loadProfiles = false;
-            this.showAccount = true;
-            this.characterService.loadUserCharacterProfilesForTopic(currentTopicId);
+            this.profilesReady.set(false);
+            this.characterService.loadUserCharacterProfilesForTopic(currentTopicId).subscribe({
+              next: () => this.profilesReady.set(true),
+              error: () => this.profilesReady.set(true),
+            });
             this.lastLoadedProfilesForTopicId = currentTopicId;
             const saved = sessionStorage.getItem(`topic-char-${currentTopicId}`);
             this.savedTopicCharacter.set(saved !== null ? JSON.parse(saved) : undefined);
@@ -271,6 +305,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     effect(() => {
       const t = this.topic();
       const profiles = this.userCharacterProfiles();
+      const profilesReady = this.profilesReady();
 
       // Check topic permissions first
       if (!t.permissions || !t.permissions.subforum_post) {
@@ -278,15 +313,28 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
         return;
       }
 
-      if (t.status === TopicStatus.inactive || t.status === TopicStatus.full) {
+      if (t.status === TopicStatus.inactive) {
+        this.showPostForm.set(false);
+        return;
+      }
+      if (t.status === TopicStatus.full && !this.keepFormForFullTopic()) {
         this.showPostForm.set(false);
         return;
       }
 
       if (t.type === TopicType.episode) {
-        this.showPostForm.set(profiles.length > 0);
+        this.showPostForm.set(profilesReady && (profiles.length > 0 || (t.episode?.is_gm ?? false)));
+      } else if (t.type === TopicType.general) {
+        this.showPostForm.set(profilesReady);
       } else {
         this.showPostForm.set(true);
+      }
+    });
+
+    effect(() => {
+      const t = this.topic();
+      if (t.id !== 0 && t.is_subscribed !== undefined) {
+        this.isSubscribed.set(t.is_subscribed);
       }
     });
 
@@ -297,8 +345,13 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
         if (state?.formType === 'post' && state.formPayload?.content) {
           setTimeout(() => {
             if (this.postForm) {
+              const mode = state.formPayload.editorMode;
+              if (mode === 'wysiwyg' || mode === 'bbcode') {
+                this.postForm.editorMode.set(mode);
+              }
               this.postForm.setValue(state.formPayload.content);
               this.previewService.clear();
+              document.getElementById('post-form')?.scrollIntoView({ behavior: 'smooth' });
             }
           });
         }
@@ -345,9 +398,19 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   ngOnInit() {
     document.addEventListener('visibilitychange', this.onVisibilityChange);
 
-    this.topicService.ownPostAdded$.pipe(takeUntil(this.destroy$)).subscribe(postId => {
+    this.topicService.ownPostAdded$.pipe(takeUntil(this.destroy$)).subscribe(({ postId, page }) => {
       this.isSubmitting.set(false);
-      setTimeout(() => document.getElementById(String(postId))?.scrollIntoView({ behavior: 'smooth' }));
+      if (page !== this.pageNumber()) {
+        this.router.navigate(['/viewtopic', this.id()], { queryParams: { page } });
+      } else {
+        setTimeout(() => document.getElementById(String(postId))?.scrollIntoView({ behavior: 'smooth' }));
+      }
+    });
+
+    this.notificationService.topicFull$.pipe(takeUntil(this.destroy$)).subscribe(event => {
+      if (event.topic_id !== this.id()) return;
+      if (this.showPostForm()) this.keepFormForFullTopic.set(true);
+      this.topicService.updateTopicStatus(TopicStatus.full);
     });
 
     this.pageLoadedSubscription = this.topicService.pageLoaded$.subscribe(pageState => {
@@ -366,6 +429,12 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
           replaceUrl: true,
           ...(currentPostId ? { fragment: String(currentPostId) } : {})
         });
+      }
+
+      // anchorScrolling fires before posts render; scroll manually after DOM update
+      const fragment = currentPostId ? String(currentPostId) : this.route.snapshot.fragment;
+      if (fragment) {
+        setTimeout(() => document.getElementById(fragment)?.scrollIntoView({ behavior: 'smooth' }));
       }
     });
   }
@@ -449,23 +518,23 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     });
   }
 
+  private savedSelection = '';
+
+  saveSelection() {
+    this.savedSelection = window.getSelection()?.toString().trim() ?? '';
+  }
+
   quotePost(post: Post, event: Event) {
     event.preventDefault();
 
-    let quoteContent = '';
-    const selection = window.getSelection();
-
-    if (selection && selection.toString().trim().length > 0) {
-      quoteContent = selection.toString().trim();
-    } else {
-      quoteContent = post.content;
-    }
+    const quoteContent = this.savedSelection.length > 0 ? this.savedSelection : post.content;
+    this.savedSelection = '';
 
     const authorName = post.use_character_profile && post.character_profile
       ? post.character_profile.character_name
       : post.user_profile?.user_name || 'Unknown';
 
-    const formattedQuote = `[quote=${authorName} user-id=${post.author_user_id}]${quoteContent}[/quote]\n`;
+    const formattedQuote = `[quote="${authorName}" user-id=${post.author_user_id} topic-id=${this.id()} post-id=${post.id}]${quoteContent}[/quote]\n`;
 
     if (this.postForm) {
       this.postForm.appendBbCode(formattedQuote);
@@ -509,20 +578,24 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
     this.isSubmitting.set(true);
 
-    let characterProfileId: number | null = null;
-    if (this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any) {
-      const profile = this.userCharacterProfiles().find(p => p.id === this.selectedCharacterId);
-      if (profile) {
-        characterProfileId = profile.id;
-      }
-    }
+    const topicId = +this.id()!;
+    const userId = this.authService.currentUser()?.id ?? 0;
+    const idempotencyKey = `${topicId}:${userId}:${Date.now()}:${simpleHash(message)}`;
 
     const payload: any = {
-      topic_id: +this.id()!,
+      topic_id: topicId,
       content: message,
-      use_character_profile: this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any,
-      character_profile_id: characterProfileId
+      idempotency_key: idempotencyKey,
     };
+
+    if (this.effectiveGmPost()) {
+      payload.is_gm_post = true;
+      payload.use_character_profile = false;
+    } else {
+      const useCharacter = this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any;
+      payload.use_character_profile = useCharacter;
+      payload.character_profile_id = useCharacter ? this.selectedCharacterId : null;
+    }
 
     if (!this.authService.isAuthenticated()) {
       payload.guest_name = this.guestName;
@@ -534,6 +607,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     }
 
     this.postForm.cancelPendingAutosave();
+    const savedMessage = message;
     this.postForm.clear();
 
     setTimeout(() => document.getElementById('post-pending')?.scrollIntoView({ behavior: 'smooth' }));
@@ -562,7 +636,14 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       },
       error: (err: any) => {
         this.isSubmitting.set(false);
-        console.error('Failed to create post', err);
+        const isTopicFull = err?.error?.error?.includes('post limit') || err?.status === 403 && err?.error?.error?.includes('post limit');
+        if (isTopicFull) {
+          this.keepFormForFullTopic.set(true);
+          this.topicService.updateTopicStatus(TopicStatus.full);
+          this.postForm.setValue(savedMessage);
+        } else {
+          console.error('Failed to create post', err);
+        }
       }
     });
   }
@@ -573,23 +654,27 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
     if (!message || !this.id()) return;
 
-    let characterProfileId: number | null = null;
-    if (this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any) {
-      const profile = this.userCharacterProfiles().find(p => p.id === this.selectedCharacterId);
-      if (profile) {
-        characterProfileId = profile.id;
-      }
-    }
-
     const payload: any = {
       topic_id: +this.id()!,
       content: message,
-      use_character_profile: this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any,
-      character_profile_id: characterProfileId
     };
+
+    if (this.effectiveGmPost()) {
+      payload.is_gm_post = true;
+      payload.use_character_profile = false;
+    } else {
+      const useCharacter = this.selectedCharacterId !== null && this.selectedCharacterId !== 'account' as any;
+      payload.use_character_profile = useCharacter;
+      payload.character_profile_id = useCharacter ? this.selectedCharacterId : null;
+    }
 
     if (!this.authService.isAuthenticated()) {
       payload.guest_name = this.guestName;
+    }
+
+    const draftGroupId = this.postForm.currentDraftGroupId();
+    if (draftGroupId) {
+      payload.from_draft_id = draftGroupId;
     }
 
     this.topicService.previewTopic(payload).subscribe({
@@ -597,10 +682,10 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
         this.previewService.set({
           formType: 'post',
           topic: this.topic(),
-          posts: this.posts(),
+          posts: this.currentPagePosts(),
           previewPost: previewPost,
           returnUrl: this.router.url,
-          formPayload: { ...payload }
+          formPayload: { ...payload, editorMode: this.postForm.editorMode() }
         });
         this.router.navigate(['/preview']);
       },
@@ -735,6 +820,51 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     });
   }
 
+  claimWantedCharacter() {
+    const wc = this.topic().wanted_character;
+    if (!wc) return;
+    this.wantedCharacterService.createClaimRecord(wc.id).subscribe({
+      next: () => {
+        if (this.id()) this.topicService.loadTopic(this.id()!).subscribe({ next: (data) => this.topicService.setTopic(data) });
+      },
+      error: (err: any) => console.error('Failed to claim wanted character', err)
+    });
+  }
+
+  revokeWantedCharacterClaim() {
+    const record = this.topic().wanted_character?.claim_record;
+    if (!record) return;
+    this.wantedCharacterService.revokeClaimRecord(record.id).subscribe({
+      next: () => {
+        if (this.id()) this.topicService.loadTopic(this.id()!).subscribe({ next: (data) => this.topicService.setTopic(data) });
+      },
+      error: (err: any) => console.error('Failed to revoke claim', err)
+    });
+  }
+
+  canRevokeWantedCharacterClaim(): boolean {
+    const record = this.topic().wanted_character?.claim_record;
+    if (!record) return false;
+    const userId = this.authService.currentUser()?.id;
+    if (userId && userId === record.claim_author_id) return true;
+    if (record.is_guest && record.guest_hash) {
+      const match = document.cookie.split('; ').find(c => c.startsWith(`claim_hash_${record.guest_hash}=`));
+      return match != null;
+    }
+    return false;
+  }
+
+  toggleSubscription() {
+    const topicId = this.id();
+    if (!topicId) return;
+    const subscribing = !this.isSubscribed();
+    const endpoint = subscribing ? `topic/${topicId}/subscribe` : `topic/${topicId}/unsubscribe`;
+    this.apiService.post(endpoint, {}).subscribe({
+      next: () => this.isSubscribed.set(subscribing),
+      error: (err: any) => console.error('Failed to toggle subscription', err)
+    });
+  }
+
   onEpisodeStatusChanged(result: { episode_status: number; topic_status: number }) {
     this.topicService.updateEpisodeStatus(result.episode_status);
     this.topicService.updateTopicStatus(result.topic_status);
@@ -781,4 +911,12 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     });
     this.reactionPickerPostId.set(null);
   }
+}
+
+function simpleHash(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) {
+    h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+  }
+  return h >>> 0;
 }

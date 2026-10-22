@@ -1,0 +1,107 @@
+<section class="blocks-section">
+  <h3>Blocks</h3>
+  <p class="section-hint">A block is a named group of fields. Fields in a block are shown together when that block is selected by a toggle.</p>
+
+  @for (block of blocks; track $index; let i = $index) {
+    <fieldset class="block-row">
+      <legend>Block {{ i + 1 }}</legend>
+      <div class="block-meta-row">
+        <label class="meta-label">
+          ID (machine name)
+          <input type="text"
+                 [name]="'block_id_' + i"
+                 [(ngModel)]="block.id"
+                 (ngModelChange)="onBlockChange()"
+                 placeholder="e.g. image_block">
+        </label>
+        <label class="meta-label">
+          Label
+          <input type="text"
+                 [name]="'block_label_' + i"
+                 [(ngModel)]="block.label"
+                 (ngModelChange)="onBlockChange()"
+                 placeholder="e.g. Image Block">
+        </label>
+      </div>
+
+      @if (namedFields.length > 0) {
+        <div class="block-fields-list">
+          <span class="fields-heading">Fields in this block:</span>
+          <div class="checkboxes">
+            @for (field of namedFields; track field.machine_field_name) {
+              <label class="checkbox-label">
+                <input type="checkbox"
+                       [checked]="isFieldInBlock(block, field.machine_field_name)"
+                       (change)="toggleFieldInBlock(block, field.machine_field_name)">
+                {{ field.machine_field_name }}
+                @if (field.human_field_name) {
+                  <span class="field-human">({{ field.human_field_name }})</span>
+                }
+              </label>
+            }
+          </div>
+        </div>
+      } @else {
+        <p class="empty-hint">No fields defined yet — add fields above first.</p>
+      }
+
+      <button type="button" (click)="removeBlock(i)" class="btn-danger btn-small">Remove Block</button>
+    </fieldset>
+  }
+
+  <button type="button" (click)="addBlock()" class="btn-secondary btn-small">Add Block</button>
+</section>
+
+<section class="toggles-section">
+  <h3>Block Toggles</h3>
+  <p class="section-hint">A toggle lets users switch between blocks. Only one child block is shown at a time. Requires at least 2 child blocks.</p>
+
+  @for (toggle of blockSettings; track $index; let i = $index) {
+    <fieldset class="toggle-row">
+      <legend>Toggle {{ i + 1 }}</legend>
+      <div class="block-meta-row">
+        <label class="meta-label">
+          Machine name
+          <input type="text"
+                 [name]="'toggle_name_' + i"
+                 [(ngModel)]="toggle.machine_name"
+                 (ngModelChange)="onToggleChange()"
+                 placeholder="e.g. image_or_text">
+        </label>
+        <label class="meta-label">
+          Label
+          <input type="text"
+                 [name]="'toggle_label_' + i"
+                 [(ngModel)]="toggle.label"
+                 (ngModelChange)="onToggleChange()"
+                 placeholder="e.g. Image or Text">
+        </label>
+      </div>
+
+      @if (blocks.length > 0) {
+        <div class="block-fields-list">
+          <span class="fields-heading">Child blocks (select 2+):</span>
+          <div class="checkboxes">
+            @for (block of blocks; track block.id) {
+              @if (block.id) {
+                <label class="checkbox-label">
+                  <input type="checkbox"
+                         [checked]="isBlockInToggle(toggle, block.id)"
+                         (change)="toggleChildBlock(toggle, block.id)">
+                  {{ block.label || block.id }}
+                  <span class="field-human">({{ block.id }})</span>
+                </label>
+              }
+            }
+          </div>
+        </div>
+      } @else {
+        <p class="empty-hint">No blocks defined yet — add blocks above first.</p>
+      }
+
+      <button type="button" (click)="removeToggle(i)" class="btn-danger btn-small">Remove Toggle</button>
+    </fieldset>
+  }
+
+  <button type="button" (click)="addToggle()" class="btn-secondary btn-small">Add Toggle</button>
+</section>

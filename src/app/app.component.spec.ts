@@ -27,16 +27,10 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'Cuento' title`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title()).toEqual('Cuento');
-  });
-
-  it('should render title', () => {
+  it(`should have the 'Cuento' site name`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Cuento');
+    // Site name comes from BoardService, not a component property.
+    expect(document.title).toEqual('Cuento');
   });
 });

@@ -5,7 +5,7 @@ import { UserService } from './user.service';
 import { NotificationService } from './notification.service';
 import { DirectChatListItem, DirectChatResponse, DirectMessageRaw } from '../models/DirectChat';
 import { Message } from '../models/Message';
-import { Observable, from, of, ReplaySubject } from 'rxjs';
+import { Observable, Subject, from, of, ReplaySubject } from 'rxjs';
 import { take, switchMap, tap } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
@@ -25,6 +25,18 @@ export class DirectChatService {
         this.privateKeySubject.next(key);
       }
     });
+
+    this.notificationService.wsConnected$.subscribe(() => {
+      this.catchUp();
+      // Re-announce the open chat after AppComponent's generic page_change fires.
+      // AppComponent always sends 'direct-chat'/0 (from the route data) on reconnect,
+      // which would overwrite the specific chat context. Deferring here ensures this
+      // correct announcement wins.
+      const chat = this.currentChatSignal();
+      if (chat) {
+        setTimeout(() => this.notificationService.sendPageChange('direct_chat', chat.chat_id), 0);
+      }
+    });
   }
 
   private chatListSignal = signal<DirectChatListItem[]>([]);
@@ -35,6 +47,9 @@ export class DirectChatService {
 
   private messagesSignal = signal<Message[]>([]);
   readonly messages = this.messagesSignal.asReadonly();
+
+  private ownMessageConfirmedSubject = new Subject<void>();
+  readonly ownMessageConfirmed$ = this.ownMessageConfirmedSubject.asObservable();
 
   private isLoadingOlderSignal = signal(false);
   readonly isLoadingOlder = this.isLoadingOlderSignal.asReadonly();
@@ -180,11 +195,17 @@ export class DirectChatService {
     });
   }
 
-  loadChatList(): void {
-    this.apiService.get<DirectChatListItem[]>('direct-chats').subscribe({
-      next: (data) => this.chatListSignal.set(data),
-      error: (err) => console.error('Failed to load direct chats', err)
-    });
+  catchUp(): void {
+    const chat = this.currentChatSignal();
+    const msgs = this.messagesSignal();
+    if (!chat || msgs.length === 0) return;
+    this.loadNewerMessages(chat.chat_id, msgs[msgs.length - 1].id);
+  }
+
+  loadChatList(): Observable<DirectChatListItem[]> {
+    return this.apiService.get<DirectChatListItem[]>('direct-chats').pipe(
+      tap(data => this.chatListSignal.set(data))
+    );
   }
 
   createChat(recipientId: number): Observable<{ chat_id: number }> {
@@ -201,6 +222,7 @@ export class DirectChatService {
       next: (message) => {
         if (this.messagesSignal().some(m => m.id === message.id)) return;
         this.messagesSignal.update(msgs => [...msgs, message]);
+        if (message.isMe) this.ownMessageConfirmedSubject.next();
         const chat = this.currentChatSignal();
         if (chat && (chat.last_read_message_id === null || message.id > chat.last_read_message_id)) {
           this.notificationService.sendMessage({

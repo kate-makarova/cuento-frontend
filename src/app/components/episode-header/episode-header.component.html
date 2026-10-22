@@ -14,6 +14,11 @@
         <span class="status-badge episode-rating-badge">{{ ratingBadge }}</span>
       }
     </h2>
+    @if (episode.is_arc && episode.arc) {
+      <div class="episode-arc-link">
+        <a [routerLink]="['/arc', episode.arc.id]">{{ episode.arc.title }}</a>
+      </div>
+    }
     @if (showActionsButton) {
       <button type="button" class="button episode-actions-btn" (click)="openActionsModal()" i18n="@@episode.actionsButton">Episode actions</button>
     }

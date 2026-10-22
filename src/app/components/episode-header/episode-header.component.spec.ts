@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { EpisodeHeaderComponent } from './episode-header.component';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
@@ -11,6 +12,8 @@ describe('EpisodeHeaderComponent', () => {
   const mockEpisode: Episode = {
     id: 1,
     name: 'Test Episode',
+    masks: [],
+    open_to_everyone: false,
     characters: [
       { id: 101, name: 'Char 1', avatar: 'avatar1.png' },
       { id: 102, name: 'Char 2', avatar: 'avatar2.png' }
@@ -27,7 +30,7 @@ describe('EpisodeHeaderComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EpisodeHeaderComponent],
+      imports: [EpisodeHeaderComponent, HttpClientTestingModule],
       providers: [
         {
           provide: ActivatedRoute,

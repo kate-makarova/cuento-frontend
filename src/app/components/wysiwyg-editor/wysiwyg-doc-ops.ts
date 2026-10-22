@@ -5,7 +5,7 @@
 // Nothing here touches the DOM.
 
 import {
-  DocModel, BlockNode, ParagraphNode, AlignBlock, QuoteNode, SpoilerNode, CodeNode,
+  DocModel, BlockNode, ParagraphNode, AlignBlock, QuoteNode, SpoilerNode, CodeNode, NpcBlockNode, HideNode, DivNode, GridNode, TableNode,
   InlineNode, TextNode, ImgNode, Mark, DocPoint, DocRange,
 } from './wysiwyg-doc-model';
 
@@ -113,6 +113,9 @@ export function splitParagraph(doc: DocModel, point: DocPoint): OpResult {
 
   if (path.length === 2) {
     const container = doc.children[path[0]] as ContainerBlock;
+    if (container.type === 'grid' || container.type === 'table') {
+      return { doc, cursor: point };
+    }
     const para = cItems(container)[path[1]] as ParagraphNode;
     const [before, after] = splitAt(para.children, point.offset);
     const a: ParagraphNode = { type: 'paragraph', children: normalize(before) };
@@ -153,11 +156,15 @@ export function mergeParagraphWithPrevious(doc: DocModel, point: DocPoint): OpRe
   }
 
   if (path.length === 2) {
-    if (path[1] === 0) return { doc, cursor: point };
     const container = doc.children[path[0]] as ContainerBlock;
+    if (container.type === 'grid' || container.type === 'table') {
+      return { doc, cursor: point };
+    }
+    if (path[1] === 0) return { doc, cursor: point };
     const items = cItems(container);
-    const prev = items[path[1] - 1] as ParagraphNode;
-    const curr = items[path[1]] as ParagraphNode;
+    const prev = items[path[1] - 1];
+    const curr = items[path[1]];
+    if (prev?.type !== 'paragraph' || curr?.type !== 'paragraph') return { doc, cursor: point };
 
     const joinOffset = inlineLen(prev.children);
     const merged: ParagraphNode = {
@@ -229,7 +236,12 @@ export function getMarksAtPoint(doc: DocModel, point: DocPoint): Mark[] {
   let remaining = point.offset;
   for (const node of para.children) {
     const len = node.type === 'text' ? node.text.length : 1;
-    if (remaining <= len) return node.type === 'text' ? node.marks : [];
+    if (remaining <= len) {
+      if (node.type !== 'text') return [];
+      // Cursor is at the exact end of this node: strip link so typing exits the link.
+      if (remaining === len) return node.marks.filter(m => m.type !== 'link');
+      return node.marks;
+    }
     remaining -= len;
   }
   return [];
@@ -248,6 +260,172 @@ export function isRangeAllMark(doc: DocModel, range: DocRange, mark: Mark): bool
   const [middle]  = splitAt(rest, focus.offset - anchor.offset);
   const textNodes = middle.filter((n): n is TextNode => n.type === 'text' && n.text.length > 0);
   return textNodes.length > 0 && textNodes.every(n => hasMark(n.marks, mark));
+}
+
+// ─── Block-wrapping operations ────────────────────────────────────────────────
+
+/**
+ * Wrap the selected range in a new quote block.
+ * Works for same-paragraph and cross-paragraph top-level selections.
+ * Returns null for collapsed selections or selections inside container blocks.
+ */
+export function wrapRangeAsQuote(doc: DocModel, range: DocRange): OpResult | null {
+  if (isCollapsed(range)) return null;
+  const { anchor, focus } = ordered(range);
+  if (anchor.path.length > 1 || focus.path.length > 1) return null;
+
+  const startIdx = anchor.path[0];
+  const endIdx   = focus.path[0];
+
+  if (startIdx === endIdx) {
+    const block = doc.children[startIdx];
+    if (block.type !== 'paragraph') return null;
+
+    const [beforeNodes, rest]   = splitAt(block.children, anchor.offset);
+    const [middleNodes, afterNodes] = splitAt(rest, focus.offset - anchor.offset);
+
+    const quoteNode: QuoteNode = {
+      type: 'quote',
+      children: [{ type: 'paragraph', children: normalize(middleNodes) }],
+    };
+    const replacement: BlockNode[] = [];
+    const normBefore = normalize(beforeNodes);
+    if (normBefore.length > 0) replacement.push({ type: 'paragraph', children: normBefore });
+    replacement.push(quoteNode);
+    const normAfter = normalize(afterNodes);
+    if (normAfter.length > 0) replacement.push({ type: 'paragraph', children: normAfter });
+
+    const newChildren = spliceBlocks(doc.children, startIdx, 1, ...replacement);
+    const quoteIdx = startIdx + (normBefore.length > 0 ? 1 : 0);
+    return { doc: { children: newChildren }, cursor: { path: [quoteIdx, 0], offset: 0 } };
+  }
+
+  // Cross-paragraph
+  const startBlock = doc.children[startIdx];
+  const endBlock   = doc.children[endIdx];
+
+  const quoteParagraphs: ParagraphNode[] = [];
+  if (startBlock.type === 'paragraph') {
+    const [, tail] = splitAt(startBlock.children, anchor.offset);
+    quoteParagraphs.push({ type: 'paragraph', children: normalize(tail) });
+  }
+  for (let i = startIdx + 1; i < endIdx; i++) {
+    const b = doc.children[i];
+    if (b.type === 'paragraph') quoteParagraphs.push(b);
+  }
+  if (endBlock.type === 'paragraph') {
+    const [head] = splitAt(endBlock.children, focus.offset);
+    quoteParagraphs.push({ type: 'paragraph', children: normalize(head) });
+  }
+  if (quoteParagraphs.length === 0) {
+    quoteParagraphs.push({ type: 'paragraph', children: [] });
+  }
+
+  const quoteNode: QuoteNode = { type: 'quote', children: quoteParagraphs };
+
+  const beforeChildren = startBlock.type === 'paragraph' ? normalize(splitAt(startBlock.children, anchor.offset)[0]) : [];
+  const afterChildren  = endBlock.type === 'paragraph'   ? normalize(splitAt(endBlock.children, focus.offset)[1])   : [];
+
+  const replacement: BlockNode[] = [];
+  if (beforeChildren.length > 0) replacement.push({ type: 'paragraph', children: beforeChildren });
+  replacement.push(quoteNode);
+  if (afterChildren.length > 0) replacement.push({ type: 'paragraph', children: afterChildren });
+
+  const newChildren = spliceBlocks(doc.children, startIdx, endIdx - startIdx + 1, ...replacement);
+  const quoteIdx = startIdx + (beforeChildren.length > 0 ? 1 : 0);
+  return { doc: { children: newChildren }, cursor: { path: [quoteIdx, 0], offset: 0 } };
+}
+
+/**
+ * Wrap the selected range in a new code block.
+ * The plain text of the selection becomes the code content.
+ * Returns null for collapsed selections or selections inside container blocks.
+ */
+export function wrapRangeAsCode(doc: DocModel, range: DocRange): OpResult | null {
+  if (isCollapsed(range)) return null;
+  const { anchor, focus } = ordered(range);
+  if (anchor.path.length > 1 || focus.path.length > 1) return null;
+
+  const startIdx = anchor.path[0];
+  const endIdx   = focus.path[0];
+
+  const inlinesToText = (nodes: InlineNode[]) =>
+    nodes.map(n => n.type === 'text' ? n.text : '').join('');
+
+  let text: string;
+  if (startIdx === endIdx) {
+    const block = doc.children[startIdx];
+    if (block.type === 'code') {
+      text = block.text.slice(anchor.offset, focus.offset);
+    } else if (block.type === 'paragraph') {
+      const [, rest] = splitAt(block.children, anchor.offset);
+      const [middle] = splitAt(rest, focus.offset - anchor.offset);
+      text = inlinesToText(middle);
+    } else {
+      return null;
+    }
+  } else {
+    const lines: string[] = [];
+    const startBlock = doc.children[startIdx];
+    if (startBlock.type === 'paragraph') {
+      lines.push(inlinesToText(splitAt(startBlock.children, anchor.offset)[1]));
+    }
+    for (let i = startIdx + 1; i < endIdx; i++) {
+      const b = doc.children[i];
+      if (b.type === 'paragraph') lines.push(inlinesToText(b.children));
+      else if (b.type === 'code') lines.push(b.text);
+    }
+    const endBlock = doc.children[endIdx];
+    if (endBlock.type === 'paragraph') {
+      lines.push(inlinesToText(splitAt(endBlock.children, focus.offset)[0]));
+    }
+    text = lines.join('\n');
+  }
+
+  const codeNode: CodeNode = { type: 'code', text };
+
+  if (startIdx === endIdx) {
+    const block = doc.children[startIdx];
+    if (block.type !== 'paragraph') return null;
+
+    const [beforeNodes, rest] = splitAt(block.children, anchor.offset);
+    const [, afterNodes]      = splitAt(rest, focus.offset - anchor.offset);
+
+    const replacement: BlockNode[] = [];
+    const normBefore = normalize(beforeNodes);
+    if (normBefore.length > 0) replacement.push({ type: 'paragraph', children: normBefore });
+    replacement.push(codeNode);
+    const normAfter = normalize(afterNodes);
+    if (normAfter.length > 0) replacement.push({ type: 'paragraph', children: normAfter });
+
+    const newChildren = spliceBlocks(doc.children, startIdx, 1, ...replacement);
+    const codeIdx = startIdx + (normBefore.length > 0 ? 1 : 0);
+    return { doc: { children: newChildren }, cursor: { path: [codeIdx], offset: 0 } };
+  }
+
+  // Cross-paragraph: delete the range, then split the resulting paragraph and insert code
+  const delResult = deleteRange(doc, range);
+  const cursor = delResult.cursor;
+  const blockIdx = cursor.path[0];
+  const block = delResult.doc.children[blockIdx];
+
+  if (!block || block.type !== 'paragraph') {
+    const insertAt = blockIdx + 1;
+    const newChildren = spliceBlocks(delResult.doc.children, insertAt, 0, codeNode);
+    return { doc: { children: newChildren }, cursor: { path: [insertAt], offset: 0 } };
+  }
+
+  const [beforeInline, afterInline] = splitAt(block.children, cursor.offset);
+  const replacement: BlockNode[] = [];
+  const normBefore = normalize(beforeInline);
+  if (normBefore.length > 0) replacement.push({ type: 'paragraph', children: normBefore });
+  replacement.push(codeNode);
+  const normAfter = normalize(afterInline);
+  if (normAfter.length > 0) replacement.push({ type: 'paragraph', children: normAfter });
+
+  const newChildren = spliceBlocks(delResult.doc.children, blockIdx, 1, ...replacement);
+  const codeIdx = blockIdx + (normBefore.length > 0 ? 1 : 0);
+  return { doc: { children: newChildren }, cursor: { path: [codeIdx], offset: 0 } };
 }
 
 // ─── Inline primitives ────────────────────────────────────────────────────────
@@ -315,7 +493,7 @@ function normalize(nodes: InlineNode[]): InlineNode[] {
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────
 
-type ContainerBlock = AlignBlock | QuoteNode | SpoilerNode;
+type ContainerBlock = AlignBlock | QuoteNode | SpoilerNode | NpcBlockNode | HideNode | DivNode | GridNode | TableNode;
 
 // Cursor-based ops only reach ParagraphNode children (cursor can't enter
 // non-paragraph children of a quote).  These helpers centralise the casts.
@@ -351,6 +529,9 @@ function crossParaDelete(doc: DocModel, anchor: DocPoint, focus: DocPoint): OpRe
   // Same depth, both in containers of the same block
   if (anchor.path.length === 2 && focus.path.length === 2 && anchor.path[0] === focus.path[0]) {
     const container = doc.children[anchor.path[0]] as ContainerBlock;
+    if (container.type === 'grid' || container.type === 'table') {
+      return { doc, cursor: anchor };
+    }
     const items     = cItems(container);
     const firstPara = items[anchor.path[1]] as ParagraphNode;
     const lastPara  = items[focus.path[1]]  as ParagraphNode;
@@ -407,7 +588,13 @@ function getPara(doc: DocModel, path: number[]): ParagraphNode | null {
   if (path.length === 2) {
     const container = doc.children[path[0]];
     if (!('children' in container)) return null;
-    const b = (container as ContainerBlock).children[path[1]];
+    const b = cItems(container as ContainerBlock)[path[1]];
+    return b?.type === 'paragraph' ? b : null;
+  }
+  if (path.length === 3) {
+    const outer = doc.children[path[0]];
+    if (outer.type !== 'grid' && outer.type !== 'table') return null;
+    const b = (outer.children as BlockNode[][])[path[1]]?.[path[2]];
     return b?.type === 'paragraph' ? b : null;
   }
   return null;
@@ -447,6 +634,19 @@ function updatePara(
     const { para, cursor } = fn(cItems(container)[path[1]] as ParagraphNode, point.offset);
     const newChildren = replaceAt(cItems(container), path[1], para);
     return { doc: { children: replaceBlock(doc, path[0], withChildren(container, newChildren)) }, cursor };
+  }
+
+  if (path.length === 3) {
+    const outer = doc.children[path[0]];
+    if (outer.type !== 'grid' && outer.type !== 'table') return { doc, cursor: point };
+    const cells = outer.children as BlockNode[][];
+    const cell = cells[path[1]];
+    const innerBlock = cell?.[path[2]];
+    if (!innerBlock || innerBlock.type !== 'paragraph') return { doc, cursor: point };
+    const { para, cursor } = fn(innerBlock, point.offset);
+    const newCell = replaceAt(cell, path[2], para);
+    const newOuter = { ...outer, children: replaceAt(cells, path[1], newCell) } as BlockNode;
+    return { doc: { children: replaceBlock(doc, path[0], newOuter) }, cursor };
   }
 
   return { doc, cursor: point };

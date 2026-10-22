@@ -37,14 +37,24 @@
     </div>
   }
 
-  <form (submit)="saveTemplate(); $event.preventDefault()">
+  <form (submit)="$event.preventDefault()">
     @for (field of fields; track field.id; let i = $index) {
       <app-field-template-row [field]="field" [index]="i" (remove)="removeField(i)" />
     }
 
     <div class="form-actions">
       <button type="button" (click)="addEmptyField()" class="btn-secondary" i18n="@@wantedCharacterTemplate.addField">Add Field</button>
-      <app-save-button type="submit" [state]="saveState()">
+    </div>
+
+    <app-block-settings-editor
+      [availableFields]="fields"
+      [blocks]="blocks"
+      [blockSettings]="blockSettings"
+      (blocksChange)="blocks = $event"
+      (blockSettingsChange)="blockSettings = $event" />
+
+    <div class="form-actions">
+      <app-save-button [state]="saveState()" (clicked)="saveTemplate()">
         <span i18n="@@common.save">Save</span>
       </app-save-button>
     </div>

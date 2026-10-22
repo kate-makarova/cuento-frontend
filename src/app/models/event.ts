@@ -20,6 +20,12 @@ export interface PostCreatedEvent {
   data: Post;
 }
 
+export interface TopicFullEvent {
+  type: 'topic_full';
+  msg_id?: number;
+  topic_id: number;
+}
+
 export interface PostUpdatedEvent {
   type: 'post_updated';
   msg_id?: number;
@@ -61,6 +67,12 @@ export interface NotificationAccountUpdate {
 }
 
 
+export interface NotificationTopicSubscription {
+  topic_id: number;
+  topic_name: string;
+  post_id: number;
+}
+
 export interface NotificationReaction {
   post_id: number;
   topic_id: number;
@@ -77,6 +89,13 @@ export interface NotificationAutoArchiving {
   days_left?: number;
 }
 
+export interface NotificationAbsenceStarted {
+  user_id: number;
+  username: string;
+  absence_end_date: string;
+  characters: string[];
+}
+
 export interface NotificationEpisodeStatusChange {
   episode_id: number;
   episode_name: string;
@@ -88,7 +107,7 @@ export interface NotificationEpisodeStatusChange {
 export interface NotificationData {
   id: number;
   user_id: number;
-  type: 'system' | 'game' | 'mention' | 'direct_message' | 'account_update' | 'reaction' | 'auto_archiving' | 'episode_status_change';
+  type: 'system' | 'game' | 'mention' | 'direct_message' | 'account_update' | 'reaction' | 'auto_archiving' | 'episode_status_change' | 'absence_started' | 'topic_subscriptions';
   title: string;
   message: string;
   date_created: string;
@@ -96,7 +115,7 @@ export interface NotificationData {
   mention: NotificationMention | null;
   game: NotificationGame | null;
   direct_message: NotificationDirectMessage | null;
-  data: NotificationMention | NotificationGame | NotificationDirectMessage | NotificationAccountUpdate | NotificationReaction | NotificationAutoArchiving | NotificationEpisodeStatusChange | null;
+  data: NotificationMention | NotificationGame | NotificationDirectMessage | NotificationAccountUpdate | NotificationReaction | NotificationAutoArchiving | NotificationEpisodeStatusChange | NotificationAbsenceStarted | NotificationTopicSubscription | null;
 }
 
 export interface NotificationEvent {
@@ -114,6 +133,8 @@ export interface UnreadNotificationsResponse {
   auto_archiving: NotificationData[];
   account_update: NotificationData[];
   episode_status_change: NotificationData[];
+  absence_started?: NotificationData[];
+  topic_subscriptions?: NotificationData[];
 }
 
 export interface TopicViewersUpdateEvent {
@@ -237,6 +258,8 @@ export interface PageChangedEvent {
   data: {
     page_type: string;
     id?: string;
+    subforum_id?: number;
+    no_highlight?: boolean;
   };
 }
 
@@ -245,4 +268,4 @@ export interface PongEvent {
   msg_id?: number;
 }
 
-export type WebSocketEvent = TopicCreatedEvent | PostCreatedEvent | PostUpdatedEvent | NotificationEvent | TopicViewersUpdateEvent | DirectMessageCreatedEvent | ActiveUsersUpdateEvent | ActiveUsersActivityUpdateEvent | PanelReloadEvent | ReactionCreatedEvent | HealthUpdateEvent | UserRefreshRequiredEvent | DraftUpdatedEvent | AiMessageEvent | AiTaskDoneEvent | AiQueuePositionEvent | AiErrorEvent | PageChangedEvent | PongEvent;
+export type WebSocketEvent = TopicCreatedEvent | PostCreatedEvent | PostUpdatedEvent | NotificationEvent | TopicViewersUpdateEvent | DirectMessageCreatedEvent | ActiveUsersUpdateEvent | ActiveUsersActivityUpdateEvent | PanelReloadEvent | ReactionCreatedEvent | HealthUpdateEvent | UserRefreshRequiredEvent | DraftUpdatedEvent | AiMessageEvent | AiTaskDoneEvent | AiQueuePositionEvent | AiErrorEvent | PageChangedEvent | PongEvent | TopicFullEvent;

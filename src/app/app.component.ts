@@ -1,6 +1,6 @@
 import {afterRender, Component, effect, inject, OnInit, signal, HostBinding} from '@angular/core';
 import {DOCUMENT} from '@angular/common';
-import {ActivatedRoute, NavigationEnd, NavigationStart, Router, RouterOutlet} from '@angular/router';
+import {ActivatedRoute, NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router, RouterOutlet, RoutesRecognized} from '@angular/router';
 import {FooterComponent} from './components/footer/footer.component';
 import {combineLatest, filter, map, mergeMap, take} from 'rxjs';
 import {ToastComponent} from './components/toast/toast.component';
@@ -60,6 +60,7 @@ export class AppComponent implements OnInit {
   }
 
   pageId = 'pun-main';
+  noWrapper = signal(false);
   private currentPageType = 'unknown';
   private currentPageNumId = 0;
 
@@ -165,6 +166,12 @@ export class AppComponent implements OnInit {
       }
     });
 
+    this.notificationService.wsConnected$.subscribe(() => {
+      if (this.authService.isAuthenticated()) {
+        this.notificationService.sendPageChange(this.currentPageType, this.currentPageNumId);
+      }
+    });
+
     this.sendInitialPageActivity();
 
     document.addEventListener('visibilitychange', () => {
@@ -192,6 +199,29 @@ export class AppComponent implements OnInit {
   }
 
   private setupRouteListener() {
+    // Hide the wrapper early when navigating TO a noWrapper page so the header
+    // is already gone before the map component renders.
+    this.router.events.pipe(
+      filter(event => event instanceof RoutesRecognized)
+    ).subscribe(event => {
+      const e = event as RoutesRecognized;
+      let route = e.state.root;
+      while (route.firstChild) route = route.firstChild;
+      if (route.data['noWrapper']) {
+        this.noWrapper.set(true);
+      }
+    });
+
+    // If navigation is cancelled after noWrapper was set early, revert to
+    // whatever the currently active route says.
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationCancel || event instanceof NavigationError)
+    ).subscribe(() => {
+      let route = this.activatedRoute;
+      while (route.firstChild) route = route.firstChild;
+      this.noWrapper.set(!!route.snapshot.data['noWrapper']);
+    });
+
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
       map(() => this.activatedRoute),
@@ -206,6 +236,7 @@ export class AppComponent implements OnInit {
       this.pageId = data['pageId'] || 'pun-index';
       const [pageType, pageNumId] = this.resolvePageType(this.pageId, params);
       this.sendPageActivity(pageType, pageNumId);
+      this.noWrapper.set(!!data['noWrapper']);
     });
   }
 
@@ -414,25 +445,36 @@ export class AppComponent implements OnInit {
   private manifestBlobUrl: string | null = null;
 
   private updateManifest(siteName: string): void {
-    const origin = window.location.origin;
-    const manifest = {
-      name: siteName,
-      short_name: siteName,
-      start_url: origin + '/',
-      display: 'standalone',
-      icons: [{ src: origin + '/favicon.ico', sizes: 'any', type: 'image/x-icon' }],
-    };
-    if (this.manifestBlobUrl) URL.revokeObjectURL(this.manifestBlobUrl);
-    this.manifestBlobUrl = URL.createObjectURL(
-      new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' })
-    );
-    let link = this.document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
-    if (!link) {
-      link = this.document.createElement('link');
-      link.rel = 'manifest';
-      this.document.head.appendChild(link);
-    }
-    link.href = this.manifestBlobUrl;
+    fetch('/manifest.webmanifest')
+      .then(r => r.json())
+      .then((base: Record<string, unknown>) => {
+        const origin = window.location.origin;
+        const toAbs = (val: unknown) =>
+          typeof val === 'string' ? new URL(val, origin + '/').href : val;
+        const icons = (base['icons'] as Array<Record<string, unknown>> | undefined)
+          ?.map(icon => ({ ...icon, src: toAbs(icon['src']) }));
+        const manifest = {
+          ...base,
+          name: siteName,
+          short_name: siteName,
+          start_url: toAbs(base['start_url']),
+          scope: toAbs(base['scope']),
+          ...(base['id'] !== undefined ? { id: toAbs(base['id']) } : {}),
+          ...(icons ? { icons } : {}),
+        };
+        if (this.manifestBlobUrl) URL.revokeObjectURL(this.manifestBlobUrl);
+        this.manifestBlobUrl = URL.createObjectURL(
+          new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' })
+        );
+        let link = this.document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
+        if (!link) {
+          link = this.document.createElement('link');
+          link.rel = 'manifest';
+          this.document.head.appendChild(link);
+        }
+        link.href = this.manifestBlobUrl;
+      })
+      .catch(() => {});
   }
 
   protected readonly Date = Date;

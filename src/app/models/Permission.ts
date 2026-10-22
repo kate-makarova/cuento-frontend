@@ -7,5 +7,6 @@ export interface PermissionMatrixObject {
 
 export enum PermissionType {
   "Endpoint Permission" = 0,
-  "Subforum Permission" = 1
+  "Subforum Permission" = 1,
+  "Backend Non-Topic Permissions" = 3
 }

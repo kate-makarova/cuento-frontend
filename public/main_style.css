@@ -1805,6 +1805,123 @@ spoiler-box .spoiler-content {
   padding: 8px 10px;
 }
 
+.wysiwyg-npc-block {
+  display: block;
+  margin: 8px 0;
+}
+
+.wysiwyg-npc-block .wysiwyg-npc-header {
+  background-color: #e3e8d5;
+  border: 1px solid #9bb87e;
+  border-radius: 4px 4px 0 0;
+  padding: 6px 10px;
+  font-size: 0.85em;
+  color: #4a5c30;
+  font-weight: 600;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.wysiwyg-npc-block .wysiwyg-npc-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.wysiwyg-npc-block .wysiwyg-npc-avatar--placeholder {
+  background-color: #b8c9a0;
+  display: inline-block;
+}
+
+.wysiwyg-npc-block .wysiwyg-npc-name {
+  margin-right: 8px;
+}
+
+.wysiwyg-npc-block .wysiwyg-npc-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.wysiwyg-npc-block .wysiwyg-npc-link:hover {
+  text-decoration: underline;
+}
+
+.wysiwyg-hide {
+  display: block;
+  margin: 8px 0;
+}
+
+.wysiwyg-hide .wysiwyg-hide-header {
+  background-color: #f0e8d5;
+  border: 1px solid #c9a96e;
+  border-radius: 4px 4px 0 0;
+  padding: 6px 10px;
+  font-size: 0.85em;
+  color: #6b4c1e;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.wysiwyg-hide .wysiwyg-hide-body {
+  border: 1px solid #c9a96e;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  padding: 8px 10px;
+}
+
+.wysiwyg-hide .wysiwyg-hide-user-link {
+  color: #6b4c1e;
+  font-weight: 600;
+}
+
+.wysiwyg-hide .wysiwyg-hide-user-link:hover {
+  text-decoration: underline;
+}
+
+.wysiwyg-npc-block .wysiwyg-npc-body {
+  border: 1px solid #9bb87e;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  padding: 8px 10px;
+}
+
+.wysiwyg-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 4px 0;
+}
+
+.wysiwyg-table td {
+  border: 1px solid #aaa;
+  padding: 4px;
+  vertical-align: top;
+}
+
+.wysiwyg-grid {
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid #ccc;
+  max-width: 100%;
+  margin: 4px 0;
+}
+
+.wysiwyg-grid-item {
+  border: 1px solid #ddd;
+  padding: 4px;
+  min-width: 0;
+}
+
 .widget-grid {
   display: grid;
 }
@@ -2200,6 +2317,17 @@ span.mention {
   margin-top: 10px;
 }
 
+.punbb .post.post-gm {
+  background-color: var(--color-post-gm-bg, rgba(120, 80, 180, 0.08));
+  border-left: 3px solid var(--color-post-gm-accent, #7850b4);
+}
+
+.post-form-loader {
+  padding: 8px 0;
+  color: var(--color-text-muted, #888);
+  font-style: italic;
+}
+
 .profile-sidebar {
   flex: 0 0 180px;
   display: flex;
@@ -2398,6 +2526,17 @@ span.mention {
   padding: 5px 8px;
   cursor: pointer;
   align-self: flex-start;
+}
+
+.toast-text-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.toast-text-link:hover {
+  text-decoration: underline;
 }
 
 .currency-icon {
@@ -2649,15 +2788,6 @@ app-number-field-display:host {
   font-size: 0.8em;
   opacity: 0.7;
   vertical-align: middle;
-}
-
-.pm-chat-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 6px 10px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  min-height: 38px;
 }
 
 .pm-block-button {

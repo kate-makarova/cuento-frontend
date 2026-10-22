@@ -1,7 +1,9 @@
-import { Component, inject, Input, signal } from '@angular/core';
+import { Component, inject, Input, Output, EventEmitter, signal } from '@angular/core';
 
+import { FormsModule } from '@angular/forms';
 import { ImageUploadComponent } from '../image-upload/image-upload.component';
 import { GridBuilderComponent } from '../grid-builder/grid-builder.component';
+import { TableBuilderComponent } from '../table-builder/table-builder.component';
 import { ApiService } from '../../services/api.service';
 import { SmileCategoryWithSmiles } from '../../models/Smile';
 import { WysiwygDocEditorComponent } from '../wysiwyg-editor/wysiwyg-doc-editor.component';
@@ -9,7 +11,7 @@ import { WysiwygDocEditorComponent } from '../wysiwyg-editor/wysiwyg-doc-editor.
 @Component({
   selector: 'app-bb-toolbar',
   standalone: true,
-  imports: [ ImageUploadComponent, GridBuilderComponent],
+  imports: [FormsModule, ImageUploadComponent, GridBuilderComponent, TableBuilderComponent],
   templateUrl: './bb-toolbar.component.html',
 })
 export class BbToolbarComponent {
@@ -19,6 +21,13 @@ export class BbToolbarComponent {
   @Input() editor: WysiwygDocEditorComponent | null = null;
   @Input() showSpoiler = true;
   @Input() showImageUpload = true;
+  @Input() showVideo = true;
+  @Input() showAudio = true;
+  @Input() isGm = false;
+  @Input() npcBlockActive = false;
+  @Input() hidePanelActive = false;
+  @Output() npcBlockClick = new EventEmitter<void>();
+  @Output() hiddenMessageClick = new EventEmitter<void>();
 
   activeArea: string | null = null;
   showSpoilerModal = false;
@@ -28,6 +37,8 @@ export class BbToolbarComponent {
   private urlSelStart = 0;
   private urlSelEnd = 0;
   private videoInsertPos = 0;
+  private audioInsertPos = 0;
+  audioSource = '';
 
   smileCategories = signal<SmileCategoryWithSmiles[]>([]);
   private smilesLoaded = false;
@@ -49,6 +60,9 @@ export class BbToolbarComponent {
     }
     if (this.activeArea === 'video' && !this.editor && this.textarea) {
       this.videoInsertPos = this.textarea.selectionStart;
+    }
+    if (this.activeArea === 'audio' && !this.editor && this.textarea) {
+      this.audioInsertPos = this.textarea.selectionStart;
     }
     if (area === 'smile' && this.activeArea === 'smile' && !this.smilesLoaded) {
       this.smilesLoaded = true;
@@ -80,6 +94,24 @@ export class BbToolbarComponent {
     this.activeArea = null;
     this.textarea.focus();
     this.textarea.setSelectionRange(this.urlSelStart + tag.length, this.urlSelStart + tag.length);
+  }
+
+  insertAudio(url: string) {
+    if (!url) { this.activeArea = null; return; }
+    const tag = this.audioSource
+      ? `[audio source_site=${this.audioSource}]${url}[/audio]`
+      : `[audio]${url}[/audio]`;
+    if (this.editor) {
+      this.editor.insertBbCodeBlocks(tag);
+      this.activeArea = null;
+      return;
+    }
+    if (!this.textarea) return;
+    const text = this.textarea.value;
+    this.textarea.value = text.substring(0, this.audioInsertPos) + tag + text.substring(this.audioInsertPos);
+    this.activeArea = null;
+    this.textarea.focus();
+    this.textarea.setSelectionRange(this.audioInsertPos + tag.length, this.audioInsertPos + tag.length);
   }
 
   insertVideo(url: string) {
@@ -209,7 +241,7 @@ export class BbToolbarComponent {
         }
         break;
       case 'audio':
-        ed.insertTextAtCursor(`[${tag}][/${tag}]`);
+        ed.insertTextAtCursor(`[audio][/audio]`);
         break;
       default: {
         if (tag.startsWith('font=')) {
@@ -257,7 +289,24 @@ export class BbToolbarComponent {
 
   insertGrid(bbCode: string) {
     if (this.editor) {
-      this.editor.insertTextAtCursor(bbCode);
+      this.editor.insertBbCodeBlocks(bbCode);
+      this.activeArea = null;
+      this.editor.focus();
+      return;
+    }
+    if (!this.textarea) return;
+    const textarea = this.textarea;
+    const start = textarea.selectionStart;
+    const text = textarea.value;
+    textarea.value = text.substring(0, start) + bbCode + text.substring(start);
+    this.activeArea = null;
+    textarea.focus();
+    textarea.setSelectionRange(start + bbCode.length, start + bbCode.length);
+  }
+
+  insertTable(bbCode: string) {
+    if (this.editor) {
+      this.editor.insertBbCodeBlocks(bbCode);
       this.activeArea = null;
       this.editor.focus();
       return;
@@ -275,7 +324,6 @@ export class BbToolbarComponent {
   onInsertImage(url: string) {
     if (this.editor) {
       this.editor.insertHtmlAtCursor(`<img src="${url}" style="max-width:100%">`);
-      this.activeArea = null;
       return;
     }
     if (!this.textarea) return;

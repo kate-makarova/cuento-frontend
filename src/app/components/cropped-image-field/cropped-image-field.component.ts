@@ -24,6 +24,7 @@ export class CroppedImageFieldComponent {
   @Input() width: number | undefined;
   @Input() height: number | undefined;
   @Input() disabled: boolean = false;
+  @Input() noStretch: boolean = false;
   @Input() uploadFn: ((file: File) => Observable<{ url: string }>) | null = null;
 
   private imageService = inject(ImageService);
@@ -59,6 +60,7 @@ export class CroppedImageFieldComponent {
   // Resize (bottom-right handle)
   private resizing = false;
   private resizeStartClientX = 0;
+  private resizeStartClientY = 0;
   private resizeStartCropW = 0;
   private resizeStartCropH = 0;
 
@@ -91,6 +93,13 @@ export class CroppedImageFieldComponent {
   }
 
   private initCropBox() {
+    if (this.noStretch) {
+      this.cropBoxW = this.displayW;
+      this.cropBoxH = this.displayH;
+      this.cropX = 0;
+      this.cropY = 0;
+      return;
+    }
     const aspect = (this.width && this.height) ? this.width / this.height : this.naturalW / this.naturalH;
     const imgAspect = this.displayW / this.displayH;
     if (aspect > imgAspect) {
@@ -119,6 +128,7 @@ export class CroppedImageFieldComponent {
   onResizeMouseDown(event: MouseEvent) {
     this.resizing = true;
     this.resizeStartClientX = event.clientX;
+    this.resizeStartClientY = event.clientY;
     this.resizeStartCropW = this.cropBoxW;
     this.resizeStartCropH = this.cropBoxH;
     event.preventDefault();
@@ -133,13 +143,20 @@ export class CroppedImageFieldComponent {
       this.cropY = Math.max(0, Math.min(this.displayH - this.cropBoxH, this.dragStartCropY + dy));
     }
     if (this.resizing) {
-      const aspect = (this.width && this.height) ? this.width / this.height : this.cropBoxW / this.cropBoxH;
       const dx = event.clientX - this.resizeStartClientX;
       const newW = Math.max(40, Math.min(this.displayW - this.cropX, this.resizeStartCropW + dx));
-      const newH = Math.round(newW / aspect);
-      if (this.cropY + newH <= this.displayH) {
+      if (this.noStretch) {
+        const dy = event.clientY - this.resizeStartClientY;
+        const newH = Math.max(40, Math.min(this.displayH - this.cropY, this.resizeStartCropH + dy));
         this.cropBoxW = newW;
         this.cropBoxH = newH;
+      } else {
+        const aspect = (this.width && this.height) ? this.width / this.height : this.cropBoxW / this.cropBoxH;
+        const newH = Math.round(newW / aspect);
+        if (this.cropY + newH <= this.displayH) {
+          this.cropBoxW = newW;
+          this.cropBoxH = newH;
+        }
       }
     }
   }
@@ -163,8 +180,8 @@ export class CroppedImageFieldComponent {
     const srcY = Math.round(this.cropY * scale);
     const srcW = Math.round(this.cropBoxW * scale);
     const srcH = Math.round(this.cropBoxH * scale);
-    const targetW = this.width ?? srcW;
-    const targetH = this.height ?? srcH;
+    const targetW = (this.noStretch || !this.width) ? srcW : this.width;
+    const targetH = (this.noStretch || !this.height) ? srcH : this.height;
 
     const img = new Image();
     img.onload = () => {

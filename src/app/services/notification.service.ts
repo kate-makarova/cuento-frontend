@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Subject } from 'rxjs';
-import { PostCreatedEvent, TopicCreatedEvent, NotificationEvent, WebSocketEvent, TopicViewersUpdateEvent, UnreadNotificationsResponse, NotificationData, NotificationMention, PostUpdatedEvent, DirectMessageCreatedEvent, ActiveUsersUpdateEvent, ActiveUsersActivityUpdateEvent, PanelReloadEvent, ReactionCreatedEvent, HealthUpdateEvent, UserRefreshRequiredEvent, DraftUpdatedEvent, AiMessageEvent, AiTaskDoneEvent, AiQueuePositionEvent, AiErrorEvent, PageChangedEvent } from '../models/event';
+import { PostCreatedEvent, TopicCreatedEvent, NotificationEvent, WebSocketEvent, TopicViewersUpdateEvent, UnreadNotificationsResponse, NotificationData, NotificationMention, NotificationReaction, NotificationDirectMessage, PostUpdatedEvent, DirectMessageCreatedEvent, ActiveUsersUpdateEvent, ActiveUsersActivityUpdateEvent, PanelReloadEvent, ReactionCreatedEvent, HealthUpdateEvent, UserRefreshRequiredEvent, DraftUpdatedEvent, AiMessageEvent, AiTaskDoneEvent, AiQueuePositionEvent, AiErrorEvent, PageChangedEvent, TopicFullEvent } from '../models/event';
 import { AuthService } from './auth.service';
 import { ApiService } from './api.service';
 import { environment } from '../../environments/environment';
@@ -48,6 +48,9 @@ export class NotificationService {
   private reactionCreatedSubject = new Subject<ReactionCreatedEvent>();
   public reactionCreated$ = this.reactionCreatedSubject.asObservable();
 
+  private topicFullSubject = new Subject<TopicFullEvent>();
+  public topicFull$ = this.topicFullSubject.asObservable();
+
   private healthUpdateSubject = new Subject<HealthUpdateEvent>();
   public healthUpdate$ = this.healthUpdateSubject.asObservable();
 
@@ -86,6 +89,8 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
   public autoArchivingNotifications = this.autoArchivingNotificationsSignal.asReadonly();
   private accountUpdateNotificationsSignal = signal<NotificationData[]>([]);
   public accountUpdateNotifications = this.accountUpdateNotificationsSignal.asReadonly();
+  private topicSubscriptionsNotificationsSignal = signal<NotificationData[]>([]);
+  public topicSubscriptionsNotifications = this.topicSubscriptionsNotificationsSignal.asReadonly();
 
   // Subject for real-time toast notifications
   private notificationSubject = new Subject<NotificationData>();
@@ -98,6 +103,7 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
   private messageQueue: string[] = [];
   private explicitlyClosed = false;
   private heartbeatTimer: number | null = null;
+  private pongTimeout: number | null = null;
   private draftId: string | null = null;
   private draftInterval: number | null = null;
   private lastMsgId: number | null = null;
@@ -142,7 +148,10 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
   public loadUnreadNotifications(): void {
     this.apiService.get<UnreadNotificationsResponse>('notifications/unread').subscribe({
       next: (response) => {
-        this.systemNotificationsSignal.set((response.system || []).map(n => ({ ...n, type: 'system' as const })));
+        this.systemNotificationsSignal.set([
+          ...(response.system || []).map(n => ({ ...n, type: 'system' as const })),
+          ...(response.absence_started || []).map(n => ({ ...n, type: 'absence_started' as const })),
+        ]);
         this.gameNotificationsSignal.set([
           ...(response.game || []).map(n => ({ ...n, type: 'game' as const })),
           ...(response.episode_status_change || []).map(n => ({ ...n, type: 'episode_status_change' as const })),
@@ -152,6 +161,7 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
         this.reactionNotificationsSignal.set((response.reaction || []).map(n => ({ ...n, type: 'reaction' as const })));
         this.autoArchivingNotificationsSignal.set((response.auto_archiving || []).map(n => ({ ...n, type: 'auto_archiving' as const })));
         this.accountUpdateNotificationsSignal.set((response.account_update || []).map(n => ({ ...n, type: 'account_update' as const })));
+        this.topicSubscriptionsNotificationsSignal.set((response.topic_subscriptions || []).map(n => ({ ...n, type: 'topic_subscriptions' as const })));
         this.rebuildTriggers(response);
       },
       error: (err) => console.error('Failed to load unread notifications', err)
@@ -160,6 +170,10 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
 
   private mentionPostId(n: NotificationData): number | undefined {
     return ((n.mention ?? n.data) as NotificationMention | null)?.post_id ?? undefined;
+  }
+
+  private dmChatId(n: NotificationData): number | undefined {
+    return ((n.direct_message ?? n.data) as NotificationDirectMessage | null)?.chat_id ?? undefined;
   }
 
   private rebuildTriggers(response: UnreadNotificationsResponse): void {
@@ -174,7 +188,8 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
       if (n.game?.topic_id) this.gameTopicTriggers.set(n.game.topic_id, n);
     }
     for (const n of response.direct_message || []) {
-      if (n.direct_message?.chat_id) this.dmChatTriggers.set(n.direct_message.chat_id, n);
+      const chatId = this.dmChatId(n);
+      if (chatId) this.dmChatTriggers.set(chatId, n);
     }
   }
 
@@ -184,8 +199,9 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
       if (postId) this.mentionPostTriggers.set(postId, n);
     } else if (n.type === 'game' && n.game?.topic_id) {
       this.gameTopicTriggers.set(n.game.topic_id, n);
-    } else if (n.type === 'direct_message' && n.direct_message?.chat_id) {
-      this.dmChatTriggers.set(n.direct_message.chat_id, n);
+    } else if (n.type === 'direct_message') {
+      const chatId = this.dmChatId(n);
+      if (chatId) this.dmChatTriggers.set(chatId, n);
     }
   }
 
@@ -195,8 +211,9 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
       if (postId) this.mentionPostTriggers.delete(postId);
     } else if (n.type === 'game' && n.game?.topic_id) {
       this.gameTopicTriggers.delete(n.game.topic_id);
-    } else if (n.type === 'direct_message' && n.direct_message?.chat_id) {
-      this.dmChatTriggers.delete(n.direct_message.chat_id);
+    } else if (n.type === 'direct_message') {
+      const chatId = this.dmChatId(n);
+      if (chatId) this.dmChatTriggers.delete(chatId);
     }
   }
 
@@ -223,11 +240,30 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
     }
   }
 
+  public checkReactionsByPostIds(postIds: number[]): void {
+    const reactions = this.reactionNotificationsSignal();
+    if (reactions.length === 0) return;
+    const postIdSet = new Set(postIds);
+    for (const n of reactions) {
+      const postId = (n.data as NotificationReaction | null)?.post_id;
+      if (postId && postIdSet.has(postId)) this.dismissNotification(n);
+    }
+  }
+
+  public checkReactionsByTopicId(topicId: number): void {
+    const reactions = this.reactionNotificationsSignal();
+    if (reactions.length === 0) return;
+    for (const n of reactions) {
+      const tid = (n.data as NotificationReaction | null)?.topic_id;
+      if (tid === topicId) this.dismissNotification(n);
+    }
+  }
+
   public checkChatId(chatId: number): void {
     const notifications = this.directMessageNotificationsSignal();
     if (notifications.length === 0) return;
     for (const n of notifications) {
-      if (n.direct_message?.chat_id === chatId) this.dismissNotification(n);
+      if (this.dmChatId(n) === chatId) this.dismissNotification(n);
     }
   }
 
@@ -241,7 +277,7 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
 
   private removeFromSignal(notification: NotificationData): void {
     const id = notification.id;
-    if (notification.type === 'system') {
+    if (notification.type === 'system' || notification.type === 'absence_started') {
       this.systemNotificationsSignal.update(current => current.filter(n => n.id !== id));
     } else if (notification.type === 'game' || notification.type === 'episode_status_change') {
       this.gameNotificationsSignal.update(current => current.filter(n => n.id !== id));
@@ -255,6 +291,8 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
       this.autoArchivingNotificationsSignal.update(current => current.filter(n => n.id !== id));
     } else if (notification.type === 'account_update') {
       this.accountUpdateNotificationsSignal.update(current => current.filter(n => n.id !== id));
+    } else if (notification.type === 'topic_subscriptions') {
+      this.topicSubscriptionsNotificationsSignal.update(current => current.filter(n => n.id !== id));
     }
   }
 
@@ -281,6 +319,7 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
       this.explicitlyClosed = true;
       if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
       if (this.heartbeatTimer) { clearInterval(this.heartbeatTimer); this.heartbeatTimer = null; }
+      if (this.pongTimeout) { clearTimeout(this.pongTimeout); this.pongTimeout = null; }
       this.ws.close();
     }
   }
@@ -331,7 +370,12 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
       this.processMessageQueue();
       this.sendDraftConfirmation();
       this.wsConnectedSubject.next();
-      this.heartbeatTimer = window.setInterval(() => this.sendMessage({ type: 'ping' }), 20000);
+      this.heartbeatTimer = window.setInterval(() => {
+        this.sendMessage({ type: 'ping' });
+        this.pongTimeout = window.setTimeout(() => {
+          if (this.ws) this.ws.close();
+        }, 5000);
+      }, 20000);
     };
 
     this.ws.onmessage = (event) => {
@@ -349,6 +393,7 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
     this.ws.onclose = () => {
       if (this.connectionTimeout) clearTimeout(this.connectionTimeout);
       if (this.heartbeatTimer) { clearInterval(this.heartbeatTimer); this.heartbeatTimer = null; }
+      if (this.pongTimeout) { clearTimeout(this.pongTimeout); this.pongTimeout = null; }
       this.ws = null;
       if (!this.explicitlyClosed) {
         this.handleConnectionFailure();
@@ -415,7 +460,7 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
 
         this.addTrigger(notificationData);
 
-        if (notificationData.type === 'system') {
+        if (notificationData.type === 'system' || notificationData.type === 'absence_started') {
           this.systemNotificationsSignal.update(current => [notificationData, ...current]);
         } else if (notificationData.type === 'game' || notificationData.type === 'episode_status_change') {
           this.gameNotificationsSignal.update(current => [notificationData, ...current]);
@@ -429,6 +474,8 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
           this.autoArchivingNotificationsSignal.update(current => [notificationData, ...current]);
         } else if (notificationData.type === 'account_update') {
           this.accountUpdateNotificationsSignal.update(current => [notificationData, ...current]);
+        } else if (notificationData.type === 'topic_subscriptions') {
+          this.topicSubscriptionsNotificationsSignal.update(current => [notificationData, ...current]);
         }
 
         if (!notifSetting?.disable_sound) {
@@ -461,6 +508,9 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
       case 'reaction_created':
         this.reactionCreatedSubject.next(notification as ReactionCreatedEvent);
         break;
+      case 'topic_full':
+        this.topicFullSubject.next(notification as TopicFullEvent);
+        break;
       case 'health_update':
         this.healthUpdateSubject.next(notification as HealthUpdateEvent);
         break;
@@ -483,6 +533,7 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
         this.pageChangedSubject.next(notification as PageChangedEvent);
         break;
       case 'pong':
+        if (this.pongTimeout) { clearTimeout(this.pongTimeout); this.pongTimeout = null; }
         break;
       case 'user_refresh_required':
         this.authService.refreshToken().subscribe({

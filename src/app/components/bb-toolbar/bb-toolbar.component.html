@@ -28,8 +28,12 @@
     }
   </span>
   <span title="Smile" i18n-title="@@postform.smile" (click)="toggleArea('smile')"><i class="bi bi-emoji-smile"></i></span>
-  <span title="Video" i18n-title="@@postform.video" (click)="toggleArea('video')"><i class="bi bi-camera-video"></i></span>
-  <span title="Audio" i18n-title="@@postform.audio" (click)="insertTag('audio')"><i class="bi bi-music-note"></i></span>
+  @if (showVideo) {
+    <span title="Video" i18n-title="@@postform.video" (click)="toggleArea('video')"><i class="bi bi-camera-video"></i></span>
+  }
+  @if (showAudio) {
+    <span title="Audio" i18n-title="@@postform.audio" (click)="toggleArea('audio')"><i class="bi bi-music-note"></i></span>
+  }
   @if (showImageUpload) {
     <span title="Upload image" i18n-title="@@postform.uploadImage" (click)="toggleArea('image')"><i class="bi bi-image"></i></span>
   }
@@ -37,6 +41,11 @@
     <span title="Spoiler" (click)="openSpoilerModal()" [class.toolbar-active]="isFormatActive('spoiler')"><i class="bi bi-eye-slash"></i></span>
   }
   <span title="Grid" i18n-title="@@postform.grid" (click)="toggleArea('grid')"><i class="bi bi-grid-3x3-gap"></i></span>
+  <span title="Table" i18n-title="@@postform.table" (click)="toggleArea('table')"><i class="bi bi-table"></i></span>
+  @if (isGm) {
+    <span title="NPC block" i18n-title="@@postform.npcBlock" (click)="npcBlockClick.emit()" [class.toolbar-active]="npcBlockActive || isFormatActive('npc-block')"><i class="bi bi-person-fill"></i></span>
+    <span title="Hidden message" i18n-title="@@postform.hiddenMessage" (click)="hiddenMessageClick.emit()" [class.toolbar-active]="hidePanelActive || isFormatActive('hide')"><i class="bi bi-lock"></i></span>
+  }
 </div>
 
 <div id="tags" (mousedown)="$event.preventDefault()">
@@ -69,6 +78,19 @@
     <div class="container" id="video-area">
       <input #videoInput type="text" placeholder="https://" (mousedown)="$event.stopPropagation()" (keydown.enter)="insertVideo(videoInput.value)" />
       <button type="button" (mousedown)="$event.preventDefault()" (click)="insertVideo(videoInput.value)" i18n="@@postform.videoInsert">Insert</button>
+    </div>
+  }
+  @if (activeArea === 'audio') {
+    <div class="container" id="audio-area">
+      <select [(ngModel)]="audioSource" (mousedown)="$event.stopPropagation()">
+        <option value="" i18n="@@postform.audioSourceDirect">Direct audio file</option>
+        <option value="soundcloud">SoundCloud</option>
+        <option value="spotify">Spotify</option>
+        <option value="archive">Archive.org</option>
+        <option value="bandcamp">Bandcamp</option>
+      </select>
+      <input #audioInput type="text" placeholder="https://" (mousedown)="$event.stopPropagation()" (keydown.enter)="insertAudio(audioInput.value)" />
+      <button type="button" (mousedown)="$event.preventDefault()" (click)="insertAudio(audioInput.value)" i18n="@@postform.audioInsert">Insert</button>
     </div>
   }
   @if (activeArea === 'color') {
@@ -118,6 +140,14 @@
         (close)="activeArea = null"
         (insert)="insertGrid($event)">
       </app-grid-builder>
+    </div>
+  }
+  @if (activeArea === 'table') {
+    <div class="container" id="table-builder-area">
+      <app-table-builder
+        (close)="activeArea = null"
+        (insert)="insertTable($event)">
+      </app-table-builder>
     </div>
   }
 </div>

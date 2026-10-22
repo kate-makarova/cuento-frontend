@@ -1,4 +1,4 @@
-import { Component, computed, inject, Input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { FieldTemplate } from '../../models/FieldTemplate';
 import { BoardService } from '../../services/board.service';
 import { ShortTextFieldComponent } from '../short-text-field/short-text-field.component';
@@ -16,9 +16,9 @@ import { SelectFieldComponent } from '../select-field/select-field.component';
   templateUrl: './field-input.component.html'
 })
 export class FieldInputComponent {
-  @Input() field!: FieldTemplate;
-  @Input() fieldValue: any = null;
-  @Input() characterIds: number[] = [];
+  field = input.required<FieldTemplate>();
+  fieldValue = input<any>(null);
+  characterIds = input<number[]>([]);
 
   private boardService = inject(BoardService);
   readonly canUpload = computed(() => this.boardService.board().use_image_uploading === 'y');

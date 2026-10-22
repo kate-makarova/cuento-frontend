@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 import { CharacterSheetHeaderComponent } from './character-sheet-header.component';
 import { AuthService } from '../../services/auth.service';
 import { CharacterService } from '../../services/character.service';
@@ -21,7 +22,8 @@ describe('CharacterSheetHeaderComponent', () => {
     character_status: 0, // Active
     topic_id: 10,
     total_episodes: 5,
-    factions: [{ id: 1, name: 'Faction A', parent_id: null, level: 0, description: null, icon: null, show_on_profile: true, characters: [] }],
+    claim_record: null,
+    factions: [{ id: 1, name: 'Faction A', parent_id: null, level: 0, description: null, icon: null, show_on_profile: true, characters: [], faction_status: 0, free_format_date_id: null }],
     episodes: [],
     custom_fields: {
       custom_fields: {},
@@ -31,13 +33,14 @@ describe('CharacterSheetHeaderComponent', () => {
 
   beforeEach(async () => {
     isAdminSignal = signal(false);
-    authServiceSpy = jasmine.createSpyObj('AuthService', [], {
+    authServiceSpy = jasmine.createSpyObj('AuthService', ['hasPermission'], {
       isAdmin: isAdminSignal
     });
+    authServiceSpy.hasPermission.and.returnValue(false);
     characterServiceSpy = jasmine.createSpyObj('CharacterService', ['acceptCharacter']);
 
     await TestBed.configureTestingModule({
-      imports: [CharacterSheetHeaderComponent],
+      imports: [CharacterSheetHeaderComponent, RouterTestingModule],
       providers: [
         { provide: AuthService, useValue: authServiceSpy },
         { provide: CharacterService, useValue: characterServiceSpy }
@@ -70,12 +73,14 @@ describe('CharacterSheetHeaderComponent', () => {
   });
 
   it('should show accept button for admin in topic context with pending status', () => {
-    isAdminSignal.set(true);
-    component.character = { ...mockCharacter, character_status: 2 }; // Pending
-    component.context = 'topic';
-    fixture.detectChanges();
+    authServiceSpy.hasPermission.and.returnValue(true);
+    const adminFixture = TestBed.createComponent(CharacterSheetHeaderComponent);
+    const adminComponent = adminFixture.componentInstance;
+    adminComponent.character = { ...mockCharacter, character_status: 2 }; // Pending
+    adminComponent.context = 'topic';
+    adminFixture.detectChanges();
 
-    const compiled = fixture.nativeElement as HTMLElement;
+    const compiled = adminFixture.nativeElement as HTMLElement;
     const buttons = compiled.querySelectorAll('button');
     const acceptButton = Array.from(buttons).find(b => b.textContent?.includes('Accept'));
 
@@ -83,14 +88,16 @@ describe('CharacterSheetHeaderComponent', () => {
   });
 
   it('should call acceptCharacter on click', () => {
-    isAdminSignal.set(true);
-    component.character = { ...mockCharacter, character_status: 2 };
-    component.context = 'topic';
-    fixture.detectChanges();
+    authServiceSpy.hasPermission.and.returnValue(true);
+    const adminFixture = TestBed.createComponent(CharacterSheetHeaderComponent);
+    const adminComponent = adminFixture.componentInstance;
+    adminComponent.character = { ...mockCharacter, character_status: 2 };
+    adminComponent.context = 'topic';
+    adminFixture.detectChanges();
 
     characterServiceSpy.acceptCharacter.and.returnValue(of({}));
 
-    const compiled = fixture.nativeElement as HTMLElement;
+    const compiled = adminFixture.nativeElement as HTMLElement;
     const buttons = compiled.querySelectorAll('button');
     const acceptButton = Array.from(buttons).find(b => b.textContent?.includes('Accept'));
 

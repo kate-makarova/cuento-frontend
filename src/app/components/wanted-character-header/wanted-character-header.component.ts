@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { WantedCharacter } from '../../models/WantedCharacter';
@@ -14,6 +14,11 @@ import { FieldDisplayComponent } from '../field-display/field-display.component'
 })
 export class WantedCharacterHeaderComponent implements OnInit, OnChanges {
   @Input() wantedCharacter!: WantedCharacter | null;
+  @Input() isAuthenticated = false;
+  @Input() canRevoke = false;
+
+  @Output() claim = new EventEmitter<void>();
+  @Output() revoke = new EventEmitter<void>();
 
   customFields: any[] = [];
 

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, Input, Output, EventEmitter, signal, computed, ViewChild, ElementRef } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, Input, Output, EventEmitter, signal, computed, ViewChild, ElementRef, effect } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CharacterService } from '../services/character.service';
 import { TopicService } from '../services/topic.service';
@@ -46,6 +46,28 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
   router = inject(Router);
   route = inject(ActivatedRoute);
   characterTemplate = this.characterService.characterTemplate;
+  templateBlocks = this.characterService.characterTemplateBlocks;
+  templateBlockSettings = this.characterService.characterTemplateBlockSettings;
+
+  selectedBlocks = signal<Record<string, string>>({});
+
+  visibleFields = computed(() => {
+    const template = this.characterTemplate();
+    const blocks = this.templateBlocks();
+    const toggles = this.templateBlockSettings();
+    if (toggles.length === 0) return template;
+    const hidden = new Set<string>();
+    for (const toggle of toggles) {
+      const selected = this.selectedBlocks()[toggle.machine_name] ?? toggle.children[0];
+      for (const childId of toggle.children) {
+        if (childId !== selected) {
+          const block = blocks.find(b => b.id === childId);
+          if (block) block.fields.forEach(f => hidden.add(f));
+        }
+      }
+    }
+    return template.filter(f => !hidden.has(f.machine_field_name));
+  });
 
   @Input() initialData: Character | null = null;
   @Output() formSubmit = new EventEmitter<any>();
@@ -54,8 +76,8 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
   subforumId: number = 0;
   factionPaths: Faction[][] = [[]]; // Start with one empty path
 
-  characterName: string = '';
-  characterAvatar: string = '';
+  characterName = signal<string>('');
+  characterAvatar = signal<string>('');
 
   statusActive = signal(false);
   isPending = false;
@@ -135,6 +157,19 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
     this.showClaimBlockedModal.set(false);
   }
 
+  constructor() {
+    effect(() => {
+      const toggles = this.templateBlockSettings();
+      if (toggles.length === 0) return;
+      const existing = this.initialData?.custom_fields?.block_settings ?? {};
+      const init: Record<string, string> = {};
+      for (const toggle of toggles) {
+        init[toggle.machine_name] = existing[toggle.machine_name] ?? toggle.children[0];
+      }
+      this.selectedBlocks.set(init);
+    }, { allowSignalWrites: true });
+  }
+
   ngOnDestroy() {
     this.claimSubscription?.unsubscribe();
     this.autosaveSub?.unsubscribe();
@@ -165,6 +200,7 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
     }
 
     this.characterService.loadCharacterTemplate();
+
     this.route.queryParams.subscribe(params => {
       if (params['fid']) {
         this.subforumId = +params['fid'];
@@ -201,8 +237,8 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
       }
     }
     return {
-      name: formData ? (formData.get('req_name') as string) : this.characterName,
-      avatar: formData ? (formData.get('req_avatar') as string) : this.characterAvatar,
+      name: formData ? (formData.get('req_name') as string) : this.characterName(),
+      avatar: formData ? (formData.get('req_avatar') as string) : this.characterAvatar(),
       factionPaths: this.factionPaths,
       claimType: this.claimType(),
       claimItem: this.selectedClaimItem(),
@@ -226,8 +262,8 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
     this.entityDraftService.loadLatest('character').subscribe({
       next: draft => {
         const c = draft.content;
-        if (c.name) this.characterName = c.name;
-        if (c.avatar) this.characterAvatar = c.avatar;
+        if (c.name) this.characterName.set(c.name);
+        if (c.avatar) this.characterAvatar.set(c.avatar);
         if (c.claimType) this.claimType.set(c.claimType);
         if (c.claimItem) { this.selectedClaimItem.set(c.claimItem); this.claimQuery.set(c.claimItem.name); }
         this.hasDraft.set(false);
@@ -277,12 +313,28 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
   }
 
   populateForm(data: Character) {
-    this.characterName = data.name;
-    this.characterAvatar = data.avatar || '';
+    this.characterName.set(data.name);
+    this.characterAvatar.set(data.avatar || '');
   }
 
   onFactionsChanged(paths: Faction[][]) {
     this.factionPaths = paths;
+  }
+
+  onBlockToggle(toggleName: string, blockId: string) {
+    this.selectedBlocks.update(s => ({ ...s, [toggleName]: blockId }));
+  }
+
+  getBlock(blockId: string) {
+    return this.templateBlocks().find(b => b.id === blockId) ?? null;
+  }
+
+  collectBlockSettings(): Record<string, string> {
+    const result: Record<string, string> = {};
+    for (const toggle of this.templateBlockSettings()) {
+      result[toggle.machine_name] = this.selectedBlocks()[toggle.machine_name] ?? toggle.children[0];
+    }
+    return result;
   }
 
   getFieldValue(machineName: string): any {
@@ -341,7 +393,8 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
       name: formData.get('req_name') as string,
       avatar: formData.get('req_avatar') as string,
       custom_fields: customFields,
-      factions: factions
+      factions: factions,
+      block_settings: this.collectBlockSettings()
     };
 
     const claimItem = this.selectedClaimItem();
@@ -388,10 +441,13 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
       this.formSubmit.emit(request);
     } else {
       this.characterService.createCharacter(request as CreateCharacterRequest).subscribe({
-        next: (response) => {
+        next: (response: any) => {
           deleteDraft();
-          console.log('Character created successfully', response);
-          this.router.navigate(['/viewforum', this.subforumId]);
+          if (response?.topic_id) {
+            this.router.navigate(['/viewtopic', response.topic_id]);
+          } else {
+            this.router.navigate(['/viewforum', this.subforumId]);
+          }
         },
         error: (err) => {
           console.error('Failed to create character', err);

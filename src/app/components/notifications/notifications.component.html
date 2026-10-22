@@ -34,6 +34,13 @@
     </div>
   }
 
+  @if (topicSubscriptionsNotifications().length > 0 && !isTypeDisabled('topic_subscriptions')) {
+    <div class="notification-block topic-subscriptions" (click)="openModal('topic_subscriptions')">
+      <span class="count">{{ topicSubscriptionsNotifications().length }}</span>
+      <span class="label" i18n="@@notifications.topicSubscriptions">Subscriptions</span>
+    </div>
+  }
+
   @if (accountUpdateNotifications().length > 0 && !isTypeDisabled('account_update')) {
     <div class="notification-block account-updates" (click)="openModal('account_update')">
       <span class="count">{{ accountUpdateNotifications().length }}</span>
@@ -64,7 +71,20 @@
             <div class="feed-item">
               <div class="feed-item-content">
                 <span class="date">{{ item.date_created | date:'yyyy-MM-dd HH:mm' }}</span>
-                <p>{{ item.message }}</p>
+                @if (item.type === 'absence_started') {
+                  @let absence = $any(item.data);
+                  <p>
+                    <a [routerLink]="['/profile', absence?.user_id]">{{ absence?.username }}</a>
+                    <ng-container i18n="@@notifications.absenceStarted.message"> has started an absence until </ng-container>{{ absence?.absence_end_date }}.
+                  </p>
+                  @if (absence?.characters?.length) {
+                    <p class="absence-characters">
+                      <ng-container i18n="@@notifications.absenceCharacters">Characters: </ng-container>{{ absence.characters.join(', ') }}
+                    </p>
+                  }
+                } @else {
+                  <p>{{ item.message }}</p>
+                }
               </div>
               <button class="dismiss-button" (click)="dismissNotification(item, $event)">&times;</button>
             </div>
@@ -180,6 +200,31 @@
         </div>
       }
 
+      @if (activeModal() === 'topic_subscriptions') {
+        <h2 i18n="@@notifications.topicSubscriptions">Subscriptions</h2>
+        <div class="feed-list">
+          @for (item of topicSubscriptionsNotifications(); track item.id) {
+            @let sub = $any(item.data);
+            <div class="feed-item">
+              <div class="feed-item-content">
+                <span class="date">{{ item.date_created | date:'yyyy-MM-dd HH:mm' }}</span>
+                <span>
+                  <ng-container i18n="@@notifications.topicSubscription.newPost">New post in </ng-container>
+                  @if (sub?.topic_id) {
+                    <a [routerLink]="['/viewtopic', sub.topic_id]"
+                       [queryParams]="{ post_id: sub.post_id }"
+                       (click)="onNotificationClick(item)">{{ sub.topic_name || item.title }}</a>
+                  } @else {
+                    {{ item.title }}
+                  }
+                </span>
+              </div>
+              <button class="dismiss-button" (click)="dismissNotification(item, $event)">&times;</button>
+            </div>
+          }
+        </div>
+      }
+
       @if (activeModal() === 'account_update') {
         <h2 i18n="@@notifications.accountUpdates">Account updates</h2>
         <div class="feed-list">
@@ -200,10 +245,14 @@
         <h2 i18n="@@notifications.directMessages">Direct messages</h2>
         <div class="feed-list">
           @for (item of directMessageNotifications(); track item.id) {
+            @let dm = $any(item.direct_message ?? item.data);
             <div class="feed-item">
-              <a class="feed-item-content" [routerLink]="['/direct-chat']" (click)="onNotificationClick(item)">
+              <a class="feed-item-content" [routerLink]="dm?.chat_id ? ['/direct-chat', dm.chat_id] : ['/direct-chat']" (click)="onNotificationClick(item)">
                 <span class="date">{{ item.date_created | date:'yyyy-MM-dd HH:mm' }}</span>
-                <p>{{ item.message }}</p>
+                <p>
+                  <strong>{{ dm?.username ?? dm?.sender_username }}</strong>
+                  <ng-container i18n="@@toast.directMessage.sentYouA"> sent you a </ng-container><ng-container i18n="@@toast.directMessage.message">message</ng-container>
+                </p>
               </a>
               <button class="dismiss-button" (click)="dismissNotification(item, $event)">&times;</button>
             </div>
@@ -216,7 +265,7 @@
         <div class="feed-list">
           @for (item of dmNotifications(); track item.chat_id) {
             <div class="feed-item">
-              <a class="feed-item-content dm-entry" [routerLink]="['/direct-chat']" (click)="closeModal()">
+              <a class="feed-item-content dm-entry" [routerLink]="['/direct-chat']" [queryParams]="{ chat_id: item.chat_id }" (click)="closeModal()">
                 <span class="dm-chat-label">
                   <span i18n="@@notifications.chatWith">Chat with</span>
                   <strong>{{ item.username }}</strong>

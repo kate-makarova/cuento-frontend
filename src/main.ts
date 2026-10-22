@@ -9,6 +9,7 @@ import { registerLocaleData } from '@angular/common';
 import { createCustomElement } from '@angular/elements';
 import { PostInsertComponent } from './app/components/post-insert/post-insert.component';
 import { SpoilerBoxComponent } from './app/components/spoiler-box/spoiler-box.component';
+import { QuoteBoxComponent } from './app/components/quote-box/quote-box.component';
 import { LOCALES } from './locale_config';
 
 // Explicit static imports so esbuild bundles only what's listed here.
@@ -33,14 +34,18 @@ const ANGULAR_LOCALES: Record<string, () => Promise<any>> = {
 
 function detectGuestLocale(): string | null {
   const languages: readonly string[] = navigator.languages?.length ? navigator.languages : [navigator.language];
-  for (const def of LOCALES) {
-    if (languages.some(l => def.langPrefixes.some(p => l.startsWith(p)))) return def.code;
+  for (const lang of languages) {
+    const match = LOCALES.find(def => def.langPrefixes.some(p => lang.startsWith(p)));
+    if (match) return match.code;
   }
   return null;
 }
 
 const storedLocale = localStorage.getItem('locale');
 const locale = storedLocale ?? detectGuestLocale();
+if (!storedLocale && locale) {
+  localStorage.setItem('locale', locale);
+}
 const locDef = LOCALES.find(d => d.code === locale);
 
 function registerCustomElements(appRef: ApplicationRef): void {
@@ -49,6 +54,9 @@ function registerCustomElements(appRef: ApplicationRef): void {
 
   const SpoilerBoxElement = createCustomElement(SpoilerBoxComponent, { injector: appRef.injector });
   customElements.define('spoiler-box', SpoilerBoxElement);
+
+  const QuoteBoxElement = createCustomElement(QuoteBoxComponent, { injector: appRef.injector });
+  customElements.define('quote-box', QuoteBoxElement);
 }
 
 async function bootstrap(): Promise<void> {

@@ -41,6 +41,12 @@
         </ul>
       </div>
     }
+
+    @if (context === 'page') {
+      <div class="profile-actions">
+        <a [routerLink]="['/character', character!.id, 'posts']" i18n="@@characterview.postsLink">Posts</a>
+      </div>
+    }
   </div>
 </div>
 

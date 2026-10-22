@@ -23,7 +23,7 @@ export type ParagraphNode = {
 export type AlignBlock = {
   type: 'align';
   align: 'left' | 'center' | 'right';
-  children: ParagraphNode[];
+  children: BlockNode[];
 };
 
 export type QuoteNode = {
@@ -42,7 +42,7 @@ export type CodeNode = {
 export type SpoilerNode = {
   type: 'spoiler';
   title?: string;
-  children: ParagraphNode[];
+  children: BlockNode[];
 };
 
 export type VideoNode = {
@@ -50,7 +50,54 @@ export type VideoNode = {
   url: string;
 };
 
-export type BlockNode = ParagraphNode | AlignBlock | QuoteNode | CodeNode | SpoilerNode | VideoNode;
+export type AudioNode = {
+  type: 'audio';
+  url: string;
+  sourceSite?: string;
+};
+
+export type NpcBlockNode = {
+  type: 'npc-block';
+  npcIds: number[];
+  npcs?: { id: number; name: string; avatar: string | null }[];
+  children: BlockNode[];
+};
+
+export type HideNode = {
+  type: 'hide';
+  userIds: number[];
+  users?: { id: number; username: string }[];
+  children: BlockNode[];
+};
+
+export type DivNode = {
+  type: 'div';
+  id?: string;
+  className?: string;
+  style?: string;
+  children: BlockNode[];
+};
+
+// Opaque passthrough for block tags the editor doesn't structurally understand
+// (e.g. [table]). The inner BB code is round-tripped verbatim.
+export type RawBlockNode = { type: 'raw'; tag: string; bb: string };
+
+export type GridItemMeta = { col: number; colSpan: number };
+export type GridNode = {
+  type: 'grid';
+  columns: number;
+  cellMeta: GridItemMeta[];
+  children: BlockNode[][];
+};
+
+export type TableCellMeta = { colSpan: number; rowSpan: number; isFirstInRow: boolean };
+export type TableNode = {
+  type: 'table';
+  cellMeta: TableCellMeta[];
+  children: BlockNode[][];
+};
+
+export type BlockNode = ParagraphNode | AlignBlock | QuoteNode | CodeNode | SpoilerNode | VideoNode | AudioNode | NpcBlockNode | HideNode | DivNode | RawBlockNode | GridNode | TableNode;
 
 export type DocModel = { children: BlockNode[] };
 

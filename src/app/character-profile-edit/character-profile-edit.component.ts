@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnInit, effect, Input, booleanAttribute, signal, ViewChild } from '@angular/core';
+import { Component, computed, ElementRef, inject, OnInit, effect, Input, booleanAttribute, signal, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CharacterService } from '../services/character.service';
 import { MaskService } from '../services/mask.service';
@@ -30,14 +30,35 @@ export class CharacterProfileEditComponent implements OnInit {
   @Input({ transform: booleanAttribute }) is_mask: boolean = false;
 
   template = this.characterService.characterProfileTemplate;
+  templateBlocks = this.characterService.characterProfileTemplateBlocks;
+  templateBlockSettings = this.characterService.characterProfileTemplateBlockSettings;
+  selectedBlocks = signal<Record<string, string>>({});
+
+  visibleFields = computed(() => {
+    const template = this.template();
+    const blocks = this.templateBlocks();
+    const toggles = this.templateBlockSettings();
+    if (toggles.length === 0) return template;
+    const hidden = new Set<string>();
+    for (const toggle of toggles) {
+      const selected = this.selectedBlocks()[toggle.machine_name] ?? toggle.children[0];
+      for (const childId of toggle.children) {
+        if (childId !== selected) {
+          const block = blocks.find(b => b.id === childId);
+          if (block) block.fields.forEach(f => hidden.add(f));
+        }
+      }
+    }
+    return template.filter(f => !hidden.has(f.machine_field_name));
+  });
 
   // Local signal to hold the data, whether it comes from character profile or mask
   currentProfileData = signal<CharacterProfile | null>(null);
 
   characterId: number = 0;
-  characterName: string = '';
-  characterAvatar: string = '';
-  characterSignature: string = '';
+  characterName = signal<string>('');
+  characterAvatar = signal<string>('');
+  characterSignature = signal<string>('');
   isNewMask: boolean = false;
   saveState = signal<'idle' | 'loading' | 'success' | 'error'>('idle');
 
@@ -55,23 +76,35 @@ export class CharacterProfileEditComponent implements OnInit {
         const p = this.currentProfileData();
         if (p) {
           // If it's a mask, it might have mask_name. If it's a character, character_name.
-          this.characterName = p.character_name || (p as any).mask_name || '';
-          this.characterAvatar = p.avatar;
-          this.characterSignature = p.signature || '';
+          this.characterName.set(p.character_name || (p as any).mask_name || '');
+          this.characterAvatar.set(p.avatar);
+          this.characterSignature.set(p.signature || '');
         }
       }
-    });
+    }, { allowSignalWrites: true });
+
+    effect(() => {
+      const toggles = this.templateBlockSettings();
+      if (toggles.length === 0) return;
+      const existing = this.currentProfileData()?.custom_fields?.block_settings ?? {};
+      const init: Record<string, string> = {};
+      for (const toggle of toggles) {
+        init[toggle.machine_name] = existing[toggle.machine_name] ?? toggle.children[0];
+      }
+      this.selectedBlocks.set(init);
+    }, { allowSignalWrites: true });
   }
 
   ngOnInit() {
     this.characterService.loadCharacterProfileTemplate();
+
     this.route.params.subscribe(params => {
       if (params['id']) {
         if (params['id'] === 'new' || params['id'] === '0') {
           this.isNewMask = true;
           this.characterId = 0;
-          this.characterName = '';
-          this.characterAvatar = '';
+          this.characterName.set('');
+          this.characterAvatar.set('');
           this.currentProfileData.set(null);
         } else {
           this.isNewMask = false;
@@ -88,6 +121,22 @@ export class CharacterProfileEditComponent implements OnInit {
         }
       }
     });
+  }
+
+  onBlockToggle(toggleName: string, blockId: string) {
+    this.selectedBlocks.update(s => ({ ...s, [toggleName]: blockId }));
+  }
+
+  getBlock(blockId: string) {
+    return this.templateBlocks().find(b => b.id === blockId) ?? null;
+  }
+
+  collectBlockSettings(): Record<string, string> {
+    const result: Record<string, string> = {};
+    for (const toggle of this.templateBlockSettings()) {
+      result[toggle.machine_name] = this.selectedBlocks()[toggle.machine_name] ?? toggle.children[0];
+    }
+    return result;
   }
 
   onSubmit(event: Event) {
@@ -112,13 +161,16 @@ export class CharacterProfileEditComponent implements OnInit {
 
     const avatar = formData.get('avatar') as string;
 
+    const blockSettings = this.collectBlockSettings();
+
     if (this.is_mask) {
       // Logic for Masks
       const payload: any = {
-        mask_name: this.characterName,
+        mask_name: this.characterName(),
         avatar,
         custom_fields: customFields,
-        signature: this.signatureField.nativeElement.value
+        signature: this.signatureField.nativeElement.value,
+        block_settings: blockSettings
       };
 
       this.saveState.set('loading');
@@ -145,7 +197,8 @@ export class CharacterProfileEditComponent implements OnInit {
       const updatePayload = {
         avatar,
         custom_fields: customFields,
-        signature: this.signatureField.nativeElement.value
+        signature: this.signatureField.nativeElement.value,
+        block_settings: blockSettings
       };
 
       this.saveState.set('loading');

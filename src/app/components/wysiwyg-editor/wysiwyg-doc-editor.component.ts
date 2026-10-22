@@ -4,7 +4,7 @@ import {
 import { BoardService } from '../../services/board.service';
 import { ImageService } from '../../services/image.service';
 import {
-  DocModel, BlockNode, ParagraphNode, AlignBlock, DocPoint, DocRange, Mark,
+  DocModel, BlockNode, ParagraphNode, AlignBlock, DocPoint, DocRange, Mark, NpcBlockNode, HideNode,
 } from './wysiwyg-doc-model';
 import { parseBbCode, serializeDoc } from './wysiwyg-doc-bb';
 import { renderDoc } from './wysiwyg-doc-renderer';
@@ -21,6 +21,8 @@ import {
   getMarksAtPoint,
   isCollapsed, pointEq,
   inlineLen,
+  wrapRangeAsQuote,
+  wrapRangeAsCode,
 } from './wysiwyg-doc-ops';
 
 const ORIGIN: DocRange = { anchor: { path: [0], offset: 0 }, focus: { path: [0], offset: 0 } };
@@ -659,10 +661,14 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
 
     const block = this.doc.children[this.cursor.anchor.path[0]];
     if (block) {
-      if (block.type === 'code')    active.add('code');
-      if (block.type === 'quote')   active.add('quote');
-      if (block.type === 'spoiler') active.add('spoiler');
-      if (block.type === 'align')   active.add(block.align);
+      if (block.type === 'code')      active.add('code');
+      if (block.type === 'quote')     active.add('quote');
+      if (block.type === 'spoiler')   active.add('spoiler');
+      if (block.type === 'npc-block') active.add('npc-block');
+      if (block.type === 'hide')      active.add('hide');
+      if (block.type === 'grid')      active.add('grid');
+      if (block.type === 'table')     active.add('table');
+      if (block.type === 'align')     active.add(block.align);
     }
 
     this.activeFormats.set(active);
@@ -874,11 +880,27 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
   insertBlockAtCursor(html: string, _cursorSelector?: string): void {
     this.pushHistory('other');
     this.editorEl.nativeElement.focus();
-    const blockIdx = this.cursor.anchor.path[0];
 
     const newBlocks: BlockNode[] = this.parseHtmlToBlocks(html);
     if (newBlocks.length === 0) return;
 
+    // When there's a selection, wrap the selected content into the new block
+    if (!isCollapsed(this.cursor)) {
+      const firstType = newBlocks[0].type;
+      let result: ReturnType<typeof wrapRangeAsQuote> = null;
+      if (firstType === 'quote') result = wrapRangeAsQuote(this.doc, this.cursor);
+      else if (firstType === 'code') result = wrapRangeAsCode(this.doc, this.cursor);
+      if (result) {
+        this.doc = result.doc;
+        this.render();
+        this.cursor = { anchor: result.cursor, focus: result.cursor };
+        applyDocRange(this.cursor, this.editorEl.nativeElement);
+        this.updateActiveState();
+        return;
+      }
+    }
+
+    const blockIdx = this.cursor.anchor.path[0];
     const current = this.doc.children[blockIdx];
     const isEmpty = current?.type === 'paragraph' && current.children.length === 0;
     const insertAt = isEmpty ? blockIdx : blockIdx + 1;
@@ -891,7 +913,7 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
 
     const firstIdx = before.length;
     const firstBlock = this.doc.children[firstIdx];
-    const newCursor: DocPoint = firstBlock.type === 'quote' || firstBlock.type === 'spoiler'
+    const newCursor: DocPoint = firstBlock.type === 'quote' || firstBlock.type === 'spoiler' || firstBlock.type === 'npc-block'
       ? { path: [firstIdx, 0], offset: 0 }
       : { path: [firstIdx], offset: 0 };
 
@@ -914,6 +936,12 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
       } else if (child.classList.contains('wysiwyg-spoiler')) {
         const title = child.querySelector('.wysiwyg-spoiler-header')?.textContent?.trim() ?? 'Spoiler';
         blocks.push({ type: 'spoiler', title, children: [{ type: 'paragraph', children: [] }] });
+      } else if (child.classList.contains('wysiwyg-npc-block')) {
+        const headerText = child.querySelector('.wysiwyg-npc-header')?.textContent ?? '';
+        const npcIds = (headerText.match(/\d+/g) ?? []).map(Number);
+        blocks.push({ type: 'npc-block', npcIds, children: [{ type: 'paragraph', children: [] }] });
+      } else if (child.classList.contains('wysiwyg-hide')) {
+        blocks.push({ type: 'hide', userIds: [], children: [{ type: 'paragraph', children: [] }] });
       } else if (child.tagName === 'DIV') {
         if (!child.className || child.className === '') {
           blocks.push({ type: 'paragraph', children: [] });
@@ -946,6 +974,62 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
 
     const cursorIdx = before.length + toInsert.length - 1;
     const newCursor: DocPoint = { path: [cursorIdx], offset: 0 };
+    this.cursor = { anchor: newCursor, focus: newCursor };
+    this.editorEl.nativeElement.focus();
+    applyDocRange(this.cursor, this.editorEl.nativeElement);
+    this.updateActiveState();
+  }
+
+  insertNpcBlockDirect(npcs: { id: number; name: string; avatar: string | null }[]): void {
+    this.pushHistory('other');
+    const node: NpcBlockNode = {
+      type: 'npc-block',
+      npcIds: npcs.map(n => n.id),
+      npcs,
+      children: [{ type: 'paragraph', children: [] }],
+    };
+    const toInsert: BlockNode[] = [node, { type: 'paragraph', children: [] } as ParagraphNode];
+
+    const blockIdx = this.cursor.anchor.path[0];
+    const current = this.doc.children[blockIdx];
+    const replaceEmpty = current?.type === 'paragraph' && current.children.length === 0;
+
+    const before = this.doc.children.slice(0, replaceEmpty ? blockIdx : blockIdx + 1);
+    const after  = this.doc.children.slice(replaceEmpty ? blockIdx + 1 : blockIdx + 1);
+
+    this.doc = { children: [...before, ...toInsert, ...after] };
+    this.render();
+
+    const cursorIdx = before.length; // place cursor inside the npc-block body
+    const newCursor: DocPoint = { path: [cursorIdx, 0], offset: 0 };
+    this.cursor = { anchor: newCursor, focus: newCursor };
+    this.editorEl.nativeElement.focus();
+    applyDocRange(this.cursor, this.editorEl.nativeElement);
+    this.updateActiveState();
+  }
+
+  insertHideBlockDirect(users: { id: number; username: string }[]): void {
+    this.pushHistory('other');
+    const node: HideNode = {
+      type: 'hide',
+      userIds: users.map(u => u.id),
+      users,
+      children: [{ type: 'paragraph', children: [] }],
+    };
+    const toInsert: BlockNode[] = [node, { type: 'paragraph', children: [] } as ParagraphNode];
+
+    const blockIdx = this.cursor.anchor.path[0];
+    const current = this.doc.children[blockIdx];
+    const replaceEmpty = current?.type === 'paragraph' && current.children.length === 0;
+
+    const before = this.doc.children.slice(0, replaceEmpty ? blockIdx : blockIdx + 1);
+    const after  = this.doc.children.slice(replaceEmpty ? blockIdx + 1 : blockIdx + 1);
+
+    this.doc = { children: [...before, ...toInsert, ...after] };
+    this.render();
+
+    const cursorIdx = before.length;
+    const newCursor: DocPoint = { path: [cursorIdx, 0], offset: 0 };
     this.cursor = { anchor: newCursor, focus: newCursor };
     this.editorEl.nativeElement.focus();
     applyDocRange(this.cursor, this.editorEl.nativeElement);
@@ -995,7 +1079,7 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
         result += isLast ? block.text.slice(0, cursor.offset) : block.text + '\n';
       } else if (block.type === 'paragraph') {
         result += isLast ? this.paraTextTo(block, cursor.offset) : this.paraText(block) + '\n';
-      } else if (block.type === 'align' || block.type === 'quote' || block.type === 'spoiler') {
+      } else if (block.type === 'align' || block.type === 'quote' || block.type === 'spoiler' || block.type === 'hide' || block.type === 'npc-block' || block.type === 'div') {
         const allChildren = block.children;
         const paraIdx = isLast ? (cursor.path[1] ?? 0) : allChildren.length - 1;
         for (let pi = 0; pi <= paraIdx; pi++) {
@@ -1003,6 +1087,13 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
           if (child.type !== 'paragraph') continue;
           const isLastPara = isLast && pi === paraIdx;
           result += isLastPara ? this.paraTextTo(child, cursor.offset) : this.paraText(child) + '\n';
+        }
+      } else if (block.type === 'grid' || block.type === 'table') {
+        if (isLast) {
+          const cellIdx = cursor.path[1] ?? 0;
+          const paraIdx = cursor.path[2] ?? 0;
+          const para = block.children[cellIdx]?.[paraIdx];
+          if (para?.type === 'paragraph') result += this.paraTextTo(para, cursor.offset);
         }
       }
     }
@@ -1039,6 +1130,10 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
       if (block.type === 'quote') children = block.children;
     } else if (containerSelector.includes('wysiwyg-spoiler')) {
       if (block.type === 'spoiler') children = block.children;
+    } else if (containerSelector.includes('wysiwyg-npc-block')) {
+      if (block.type === 'npc-block') children = block.children;
+    } else if (containerSelector.includes('wysiwyg-hide')) {
+      if (block.type === 'hide') children = block.children;
     }
 
     if (!children) return;

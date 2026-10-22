@@ -21,10 +21,16 @@ export class AdminSmilesComponent implements OnInit {
   uploadState = signal<UploadState>('idle');
 
   newCategoryName = '';
+  newCategoryPosition = 0;
   editingCategory: SmileCategory | null = null;
 
   newSmileTextForm = '';
   newSmileCategoryId: number | null = null;
+
+  bulkUploadState = signal<UploadState>('idle');
+  bulkCompleted = signal(0);
+  bulkTotal = signal(0);
+  bulkCategoryId: number | null = null;
 
   // track the selected category id per smile for the dropdown
   smileCategorySelection: Record<number, number | null> = {};
@@ -57,10 +63,11 @@ export class AdminSmilesComponent implements OnInit {
 
   createCategory() {
     if (!this.newCategoryName.trim()) return;
-    this.apiService.post<SmileCategory>('admin/smile-category/create', { name: this.newCategoryName.trim() }).subscribe({
+    this.apiService.post<SmileCategory>('admin/smile-category/create', { name: this.newCategoryName.trim(), position: this.newCategoryPosition }).subscribe({
       next: (created) => {
         this.categories.update(list => [...list, created]);
         this.newCategoryName = '';
+        this.newCategoryPosition = 0;
       },
       error: (err) => console.error('Failed to create category', err)
     });
@@ -72,7 +79,7 @@ export class AdminSmilesComponent implements OnInit {
 
   saveCategory() {
     if (!this.editingCategory) return;
-    this.apiService.post<SmileCategory>(`admin/smile-category/update/${this.editingCategory.id}`, { name: this.editingCategory.name }).subscribe({
+    this.apiService.post<SmileCategory>(`admin/smile-category/update/${this.editingCategory.id}`, { name: this.editingCategory.name, position: this.editingCategory.position }).subscribe({
       next: (updated) => {
         this.categories.update(list => list.map(c => c.id === updated.id ? updated : c));
         this.editingCategory = null;
@@ -110,6 +117,40 @@ export class AdminSmilesComponent implements OnInit {
     this.apiService.get<void>(`admin/smile/delete/${smile.id}`).subscribe({
       next: () => this.smiles.update(list => list.filter(s => s.id !== smile.id)),
       error: (err) => console.error('Failed to delete smile', err)
+    });
+  }
+
+  onBulkFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+    if (this.bulkCategoryId !== null) {
+      formData.append('category_id', String(this.bulkCategoryId));
+    }
+
+    this.bulkUploadState.set('loading');
+    this.bulkCompleted.set(0);
+    this.bulkTotal.set(0);
+
+    this.apiService.postFormStream('admin/smile/bulk-upload', formData).subscribe({
+      next: ({ event, data }) => {
+        if (event === 'progress') {
+          this.bulkCompleted.set(data.completed);
+          this.bulkTotal.set(data.total);
+        } else if (event === 'done') {
+          this.bulkUploadState.set('success');
+          this.loadSmiles();
+          input.value = '';
+          setTimeout(() => this.bulkUploadState.set('idle'), 3000);
+        }
+      },
+      error: () => {
+        this.bulkUploadState.set('error');
+        setTimeout(() => this.bulkUploadState.set('idle'), 3000);
+      }
     });
   }
 

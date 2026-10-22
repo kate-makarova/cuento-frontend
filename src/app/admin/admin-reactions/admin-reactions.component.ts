@@ -18,6 +18,10 @@ export class AdminReactionsComponent implements OnInit {
   reactions = signal<Reaction[]>([]);
   uploadState = signal<UploadState>('idle');
 
+  bulkUploadState = signal<UploadState>('idle');
+  bulkCompleted = signal(0);
+  bulkTotal = signal(0);
+
   ngOnInit() {
     this.loadReactions();
   }
@@ -39,6 +43,37 @@ export class AdminReactionsComponent implements OnInit {
         list.map(r => r.id === reaction.id ? { ...r, is_active: !r.is_active } : r)
       ),
       error: (err) => console.error('Failed to toggle reaction', err)
+    });
+  }
+
+  onBulkFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    this.bulkUploadState.set('loading');
+    this.bulkCompleted.set(0);
+    this.bulkTotal.set(0);
+
+    this.apiService.postFormStream('reaction/bulk-upload', formData).subscribe({
+      next: ({ event, data }) => {
+        if (event === 'progress') {
+          this.bulkCompleted.set(data.completed);
+          this.bulkTotal.set(data.total);
+        } else if (event === 'done') {
+          this.bulkUploadState.set('success');
+          this.loadReactions();
+          input.value = '';
+          setTimeout(() => this.bulkUploadState.set('idle'), 3000);
+        }
+      },
+      error: () => {
+        this.bulkUploadState.set('error');
+        setTimeout(() => this.bulkUploadState.set('idle'), 3000);
+      }
     });
   }
 

@@ -41,21 +41,23 @@
     </form>
   }
 
-  <form (submit)="saveImageUpload(); $event.preventDefault()">
-    <fieldset>
-      <legend i18n="@@adminSettings.imageUploadSettings">Image upload settings</legend>
-      @for (setting of imageUploadSettings; track setting.setting_name) {
-        <div class="field-row">
-          <label [for]="'img-' + setting.setting_name">{{ settingLabels[setting.setting_name] ?? setting.setting_name }}</label>
-          <input [id]="'img-' + setting.setting_name" type="text" [(ngModel)]="setting.setting_value" [name]="setting.setting_name" [disabled]="setting.setting_name === 'image_hosting'" />
-        </div>
-      }
-    </fieldset>
+  @if (isSuperuser()) {
+    <form (submit)="saveImageUpload(); $event.preventDefault()">
+      <fieldset>
+        <legend i18n="@@adminSettings.imageUploadSettings">Image upload settings</legend>
+        @for (setting of imageUploadSettings; track setting.setting_name) {
+          <div class="field-row">
+            <label [for]="'img-' + setting.setting_name">{{ settingLabels[setting.setting_name] ?? setting.setting_name }}</label>
+            <input [id]="'img-' + setting.setting_name" type="text" [(ngModel)]="setting.setting_value" [name]="setting.setting_name" [disabled]="setting.setting_name === 'image_hosting'" />
+          </div>
+        }
+      </fieldset>
 
-    <div class="form-actions">
-      <app-save-button type="submit" [state]="imageUploadSaveState()">
-        <span i18n="@@common.save">Save</span>
-      </app-save-button>
-    </div>
-  </form>
+      <div class="form-actions">
+        <app-save-button type="submit" [state]="imageUploadSaveState()">
+          <span i18n="@@common.save">Save</span>
+        </app-save-button>
+      </div>
+    </form>
+  }
 </div>
