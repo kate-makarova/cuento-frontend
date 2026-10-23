@@ -56,6 +56,8 @@ export class AiChatComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.notificationService.dismissAiMessageNotifications();
+
     this.apiService.get<AiMessageData[]>('ai-chat/history').subscribe({
       next: (history) => {
         const user = this.currentUser();

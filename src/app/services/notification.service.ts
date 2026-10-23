@@ -91,6 +91,8 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
   public accountUpdateNotifications = this.accountUpdateNotificationsSignal.asReadonly();
   private topicSubscriptionsNotificationsSignal = signal<NotificationData[]>([]);
   public topicSubscriptionsNotifications = this.topicSubscriptionsNotificationsSignal.asReadonly();
+  private aiMessageNotificationsSignal = signal<NotificationData[]>([]);
+  public aiMessageNotifications = this.aiMessageNotificationsSignal.asReadonly();
 
   // Subject for real-time toast notifications
   private notificationSubject = new Subject<NotificationData>();
@@ -162,6 +164,7 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
         this.autoArchivingNotificationsSignal.set((response.auto_archiving || []).map(n => ({ ...n, type: 'auto_archiving' as const })));
         this.accountUpdateNotificationsSignal.set((response.account_update || []).map(n => ({ ...n, type: 'account_update' as const })));
         this.topicSubscriptionsNotificationsSignal.set((response.topic_subscriptions || []).map(n => ({ ...n, type: 'topic_subscriptions' as const })));
+        this.aiMessageNotificationsSignal.set((response.ai_message || []).map(n => ({ ...n, type: 'ai_message' as const })));
         this.rebuildTriggers(response);
       },
       error: (err) => console.error('Failed to load unread notifications', err)
@@ -259,6 +262,12 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
     }
   }
 
+  public dismissAiMessageNotifications(): void {
+    const notifications = this.aiMessageNotificationsSignal();
+    if (notifications.length === 0) return;
+    notifications.forEach(n => this.dismissNotification(n));
+  }
+
   public checkChatId(chatId: number): void {
     const notifications = this.directMessageNotificationsSignal();
     if (notifications.length === 0) return;
@@ -293,6 +302,8 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
       this.accountUpdateNotificationsSignal.update(current => current.filter(n => n.id !== id));
     } else if (notification.type === 'topic_subscriptions') {
       this.topicSubscriptionsNotificationsSignal.update(current => current.filter(n => n.id !== id));
+    } else if (notification.type === 'ai_message') {
+      this.aiMessageNotificationsSignal.update(current => current.filter(n => n.id !== id));
     }
   }
 
@@ -476,6 +487,8 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
           this.accountUpdateNotificationsSignal.update(current => [notificationData, ...current]);
         } else if (notificationData.type === 'topic_subscriptions') {
           this.topicSubscriptionsNotificationsSignal.update(current => [notificationData, ...current]);
+        } else if (notificationData.type === 'ai_message') {
+          this.aiMessageNotificationsSignal.update(current => [notificationData, ...current]);
         }
 
         if (!notifSetting?.disable_sound) {

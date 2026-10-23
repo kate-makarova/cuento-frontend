@@ -48,6 +48,13 @@
     </div>
   }
 
+  @if (aiMessageNotifications().length > 0 && !isTypeDisabled('ai_message')) {
+    <div class="notification-block ai-messages" (click)="openModal('ai_message')">
+      <span class="count">{{ aiMessageNotifications().length }}</span>
+      <span class="label" i18n="@@notifications.aiMessages">AI chat</span>
+    </div>
+  }
+
   @if (dmNotifications().length > 0) {
     <div class="notification-block direct-messages" (click)="openModal('dm')">
       <span class="count">{{ dmNotifications().length }}</span>
@@ -253,6 +260,21 @@
                   <strong>{{ dm?.username ?? dm?.sender_username }}</strong>
                   <ng-container i18n="@@toast.directMessage.sentYouA"> sent you a </ng-container><ng-container i18n="@@toast.directMessage.message">message</ng-container>
                 </p>
+              </a>
+              <button class="dismiss-button" (click)="dismissNotification(item, $event)">&times;</button>
+            </div>
+          }
+        </div>
+      }
+
+      @if (activeModal() === 'ai_message') {
+        <h2 i18n="@@notifications.aiMessages">AI chat</h2>
+        <div class="feed-list">
+          @for (item of aiMessageNotifications(); track item.id) {
+            <div class="feed-item">
+              <a class="feed-item-content" routerLink="/ai-chat" (click)="onNotificationClick(item)">
+                <span class="date">{{ item.date_created | date:'yyyy-MM-dd HH:mm' }}</span>
+                <p>{{ item.message }}</p>
               </a>
               <button class="dismiss-button" (click)="dismissNotification(item, $event)">&times;</button>
             </div>

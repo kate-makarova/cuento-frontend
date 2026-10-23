@@ -109,7 +109,7 @@ export interface NotificationEpisodeStatusChange {
 export interface NotificationData {
   id: number;
   user_id: number;
-  type: 'system' | 'game' | 'mention' | 'direct_message' | 'account_update' | 'reaction' | 'auto_archiving' | 'episode_status_change' | 'absence_started' | 'topic_subscriptions';
+  type: 'system' | 'game' | 'mention' | 'direct_message' | 'account_update' | 'reaction' | 'auto_archiving' | 'episode_status_change' | 'absence_started' | 'topic_subscriptions' | 'ai_message';
   title: string;
   message: string;
   date_created: string;
@@ -137,6 +137,7 @@ export interface UnreadNotificationsResponse {
   episode_status_change: NotificationData[];
   absence_started?: NotificationData[];
   topic_subscriptions?: NotificationData[];
+  ai_message?: NotificationData[];
 }
 
 export interface TopicViewersUpdateEvent {
