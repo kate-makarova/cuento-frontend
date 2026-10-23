@@ -409,7 +409,9 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
     this.notificationService.topicFull$.pipe(takeUntil(this.destroy$)).subscribe(event => {
       if (event.topic_id !== this.id()) return;
-      if (this.showPostForm()) this.keepFormForFullTopic.set(true);
+      const currentUser = this.authService.currentUser();
+      const isOurPost = currentUser && event.triggered_by_user_id === currentUser.id;
+      if (this.showPostForm() && !isOurPost) this.keepFormForFullTopic.set(true);
       this.topicService.updateTopicStatus(TopicStatus.full);
     });
 
