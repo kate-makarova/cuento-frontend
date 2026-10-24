@@ -34,6 +34,7 @@ import { RecoveryCodesComponent } from './recovery-codes/recovery-codes.componen
 import { SettingsRestorationCodesComponent } from './settings-restoration-codes/settings-restoration-codes.component';
 import { RestorePasswordComponent } from './restore-password/restore-password.component';
 import { WipeOutMyUserComponent } from './wipe-out-my-user/wipe-out-my-user.component';
+import { AiPolicyComponent } from './ai-policy/ai-policy.component';
 import { adminGuard } from './guards/admin.guard';
 import { privateKeyGuard } from './guards/private-key.guard';
 import { aiChatGuard } from './guards/ai-chat.guard';
@@ -74,6 +75,12 @@ export const routes: Routes = [
     component: WipeOutMyUserComponent,
     title: 'Delete My Account',
     data: { pageId: 'pun-wipe-out-my-user' }
+  },
+  {
+    path: 'ai-policy',
+    component: AiPolicyComponent,
+    title: 'AI Policy',
+    data: { pageId: 'pun-ai-policy' }
   },
   {
     path: 'register',

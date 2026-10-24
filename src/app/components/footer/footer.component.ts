@@ -1,6 +1,7 @@
 import { Component, computed, inject, LOCALE_ID } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BoardService } from '../../services/board.service';
+import { FeatureService } from '../../services/feature.service';
 
 @Component({
   selector: '[app-footer]',
@@ -10,6 +11,7 @@ import { BoardService } from '../../services/board.service';
 })
 export class FooterComponent {
   private boardService = inject(BoardService);
+  private featureService = inject(FeatureService);
   private locale = inject(LOCALE_ID);
 
   private readonly languageLabel = $localize`:@@rating.language:Language`;
@@ -43,6 +45,7 @@ export class FooterComponent {
     : 'https://cuento.ca/docs/privacy-policy/';
 
   useRatingSystem = computed(() => this.boardService.board().use_rating_system === 'y');
+  showAiPolicy = computed(() => this.featureService.isFeatureActive('game_digest'));
 
   maxRating = computed(() => this.boardService.board().site_max_rating ?? '');
 
