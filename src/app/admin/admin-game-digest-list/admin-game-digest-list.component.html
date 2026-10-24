@@ -1,0 +1,39 @@
+<div class="game-digest-list">
+  <div class="page-header">
+    <h2 i18n="@@adminGameDigest.list.title">Game Digests</h2>
+    <a routerLink="/admin/features/game_digest/settings" i18n="@@adminGameDigest.list.settings">Settings</a>
+  </div>
+
+  @if (digests().length === 0) {
+    <p i18n="@@adminGameDigest.list.empty">No digests generated yet.</p>
+  } @else {
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th i18n="@@adminGameDigest.list.date">Date</th>
+          <th i18n="@@adminGameDigest.list.implementation">Implementation</th>
+          <th i18n="@@adminGameDigest.list.published">Published</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (digest of digests(); track digest.id) {
+          <tr>
+            <td>{{ digest.datetime | date:'yyyy-MM-dd HH:mm' }}</td>
+            <td>{{ digest.implementation_id }}</td>
+            <td>
+              @if (digest.is_published) {
+                <span class="badge badge-published" i18n="@@adminGameDigest.list.yes">Yes</span>
+              } @else {
+                <span class="badge badge-draft" i18n="@@adminGameDigest.list.no">No</span>
+              }
+            </td>
+            <td>
+              <a [routerLink]="['/admin/features/game_digest', digest.id]" i18n="@@common.view">View</a>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>

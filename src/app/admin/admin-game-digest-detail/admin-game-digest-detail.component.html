@@ -1,0 +1,51 @@
+<div class="game-digest-detail">
+  <div class="page-header">
+    <h2 i18n="@@adminGameDigest.detail.title">Game Digest</h2>
+    <a routerLink="/admin/features/game_digest" i18n="@@adminGameDigest.backToDigests">← Digests</a>
+  </div>
+
+  @if (digest(); as d) {
+    <section class="digest-meta">
+      <div class="meta-row">
+        <span class="meta-label" i18n="@@adminGameDigest.detail.date">Date</span>
+        <span>{{ d.datetime | date:'yyyy-MM-dd HH:mm' }}</span>
+      </div>
+      <div class="meta-row">
+        <span class="meta-label" i18n="@@adminGameDigest.detail.implementation">Implementation</span>
+        <span>{{ d.implementation_id }}</span>
+      </div>
+    </section>
+
+    <section class="digest-text-section">
+      <h3 i18n="@@adminGameDigest.detail.text">Digest Text</h3>
+      <pre class="digest-text">{{ d.text }}</pre>
+    </section>
+
+    <section class="digest-publish-section">
+      <h3 i18n="@@adminGameDigest.detail.publish">Publishing</h3>
+
+      <div class="field-row">
+        <label>
+          <input type="checkbox" [(ngModel)]="isPublished" />
+          <span i18n="@@adminGameDigest.detail.isPublished">Published</span>
+        </label>
+      </div>
+
+      <div class="field-row">
+        <label i18n="@@adminGameDigest.detail.publishedPostId">Published post ID</label>
+        <input type="number" [(ngModel)]="publishedPostId" min="1" placeholder="Post ID" />
+        <span class="field-hint" i18n="@@adminGameDigest.detail.publishedPostIdHint">
+          The forum post where this digest was published.
+        </span>
+      </div>
+
+      <div class="section-actions">
+        <app-save-button [state]="saveState()" (clicked)="save()">
+          <span i18n="@@common.save">Save</span>
+        </app-save-button>
+      </div>
+    </section>
+  } @else {
+    <p i18n="@@common.loading">Loading…</p>
+  }
+</div>

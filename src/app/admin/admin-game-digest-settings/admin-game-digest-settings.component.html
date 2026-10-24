@@ -1,0 +1,48 @@
+<div class="game-digest-settings">
+  <div class="page-header">
+    <h2 i18n="@@adminGameDigest.settings.title">Game Digest Settings</h2>
+    <a routerLink="/admin/features/game_digest" i18n="@@adminGameDigest.backToDigests">← Digests</a>
+  </div>
+
+  <section class="settings-section">
+    <div class="field-row">
+      <label i18n="@@adminGameDigest.settings.notifyUser">Notify user ID</label>
+      <input type="number" [(ngModel)]="notifyUserId" min="1" placeholder="User ID" />
+      <span class="field-hint" i18n="@@adminGameDigest.settings.notifyUserHint">
+        This user receives pending questions from the summariser via AI chat.
+      </span>
+    </div>
+
+    <div class="field-row">
+      <label i18n="@@adminGameDigest.settings.language">Summary language</label>
+      <input type="text" [(ngModel)]="summaryLanguage" placeholder="e.g. English, Russian" />
+      <span class="field-hint" i18n="@@adminGameDigest.settings.languageHint">
+        Leave empty to use the post's language.
+      </span>
+    </div>
+
+    <div class="field-row">
+      <label i18n="@@adminGameDigest.settings.modelSize">Minimum model size</label>
+      <select [(ngModel)]="modelMinSize">
+        <option [value]="1" i18n="@@adminGameDigest.settings.modelTiny">Tiny</option>
+        <option [value]="2" i18n="@@adminGameDigest.settings.modelSmall">Small</option>
+        <option [value]="3" i18n="@@adminGameDigest.settings.modelMedium">Medium</option>
+        <option [value]="4" i18n="@@adminGameDigest.settings.modelLarge">Large</option>
+      </select>
+    </div>
+
+    <div class="field-row">
+      <label i18n="@@adminGameDigest.settings.excludedSubforums">Excluded subforum IDs</label>
+      <input type="text" [(ngModel)]="excludedSubforums" placeholder="e.g. 1, 5, 12" />
+      <span class="field-hint" i18n="@@adminGameDigest.settings.excludedSubforumsHint">
+        Comma-separated. Posts from these subforums will not be summarised.
+      </span>
+    </div>
+
+    <div class="section-actions">
+      <app-save-button [state]="saveState()" (clicked)="save()">
+        <span i18n="@@common.save">Save</span>
+      </app-save-button>
+    </div>
+  </section>
+</div>

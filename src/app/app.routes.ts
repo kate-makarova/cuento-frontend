@@ -516,6 +516,21 @@ export const routes: Routes = [
         title: 'Admin - Post Top'
       },
       {
+        path: 'features/game_digest',
+        loadComponent: () => import('./admin/admin-game-digest-list/admin-game-digest-list.component').then(m => m.AdminGameDigestListComponent),
+        title: 'Admin - Game Digest'
+      },
+      {
+        path: 'features/game_digest/settings',
+        loadComponent: () => import('./admin/admin-game-digest-settings/admin-game-digest-settings.component').then(m => m.AdminGameDigestSettingsComponent),
+        title: 'Admin - Game Digest Settings'
+      },
+      {
+        path: 'features/game_digest/:id',
+        loadComponent: () => import('./admin/admin-game-digest-detail/admin-game-digest-detail.component').then(m => m.AdminGameDigestDetailComponent),
+        title: 'Admin - Game Digest Detail'
+      },
+      {
         path: 'features/puzzles',
         loadComponent: () => import('./admin/admin-puzzles/admin-puzzles.component').then(m => m.AdminPuzzlesComponent),
         title: 'Admin - Puzzles'
