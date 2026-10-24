@@ -3,6 +3,7 @@ import { Subject } from 'rxjs';
 import { PostCreatedEvent, TopicCreatedEvent, NotificationEvent, WebSocketEvent, TopicViewersUpdateEvent, UnreadNotificationsResponse, NotificationData, NotificationMention, NotificationReaction, NotificationDirectMessage, PostUpdatedEvent, DirectMessageCreatedEvent, ActiveUsersUpdateEvent, ActiveUsersActivityUpdateEvent, PanelReloadEvent, ReactionCreatedEvent, HealthUpdateEvent, UserRefreshRequiredEvent, DraftUpdatedEvent, AiMessageEvent, AiTaskDoneEvent, AiQueuePositionEvent, AiErrorEvent, PageChangedEvent, TopicFullEvent } from '../models/event';
 import { AuthService } from './auth.service';
 import { ApiService } from './api.service';
+import { CharacterService } from './character.service';
 import { environment } from '../../environments/environment';
 
 
@@ -10,6 +11,7 @@ import { environment } from '../../environments/environment';
 export class NotificationService {
   private authService = inject(AuthService);
   private apiService = inject(ApiService);
+  private characterService = inject(CharacterService);
   private ws: WebSocket | null = null;
   private readonly url: string;
   private token: string | null = null;
@@ -541,6 +543,7 @@ private systemNotificationsSignal = signal<NotificationData[]>([]);
             if (err.status === 403) this.authService.logout();
           }
         });
+        this.characterService.loadUserCharacterProfiles();
         break;
       default:
         console.warn('Unknown notification type:', notification);
