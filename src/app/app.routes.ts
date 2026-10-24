@@ -521,6 +521,11 @@ export const routes: Routes = [
         title: 'Admin - Game Digest'
       },
       {
+        path: 'features/game_digest/weekly',
+        loadComponent: () => import('./admin/admin-game-digest-weekly/admin-game-digest-weekly.component').then(m => m.AdminGameDigestWeeklyComponent),
+        title: 'Admin - Game Digest Weekly Posts'
+      },
+      {
         path: 'features/game_digest/settings',
         loadComponent: () => import('./admin/admin-game-digest-settings/admin-game-digest-settings.component').then(m => m.AdminGameDigestSettingsComponent),
         title: 'Admin - Game Digest Settings'

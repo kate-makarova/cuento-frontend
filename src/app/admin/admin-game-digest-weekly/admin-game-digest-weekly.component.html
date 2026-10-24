@@ -1,0 +1,77 @@
+<div class="game-digest-weekly">
+  <div class="page-header">
+    <h2 i18n="@@adminGameDigest.weekly.title">Weekly Post Notes</h2>
+    <a routerLink="/admin/features/game_digest" i18n="@@adminGameDigest.backToDigests">← Digests</a>
+  </div>
+
+  <div class="week-controls">
+    <button (click)="prevWeek()" i18n="@@adminGameDigest.weekly.prevWeek">← Previous week</button>
+    <span class="week-label">{{ weekStart() }}</span>
+    <button (click)="nextWeek()" i18n="@@adminGameDigest.weekly.nextWeek">Next week →</button>
+
+    <label class="pending-toggle">
+      <input type="checkbox" [checked]="pendingOnly()" (change)="pendingOnly.set(!pendingOnly())" />
+      <span i18n="@@adminGameDigest.weekly.pendingOnly">Pending only</span>
+    </label>
+  </div>
+
+  @if (episodeGroups().length === 0) {
+    <p i18n="@@adminGameDigest.weekly.empty">No posts found for this week.</p>
+  }
+
+  @for (group of episodeGroups(); track group.episodeId) {
+    <section class="episode-group">
+      <h3 class="episode-heading">
+        <a [routerLink]="['/viewtopic', group.topicId]" target="_blank">{{ group.episodeName }}</a>
+      </h3>
+
+      @for (post of group.posts; track post.post_id) {
+        <div class="post-note" [class.is-complete]="post.is_complete" [class.is-deleted]="post.is_deleted">
+          <div class="post-meta">
+            <span class="post-date">{{ post.post_date | date:'yyyy-MM-dd HH:mm' }}</span>
+            @if (post.is_deleted) {
+              <span class="badge badge-deleted" i18n="@@adminGameDigest.weekly.deleted">Deleted</span>
+            } @else if (post.is_complete) {
+              <span class="badge badge-complete" i18n="@@adminGameDigest.weekly.complete">Complete</span>
+            } @else {
+              <span class="badge badge-pending" i18n="@@adminGameDigest.weekly.pending">Pending questions</span>
+            }
+          </div>
+
+          @if (post.post_summary) {
+            <div class="post-summary">
+              <p>{{ post.post_summary }}</p>
+            </div>
+          }
+
+          @if (post.pending_questions.length > 0 && !post.is_deleted) {
+            <div class="pending-questions">
+              <h4 i18n="@@adminGameDigest.weekly.questions">Pending questions</h4>
+              <ol>
+                @for (q of post.pending_questions; track $index) {
+                  <li>{{ q }}</li>
+                }
+              </ol>
+
+              <div class="answer-form">
+                <textarea
+                  [value]="answers()[post.post_id] ?? ''"
+                  (input)="setAnswer(post.post_id, $any($event.target).value)"
+                  rows="4"
+                  i18n-placeholder="@@adminGameDigest.weekly.answerPlaceholder"
+                  placeholder="Type your answers here…"></textarea>
+
+                <app-save-button
+                  [state]="resolveStates()[post.post_id] ?? 'idle'"
+                  [disabled]="!(answers()[post.post_id]?.trim())"
+                  (clicked)="resolve(post)">
+                  <span i18n="@@adminGameDigest.weekly.resolve">Submit &amp; Re-summarize</span>
+                </app-save-button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </section>
+  }
+</div>

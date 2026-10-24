@@ -23,3 +23,17 @@ export interface GameDigestSetting {
   setting_name: string;
   setting_value: unknown | null;
 }
+
+export interface WeeklyPostNote {
+  post_id: number;
+  topic_id: number;
+  topic_name: string;
+  episode_id: number;
+  episode_name: string;
+  post_date: string;
+  post_summary: string;
+  pending_questions: string[];
+  is_complete: boolean;
+  is_deleted: boolean;
+  week_start: string;
+}
