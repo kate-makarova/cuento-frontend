@@ -15,7 +15,7 @@ import { SaveButtonComponent, SaveState } from '../save-button/save-button.compo
 export class AdminGameDigestSettingsComponent implements OnInit {
   private digestService = inject(GameDigestService);
 
-  notifyUserId: number | null = null;
+  publishUserId: number | null = null;
   summaryLanguage = '';
   modelMinSize = 2;
   excludedSubforums = '';
@@ -27,8 +27,8 @@ export class AdminGameDigestSettingsComponent implements OnInit {
       next: (settings) => {
         for (const s of settings) {
           switch (s.setting_name) {
-            case 'notify_user_id':
-              this.notifyUserId = (s.setting_value as number | null) ?? null;
+            case 'publish_user_id':
+              this.publishUserId = (s.setting_value as number | null) ?? null;
               break;
             case 'summary_language':
               this.summaryLanguage = (s.setting_value as string | null) ?? '';
@@ -59,7 +59,7 @@ export class AdminGameDigestSettingsComponent implements OnInit {
       .filter(n => !isNaN(n));
 
     forkJoin([
-      this.digestService.saveSetting('notify_user_id', this.notifyUserId || null),
+      this.digestService.saveSetting('publish_user_id', this.publishUserId || null),
       this.digestService.saveSetting('summary_language', this.summaryLanguage || null),
       this.digestService.saveSetting('model_requirements', { min_size: this.modelMinSize }),
       this.digestService.saveSetting('excluded_subforums', subforumIds),

@@ -6,10 +6,10 @@
 
   <section class="settings-section">
     <div class="field-row">
-      <label i18n="@@adminGameDigest.settings.notifyUser">Notify user ID</label>
-      <input type="number" [(ngModel)]="notifyUserId" min="1" placeholder="User ID" />
-      <span class="field-hint" i18n="@@adminGameDigest.settings.notifyUserHint">
-        This user receives pending questions from the summariser via AI chat.
+      <label i18n="@@adminGameDigest.settings.publishUser">Publish user ID</label>
+      <input type="number" [(ngModel)]="publishUserId" min="1" placeholder="User ID" />
+      <span class="field-hint" i18n="@@adminGameDigest.settings.publishUserHint">
+        The account under which the bot will publish the generated digest.
       </span>
     </div>
 
