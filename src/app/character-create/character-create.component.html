@@ -157,6 +157,26 @@
   </form>
 </div>
 
+@if (showPendingClaimModal()) {
+  <div class="modal-overlay">
+    <div class="modal-content">
+      <h2 i18n="@@charactercreate.pendingClaimTitle">You have an active claim</h2>
+      <p i18n="@@charactercreate.pendingClaimText">Are you submitting this character sheet for one of your active claims?</p>
+      <ul>
+        @for (claim of pendingClaims(); track claim.id) {
+          <li>
+            {{ claim.name }} (<ng-container i18n="@@charactercreate.pendingClaimUntil">until</ng-container> {{ claim.claim_expiration_date | date:'yyyy-MM-dd' }})
+            &nbsp;<button type="button" class="button submit" (click)="confirmPendingClaim(claim)" i18n="@@charactercreate.pendingClaimYes">Yes, this is it</button>
+          </li>
+        }
+      </ul>
+      <div class="buttons">
+        <button type="button" class="button" (click)="dismissPendingClaimModal()" i18n="@@charactercreate.pendingClaimNo">No, different character</button>
+      </div>
+    </div>
+  </div>
+}
+
 @if (showClaimUnlockModal()) {
   <div class="modal-overlay">
     <div class="modal-content">
