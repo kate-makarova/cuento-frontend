@@ -10,6 +10,7 @@ interface PoolStatus {
   source: string;
   openrouter_api_key: string;
   openrouter_use_free_only: string;
+  groq_api_key: string;
 }
 
 interface OpenRouterModelInfo {
@@ -41,6 +42,7 @@ export class AdminAiModelsComponent implements OnInit {
   formSource = 'db';
   formApiKey = '';
   formFreeOnly = false;
+  formGroqApiKey = '';
   poolSwitchState = signal<SaveState>('idle');
 
   availableModels = signal<OpenRouterModelInfo[]>([]);
@@ -80,6 +82,7 @@ export class AdminAiModelsComponent implements OnInit {
         this.formSource = status.source || 'db';
         this.formApiKey = status.openrouter_api_key || '';
         this.formFreeOnly = status.openrouter_use_free_only === 'y';
+        this.formGroqApiKey = status.groq_api_key || '';
       },
       error: err => console.error('Failed to load pool status', err),
     });
@@ -89,6 +92,9 @@ export class AdminAiModelsComponent implements OnInit {
     if (this.formSource === 'openrouter' && !this.formApiKey) {
       this.formApiKey = this.poolStatus()?.openrouter_api_key ?? '';
     }
+    if (this.formSource === 'groq' && !this.formGroqApiKey) {
+      this.formGroqApiKey = this.poolStatus()?.groq_api_key ?? '';
+    }
   }
 
   switchPool() {
@@ -97,6 +103,9 @@ export class AdminAiModelsComponent implements OnInit {
     if (this.formSource === 'openrouter') {
       payload['api_key'] = this.formApiKey;
       payload['free_only'] = this.formFreeOnly;
+    }
+    if (this.formSource === 'groq') {
+      payload['api_key'] = this.formGroqApiKey;
     }
     this.apiService.post<{ source: string }>('admin/ai-pool/switch', payload).subscribe({
       next: (res) => {

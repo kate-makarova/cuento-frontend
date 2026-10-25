@@ -8,6 +8,8 @@
       <span i18n="@@adminAiModels.currentSource">Active pool:</span>
       @if (status.source === 'openrouter') {
         <span class="badge badge--active">OpenRouter</span>
+      } @else if (status.source === 'groq') {
+        <span class="badge badge--active">Groq</span>
       } @else {
         <span class="badge badge--inactive">Database</span>
       }
@@ -20,6 +22,7 @@
       <select id="pool-source" [(ngModel)]="formSource" name="formSource" (ngModelChange)="onSourceChange()">
         <option value="db" i18n="@@adminAiModels.sourceDb">Database (own models)</option>
         <option value="openrouter" i18n="@@adminAiModels.sourceOpenRouter">OpenRouter</option>
+        <option value="groq" i18n="@@adminAiModels.sourceGroq">Groq</option>
       </select>
     </div>
 
@@ -33,6 +36,12 @@
           <input type="checkbox" [(ngModel)]="formFreeOnly" name="formFreeOnly" />
           <span i18n="@@adminAiModels.freeOnly">Use free models only</span>
         </label>
+      </div>
+    }
+    @if (formSource === 'groq') {
+      <div class="field-row">
+        <label for="pool-groq-key" i18n="@@adminAiModels.groqApiKey">Groq API key</label>
+        <input id="pool-groq-key" type="text" [(ngModel)]="formGroqApiKey" name="formGroqApiKey" autocomplete="off" />
       </div>
     }
 
