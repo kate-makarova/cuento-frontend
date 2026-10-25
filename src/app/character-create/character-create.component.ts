@@ -18,6 +18,7 @@ import { PreviewService } from '../services/preview.service';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { EntityDraftService } from '../services/entity-draft.service';
+import { WantedCharacterService } from '../services/wanted-character.service';
 
 @Component({
   selector: 'app-character-create',
@@ -31,6 +32,7 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
   private boardService = inject(BoardService);
   private imageService = inject(ImageService);
   private entityDraftService = inject(EntityDraftService);
+  private wantedCharacterService = inject(WantedCharacterService);
 
   @ViewChild('formEl') formEl?: ElementRef<HTMLFormElement>;
 
@@ -114,6 +116,9 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
     return !!(item?.is_claimed && item.user_id !== null && item.user_id !== userId);
   });
 
+  pendingClaims = signal<ClaimAutocompleteItem[]>([]);
+  showPendingClaimModal = signal(false);
+
   private claimSearchTerms = new Subject<string>();
   private claimSubscription?: Subscription;
 
@@ -128,6 +133,17 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
 
   cancelUnlockClaimBlock() {
     this.showClaimUnlockModal.set(false);
+  }
+
+  confirmPendingClaim(item: ClaimAutocompleteItem) {
+    this.claimType.set('wanted');
+    this.selectedClaimItem.set(item);
+    this.claimQuery.set(item.name);
+    this.showPendingClaimModal.set(false);
+  }
+
+  dismissPendingClaimModal() {
+    this.showPendingClaimModal.set(false);
   }
 
   onClaimTypeChange(type: 'no' | 'wanted' | 'direct') {
@@ -218,6 +234,15 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
       this.autosaveSub = this.autosaveSubject.pipe(debounceTime(3000)).subscribe(() => this.performAutosave());
       this.entityDraftService.loadLatest('character').subscribe({
         next: draft => { this.draftId.set(draft.id); this.hasDraft.set(true); },
+        error: () => {}
+      });
+      this.wantedCharacterService.getMyActiveClaimRecords().subscribe({
+        next: claims => {
+          if (claims.length > 0) {
+            this.pendingClaims.set(claims);
+            this.showPendingClaimModal.set(true);
+          }
+        },
         error: () => {}
       });
     }
