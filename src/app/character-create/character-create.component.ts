@@ -118,6 +118,7 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
 
   pendingClaims = signal<ClaimAutocompleteItem[]>([]);
   showPendingClaimModal = signal(false);
+  initialFactions = signal<Faction[]>([]);
 
   private claimSearchTerms = new Subject<string>();
   private claimSubscription?: Subscription;
@@ -139,7 +140,16 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
     this.claimType.set('wanted');
     this.selectedClaimItem.set(item);
     this.claimQuery.set(item.name);
+    this.characterName.set(item.name);
     this.showPendingClaimModal.set(false);
+    this.wantedCharacterService.get(item.id).subscribe({
+      next: wc => {
+        if (wc.factions && wc.factions.length > 0) {
+          this.initialFactions.set(wc.factions);
+        }
+      },
+      error: () => {}
+    });
   }
 
   dismissPendingClaimModal() {

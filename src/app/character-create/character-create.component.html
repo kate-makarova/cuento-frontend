@@ -36,7 +36,7 @@
 
       <div class="fs-box hashelp">
         <app-faction-paths
-          [initialFactions]="initialData?.factions ?? []"
+          [initialFactions]="initialData?.factions ?? initialFactions()"
           (factionsChange)="onFactionsChanged($event); scheduleAutosave()">
         </app-faction-paths>
       </div>
