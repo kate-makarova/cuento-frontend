@@ -119,6 +119,7 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
   pendingClaims = signal<ClaimAutocompleteItem[]>([]);
   showPendingClaimModal = signal(false);
   initialFactions = signal<Faction[]>([]);
+  draftCustomFields = signal<Record<string, any>>({});
 
   private claimSearchTerms = new Subject<string>();
   private claimSubscription?: Subscription;
@@ -301,6 +302,8 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
         if (c.avatar) this.characterAvatar.set(c.avatar);
         if (c.claimType) this.claimType.set(c.claimType);
         if (c.claimItem) { this.selectedClaimItem.set(c.claimItem); this.claimQuery.set(c.claimItem.name); }
+        if (c.factionPaths?.length) this.initialFactions.set(c.factionPaths.flat());
+        if (c.customFields) this.draftCustomFields.set(c.customFields);
         this.hasDraft.set(false);
       },
       error: () => {}
@@ -377,7 +380,7 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
       const field = this.initialData.custom_fields.custom_fields[machineName];
       return field ? (field.data ?? field.content) : null;
     }
-    return null;
+    return this.draftCustomFields()[machineName] ?? null;
   }
 
   onSubmit(event: Event) {

@@ -87,6 +87,8 @@ export class WantedCharacterCreateComponent implements OnInit, OnDestroy {
   }
   characterName = signal<string>('');
   factionPaths: Faction[][] = [[]];
+  initialFactions = signal<Faction[]>([]);
+  draftCustomFields = signal<Record<string, any>>({});
 
   relationInputValues = signal<string[]>(['']);
   selectedRelationIds: (number | null)[] = [null];
@@ -230,6 +232,8 @@ export class WantedCharacterCreateComponent implements OnInit, OnDestroy {
           this.relationInputValues.set(c.relations.map((r: any) => r.name));
           this.selectedRelationIds = c.relations.map((r: any) => r.id);
         }
+        if (c.factionPaths?.length) this.initialFactions.set(c.factionPaths.flat());
+        if (c.customFields) this.draftCustomFields.set(c.customFields);
         this.hasDraft.set(false);
       },
       error: () => {}
@@ -248,7 +252,7 @@ export class WantedCharacterCreateComponent implements OnInit, OnDestroy {
       const field = this.initialData.custom_fields.custom_fields[machineName];
       return field ? (field.data ?? field.content) : null;
     }
-    return null;
+    return this.draftCustomFields()[machineName] ?? null;
   }
 
   onCancel() {
