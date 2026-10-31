@@ -1,5 +1,4 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { HttpParams } from '@angular/common/http';
@@ -11,7 +10,9 @@ import { ErrorBannerComponent } from '../../components/error-banner/error-banner
 interface ProtectionHistoryItem {
   type: 'immunity' | 'absence';
   start_date: string;
+  start_date_localized?: string;
   end_date: string;
+  end_date_localized?: string;
   reason: string | null;
 }
 
@@ -22,14 +23,16 @@ interface AdminCharacterListItem {
   user_id: number;
   username: string;
   date_last_post: string | null;
+  date_last_post_localized?: string | null;
   date_created: string | null;
+  date_created_localized?: string | null;
 }
 
 @Component({
   selector: 'app-admin-characters',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [DatePipe, FormsModule, RouterLink, ErrorBannerComponent],
+  imports: [FormsModule, RouterLink, ErrorBannerComponent],
   templateUrl: './admin-characters.component.html',
 })
 export class AdminCharactersComponent implements OnInit {

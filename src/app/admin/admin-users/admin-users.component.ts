@@ -1,5 +1,4 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
@@ -10,9 +9,12 @@ export interface AdminUserListItem {
   username: string;
   user_status: number;
   date_registered: string | null;
+  date_registered_localized?: string | null;
   date_last_visit: string | null;
+  date_last_visit_localized?: string | null;
   character_count: number;
   last_game_post_date: string | null;
+  last_game_post_date_localized?: string | null;
 }
 
 export interface Role {
@@ -24,7 +26,7 @@ export interface Role {
   selector: 'app-admin-users',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [ DatePipe, RouterLink, FormsModule, ErrorBannerComponent],
+  imports: [ RouterLink, FormsModule, ErrorBannerComponent],
   templateUrl: './admin-users.component.html',
   styleUrl: './admin-users.component.css'
 })

@@ -9,7 +9,6 @@ import {EpisodeService} from '../services/episode.service';
 import {CharacterService} from '../services/character.service';
 import {FactionService} from '../services/faction.service';
 import {FactionSettingService} from '../services/faction-setting.service';
-import { DatePipe } from '@angular/common';
 import {debounceTime, distinctUntilChanged, forkJoin, Subject} from 'rxjs';
 import {Faction} from '../models/Faction';
 
@@ -18,13 +17,12 @@ const FIXED_COLUMNS = [
   { key: 'subforum_name', label: $localize`:@@episodelist.subforum:Subforum` },
   { key: 'topic_status', label: $localize`:@@episodelist.status:Status` },
   { key: 'last_post_date', label: $localize`:@@episodelist.dateLastPost:Last Post Date` },
-  { key: 'characters', label: $localize`:@@episodelist.characters:Characters` },
-];
+  { key: 'characters', label: $localize`:@@episodelist.characters:Characters` }];
 
 @Component({
   selector: 'app-episode-list',
   host: { class: 'pun-page' },
-  imports: [RouterLink, FormsModule, DatePipe],
+  imports: [RouterLink, FormsModule],
   templateUrl: './episode-list.component.html',
   styleUrl: './episode-list.component.css',
   standalone: true,

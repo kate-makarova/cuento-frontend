@@ -32,6 +32,7 @@ export interface ArcEpisode {
   title: string;
   status: number;
   last_post_date: string | null;
+  last_post_date_localized?: string | null;
   last_post_author: UserShort | null;
   characters: { id: number; name: string; avatar: string | null }[];
   factions: FactionShort[];

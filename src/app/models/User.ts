@@ -47,6 +47,7 @@ export interface UserProfileResponse {
   archive_date: string | null;
   archive_reason: string | null;
   registration_date: string;
+  registration_date_localized?: string;
   avatar: string;
   characters: CharacterProfileListItem[];
   masks: MaskProfileListItem[];
@@ -62,6 +63,7 @@ export interface CharacterProfileListItem {
   total_episodes: number;
   total_posts: number;
   last_post_date: string | null;
+  last_post_date_localized?: string | null;
   factions: Faction[];
 }
 
@@ -72,6 +74,7 @@ export interface MaskProfileListItem {
   total_episodes: number;
   total_posts: number;
   date_last_post: string | null;
+  date_last_post_localized?: string | null;
 }
 
 export interface UpdateSettingsRequest {
@@ -105,7 +108,9 @@ export interface UserInfo {
   username: string;
   user_status: UserStatus;
   date_registered: string;
+  date_registered_localized?: string;
   date_last_visit: string | null;
+  date_last_visit_localized?: string | null;
   total_posts: number;
   active_characters: number;
 }

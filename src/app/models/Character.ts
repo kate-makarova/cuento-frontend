@@ -40,6 +40,7 @@ export interface CharacterEpisode {
   topic_id: number;
   characters: CharacterShort[];
   date_last_post: string | null;
+  date_last_post_localized?: string | null;
   last_post_author_username: string | null;
 }
 
