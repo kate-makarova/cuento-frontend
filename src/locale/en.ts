@@ -1105,7 +1105,7 @@ export const TRANSLATIONS_EN = {
   "register.passwordMismatch": "Passwords do not match",
   "register.showPassword": "Show",
   "register.username": "Username",
-  "register.usernameMin": "Username must be at least 3 characters",
+  "register.usernameMin": "Username must be at least 2 characters",
   "restorationCodes.checking": "Please wait…",
   "restorationCodes.checkingLegend": "Checking account status…",
   "restorationCodes.codesLegend": "Your Recovery Codes",
