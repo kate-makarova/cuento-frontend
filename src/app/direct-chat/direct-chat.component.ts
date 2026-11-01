@@ -6,9 +6,10 @@ import {NotificationService} from '../services/notification.service';
 import {UserService} from '../services/user.service';
 import {UserShort} from '../models/UserShort';
 
+import {ApiService} from '../services/api.service';
 import {FormsModule} from '@angular/forms';
 import {Subject, Subscription} from 'rxjs';
-import {debounceTime, distinctUntilChanged, switchMap, takeUntil} from 'rxjs/operators';
+import {debounceTime, delay, distinctUntilChanged, switchMap, takeUntil} from 'rxjs/operators';
 import {ActivatedRoute} from '@angular/router';
 import {SafeHtmlPipe} from '../pipes/safe-html.pipe';
 import {BbToolbarComponent} from '../components/bb-toolbar/bb-toolbar.component';
@@ -25,6 +26,7 @@ export class DirectChatComponent implements OnInit, OnDestroy {
   private directChatService = inject(DirectChatService);
   private notificationService = inject(NotificationService);
   private userService = inject(UserService);
+  private apiService = inject(ApiService);
   private route = inject(ActivatedRoute);
   private dmSub: Subscription | null = null;
   private destroy$ = new Subject<void>();
@@ -126,6 +128,9 @@ export class DirectChatComponent implements OnInit, OnDestroy {
     this.notificationService.activeUsersUpdate$.pipe(takeUntil(this.destroy$)).subscribe(event => {
       this.onlineUserIds.set(new Set(event.data.map(u => u.id)));
     });
+
+    this.fetchActiveUsers();
+    this.notificationService.wsConnected$.pipe(delay(500), takeUntil(this.destroy$)).subscribe(() => this.fetchActiveUsers());
   }
 
   ngOnDestroy() {
@@ -256,4 +261,10 @@ export class DirectChatComponent implements OnInit, OnDestroy {
 
   toggleSearch() {}
   onSearch(event: Event) {}
+
+  private fetchActiveUsers() {
+    this.apiService.get<{ guests: number; users: { id: number }[] }>('active-users').subscribe(data => {
+      this.onlineUserIds.set(new Set(data.users.map(u => u.id)));
+    });
+  }
 }
