@@ -214,6 +214,9 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   private lastLoadedProfilesForTopicId: number | null = null;
   private pageLoadedSubscription: Subscription | null = null;
   private topicLoadedOnInit = false;
+  private currentAnchorPostId: string | null = null;
+  private anchorObserver: IntersectionObserver | null = null;
+  private anchorVisibleIds = new Set<string>();
   private onVisibilityChange = () => {
     if (document.visibilityState === 'visible') {
       const topicId = this.id();
@@ -434,21 +437,58 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       }
 
       // anchorScrolling fires before posts render; scroll manually after DOM update
-      const fragment = currentPostId ? String(currentPostId) : this.route.snapshot.fragment;
+      const fragment = currentPostId ? String(currentPostId) : (this.currentAnchorPostId ?? this.route.snapshot.fragment);
       if (fragment) {
-        setTimeout(() => document.getElementById(fragment)?.scrollIntoView({ behavior: 'smooth' }));
+        setTimeout(() => {
+          document.getElementById(fragment)?.scrollIntoView({ behavior: 'smooth' });
+          this.setupAnchorTracking();
+        });
+      } else {
+        setTimeout(() => this.setupAnchorTracking());
       }
     });
   }
 
   ngOnDestroy() {
     document.removeEventListener('visibilitychange', this.onVisibilityChange);
+    this.anchorObserver?.disconnect();
     this.destroy$.next();
     this.destroy$.complete();
     if (this.pageLoadedSubscription) {
       this.pageLoadedSubscription.unsubscribe();
     }
     this.topicService.clear();
+  }
+
+  private setupAnchorTracking() {
+    this.anchorObserver?.disconnect();
+    this.anchorVisibleIds.clear();
+
+    const posts = this.currentPagePosts();
+    if (!posts.length) return;
+
+    this.anchorObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            this.anchorVisibleIds.add(entry.target.id);
+          } else {
+            this.anchorVisibleIds.delete(entry.target.id);
+          }
+        }
+        const topId = posts.map(p => String(p.id)).find(id => this.anchorVisibleIds.has(id));
+        if (topId) {
+          this.currentAnchorPostId = topId;
+          history.replaceState(null, '', location.pathname + location.search + '#' + topId);
+        }
+      },
+      { rootMargin: '0px 0px -80% 0px', threshold: 0 }
+    );
+
+    for (const post of posts) {
+      const el = document.getElementById(String(post.id));
+      if (el) this.anchorObserver.observe(el);
+    }
   }
 
   onSidebarModeChange(active: boolean) {
