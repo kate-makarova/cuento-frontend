@@ -211,8 +211,10 @@ export class CharacterProfileEditComponent implements OnInit {
 
   private imageService = inject(ImageService);
 
-  readonly characterProfileAvatarUploadFn = (file: File) =>
-    this.imageService.uploadCharacterProfileAvatar(this.characterId, file);
+  get characterProfileAvatarUploadFn() {
+    if (this.isNewMask) return null;
+    return (file: File) => this.imageService.uploadCharacterProfileAvatar(this.characterId, file);
+  }
 
   get avatarWidth(): number { return this.boardService.board().user_avatar_width ?? 100; }
   get avatarHeight(): number { return this.boardService.board().user_avatar_height ?? 100; }

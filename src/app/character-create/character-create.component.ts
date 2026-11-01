@@ -18,6 +18,7 @@ import { PreviewService } from '../services/preview.service';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { EntityDraftService } from '../services/entity-draft.service';
+import { WantedCharacterService } from '../services/wanted-character.service';
 
 @Component({
   selector: 'app-character-create',
@@ -31,6 +32,7 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
   private boardService = inject(BoardService);
   private imageService = inject(ImageService);
   private entityDraftService = inject(EntityDraftService);
+  private wantedCharacterService = inject(WantedCharacterService);
 
   @ViewChild('formEl') formEl?: ElementRef<HTMLFormElement>;
 
@@ -114,6 +116,11 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
     return !!(item?.is_claimed && item.user_id !== null && item.user_id !== userId);
   });
 
+  pendingClaims = signal<ClaimAutocompleteItem[]>([]);
+  showPendingClaimModal = signal(false);
+  initialFactions = signal<Faction[]>([]);
+  draftCustomFields = signal<Record<string, any>>({});
+
   private claimSearchTerms = new Subject<string>();
   private claimSubscription?: Subscription;
 
@@ -128,6 +135,26 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
 
   cancelUnlockClaimBlock() {
     this.showClaimUnlockModal.set(false);
+  }
+
+  confirmPendingClaim(item: ClaimAutocompleteItem) {
+    this.claimType.set('wanted');
+    this.selectedClaimItem.set(item);
+    this.claimQuery.set(item.name);
+    this.characterName.set(item.name);
+    this.showPendingClaimModal.set(false);
+    this.wantedCharacterService.get(item.id).subscribe({
+      next: wc => {
+        if (wc.factions && wc.factions.length > 0) {
+          this.initialFactions.set(wc.factions);
+        }
+      },
+      error: () => {}
+    });
+  }
+
+  dismissPendingClaimModal() {
+    this.showPendingClaimModal.set(false);
   }
 
   onClaimTypeChange(type: 'no' | 'wanted' | 'direct') {
@@ -220,6 +247,15 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
         next: draft => { this.draftId.set(draft.id); this.hasDraft.set(true); },
         error: () => {}
       });
+      this.wantedCharacterService.getMyActiveClaimRecords().subscribe({
+        next: claims => {
+          if (claims.length > 0) {
+            this.pendingClaims.set(claims);
+            this.showPendingClaimModal.set(true);
+          }
+        },
+        error: () => {}
+      });
     }
   }
 
@@ -266,6 +302,8 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
         if (c.avatar) this.characterAvatar.set(c.avatar);
         if (c.claimType) this.claimType.set(c.claimType);
         if (c.claimItem) { this.selectedClaimItem.set(c.claimItem); this.claimQuery.set(c.claimItem.name); }
+        if (c.factionPaths?.length) this.initialFactions.set(c.factionPaths.flat());
+        if (c.customFields) this.draftCustomFields.set(c.customFields);
         this.hasDraft.set(false);
       },
       error: () => {}
@@ -342,7 +380,7 @@ export class CharacterCreateComponent implements OnInit, OnDestroy {
       const field = this.initialData.custom_fields.custom_fields[machineName];
       return field ? (field.data ?? field.content) : null;
     }
-    return null;
+    return this.draftCustomFields()[machineName] ?? null;
   }
 
   onSubmit(event: Event) {

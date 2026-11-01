@@ -106,7 +106,7 @@
                       <div class="message-body">
                         <div class="message-box">
                           <div class="message-content">
-                            <p [innerHTML]="renderMessage(msg.text) | safeHtml"></p>
+                            <p [innerHTML]="(msg.html ?? msg.text) | safeHtml"></p>
                           </div>
                         </div>
                         <p class="message-metadata"><span>{{ msg.time }}</span></p>

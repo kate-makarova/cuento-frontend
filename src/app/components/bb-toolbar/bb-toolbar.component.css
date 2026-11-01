@@ -1,0 +1,80 @@
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.proofread-spinner {
+  display: inline-block;
+  animation: spin 0.8s linear infinite;
+}
+
+.proofread-panel {
+  margin-top: 0.5rem;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  background: #fafafa;
+  font-size: 0.9rem;
+}
+
+.proofread-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.75rem;
+  border-bottom: 1px solid #e0e0e0;
+  font-weight: 600;
+}
+
+.proofread-dismiss {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.proofread-dismiss:hover {
+  color: #333;
+}
+
+.proofread-text {
+  padding: 0.5rem 0.75rem;
+  white-space: pre-wrap;
+  border-bottom: 1px solid #e0e0e0;
+  color: #222;
+}
+
+.proofread-fixes-details {
+  margin: 0.4rem 0.75rem;
+}
+
+.proofread-fixes-details summary {
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #555;
+  user-select: none;
+}
+
+.proofread-fixes {
+  margin: 0.4rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.proofread-fixes li {
+  margin-bottom: 0.2rem;
+  font-size: 0.85rem;
+}
+
+.proofread-no-fixes {
+  margin: 0.5rem 0.75rem;
+  color: #555;
+  font-size: 0.85rem;
+}
+
+.proofread-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-top: 1px solid #e0e0e0;
+}

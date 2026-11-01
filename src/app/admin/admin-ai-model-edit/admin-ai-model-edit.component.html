@@ -1,0 +1,69 @@
+<div class="container">
+  <h2>
+    @if (isNew) {
+      <ng-container i18n="@@adminAiModelEdit.titleNew">New AI Model</ng-container>
+    } @else {
+      <ng-container i18n="@@adminAiModelEdit.titleEdit">Edit AI Model</ng-container>
+    }
+  </h2>
+
+  <form (submit)="submit(); $event.preventDefault()">
+    <fieldset>
+      <div class="field-row">
+        <label for="name" i18n="@@adminAiModels.fieldName">Name</label>
+        <input id="name" type="text" name="name" [(ngModel)]="name" required />
+      </div>
+      <div class="field-row">
+        <label for="machine-name" i18n="@@adminAiModels.fieldMachineName">Machine name</label>
+        <input id="machine-name" type="text" name="machine_name" [(ngModel)]="machineName" required />
+      </div>
+      <div class="field-row">
+        <label for="api-address" i18n="@@adminAiModels.fieldApiAddress">API address</label>
+        <input id="api-address" type="text" name="api_address" [(ngModel)]="apiAddress" />
+      </div>
+      <div class="field-row">
+        <label for="api-key" i18n="@@adminAiModels.fieldApiKey">API key</label>
+        <input id="api-key" type="password" name="api_key" [(ngModel)]="apiKey" autocomplete="new-password" required />
+      </div>
+      <div class="field-row">
+        <label for="protocol" i18n="@@adminAiModels.fieldProtocol">Protocol</label>
+        <select id="protocol" name="protocol_type" [(ngModel)]="protocolType">
+          @for (p of protocolTypes; track p.value) {
+            <option [ngValue]="p.value">{{ p.label }}</option>
+          }
+        </select>
+      </div>
+      <div class="field-row">
+        <label for="size" i18n="@@adminAiModels.fieldSize">Size</label>
+        <select id="size" name="size" [(ngModel)]="size">
+          @for (s of sizes; track s.value) {
+            <option [ngValue]="s.value">{{ s.label }}</option>
+          }
+        </select>
+      </div>
+      <div class="field-row">
+        <label for="model-type" i18n="@@adminAiModels.fieldModelType">Model type</label>
+        <select id="model-type" name="model_type" [(ngModel)]="modelType">
+          @for (t of modelTypes; track t.value) {
+            <option [ngValue]="t.value">{{ t.label }}</option>
+          }
+        </select>
+      </div>
+      <div class="field-row field-row--checkbox">
+        <input id="is-active" type="checkbox" name="is_active" [(ngModel)]="isActive" />
+        <label for="is-active" i18n="@@adminAiModels.fieldActive">Active</label>
+      </div>
+    </fieldset>
+
+    <div class="form-actions">
+      <app-save-button type="submit" [state]="saveState">
+        @if (isNew) {
+          <span i18n="@@common.create">Create</span>
+        } @else {
+          <span i18n="@@common.save">Save</span>
+        }
+      </app-save-button>
+      <a routerLink="/admin/ai-models" class="btn-secondary" i18n="@@common.back">Back</a>
+    </div>
+  </form>
+</div>

@@ -87,10 +87,7 @@ export class TopicService {
             this.notificationService.checkReactionsByPostIds(postIds);
             this.notificationService.checkReactionsByTopicId(topicId);
           } else {
-            const topicType = this.topicSignal()?.type;
-            if (topicType === TopicType.character || topicType === TopicType.episode || topicType === TopicType.wanted_character) {
-              this.notificationService.sendMessage({ type: 'topic_view', topic_id: topicId, post_id: 0 });
-            }
+            this.notificationService.sendMessage({ type: 'topic_view', topic_id: topicId, post_id: 0 });
           }
         } else {
           this.postsSignal.set([]);

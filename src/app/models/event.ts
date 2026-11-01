@@ -24,6 +24,8 @@ export interface TopicFullEvent {
   type: 'topic_full';
   msg_id?: number;
   topic_id: number;
+  triggered_by_user_id: number;
+  triggered_by_post_date: string;
 }
 
 export interface PostUpdatedEvent {

@@ -245,10 +245,14 @@
         <h2 i18n="@@notifications.directMessages">Direct messages</h2>
         <div class="feed-list">
           @for (item of directMessageNotifications(); track item.id) {
+            @let dm = $any(item.direct_message ?? item.data);
             <div class="feed-item">
-              <a class="feed-item-content" [routerLink]="['/direct-chat']" [queryParams]="{ chat_id: item.direct_message?.chat_id }" (click)="onNotificationClick(item)">
+              <a class="feed-item-content" [routerLink]="dm?.chat_id ? ['/direct-chat', dm.chat_id] : ['/direct-chat']" (click)="onNotificationClick(item)">
                 <span class="date">{{ item.date_created | date:'yyyy-MM-dd HH:mm' }}</span>
-                <p>{{ item.message }}</p>
+                <p>
+                  <strong>{{ dm?.username ?? dm?.sender_username }}</strong>
+                  <ng-container i18n="@@toast.directMessage.sentYouA"> sent you a </ng-container><ng-container i18n="@@toast.directMessage.message">message</ng-container>
+                </p>
               </a>
               <button class="dismiss-button" (click)="dismissNotification(item, $event)">&times;</button>
             </div>

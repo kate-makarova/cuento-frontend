@@ -35,7 +35,7 @@
                       </div>
                       @if (msg.sources && msg.sources.length > 0) {
                         <div class="message-sources">
-                          @for (source of msg.sources; track source.post_id) {
+                          @for (source of msg.sources; track $index) {
                             <a [href]="sourceLink(source)" class="message-source-link">
                               <i class="bi {{ sourceIcon(source) }}"></i> {{ sourceLabel(source) }}
                             </a>

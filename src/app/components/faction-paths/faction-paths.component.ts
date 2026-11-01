@@ -1,4 +1,4 @@
-import { Component, inject, signal, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, inject, signal, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { FactionService } from '../../services/faction.service';
@@ -18,7 +18,7 @@ interface FactionLevel {
   imports: [ FormsModule, FactionCreateModalComponent],
   templateUrl: './faction-paths.component.html',
 })
-export class FactionPathsComponent implements OnInit {
+export class FactionPathsComponent implements OnInit, OnChanges {
   private factionService = inject(FactionService);
   private factionSettingService = inject(FactionSettingService);
 
@@ -37,36 +37,46 @@ export class FactionPathsComponent implements OnInit {
 
   ngOnInit() {
     this.factionSettingService.load();
-
     if (this.initialFactions.length > 0) {
-      const factions = this.initialFactions;
-      const factionMap = new Map(factions.map(f => [f.id, f]));
-      const usedAsParent = new Set(
-        factions.map(f => f.parent_id).filter((id): id is number => id != null)
-      );
-      const leaves = factions.filter(f => !usedAsParent.has(f.id));
-
-      let factionPaths: Faction[][] = leaves.map(leaf => {
-        const path: Faction[] = [];
-        let current: Faction | undefined = leaf;
-        while (current) {
-          path.unshift(current);
-          current = current.parent_id != null ? factionMap.get(current.parent_id) : undefined;
-        }
-        return path;
-      });
-
-      if (factionPaths.length === 0) {
-        factionPaths = [[]];
-      }
-
-      this.pathLevels.set(factionPaths.map(() => []));
-      factionPaths.forEach((path, pathIndex) => this.initPathFromKnownFactions(pathIndex, path));
+      this.initFromFactions(this.initialFactions);
     } else {
       this.pathLevels.set([[]]);
       this.addFactionLevel(0, 0);
     }
     this.emitSelection();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    const change = changes['initialFactions'];
+    if (change && !change.firstChange && (change.currentValue as Faction[])?.length > 0) {
+      this.initFromFactions(change.currentValue);
+      this.emitSelection();
+    }
+  }
+
+  private initFromFactions(factions: Faction[]) {
+    const factionMap = new Map(factions.map(f => [f.id, f]));
+    const usedAsParent = new Set(
+      factions.map(f => f.parent_id).filter((id): id is number => id != null)
+    );
+    const leaves = factions.filter(f => !usedAsParent.has(f.id));
+
+    let factionPaths: Faction[][] = leaves.map(leaf => {
+      const path: Faction[] = [];
+      let current: Faction | undefined = leaf;
+      while (current) {
+        path.unshift(current);
+        current = current.parent_id != null ? factionMap.get(current.parent_id) : undefined;
+      }
+      return path;
+    });
+
+    if (factionPaths.length === 0) {
+      factionPaths = [[]];
+    }
+
+    this.pathLevels.set(factionPaths.map(() => []));
+    factionPaths.forEach((path, pathIndex) => this.initPathFromKnownFactions(pathIndex, path));
   }
 
   private initPathFromKnownFactions(pathIndex: number, factions: Faction[]) {

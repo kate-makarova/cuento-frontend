@@ -4,6 +4,7 @@ import { ApiService } from './api.service';
 import { FieldTemplate, Block, BlockSettingToggle, TemplateConfig } from '../models/FieldTemplate';
 import { GetWantedCharacterListRequest, WantedCharacter, WantedCharacterListResponse } from '../models/WantedCharacter';
 import { Faction } from '../models/Faction';
+import { ClaimAutocompleteItem } from '../models/CharacterClaim';
 
 @Injectable({ providedIn: 'root' })
 export class WantedCharacterService {
@@ -83,6 +84,10 @@ export class WantedCharacterService {
 
   revokeClaimRecord(claimRecordId: number): Observable<void> {
     return this.apiService.post<void>('claim-record/revoke', { claim_record_id: claimRecordId });
+  }
+
+  getMyActiveClaimRecords(): Observable<ClaimAutocompleteItem[]> {
+    return this.apiService.get<ClaimAutocompleteItem[]>('my-claim-records');
   }
 
   autocompleteField(field: string, term: string): Observable<string[]> {

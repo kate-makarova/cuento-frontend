@@ -5,7 +5,7 @@
 // Nothing here touches the DOM.
 
 import {
-  DocModel, BlockNode, ParagraphNode, AlignBlock, QuoteNode, SpoilerNode, CodeNode, NpcBlockNode, HideNode, GridNode, TableNode,
+  DocModel, BlockNode, ParagraphNode, AlignBlock, QuoteNode, SpoilerNode, CodeNode, NpcBlockNode, HideNode, DivNode, GridNode, TableNode,
   InlineNode, TextNode, ImgNode, Mark, DocPoint, DocRange,
 } from './wysiwyg-doc-model';
 
@@ -162,8 +162,9 @@ export function mergeParagraphWithPrevious(doc: DocModel, point: DocPoint): OpRe
     }
     if (path[1] === 0) return { doc, cursor: point };
     const items = cItems(container);
-    const prev = items[path[1] - 1] as ParagraphNode;
-    const curr = items[path[1]] as ParagraphNode;
+    const prev = items[path[1] - 1];
+    const curr = items[path[1]];
+    if (prev?.type !== 'paragraph' || curr?.type !== 'paragraph') return { doc, cursor: point };
 
     const joinOffset = inlineLen(prev.children);
     const merged: ParagraphNode = {
@@ -492,7 +493,7 @@ function normalize(nodes: InlineNode[]): InlineNode[] {
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────
 
-type ContainerBlock = AlignBlock | QuoteNode | SpoilerNode | NpcBlockNode | HideNode | GridNode | TableNode;
+type ContainerBlock = AlignBlock | QuoteNode | SpoilerNode | NpcBlockNode | HideNode | DivNode | GridNode | TableNode;
 
 // Cursor-based ops only reach ParagraphNode children (cursor can't enter
 // non-paragraph children of a quote).  These helpers centralise the casts.
@@ -587,7 +588,13 @@ function getPara(doc: DocModel, path: number[]): ParagraphNode | null {
   if (path.length === 2) {
     const container = doc.children[path[0]];
     if (!('children' in container)) return null;
-    const b = (container as ContainerBlock).children[path[1]];
+    const b = cItems(container as ContainerBlock)[path[1]];
+    return b?.type === 'paragraph' ? b : null;
+  }
+  if (path.length === 3) {
+    const outer = doc.children[path[0]];
+    if (outer.type !== 'grid' && outer.type !== 'table') return null;
+    const b = (outer.children as BlockNode[][])[path[1]]?.[path[2]];
     return b?.type === 'paragraph' ? b : null;
   }
   return null;
@@ -627,6 +634,19 @@ function updatePara(
     const { para, cursor } = fn(cItems(container)[path[1]] as ParagraphNode, point.offset);
     const newChildren = replaceAt(cItems(container), path[1], para);
     return { doc: { children: replaceBlock(doc, path[0], withChildren(container, newChildren)) }, cursor };
+  }
+
+  if (path.length === 3) {
+    const outer = doc.children[path[0]];
+    if (outer.type !== 'grid' && outer.type !== 'table') return { doc, cursor: point };
+    const cells = outer.children as BlockNode[][];
+    const cell = cells[path[1]];
+    const innerBlock = cell?.[path[2]];
+    if (!innerBlock || innerBlock.type !== 'paragraph') return { doc, cursor: point };
+    const { para, cursor } = fn(innerBlock, point.offset);
+    const newCell = replaceAt(cell, path[2], para);
+    const newOuter = { ...outer, children: replaceAt(cells, path[1], newCell) } as BlockNode;
+    return { doc: { children: replaceBlock(doc, path[0], newOuter) }, cursor };
   }
 
   return { doc, cursor: point };
