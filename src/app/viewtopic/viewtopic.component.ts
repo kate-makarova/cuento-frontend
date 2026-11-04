@@ -216,7 +216,9 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   private topicLoadedOnInit = false;
   private currentAnchorPostId: string | null = null;
   private anchorObserver: IntersectionObserver | null = null;
+  private formObserver: IntersectionObserver | null = null;
   private anchorVisibleIds = new Set<string>();
+  private formVisible = false;
   private onVisibilityChange = () => {
     if (document.visibilityState === 'visible') {
       const topicId = this.id();
@@ -452,6 +454,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     document.removeEventListener('visibilitychange', this.onVisibilityChange);
     this.anchorObserver?.disconnect();
+    this.formObserver?.disconnect();
     this.destroy$.next();
     this.destroy$.complete();
     if (this.pageLoadedSubscription) {
@@ -462,11 +465,15 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
   private setupAnchorTracking() {
     this.anchorObserver?.disconnect();
+    this.formObserver?.disconnect();
     this.anchorVisibleIds.clear();
+    this.formVisible = false;
 
     const posts = this.currentPagePosts();
     if (!posts.length) return;
 
+    // Post observer: watches the top 20% of the viewport.
+    // Falls back to #post-form when no posts are in that zone but the form is visible.
     this.anchorObserver = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -476,9 +483,8 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
             this.anchorVisibleIds.delete(entry.target.id);
           }
         }
-        const postIds = posts.map(p => String(p.id));
-        const topId = postIds.find(id => this.anchorVisibleIds.has(id))
-          ?? (this.anchorVisibleIds.has('post-form') ? 'post-form' : null);
+        const topPostId = posts.map(p => String(p.id)).find(id => this.anchorVisibleIds.has(id));
+        const topId = topPostId ?? (this.formVisible ? 'post-form' : null);
         if (topId) {
           this.currentAnchorPostId = topId;
           history.replaceState(null, '', location.pathname + location.search + '#' + topId);
@@ -492,8 +498,22 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       if (el) this.anchorObserver.observe(el);
     }
 
+    // Form observer: fires as soon as the form enters the viewport from the bottom.
+    // Posts take priority; this only updates the anchor when anchorVisibleIds is empty.
     const formEl = document.getElementById('post-form');
-    if (formEl) this.anchorObserver.observe(formEl);
+    if (formEl) {
+      this.formObserver = new IntersectionObserver(
+        (entries) => {
+          this.formVisible = entries.some(e => e.isIntersecting);
+          if (this.formVisible && this.anchorVisibleIds.size === 0) {
+            this.currentAnchorPostId = 'post-form';
+            history.replaceState(null, '', location.pathname + location.search + '#post-form');
+          }
+        },
+        { threshold: 0 }
+      );
+      this.formObserver.observe(formEl);
+    }
   }
 
   onSidebarModeChange(active: boolean) {
