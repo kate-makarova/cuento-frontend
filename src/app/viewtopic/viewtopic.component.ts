@@ -476,7 +476,9 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
             this.anchorVisibleIds.delete(entry.target.id);
           }
         }
-        const topId = posts.map(p => String(p.id)).find(id => this.anchorVisibleIds.has(id));
+        const postIds = posts.map(p => String(p.id));
+        const topId = postIds.find(id => this.anchorVisibleIds.has(id))
+          ?? (this.anchorVisibleIds.has('post-form') ? 'post-form' : null);
         if (topId) {
           this.currentAnchorPostId = topId;
           history.replaceState(null, '', location.pathname + location.search + '#' + topId);
@@ -489,6 +491,9 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       const el = document.getElementById(String(post.id));
       if (el) this.anchorObserver.observe(el);
     }
+
+    const formEl = document.getElementById('post-form');
+    if (formEl) this.anchorObserver.observe(formEl);
   }
 
   onSidebarModeChange(active: boolean) {
