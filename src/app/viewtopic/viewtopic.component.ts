@@ -215,10 +215,8 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   private pageLoadedSubscription: Subscription | null = null;
   private topicLoadedOnInit = false;
   private currentAnchorPostId: string | null = null;
-  private anchorObserver: IntersectionObserver | null = null;
-  private formObserver: IntersectionObserver | null = null;
-  private anchorVisibleIds = new Set<string>();
-  private formVisible = false;
+  private anchorScrollHandler: (() => void) | null = null;
+  private anchorScrollRafId: number | null = null;
   private onVisibilityChange = () => {
     if (document.visibilityState === 'visible') {
       const topicId = this.id();
@@ -453,8 +451,8 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     document.removeEventListener('visibilitychange', this.onVisibilityChange);
-    this.anchorObserver?.disconnect();
-    this.formObserver?.disconnect();
+    if (this.anchorScrollHandler) window.removeEventListener('scroll', this.anchorScrollHandler);
+    if (this.anchorScrollRafId !== null) cancelAnimationFrame(this.anchorScrollRafId);
     this.destroy$.next();
     this.destroy$.complete();
     if (this.pageLoadedSubscription) {
@@ -464,56 +462,47 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   }
 
   private setupAnchorTracking() {
-    this.anchorObserver?.disconnect();
-    this.formObserver?.disconnect();
-    this.anchorVisibleIds.clear();
-    this.formVisible = false;
+    if (this.anchorScrollHandler) window.removeEventListener('scroll', this.anchorScrollHandler);
+    if (this.anchorScrollRafId !== null) { cancelAnimationFrame(this.anchorScrollRafId); this.anchorScrollRafId = null; }
+    this.anchorScrollHandler = null;
 
     const posts = this.currentPagePosts();
     if (!posts.length) return;
 
-    // Post observer: watches the top 20% of the viewport.
-    // Falls back to #post-form when no posts are in that zone but the form is visible.
-    this.anchorObserver = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            this.anchorVisibleIds.add(entry.target.id);
-          } else {
-            this.anchorVisibleIds.delete(entry.target.id);
-          }
-        }
-        const topPostId = posts.map(p => String(p.id)).find(id => this.anchorVisibleIds.has(id));
-        const topId = topPostId ?? (this.formVisible ? 'post-form' : null);
-        if (topId) {
-          this.currentAnchorPostId = topId;
-          history.replaceState(null, '', location.pathname + location.search + '#' + topId);
-        }
-      },
-      { rootMargin: '0px 0px -80% 0px', threshold: 0 }
-    );
+    const update = () => {
+      const id = this.resolveCurrentAnchor(posts);
+      if (id && id !== this.currentAnchorPostId) {
+        this.currentAnchorPostId = id;
+        history.replaceState(null, '', location.pathname + location.search + '#' + id);
+      }
+    };
 
+    this.anchorScrollHandler = () => {
+      if (this.anchorScrollRafId !== null) return;
+      this.anchorScrollRafId = requestAnimationFrame(() => {
+        this.anchorScrollRafId = null;
+        update();
+      });
+    };
+
+    window.addEventListener('scroll', this.anchorScrollHandler, { passive: true });
+    update(); // set anchor for initial scroll position
+  }
+
+  private resolveCurrentAnchor(posts: Post[]): string | null {
+    // Return the first post that hasn't been fully scrolled past.
     for (const post of posts) {
       const el = document.getElementById(String(post.id));
-      if (el) this.anchorObserver.observe(el);
+      if (!el) continue;
+      if (el.getBoundingClientRect().bottom > 50) return String(post.id);
     }
-
-    // Form observer: fires as soon as the form enters the viewport from the bottom.
-    // Posts take priority; this only updates the anchor when anchorVisibleIds is empty.
+    // All posts are above the fold — check if the reply form is visible.
     const formEl = document.getElementById('post-form');
     if (formEl) {
-      this.formObserver = new IntersectionObserver(
-        (entries) => {
-          this.formVisible = entries.some(e => e.isIntersecting);
-          if (this.formVisible && this.anchorVisibleIds.size === 0) {
-            this.currentAnchorPostId = 'post-form';
-            history.replaceState(null, '', location.pathname + location.search + '#post-form');
-          }
-        },
-        { threshold: 0 }
-      );
-      this.formObserver.observe(formEl);
+      const rect = formEl.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) return 'post-form';
     }
+    return null;
   }
 
   onSidebarModeChange(active: boolean) {
