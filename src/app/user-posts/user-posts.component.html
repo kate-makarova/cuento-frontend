@@ -32,7 +32,7 @@
         @if (post.topic_name) {
           <span class="post-topic-link">
             <a [routerLink]="['/viewtopic', post.topic_id]">{{ post.topic_name }}</a>
-            <a [routerLink]="['/viewtopic', post.topic_id]" [fragment]="post.id.toString()" class="post-anchor-link">#{{ post.id }}</a>
+            <a [routerLink]="['/viewtopic', post.topic_id]" [queryParams]="{ post_id: post.id }" class="post-anchor-link">#{{ post.id }}</a>
           </span>
         }
       </h3>
@@ -81,7 +81,7 @@
           </div>
           <div class="conr">
             <p class="post-links">
-              <span><a [routerLink]="['/viewtopic', post.topic_id]" [fragment]="post.id.toString()" i18n="@@userPosts.goToPost">Go to post</a></span>
+              <span><a [routerLink]="['/viewtopic', post.topic_id]" [queryParams]="{ post_id: post.id }" i18n="@@userPosts.goToPost">Go to post</a></span>
             </p>
           </div>
         </div>

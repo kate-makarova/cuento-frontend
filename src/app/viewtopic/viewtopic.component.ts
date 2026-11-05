@@ -471,9 +471,12 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
     const update = () => {
       const id = this.resolveCurrentAnchor(posts);
-      if (id && id !== this.currentAnchorPostId) {
+      if (id !== null && id !== this.currentAnchorPostId) {
         this.currentAnchorPostId = id;
         history.replaceState(null, '', location.pathname + location.search + '#' + id);
+      } else if (id === null && this.currentAnchorPostId !== null) {
+        this.currentAnchorPostId = null;
+        history.replaceState(null, '', location.pathname + location.search);
       }
     };
 
@@ -490,17 +493,17 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   }
 
   private resolveCurrentAnchor(posts: Post[]): string | null {
+    // If the submit button is visible, clear the anchor.
+    const submitBtn = document.querySelector<HTMLElement>('#post-form input[type=submit]');
+    if (submitBtn) {
+      const r = submitBtn.getBoundingClientRect();
+      if (r.top < window.innerHeight && r.bottom > 0) return null;
+    }
     // Return the first post that hasn't been fully scrolled past.
     for (const post of posts) {
       const el = document.getElementById(String(post.id));
       if (!el) continue;
       if (el.getBoundingClientRect().bottom > 50) return String(post.id);
-    }
-    // All posts are above the fold — check if the reply form is visible.
-    const formEl = document.getElementById('post-form');
-    if (formEl) {
-      const rect = formEl.getBoundingClientRect();
-      if (rect.top < window.innerHeight && rect.bottom > 0) return 'post-form';
     }
     return null;
   }
