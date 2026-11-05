@@ -326,16 +326,22 @@ export class BbToolbarComponent {
     textarea.setSelectionRange(start + bbCode.length, start + bbCode.length);
   }
 
-  onInsertImage(url: string) {
+  onInsertImage(event: { url: string; thumbnailUrl?: string }) {
+    const { url, thumbnailUrl } = event;
     if (this.editor) {
-      this.editor.insertHtmlAtCursor(`<img src="${url}" style="max-width:100%">`);
+      const html = thumbnailUrl
+        ? `<a href="${url}"><img src="${thumbnailUrl}" style="max-width:100%"></a>`
+        : `<img src="${url}" style="max-width:100%">`;
+      this.editor.insertHtmlAtCursor(html);
       return;
     }
     if (!this.textarea) return;
     const textarea = this.textarea;
     const start = textarea.selectionStart;
     const text = textarea.value;
-    const tag = `[img]${url}[/img]`;
+    const tag = thumbnailUrl
+      ? `[url=${url}][img]${thumbnailUrl}[/img][/url]`
+      : `[img]${url}[/img]`;
     textarea.value = text.substring(0, start) + tag + text.substring(start);
     textarea.focus();
     textarea.setSelectionRange(start + tag.length, start + tag.length);
