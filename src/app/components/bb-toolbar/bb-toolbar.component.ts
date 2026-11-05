@@ -44,6 +44,7 @@ export class BbToolbarComponent {
 
   proofreadLoading = signal(false);
   proofreadResult = signal<{ text: string; fixes: string[] } | null>(null);
+  proofreadError = signal<string | null>(null);
   smileCategories = signal<SmileCategoryWithSmiles[]>([]);
   private smilesLoaded = false;
 
@@ -344,14 +345,22 @@ export class BbToolbarComponent {
     const content = this.editor ? this.editor.getValue() : (this.textarea?.value ?? '');
     if (!content.trim() || this.proofreadLoading()) return;
     this.proofreadResult.set(null);
+    this.proofreadError.set(null);
     this.proofreadLoading.set(true);
     this.apiService.post<{ text: string; fixes: string[] }>('ai/proofread', { text: content }).subscribe({
       next: (res) => {
         this.proofreadResult.set(res);
         this.proofreadLoading.set(false);
       },
-      error: () => this.proofreadLoading.set(false),
+      error: (err) => {
+        this.proofreadLoading.set(false);
+        this.proofreadError.set(err?.error?.error ?? $localize`:@@postform.proofreadFailed:Proofreading failed. Please try again.`);
+      },
     });
+  }
+
+  dismissProofreadError() {
+    this.proofreadError.set(null);
   }
 
   acceptProofread() {

@@ -57,6 +57,18 @@
   }
 </div>
 
+@if (proofreadError(); as errMsg) {
+  <div class="proofread-panel proofread-error-panel">
+    <div class="proofread-panel-header">
+      <span i18n="@@postform.proofreadError">Proofreading error</span>
+      <button type="button" class="proofread-dismiss" (click)="dismissProofreadError()" title="Dismiss" i18n-title="@@postform.proofreadDismiss">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+    <p>{{ errMsg }}</p>
+  </div>
+}
+
 @if (proofreadResult(); as result) {
   <div class="proofread-panel">
     <div class="proofread-panel-header">
