@@ -214,7 +214,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   private lastLoadedProfilesForTopicId: number | null = null;
   private pageLoadedSubscription: Subscription | null = null;
   private topicLoadedOnInit = false;
-  private currentAnchorPostId: string | null = null;
+  private currentAnchorPostId: string | null | undefined = undefined;
   private anchorScrollHandler: (() => void) | null = null;
   private anchorScrollRafId: number | null = null;
   private onVisibilityChange = () => {
@@ -437,7 +437,8 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       }
 
       // anchorScrolling fires before posts render; scroll manually after DOM update
-      const fragment = currentPostId ? String(currentPostId) : (this.currentAnchorPostId ?? this.route.snapshot.fragment);
+      const fragment = currentPostId ? String(currentPostId)
+        : (this.currentAnchorPostId === undefined ? this.route.snapshot.fragment : this.currentAnchorPostId);
       if (fragment) {
         setTimeout(() => {
           document.getElementById(fragment)?.scrollIntoView({ behavior: 'smooth' });
