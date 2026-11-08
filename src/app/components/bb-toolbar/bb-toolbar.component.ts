@@ -353,14 +353,29 @@ export class BbToolbarComponent {
     this.proofreadResult.set(null);
     this.proofreadError.set(null);
     this.proofreadLoading.set(true);
-    this.apiService.post<{ text: string; fixes: string[] }>('ai/proofread', { text: content }).subscribe({
-      next: (res) => {
-        this.proofreadResult.set(res);
-        this.proofreadLoading.set(false);
+
+    let streamingText = '';
+    this.apiService.postStream('ai/proofread/stream', { text: content }).subscribe({
+      next: (evt) => {
+        const data = evt.data;
+        if (data?.t !== undefined) {
+          streamingText += data.t;
+          this.proofreadResult.set({ text: streamingText, fixes: [] });
+        } else if (data?.done) {
+          this.proofreadResult.set(data.done);
+          this.proofreadLoading.set(false);
+        } else if (data?.error) {
+          this.proofreadLoading.set(false);
+          this.proofreadError.set(data.error);
+          this.proofreadResult.set(null);
+        }
       },
       error: (err) => {
         this.proofreadLoading.set(false);
-        this.proofreadError.set(err?.error?.error ?? $localize`:@@postform.proofreadFailed:Proofreading failed. Please try again.`);
+        this.proofreadError.set(err?.message ?? $localize`:@@postform.proofreadFailed:Proofreading failed. Please try again.`);
+      },
+      complete: () => {
+        this.proofreadLoading.set(false);
       },
     });
   }
