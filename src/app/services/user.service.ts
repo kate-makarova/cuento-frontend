@@ -17,6 +17,9 @@ export class UserService {
   private privateKeyResolvedSignal = signal(false);
   readonly privateKeyResolved = this.privateKeyResolvedSignal.asReadonly();
 
+  private publicKeyIdSignal = signal<number | null>(null);
+  readonly publicKeyId = this.publicKeyIdSignal.asReadonly();
+
   constructor() {
     effect(() => {
       if (this.authService.isAuthenticated()) {
@@ -83,8 +86,11 @@ export class UserService {
   }
 
   loadAndDecryptPrivateKey(hashedPassword: string): Observable<void> {
-    return this.apiService.get<{ private_key: string; iv: string; salt: string }>('user/private-key').pipe(
-      switchMap(data => from(this.decryptPrivateKey(data.private_key, data.iv, data.salt, hashedPassword))),
+    return this.apiService.get<{ private_key: string; iv: string; salt: string; public_key_id: number }>('user/private-key').pipe(
+      switchMap(data => {
+        this.publicKeyIdSignal.set(data.public_key_id ?? null);
+        return from(this.decryptPrivateKey(data.private_key, data.iv, data.salt, hashedPassword));
+      }),
       switchMap(key => {
         this.privateKeySignal.set(key);
         return from(this.savePrivateKeyToDb(key));
@@ -126,6 +132,57 @@ export class UserService {
     return from(this.buildKeysPayload(hashedPassword, codes)).pipe(
       switchMap(payload => this.apiService.post('user/save-keys', payload))
     );
+  }
+
+  completePasswordReset(securityCode: string, password: string, hashedPassword: string, codes: string[]): Observable<any> {
+    return from(this.buildCompleteResetPayload(securityCode, password, hashedPassword, codes)).pipe(
+      switchMap(({ payload, storedKey }) =>
+        this.apiService.post<any>('complete-password-reset', payload).pipe(
+          switchMap(response => from(this.savePrivateKeyToDb(storedKey)).pipe(
+            tap(() => {
+              this.privateKeySignal.set(storedKey);
+              if (response?.user) {
+                this.publicKeyIdSignal.set(null);
+              }
+            }),
+            map(() => response)
+          ))
+        )
+      )
+    );
+  }
+
+  private async buildCompleteResetPayload(
+    securityCode: string,
+    password: string,
+    hashedPassword: string,
+    codes: string[]
+  ): Promise<{ payload: any; storedKey: CryptoKey }> {
+    const keyPair = await crypto.subtle.generateKey(
+      { name: 'RSA-OAEP', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256' },
+      true,
+      ['encrypt', 'decrypt']
+    );
+
+    const publicKeyBuffer = await crypto.subtle.exportKey('spki', keyPair.publicKey);
+    const hashedCodes = await Promise.all(codes.map(c => this.authService.hashPassword(c)));
+    const passwordKey = await this.encryptPrivateKey(keyPair.privateKey, hashedPassword);
+    const recoveryKeys = await Promise.all(codes.map(c => this.encryptPrivateKey(keyPair.privateKey, c)));
+
+    const pkcs8Buffer = await crypto.subtle.exportKey('pkcs8', keyPair.privateKey);
+    const storedKey = await crypto.subtle.importKey('pkcs8', pkcs8Buffer, { name: 'RSA-OAEP', hash: 'SHA-256' }, false, ['decrypt']);
+
+    return {
+      payload: {
+        security_code: securityCode,
+        password,
+        codes: hashedCodes,
+        private_key: { private_key: passwordKey.private_key, iv: passwordKey.iv, salt: passwordKey.salt },
+        recovery_private_keys: recoveryKeys.map(k => ({ private_key: k.private_key, iv: k.iv, salt: k.salt })),
+        public_key: { public_key: this.bufferToBase64(publicKeyBuffer) }
+      },
+      storedKey
+    };
   }
 
   private async buildKeysPayload(hashedPassword: string, codes: string[]): Promise<any> {
