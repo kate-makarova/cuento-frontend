@@ -59,7 +59,7 @@
       <div class="wanted-character-actions">
         <button class="button" (click)="revoke.emit()" i18n="@@wantedCharacterList.revoke">Revoke claim</button>
       </div>
-    } @else if (isAuthenticated && !wantedCharacter?.claim_record) {
+    } @else if (isAuthenticated && !wantedCharacter?.claim_record && !wantedCharacter?.active_claim_record && !wantedCharacter?.is_claimed) {
       <div class="wanted-character-actions">
         <button class="button" (click)="claim.emit()" i18n="@@wantedCharacterList.claim">Claim</button>
       </div>
