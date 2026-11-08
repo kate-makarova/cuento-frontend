@@ -133,7 +133,7 @@
                 </app-bb-toolbar>
               </div>
               <div class="textarea-wrapper">
-                <textarea #chatInput (keydown.enter)="handleSend()" placeholder="Ваше сообщение..."></textarea>
+                <textarea #chatInput (keydown.control.enter)="handleSend()" placeholder="Ваше сообщение..."></textarea>
               </div>
               <div class="buttons">
                 <input type="button" class="button" value="Отправить" (click)="handleSend()" [disabled]="isSending()">
