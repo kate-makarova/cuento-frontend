@@ -9,6 +9,7 @@ export class Message {
   username: string;
   avatar: string | null;
   sources?: AiSource[];
+  inaccessible?: boolean;
 
   constructor(id: number, text: string, time: string, isMe: boolean, username: string, avatar: string | null, sources?: AiSource[]) {
     this.id = id;

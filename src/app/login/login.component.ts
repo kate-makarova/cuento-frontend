@@ -4,6 +4,8 @@ import { RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
 
+type ResetStep = 'enter_pin' | 'enter_new_password';
+
 @Component({
   selector: 'app-login',
   host: { class: 'pun-page' },
@@ -16,12 +18,23 @@ export class LoginComponent {
   private authService = inject(AuthService);
   private userService = inject(UserService);
 
-
   isLoading = signal(false);
   archivedReason = signal<string | null>(null);
+  resetStep = signal<ResetStep | null>(null);
+  resetUsername = signal('');
+  resetSecurityCode = signal('');
+  resetError = signal<string | null>(null);
 
   loginForm = this.fb.group({
     username: ['', [Validators.required]],
+    password: ['', [Validators.required, Validators.minLength(6)]]
+  });
+
+  pinForm = this.fb.group({
+    pin: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]]
+  });
+
+  newPasswordForm = this.fb.group({
     password: ['', [Validators.required, Validators.minLength(6)]]
   });
 
@@ -39,18 +52,62 @@ export class LoginComponent {
       this.authService.login(credentials as any).subscribe({
         next: () => {
           this.isLoading.set(false);
-          // handleAuth already navigated to '/'. Start key decryption in background.
           this.authService.hashPassword(password).then(hashedPassword => {
             this.userService.loadAndDecryptPrivateKey(hashedPassword).subscribe();
           });
         },
         error: (err) => {
           this.isLoading.set(false);
-          if (err.status === 403) {
+          if (err.status === 401 && err.error?.error === 'password_reset_required') {
+            this.resetUsername.set(credentials.username || '');
+            this.resetStep.set('enter_pin');
+          } else if (err.status === 403) {
             this.archivedReason.set(err.error?.reason ?? null);
           }
         }
       });
     }
+  }
+
+  onSubmitPin() {
+    if (this.pinForm.invalid) return;
+    this.isLoading.set(true);
+    this.resetError.set(null);
+    const pin = this.pinForm.value.pin!;
+
+    this.authService.verifyAdminResetCode(this.resetUsername(), pin).subscribe({
+      next: (res) => {
+        this.isLoading.set(false);
+        this.resetSecurityCode.set(res.security_code);
+        this.resetStep.set('enter_new_password');
+      },
+      error: () => {
+        this.isLoading.set(false);
+        this.resetError.set($localize`:@@login.invalidPin:Invalid or expired PIN`);
+      }
+    });
+  }
+
+  onSubmitNewPassword() {
+    if (this.newPasswordForm.invalid) return;
+    this.isLoading.set(true);
+    this.resetError.set(null);
+    const password = this.newPasswordForm.value.password!;
+    const codes = this.userService.generateRecoveryCodes(8);
+
+    this.authService.hashPassword(password).then(hashedPassword => {
+      this.userService.completePasswordReset(this.resetSecurityCode(), password, hashedPassword, codes).subscribe({
+        next: (res) => {
+          this.isLoading.set(false);
+          this.resetStep.set(null);
+          this.authService.handleAuthResponse(res);
+          this.userService.loadAndDecryptPrivateKey(hashedPassword).subscribe();
+        },
+        error: () => {
+          this.isLoading.set(false);
+          this.resetError.set($localize`:@@login.resetFailed:Password reset failed. Please try again.`);
+        }
+      });
+    });
   }
 }
