@@ -47,15 +47,17 @@ export class WipeOutMyUserComponent {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.apiService.post<void>('user/wipe', { recovery_code: this.form.value.recoveryCode }).subscribe({
-      next: () => {
-        this.authService.logout();
-        this.router.navigate(['/login']);
-      },
-      error: (err) => {
-        this.isLoading.set(false);
-        this.error.set(err?.error?.error || $localize`:@@wipeOutMyUser.error:Something went wrong. Please check your recovery code and try again.`);
-      }
+    this.authService.hashPassword(this.form.value.recoveryCode!).then(hashedCode => {
+      this.apiService.post<void>('user/wipe', { recovery_code: hashedCode }).subscribe({
+        next: () => {
+          this.authService.logout();
+          this.router.navigate(['/login']);
+        },
+        error: (err) => {
+          this.isLoading.set(false);
+          this.error.set(err?.error?.error || $localize`:@@wipeOutMyUser.error:Something went wrong. Please check your recovery code and try again.`);
+        }
+      });
     });
   }
 }

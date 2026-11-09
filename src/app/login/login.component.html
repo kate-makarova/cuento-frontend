@@ -95,6 +95,19 @@
       </form>
     }
 
+    @if (resetStep() === 'show_codes') {
+      <h2 i18n="@@login.codesTitle">Save Your Recovery Codes</h2>
+      <p i18n="@@login.codesInfo">These codes are shown only once. Store them safely — you will need one to recover your account if you forget your password.</p>
+
+      <div class="recovery-codes-list">
+        @for (code of resetCodes(); track code) {
+          <code>{{ code }}</code>
+        }
+      </div>
+
+      <button (click)="onCodesAcknowledged()" i18n="@@login.codesDone">I have saved my codes</button>
+    }
+
     @if (resetStep() === 'enter_new_password') {
       <h2 i18n="@@login.newPasswordTitle">Set New Password</h2>
       <p i18n="@@login.newPasswordInfo">Choose a new password. Your old messages will no longer be accessible as your encryption keys are being replaced.</p>

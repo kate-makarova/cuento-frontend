@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
 
-type ResetStep = 'enter_pin' | 'enter_new_password';
+type ResetStep = 'enter_pin' | 'enter_new_password' | 'show_codes';
 
 @Component({
   selector: 'app-login',
@@ -24,6 +24,10 @@ export class LoginComponent {
   resetUsername = signal('');
   resetSecurityCode = signal('');
   resetError = signal<string | null>(null);
+  resetCodes = signal<string[]>([]);
+
+  private pendingAuthResponse: any = null;
+  private pendingHashedPassword = '';
 
   loginForm = this.fb.group({
     username: ['', [Validators.required]],
@@ -88,6 +92,11 @@ export class LoginComponent {
     });
   }
 
+  onCodesAcknowledged() {
+    this.authService.handleAuthResponse(this.pendingAuthResponse);
+    this.userService.loadAndDecryptPrivateKey(this.pendingHashedPassword).subscribe();
+  }
+
   onSubmitNewPassword() {
     if (this.newPasswordForm.invalid) return;
     this.isLoading.set(true);
@@ -99,9 +108,10 @@ export class LoginComponent {
       this.userService.completePasswordReset(this.resetSecurityCode(), password, hashedPassword, codes).subscribe({
         next: (res) => {
           this.isLoading.set(false);
-          this.resetStep.set(null);
-          this.authService.handleAuthResponse(res);
-          this.userService.loadAndDecryptPrivateKey(hashedPassword).subscribe();
+          this.pendingAuthResponse = res;
+          this.pendingHashedPassword = hashedPassword;
+          this.resetCodes.set(codes);
+          this.resetStep.set('show_codes');
         },
         error: () => {
           this.isLoading.set(false);

@@ -23,6 +23,7 @@ export class DirectChatService {
     effect(() => {
       const key = this.userService.privateKey();
       if (key) {
+        this.cachedPrivateKey = key;
         this.privateKeySubject.next(key);
       }
     });
@@ -78,7 +79,10 @@ export class DirectChatService {
   loadDirectChat(chatId: number): void {
     this.notificationService.sendPageChange('direct_chat', chatId);
     this.notificationService.checkChatId(chatId);
-    this.apiService.get<DirectChatResponse>(`direct-chat/${chatId}`).subscribe({
+    this.resolvePrivateKey().pipe(
+      take(1),
+      switchMap(() => this.apiService.get<DirectChatResponse>(`direct-chat/${chatId}`))
+    ).subscribe({
       next: (data) => {
         this.currentChatSignal.set(data);
         this.loadMessages(chatId);
