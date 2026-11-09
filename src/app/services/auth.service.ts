@@ -98,6 +98,14 @@ export class AuthService {
     });
   }
 
+  verifyAdminResetCode(username: string, pin: string): Observable<{ security_code: string }> {
+    return this.http.post<{ security_code: string }>(`${this.apiUrl}/verify-admin-reset-code`, { username, pin });
+  }
+
+  handleAuthResponse(response: AuthResponse): void {
+    this.handleAuth(response);
+  }
+
   register(data: any): Observable<any> {
     return from(this.hashPassword(data.password)).pipe(
       switchMap(hashedPassword => {

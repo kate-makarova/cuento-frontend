@@ -1,64 +1,141 @@
 <div class="login-container">
   <div class="formal">
-    <h2 i18n="@@login.title">Welcome Back</h2>
-    <p i18n="@@login.subtitle">Please enter your details</p>
 
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="container">
-      <div class="form-group">
-        <label for="username" i18n="@@login.username">Username</label>
-        <input
-          id="username"
-          type="text"
-          formControlName="username"
-          placeholder="Enter your username"
-          i18n-placeholder="@@login.usernamePlaceholder"
-          [class.error]="isFieldInvalid('username')"
-        />
-        @if (isFieldInvalid('username')) {
-          <small class="error-text" i18n="@@login.usernameRequired">Username is required</small>
-        }
-      </div>
+    @if (resetStep() === null) {
+      <h2 i18n="@@login.title">Welcome Back</h2>
+      <p i18n="@@login.subtitle">Please enter your details</p>
 
-      <div class="form-group">
-        <label for="password" i18n="@@login.password">Password</label>
-        <input
-          id="password"
-          type="password"
-          formControlName="password"
-          placeholder="••••••••"
-          [class.error]="isFieldInvalid('password')"
-        />
-        @if (isFieldInvalid('password')) {
-          <small class="error-text" i18n="@@login.passwordMin">Password must be at least 6 characters</small>
-        }
-      </div>
-
-      <button type="submit" [disabled]="loginForm.invalid || isLoading()">
-        @if (isLoading()) {
-          <span i18n="@@login.loggingIn">Logging in...</span>
-        } @else {
-          <span i18n="@@login.signIn">Sign In</span>
-        }
-      </button>
-
-      @if (archivedReason() !== null) {
-        <div class="error-banner">
-          <p i18n="@@login.archivedAccount">This account has been archived and cannot be accessed.</p>
-          @if (archivedReason()) {
-            <p>{{ archivedReason() }}</p>
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="container">
+        <div class="form-group">
+          <label for="username" i18n="@@login.username">Username</label>
+          <input
+            id="username"
+            type="text"
+            formControlName="username"
+            placeholder="Enter your username"
+            i18n-placeholder="@@login.usernamePlaceholder"
+            [class.error]="isFieldInvalid('username')"
+          />
+          @if (isFieldInvalid('username')) {
+            <small class="error-text" i18n="@@login.usernameRequired">Username is required</small>
           }
         </div>
-      }
 
-      <div class="form-footer">
-        <p>
-          <ng-container i18n="@@login.noAccount">Don't have an account?</ng-container>
-          &nbsp;<a routerLink="/register" i18n="@@nav.register">Register</a>
-        </p>
-        <p>
-          <a routerLink="/restore-password" i18n="@@login.forgotPassword">Forgot password?</a>
-        </p>
+        <div class="form-group">
+          <label for="password" i18n="@@login.password">Password</label>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            placeholder="••••••••"
+            [class.error]="isFieldInvalid('password')"
+          />
+          @if (isFieldInvalid('password')) {
+            <small class="error-text" i18n="@@login.passwordMin">Password must be at least 6 characters</small>
+          }
+        </div>
+
+        <button type="submit" [disabled]="loginForm.invalid || isLoading()">
+          @if (isLoading()) {
+            <span i18n="@@login.loggingIn">Logging in...</span>
+          } @else {
+            <span i18n="@@login.signIn">Sign In</span>
+          }
+        </button>
+
+        @if (archivedReason() !== null) {
+          <div class="error-banner">
+            <p i18n="@@login.archivedAccount">This account has been archived and cannot be accessed.</p>
+            @if (archivedReason()) {
+              <p>{{ archivedReason() }}</p>
+            }
+          </div>
+        }
+
+        <div class="form-footer">
+          <p>
+            <ng-container i18n="@@login.noAccount">Don't have an account?</ng-container>
+            &nbsp;<a routerLink="/register" i18n="@@nav.register">Register</a>
+          </p>
+          <p>
+            <a routerLink="/restore-password" i18n="@@login.forgotPassword">Forgot password?</a>
+          </p>
+        </div>
+      </form>
+    }
+
+    @if (resetStep() === 'enter_pin') {
+      <h2 i18n="@@login.resetTitle">Password Reset Required</h2>
+      <p i18n="@@login.resetPinInfo">An administrator has reset your password. Enter the 6-digit PIN you received.</p>
+
+      <form [formGroup]="pinForm" (ngSubmit)="onSubmitPin()" class="container">
+        <div class="form-group">
+          <label for="pin" i18n="@@login.pinLabel">PIN</label>
+          <input
+            id="pin"
+            type="text"
+            formControlName="pin"
+            inputmode="numeric"
+            maxlength="6"
+            placeholder="000000"
+          />
+        </div>
+
+        @if (resetError()) {
+          <div class="error-banner"><p>{{ resetError() }}</p></div>
+        }
+
+        <button type="submit" [disabled]="pinForm.invalid || isLoading()">
+          @if (isLoading()) {
+            <span i18n="@@login.verifying">Verifying...</span>
+          } @else {
+            <span i18n="@@login.verifyPin">Verify PIN</span>
+          }
+        </button>
+      </form>
+    }
+
+    @if (resetStep() === 'show_codes') {
+      <h2 i18n="@@login.codesTitle">Save Your Recovery Codes</h2>
+      <p i18n="@@login.codesInfo">These codes are shown only once. Store them safely — you will need one to recover your account if you forget your password.</p>
+
+      <div class="recovery-codes-list">
+        @for (code of resetCodes(); track code) {
+          <code>{{ code }}</code>
+        }
       </div>
-    </form>
+
+      <button (click)="onCodesAcknowledged()" i18n="@@login.codesDone">I have saved my codes</button>
+    }
+
+    @if (resetStep() === 'enter_new_password') {
+      <h2 i18n="@@login.newPasswordTitle">Set New Password</h2>
+      <p i18n="@@login.newPasswordInfo">Choose a new password. Your old messages will no longer be accessible as your encryption keys are being replaced.</p>
+
+      <form [formGroup]="newPasswordForm" (ngSubmit)="onSubmitNewPassword()" class="container">
+        <div class="form-group">
+          <label for="new-password" i18n="@@login.newPassword">New Password</label>
+          <input
+            id="new-password"
+            type="password"
+            formControlName="password"
+            placeholder="••••••••"
+          />
+        </div>
+
+        @if (resetError()) {
+          <div class="error-banner"><p>{{ resetError() }}</p></div>
+        }
+
+        <button type="submit" [disabled]="newPasswordForm.invalid || isLoading()">
+          @if (isLoading()) {
+            <span i18n="@@login.saving">Saving...</span>
+          } @else {
+            <span i18n="@@login.setPassword">Set Password</span>
+          }
+        </button>
+      </form>
+    }
+
   </div>
 </div>

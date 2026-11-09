@@ -18,6 +18,7 @@
       <th i18n="@@adminUsers.colAbsence">Absence</th>
       <th i18n="@@adminUsers.colBan">Ban</th>
       <th i18n="@@adminUsers.colWipeOut">Wipe Out</th>
+      <th i18n="@@adminUsers.colResetPassword">Reset Password</th>
     </tr>
   </thead>
   <tbody>
@@ -50,10 +51,13 @@
         <td>
           <button (click)="openWipeOutModal(user)" class="button btn-wipe" i18n="@@adminUsers.wipeOut">Wipe Out</button>
         </td>
+        <td>
+          <button (click)="openResetPasswordModal(user)" class="button" i18n="@@adminUsers.resetPassword">Reset Password</button>
+        </td>
       </tr>
     } @empty {
       <tr>
-        <td colspan="11" i18n="@@adminUsers.empty">No users found.</td>
+        <td colspan="12" i18n="@@adminUsers.empty">No users found.</td>
       </tr>
     }
   </tbody>
@@ -141,6 +145,31 @@
         <button class="button btn-wipe" (click)="submitWipeOut()" i18n="@@adminUsers.wipeOutConfirm">Wipe Out</button>
         <button class="button" (click)="closeWipeOutModal()" i18n="@@common.cancel">Cancel</button>
       </div>
+    </div>
+  </div>
+}
+
+@if (resetPasswordModalUser(); as user) {
+  <div class="modal-overlay" (click)="closeResetPasswordModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h2 i18n="@@adminUsers.resetPasswordTitle">Reset Password — {{ user.username }}</h2>
+      @if (resetPasswordPin() === null) {
+        <p i18n="@@adminUsers.resetPasswordInfo">
+          This will immediately nullify the user's password and invalidate all their encryption keys.
+          They will be given a 6-digit PIN to set a new password on next login.
+        </p>
+        <div class="buttons" style="margin-top: 15px; text-align: right;">
+          <button class="button" (click)="submitResetPassword()" i18n="@@adminUsers.resetPasswordConfirm">Reset</button>
+          <button class="button" (click)="closeResetPasswordModal()" i18n="@@common.cancel">Cancel</button>
+        </div>
+      } @else {
+        <p i18n="@@adminUsers.resetPasswordDone">Password reset successful. Give the user this PIN:</p>
+        <p style="font-size: 2em; font-weight: bold; text-align: center; letter-spacing: 0.2em;">{{ resetPasswordPin() }}</p>
+        <p i18n="@@adminUsers.resetPasswordPinNote">This PIN is shown only once. Write it down before closing this dialog.</p>
+        <div class="buttons" style="margin-top: 15px; text-align: right;">
+          <button class="button" (click)="closeResetPasswordModal()" i18n="@@common.close">Close</button>
+        </div>
+      }
     </div>
   </div>
 }
