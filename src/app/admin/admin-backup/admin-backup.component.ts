@@ -19,7 +19,9 @@ interface GDriveBackupFile {
 }
 
 interface GDriveSettings {
-  service_account_key: string;
+  client_id: string;
+  client_secret: string;
+  refresh_token: string;
   enabled: boolean;
   frequency: 'daily' | 'weekly' | 'monthly';
   keep: number;
@@ -46,7 +48,9 @@ export class AdminBackupComponent implements OnInit {
   private pendingFile: File | null = null;
 
   gdrive = signal<GDriveSettings>({
-    service_account_key: '',
+    client_id: '',
+    client_secret: '',
+    refresh_token: '',
     enabled: false,
     frequency: 'daily',
     keep: 5,
@@ -80,7 +84,9 @@ export class AdminBackupComponent implements OnInit {
     this.gdriveSaveState.set('loading');
     const s = this.gdrive();
     this.apiService.post('admin/backup/gdrive', {
-      service_account_key: s.service_account_key,
+      client_id: s.client_id,
+      client_secret: s.client_secret,
+      refresh_token: s.refresh_token,
       enabled: s.enabled,
       frequency: s.frequency,
       keep: s.keep,
