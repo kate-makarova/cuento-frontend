@@ -20,7 +20,7 @@ interface ImageEntry {
 })
 export class ImageUploadComponent {
   @Output() close = new EventEmitter<void>();
-  @Output() insert = new EventEmitter<string>();
+  @Output() insert = new EventEmitter<{ url: string; thumbnailUrl?: string }>();
 
   private imageService = inject(ImageService);
   private boardService = inject(BoardService);
@@ -75,13 +75,13 @@ export class ImageUploadComponent {
     }
   }
 
-  insertUrl(url: string) {
-    this.insert.emit(url);
+  insertUrl(url: string, thumbnailUrl?: string) {
+    this.insert.emit({ url, thumbnailUrl });
   }
 
   insertDirectLink() {
     if (this.directLink.trim()) {
-      this.insert.emit(this.directLink.trim());
+      this.insert.emit({ url: this.directLink.trim() });
     }
   }
 

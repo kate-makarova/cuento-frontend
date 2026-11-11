@@ -3,6 +3,7 @@ export interface DirectChatParticipant {
   username: string;
   avatar: string | null;
   public_key: string | null;
+  public_key_id: number | null;
 }
 
 export interface DirectChatResponse {
@@ -23,6 +24,8 @@ export interface DirectMessageRaw {
   ciphertext: string;
   iv: string;
   key: string;
+  author_key_id: number | null;
+  receiver_key_id: number | null;
 }
 
 export interface DirectChat {

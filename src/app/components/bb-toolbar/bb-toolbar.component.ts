@@ -44,6 +44,7 @@ export class BbToolbarComponent {
 
   proofreadLoading = signal(false);
   proofreadResult = signal<{ text: string; fixes: string[] } | null>(null);
+  proofreadError = signal<string | null>(null);
   smileCategories = signal<SmileCategoryWithSmiles[]>([]);
   private smilesLoaded = false;
 
@@ -325,16 +326,22 @@ export class BbToolbarComponent {
     textarea.setSelectionRange(start + bbCode.length, start + bbCode.length);
   }
 
-  onInsertImage(url: string) {
+  onInsertImage(event: { url: string; thumbnailUrl?: string }) {
+    const { url, thumbnailUrl } = event;
     if (this.editor) {
-      this.editor.insertHtmlAtCursor(`<img src="${url}" style="max-width:100%">`);
+      const html = thumbnailUrl
+        ? `<a href="${url}"><img src="${thumbnailUrl}" style="max-width:100%"></a>`
+        : `<img src="${url}" style="max-width:100%">`;
+      this.editor.insertHtmlAtCursor(html);
       return;
     }
     if (!this.textarea) return;
     const textarea = this.textarea;
     const start = textarea.selectionStart;
     const text = textarea.value;
-    const tag = `[img]${url}[/img]`;
+    const tag = thumbnailUrl
+      ? `[url=${url}][img]${thumbnailUrl}[/img][/url]`
+      : `[img]${url}[/img]`;
     textarea.value = text.substring(0, start) + tag + text.substring(start);
     textarea.focus();
     textarea.setSelectionRange(start + tag.length, start + tag.length);
@@ -344,14 +351,37 @@ export class BbToolbarComponent {
     const content = this.editor ? this.editor.getValue() : (this.textarea?.value ?? '');
     if (!content.trim() || this.proofreadLoading()) return;
     this.proofreadResult.set(null);
+    this.proofreadError.set(null);
     this.proofreadLoading.set(true);
-    this.apiService.post<{ text: string; fixes: string[] }>('ai/proofread', { text: content }).subscribe({
-      next: (res) => {
-        this.proofreadResult.set(res);
+
+    let streamingText = '';
+    this.apiService.postStream('ai/proofread/stream', { text: content }).subscribe({
+      next: (evt) => {
+        const data = evt.data;
+        if (data?.t !== undefined) {
+          streamingText += data.t;
+          this.proofreadResult.set({ text: streamingText, fixes: [] });
+        } else if (data?.done) {
+          this.proofreadResult.set(data.done);
+          this.proofreadLoading.set(false);
+        } else if (data?.error) {
+          this.proofreadLoading.set(false);
+          this.proofreadError.set(data.error);
+          this.proofreadResult.set(null);
+        }
+      },
+      error: (err) => {
+        this.proofreadLoading.set(false);
+        this.proofreadError.set(err?.message ?? $localize`:@@postform.proofreadFailed:Proofreading failed. Please try again.`);
+      },
+      complete: () => {
         this.proofreadLoading.set(false);
       },
-      error: () => this.proofreadLoading.set(false),
     });
+  }
+
+  dismissProofreadError() {
+    this.proofreadError.set(null);
   }
 
   acceptProofread() {

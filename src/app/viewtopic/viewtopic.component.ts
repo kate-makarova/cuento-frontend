@@ -214,9 +214,9 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   private lastLoadedProfilesForTopicId: number | null = null;
   private pageLoadedSubscription: Subscription | null = null;
   private topicLoadedOnInit = false;
-  private currentAnchorPostId: string | null = null;
-  private anchorObserver: IntersectionObserver | null = null;
-  private anchorVisibleIds = new Set<string>();
+  private currentAnchorPostId: string | null | undefined = undefined;
+  private anchorScrollHandler: (() => void) | null = null;
+  private anchorScrollRafId: number | null = null;
   private onVisibilityChange = () => {
     if (document.visibilityState === 'visible') {
       const topicId = this.id();
@@ -437,7 +437,8 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       }
 
       // anchorScrolling fires before posts render; scroll manually after DOM update
-      const fragment = currentPostId ? String(currentPostId) : (this.currentAnchorPostId ?? this.route.snapshot.fragment);
+      const fragment = currentPostId ? String(currentPostId)
+        : (this.currentAnchorPostId === undefined ? this.route.snapshot.fragment : this.currentAnchorPostId);
       if (fragment) {
         setTimeout(() => {
           document.getElementById(fragment)?.scrollIntoView({ behavior: 'smooth' });
@@ -451,7 +452,8 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     document.removeEventListener('visibilitychange', this.onVisibilityChange);
-    this.anchorObserver?.disconnect();
+    if (this.anchorScrollHandler) window.removeEventListener('scroll', this.anchorScrollHandler);
+    if (this.anchorScrollRafId !== null) cancelAnimationFrame(this.anchorScrollRafId);
     this.destroy$.next();
     this.destroy$.complete();
     if (this.pageLoadedSubscription) {
@@ -461,34 +463,50 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   }
 
   private setupAnchorTracking() {
-    this.anchorObserver?.disconnect();
-    this.anchorVisibleIds.clear();
+    if (this.anchorScrollHandler) window.removeEventListener('scroll', this.anchorScrollHandler);
+    if (this.anchorScrollRafId !== null) { cancelAnimationFrame(this.anchorScrollRafId); this.anchorScrollRafId = null; }
+    this.anchorScrollHandler = null;
 
     const posts = this.currentPagePosts();
     if (!posts.length) return;
 
-    this.anchorObserver = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            this.anchorVisibleIds.add(entry.target.id);
-          } else {
-            this.anchorVisibleIds.delete(entry.target.id);
-          }
-        }
-        const topId = posts.map(p => String(p.id)).find(id => this.anchorVisibleIds.has(id));
-        if (topId) {
-          this.currentAnchorPostId = topId;
-          history.replaceState(null, '', location.pathname + location.search + '#' + topId);
-        }
-      },
-      { rootMargin: '0px 0px -80% 0px', threshold: 0 }
-    );
+    const update = () => {
+      const id = this.resolveCurrentAnchor(posts);
+      if (id !== null && id !== this.currentAnchorPostId) {
+        this.currentAnchorPostId = id;
+        history.replaceState(null, '', location.pathname + location.search + '#' + id);
+      } else if (id === null && this.currentAnchorPostId !== null) {
+        this.currentAnchorPostId = null;
+        history.replaceState(null, '', location.pathname + location.search);
+      }
+    };
 
+    this.anchorScrollHandler = () => {
+      if (this.anchorScrollRafId !== null) return;
+      this.anchorScrollRafId = requestAnimationFrame(() => {
+        this.anchorScrollRafId = null;
+        update();
+      });
+    };
+
+    window.addEventListener('scroll', this.anchorScrollHandler, { passive: true });
+    update(); // set anchor for initial scroll position
+  }
+
+  private resolveCurrentAnchor(posts: Post[]): string | null {
+    // If the submit button is visible, clear the anchor.
+    const submitBtn = document.querySelector<HTMLElement>('#post-form input[type=submit]');
+    if (submitBtn) {
+      const r = submitBtn.getBoundingClientRect();
+      if (r.top < window.innerHeight && r.bottom > 0) return null;
+    }
+    // Return the first post that hasn't been fully scrolled past.
     for (const post of posts) {
       const el = document.getElementById(String(post.id));
-      if (el) this.anchorObserver.observe(el);
+      if (!el) continue;
+      if (el.getBoundingClientRect().bottom > 50) return String(post.id);
     }
+    return null;
   }
 
   onSidebarModeChange(active: boolean) {
@@ -560,23 +578,29 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     });
   }
 
-  private savedSelection = '';
+  private pendingQuote: { text: string; post: Post } | null = null;
 
-  saveSelection() {
-    this.savedSelection = window.getSelection()?.toString().trim() ?? '';
+  saveSelectionForPost(post: Post) {
+    const text = window.getSelection()?.toString().trim() ?? '';
+    this.pendingQuote = { text, post };
   }
 
   quotePost(post: Post, event: Event) {
     event.preventDefault();
 
-    const quoteContent = this.savedSelection.length > 0 ? this.savedSelection : post.content;
-    this.savedSelection = '';
+    // Use the post snapshotted at pointerdown time so metadata stays consistent
+    // even if the posts list re-renders between pointerdown and click.
+    const { text, post: snapshotPost } = this.pendingQuote ?? { text: '', post };
+    this.pendingQuote = null;
 
-    const authorName = post.use_character_profile && post.character_profile
-      ? post.character_profile.character_name
-      : post.user_profile?.user_name || 'Unknown';
+    const resolvedPost = snapshotPost;
+    const quoteContent = text.length > 0 ? text : resolvedPost.content;
 
-    const formattedQuote = `[quote="${authorName}" user-id=${post.author_user_id} topic-id=${this.id()} post-id=${post.id}]${quoteContent}[/quote]\n`;
+    const authorName = resolvedPost.use_character_profile && resolvedPost.character_profile
+      ? resolvedPost.character_profile.character_name
+      : resolvedPost.user_profile?.user_name || 'Unknown';
+
+    const formattedQuote = `[quote="${authorName}" user-id=${resolvedPost.author_user_id} topic-id=${this.id()} post-id=${resolvedPost.id}]${quoteContent}[/quote]\n`;
 
     if (this.postForm) {
       this.postForm.appendBbCode(formattedQuote);

@@ -39,7 +39,7 @@
             <div class="result-row">
               <img class="thumbnail-preview" [src]="entry.thumbnailUrl" alt="thumbnail" />
               <div class="insert-links">
-                <a href="#" (click)="$event.preventDefault(); insertUrl(entry.thumbnailUrl)" i18n="@@imageUpload.insertThumbnail">Insert thumbnail</a>
+                <a href="#" (click)="$event.preventDefault(); insertUrl(entry.url, entry.thumbnailUrl)" i18n="@@imageUpload.insertThumbnail">Insert thumbnail</a>
                 <a href="#" (click)="$event.preventDefault(); insertUrl(entry.url)" i18n="@@imageUpload.insertFull">Insert full image</a>
               </div>
             </div>

@@ -106,7 +106,11 @@
                       <div class="message-body">
                         <div class="message-box">
                           <div class="message-content">
-                            <p [innerHTML]="(msg.html ?? msg.text) | safeHtml"></p>
+                            @if (msg.inaccessible) {
+                              <p class="dm-inaccessible" i18n="@@directchat.inaccessible">This message was encrypted with a previous key and cannot be read with your current key.</p>
+                            } @else {
+                              <p [innerHTML]="(msg.html ?? msg.text) | safeHtml"></p>
+                            }
                           </div>
                         </div>
                         <p class="message-metadata"><span>{{ msg.time }}</span></p>
@@ -133,7 +137,7 @@
                 </app-bb-toolbar>
               </div>
               <div class="textarea-wrapper">
-                <textarea #chatInput (keydown.enter)="handleSend()" placeholder="Ваше сообщение..."></textarea>
+                <textarea #chatInput (keydown.control.enter)="handleSend()" placeholder="Ваше сообщение..."></textarea>
               </div>
               <div class="buttons">
                 <input type="button" class="button" value="Отправить" (click)="handleSend()" [disabled]="isSending()">

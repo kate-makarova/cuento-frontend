@@ -23,6 +23,7 @@ export class DirectChatService {
     effect(() => {
       const key = this.userService.privateKey();
       if (key) {
+        this.cachedPrivateKey = key;
         this.privateKeySubject.next(key);
       }
     });
@@ -78,7 +79,10 @@ export class DirectChatService {
   loadDirectChat(chatId: number): void {
     this.notificationService.sendPageChange('direct_chat', chatId);
     this.notificationService.checkChatId(chatId);
-    this.apiService.get<DirectChatResponse>(`direct-chat/${chatId}`).subscribe({
+    this.resolvePrivateKey().pipe(
+      take(1),
+      switchMap(() => this.apiService.get<DirectChatResponse>(`direct-chat/${chatId}`))
+    ).subscribe({
       next: (data) => {
         this.currentChatSignal.set(data);
         this.loadMessages(chatId);
@@ -115,37 +119,63 @@ export class DirectChatService {
   }
 
   private async decryptMessage(msg: DirectMessageRaw, privateKey: CryptoKey, currentUserId: number): Promise<Message> {
-    const wrappedKey = this.base64ToBuffer(msg.key);
-    const rawAesKey = await crypto.subtle.decrypt({ name: 'RSA-OAEP' }, privateKey, wrappedKey);
-
-    const aesKey = await crypto.subtle.importKey('raw', rawAesKey, { name: 'AES-GCM' }, false, ['decrypt']);
-    const plaintext = await crypto.subtle.decrypt(
-      { name: 'AES-GCM', iv: this.base64ToBuffer(msg.iv) },
-      aesKey,
-      this.base64ToBuffer(msg.ciphertext)
-    );
-
-    const raw = new TextDecoder().decode(plaintext);
-    let text: string;
-    let html: string;
-    try {
-      const parsed = JSON.parse(raw);
-      text = parsed.text;
-      html = parsed.html;
-    } catch {
-      text = raw;
-      html = parseBBCode(raw);
+    const myKeyId = this.userService.publicKeyId();
+    const myRelevantKeyId = msg.user_id === currentUserId ? msg.author_key_id : msg.receiver_key_id;
+    if (myKeyId !== null && myRelevantKeyId !== null && myRelevantKeyId !== myKeyId) {
+      return {
+        id: msg.id,
+        text: '',
+        time: new Date(msg.date_send).toLocaleString(),
+        isMe: msg.user_id === currentUserId,
+        username: msg.username,
+        avatar: msg.avatar,
+        inaccessible: true
+      };
     }
 
-    return {
-      id: msg.id,
-      text,
-      html,
-      time: new Date(msg.date_send).toLocaleString(),
-      isMe: msg.user_id === currentUserId,
-      username: msg.username,
-      avatar: msg.avatar
-    };
+    try {
+      const wrappedKey = this.base64ToBuffer(msg.key);
+      const rawAesKey = await crypto.subtle.decrypt({ name: 'RSA-OAEP' }, privateKey, wrappedKey);
+
+      const aesKey = await crypto.subtle.importKey('raw', rawAesKey, { name: 'AES-GCM' }, false, ['decrypt']);
+      const plaintext = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv: this.base64ToBuffer(msg.iv) },
+        aesKey,
+        this.base64ToBuffer(msg.ciphertext)
+      );
+
+      const raw = new TextDecoder().decode(plaintext);
+      let text: string;
+      let html: string;
+      try {
+        const parsed = JSON.parse(raw);
+        text = parsed.text;
+        html = parsed.html;
+      } catch {
+        text = raw;
+        html = parseBBCode(raw);
+      }
+
+      return {
+        id: msg.id,
+        text,
+        html,
+        time: new Date(msg.date_send).toLocaleString(),
+        isMe: msg.user_id === currentUserId,
+        username: msg.username,
+        avatar: msg.avatar
+      };
+    } catch {
+      return {
+        id: msg.id,
+        text: '',
+        time: new Date(msg.date_send).toLocaleString(),
+        isMe: msg.user_id === currentUserId,
+        username: msg.username,
+        avatar: msg.avatar,
+        inaccessible: true
+      };
+    }
   }
 
   loadOlderMessages(chatId: number, beforeMessageId: number): void {
@@ -284,12 +314,23 @@ export class DirectChatService {
 
     if (!author.public_key || !receiver.public_key) throw new Error('Missing public keys');
 
-    return from(this.buildMessagePayload(chat.chat_id, content, author.public_key, receiver.public_key)).pipe(
+    return from(this.buildMessagePayload(
+      chat.chat_id, content,
+      author.public_key, receiver.public_key,
+      author.public_key_id ?? null, receiver.public_key_id ?? null
+    )).pipe(
       switchMap(payload => this.apiService.post('direct-chat/message/create', payload))
     );
   }
 
-  private async buildMessagePayload(chatId: number, content: string, authorKeyBase64: string, receiverKeyBase64: string) {
+  private async buildMessagePayload(
+    chatId: number,
+    content: string,
+    authorKeyBase64: string,
+    receiverKeyBase64: string,
+    authorKeyId: number | null,
+    receiverKeyId: number | null
+  ) {
     const aesKey = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt']);
     const iv = crypto.getRandomValues(new Uint8Array(12));
 
@@ -311,7 +352,9 @@ export class DirectChatService {
       ciphertext: this.bufferToBase64(ciphertext),
       iv: this.bufferToBase64(iv),
       key_author: keyAuthor,
-      key_receiver: keyReceiver
+      key_receiver: keyReceiver,
+      author_key_id: authorKeyId,
+      receiver_key_id: receiverKeyId
     };
   }
 

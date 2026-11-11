@@ -51,6 +51,9 @@ export class AdminUsersComponent implements OnInit {
 
   wipeOutModalUser = signal<AdminUserListItem | null>(null);
 
+  resetPasswordModalUser = signal<AdminUserListItem | null>(null);
+  resetPasswordPin = signal<string | null>(null);
+
   ngOnInit() {
     this.apiService.get<AdminUserListItem[]>('admin/user-list').subscribe({
       next: (data) => this.users.set(data),
@@ -182,6 +185,25 @@ export class AdminUsersComponent implements OnInit {
         this.closeWipeOutModal();
       },
       error: (err) => console.error('Failed to wipe out user', err)
+    });
+  }
+
+  openResetPasswordModal(user: AdminUserListItem) {
+    this.resetPasswordPin.set(null);
+    this.resetPasswordModalUser.set(user);
+  }
+
+  closeResetPasswordModal() {
+    this.resetPasswordModalUser.set(null);
+    this.resetPasswordPin.set(null);
+  }
+
+  submitResetPassword() {
+    const user = this.resetPasswordModalUser();
+    if (!user) return;
+    this.apiService.post<{ pin: string }>(`admin/users/${user.id}/reset-password`, {}).subscribe({
+      next: (res) => this.resetPasswordPin.set(res.pin),
+      error: (err) => console.error('Failed to reset password', err)
     });
   }
 

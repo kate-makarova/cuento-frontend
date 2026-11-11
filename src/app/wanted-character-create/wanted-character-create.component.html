@@ -1,4 +1,4 @@
-@if (!cancel.observed) {
+@if (!initialData?.id) {
   <app-breadcrumbs [items]="breadcrumbs"></app-breadcrumbs>
   <h1><span i18n="@@wantedcharactercreate.title">Wanted character</span></h1>
 }
@@ -13,7 +13,7 @@
   <form #formEl class="container" (submit)="onSubmit($event)" (input)="scheduleAutosave()">
     <fieldset>
       <legend style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-@if (cancel.observed) {
+@if (initialData?.id) {
           @if (statusActive()) {
             <button type="button" class="button btn-deactivate" (click)="requestDeactivate()" i18n="@@common.deactivate">Deactivate</button>
           } @else {
@@ -101,7 +101,7 @@
 
     <p class="formsubmit">
       <input type="submit" class="button submit" name="submit" value="Send" i18n-value="@@topiccreate.send" accesskey="s" />
-      @if (cancel.observed) {
+      @if (initialData?.id) {
         <button type="button" class="button" (click)="onCancel()" i18n="@@topiccreate.cancel">Cancel</button>
       } @else {
         <input type="submit" class="button preview" name="preview" value="Preview" i18n-value="@@topiccreate.preview" accesskey="p" />
