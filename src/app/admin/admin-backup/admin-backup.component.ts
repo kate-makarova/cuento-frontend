@@ -23,6 +23,7 @@ interface GDriveSettings {
   enabled: boolean;
   frequency: 'daily' | 'weekly' | 'monthly';
   keep: number;
+  folder_id: string;
   last_run: string | null;
   backups: GDriveBackupFile[];
 }
@@ -49,6 +50,7 @@ export class AdminBackupComponent implements OnInit {
     enabled: false,
     frequency: 'daily',
     keep: 5,
+    folder_id: '',
     last_run: null,
     backups: [],
   });
@@ -82,6 +84,7 @@ export class AdminBackupComponent implements OnInit {
       enabled: s.enabled,
       frequency: s.frequency,
       keep: s.keep,
+      folder_id: s.folder_id,
     }).subscribe({
       next: () => {
         this.gdriveSaveState.set('success');
