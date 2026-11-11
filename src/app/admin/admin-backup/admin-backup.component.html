@@ -63,6 +63,19 @@
         ></textarea>
       </div>
 
+      <div class="backup-field">
+        <label i18n="@@admin.backup.gdriveFolderId">Backup Folder ID</label>
+        <input
+          type="text"
+          [value]="gdrive().folder_id"
+          (input)="updateGdrive('folder_id', $any($event.target).value)"
+          i18n-placeholder="@@admin.backup.gdriveFolderIdPlaceholder"
+          placeholder="Google Drive folder ID"
+          style="width:100%;font-family:monospace"
+        />
+        <small i18n="@@admin.backup.gdriveFolderIdHint">Create a folder in Google Drive, share it with the service account email, then paste the folder ID from the URL here.</small>
+      </div>
+
       @if (gdrive().service_account_key) {
         <div class="backup-field">
           <label>
