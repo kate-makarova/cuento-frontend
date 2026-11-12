@@ -363,6 +363,11 @@ export const routes: Routes = [
         title: 'Admin - Settings'
       },
       {
+        path: 'image-hosting',
+        loadComponent: () => import('./admin/admin-image-hosting/admin-image-hosting.component').then(m => m.AdminImageHostingComponent),
+        title: 'Admin - Image Hosting'
+      },
+      {
         path: 'factions',
         loadComponent: () => import('./admin/admin-factions/admin-factions.component').then(m => m.AdminFactionsComponent),
         title: 'Admin - Factions'

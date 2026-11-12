@@ -1,0 +1,110 @@
+<div class="settings-container">
+  <h2 i18n="@@adminImageHosting.title">Image Hosting</h2>
+
+  @if (!loaded()) {
+    <p i18n="@@common.loading">Loading…</p>
+  } @else {
+    <form (submit)="save(); $event.preventDefault()">
+
+      <fieldset>
+        <legend i18n="@@adminImageHosting.sectionUploadProvider">Upload provider</legend>
+
+        <div class="field-row">
+          <label for="upload_provider" i18n="@@adminImageHosting.uploadProvider">Image upload provider</label>
+          <select id="upload_provider" [ngModel]="settings().upload_provider" (ngModelChange)="update('upload_provider', $event)" name="upload_provider">
+            <option value="imgbb" i18n="@@adminImageHosting.providerImgbb">ImgBB (external)</option>
+            <option value="local" i18n="@@adminImageHosting.providerLocal">Local server</option>
+          </select>
+        </div>
+
+        @if (settings().upload_provider === 'imgbb') {
+          <p class="hint" i18n="@@adminImageHosting.hintImgbb">Images are uploaded to ImgBB. Configure the API key on the Settings page.</p>
+        }
+
+        @if (settings().upload_provider === 'local') {
+          <p class="hint" i18n="@@adminImageHosting.hintLocal">Images are saved to the local server. The nginx image server must be installed and running.</p>
+        }
+      </fieldset>
+
+      <fieldset>
+        <legend i18n="@@adminImageHosting.sectionServer">Nginx image server</legend>
+
+        <div class="field-row">
+          <label i18n="@@adminImageHosting.nginxStatus">Server status</label>
+          <span class="status-badge" [class.active]="settings().nginx_active" [class.inactive]="!settings().nginx_active">
+            @if (settings().nginx_active) {
+              <span i18n="@@adminImageHosting.statusActive">Active</span>
+            } @else {
+              <span i18n="@@adminImageHosting.statusInactive">Inactive</span>
+            }
+          </span>
+        </div>
+
+        <div class="field-row">
+          <label for="enabled" i18n="@@adminImageHosting.enabled">Enable server</label>
+          <select id="enabled" [ngModel]="settings().enabled" (ngModelChange)="update('enabled', $event)" name="enabled">
+            <option value="y" i18n="@@common.yes">Yes</option>
+            <option value="n" i18n="@@common.no">No</option>
+          </select>
+        </div>
+
+        <div class="field-row">
+          <label for="base_url" i18n="@@adminImageHosting.baseUrl">Server base URL</label>
+          <input id="base_url" type="text" [ngModel]="settings().base_url" (ngModelChange)="update('base_url', $event)" name="base_url" placeholder="https://yourdomain.com:8888" />
+        </div>
+
+        <div class="field-row">
+          <label for="ram_limit_mb" i18n="@@adminImageHosting.ramLimit">RAM limit (MB)</label>
+          <input id="ram_limit_mb" type="number" min="1" [ngModel]="settings().ram_limit_mb" (ngModelChange)="update('ram_limit_mb', $event)" name="ram_limit_mb" />
+        </div>
+
+      </fieldset>
+
+      <fieldset>
+        <legend i18n="@@adminImageHosting.sectionStorage">Storage backend</legend>
+
+        <div class="field-row">
+          <label for="storage" i18n="@@adminImageHosting.storage">Storage type</label>
+          <select id="storage" [ngModel]="settings().storage" (ngModelChange)="update('storage', $event)" name="storage">
+            <option value="local" i18n="@@adminImageHosting.storageLocal">Local folder (/home/static-images)</option>
+            <option value="s3" i18n="@@adminImageHosting.storageS3">S3-compatible storage</option>
+          </select>
+        </div>
+
+        @if (settings().storage === 's3') {
+          <div class="field-row">
+            <label for="s3_endpoint" i18n="@@adminImageHosting.s3Endpoint">S3 endpoint URL</label>
+            <input id="s3_endpoint" type="text" [ngModel]="settings().s3_endpoint" (ngModelChange)="update('s3_endpoint', $event)" name="s3_endpoint" />
+          </div>
+
+          <div class="field-row">
+            <label for="s3_bucket" i18n="@@adminImageHosting.s3Bucket">Bucket</label>
+            <input id="s3_bucket" type="text" [ngModel]="settings().s3_bucket" (ngModelChange)="update('s3_bucket', $event)" name="s3_bucket" />
+          </div>
+
+          @if (isSuperuser()) {
+            <div class="field-row">
+              <label for="s3_access_key" i18n="@@adminImageHosting.s3AccessKey">Access key</label>
+              <input id="s3_access_key" type="text" [ngModel]="settings().s3_access_key" (ngModelChange)="update('s3_access_key', $event)" name="s3_access_key" autocomplete="off" />
+            </div>
+
+            <div class="field-row">
+              <label for="s3_secret_key" i18n="@@adminImageHosting.s3SecretKey">Secret key</label>
+              <input id="s3_secret_key" type="password" [ngModel]="settings().s3_secret_key" (ngModelChange)="update('s3_secret_key', $event)" name="s3_secret_key" autocomplete="off" />
+            </div>
+          }
+        }
+      </fieldset>
+
+      <div class="form-actions">
+        @if (saveState() === 'success' && saveMessage()) {
+          <span class="save-message">{{ saveMessage() }}</span>
+        }
+        <app-save-button type="submit" [state]="saveState()">
+          <span i18n="@@common.save">Save</span>
+        </app-save-button>
+      </div>
+
+    </form>
+  }
+</div>

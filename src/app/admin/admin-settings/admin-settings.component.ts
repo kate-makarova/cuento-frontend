@@ -53,7 +53,6 @@ const ALL_GENERAL_SETTING_NAMES = new Set(GENERAL_SETTING_GROUPS.flatMap(g => g.
 
 const IMAGE_UPLOAD_SETTING_NAMES = new Set([
   'use_image_uploading',
-  'image_hosting',
   'imgbb_api_key',
   'use_image_proxy',
 ]);
@@ -150,7 +149,6 @@ export class AdminSettingsComponent implements OnInit {
     const order = [...IMAGE_UPLOAD_SETTING_NAMES];
     return this.settings()
       .filter(s => IMAGE_UPLOAD_SETTING_NAMES.has(s.setting_name))
-      .map(s => s.setting_name === 'image_hosting' ? { ...s, setting_value: 'imgbb' } : s)
       .sort((a, b) => order.indexOf(a.setting_name) - order.indexOf(b.setting_name));
   }
 
