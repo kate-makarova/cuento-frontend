@@ -53,7 +53,6 @@ const ALL_GENERAL_SETTING_NAMES = new Set(GENERAL_SETTING_GROUPS.flatMap(g => g.
 
 const IMAGE_UPLOAD_SETTING_NAMES = new Set([
   'use_image_uploading',
-  'imgbb_api_key',
   'use_image_proxy',
 ]);
 
@@ -95,8 +94,6 @@ const SETTING_LABELS: Record<string, string> = {
   show_content_warnings: $localize`:@@adminSettings.show_content_warnings:Show content warnings`,
 
   use_image_uploading: $localize`:@@adminSettings.use_image_uploading:Enable image uploading`,
-  image_hosting: $localize`:@@adminSettings.image_hosting:Image hosting`,
-  imgbb_api_key: $localize`:@@adminSettings.imgbb_api_key:ImgBB API key`,
   use_image_proxy: $localize`:@@adminSettings.use_image_proxy:Use image proxy`,
 
   model_pool_source: $localize`:@@adminSettings.model_pool_source:Model pool source ("db" or "openrouter")`,

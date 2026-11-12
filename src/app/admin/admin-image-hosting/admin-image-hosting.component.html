@@ -18,7 +18,10 @@
         </div>
 
         @if (settings().upload_provider === 'imgbb') {
-          <p class="hint" i18n="@@adminImageHosting.hintImgbb">Images are uploaded to ImgBB. Configure the API key on the Settings page.</p>
+          <div class="field-row">
+            <label for="imgbb_api_key" i18n="@@adminImageHosting.imgbbApiKey">ImgBB API key</label>
+            <input id="imgbb_api_key" type="text" [ngModel]="settings().imgbb_api_key" (ngModelChange)="update('imgbb_api_key', $event)" name="imgbb_api_key" autocomplete="off" />
+          </div>
         }
 
         @if (settings().upload_provider === 'local') {

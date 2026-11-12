@@ -17,6 +17,7 @@ interface ImageHostingSettings {
   nginx_active: boolean;
   upload_provider: string;
   base_url: string;
+  imgbb_api_key: string;
 }
 
 @Component({
@@ -44,6 +45,7 @@ export class AdminImageHostingComponent implements OnInit {
     nginx_active: false,
     upload_provider: 'imgbb',
     base_url: '',
+    imgbb_api_key: '',
   });
 
   loaded = signal(false);
