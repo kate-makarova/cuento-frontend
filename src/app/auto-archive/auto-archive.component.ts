@@ -16,6 +16,7 @@ interface ArchivingWarningItem {
   user_id: number;
   username: string;
   date_last_post: string | null;
+  date_last_post_localized?: string | null;
   days_left: number;
   archival_date: string | null;
 }
