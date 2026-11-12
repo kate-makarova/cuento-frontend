@@ -11,7 +11,9 @@
           <ul>
             <li><a routerLink="/admin/dashboard" routerLinkActive="active" i18n="@@admin.dashboard">Dashboard</a></li>
             <li><a routerLink="/admin/settings" routerLinkActive="active" i18n="@@admin.settings">Settings</a></li>
-            <li><a routerLink="/admin/image-hosting" routerLinkActive="active" i18n="@@admin.imageHosting">Image Hosting</a></li>
+            @if (hasPermission('show_admin_image_hosting')) {
+              <li><a routerLink="/admin/image-hosting" routerLinkActive="active" i18n="@@admin.imageHosting">Image Hosting</a></li>
+            }
             <li><a routerLink="/admin/subforums" routerLinkActive="active" i18n="@@admin.subforums">Subforums</a></li>
             <li><a routerLink="/admin/topic-commander" routerLinkActive="active" i18n="@@admin.topicCommander">Topic Commander</a></li>
             <li><a routerLink="/admin/move-posts" routerLinkActive="active" i18n="@@admin.movePosts">Move Posts</a></li>
