@@ -17,7 +17,7 @@
               <span class="status-badge status-inactive" i18n="@@userprofile.archivedBadge">Archived</span>
             }
           </p>
-          <p><strong><ng-container i18n="@@userprofile.registrationDate">Registration Date</ng-container>:</strong> {{ profile.registration_date | date }}</p>
+          <p><strong><ng-container i18n="@@userprofile.registrationDate">Registration Date</ng-container>:</strong> {{ profile.registration_date_localized }}</p>
           <p><strong><ng-container i18n="@@userprofile.totalPosts">Game posts</ng-container>:</strong> {{ profile.total_posts }}</p>
           <p><strong><ng-container i18n="@@userprofile.totalGeneralPosts">General posts</ng-container>:</strong> {{ profile.total_general_posts }}</p>
           @if (featureService.isFeatureActive('currency') && profile.currency_amount != null) {
@@ -79,7 +79,7 @@
                 </td>
                 <td>{{ char.total_episodes }}</td>
                 <td>{{ char.total_posts }}</td>
-                <td>{{ char.last_post_date | date }}</td>
+                <td>{{ char.last_post_date_localized }}</td>
               </tr>
             } @empty {
               <tr>
@@ -129,7 +129,7 @@
                   </td>
                   <td>{{ char.total_episodes }}</td>
                   <td>{{ char.total_posts }}</td>
-                  <td>{{ char.last_post_date | date }}</td>
+                  <td>{{ char.last_post_date_localized }}</td>
                 </tr>
               }
             </tbody>
@@ -168,7 +168,7 @@
                   </td>
                   <td>{{ mask.total_episodes }}</td>
                   <td>{{ mask.total_posts }}</td>
-                  <td>{{ mask.date_last_post | date }}</td>
+                  <td>{{ mask.date_last_post_localized }}</td>
                 </tr>
               }
             </tbody>

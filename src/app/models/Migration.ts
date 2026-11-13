@@ -22,6 +22,7 @@ export interface ProcessingResult {
 export interface Migration {
   id: number;
   date_created: string;
+  date_created_localized?: string;
   user_id: number;
   status: number;
   original_topic_id: string;

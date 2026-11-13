@@ -52,7 +52,7 @@
               <div class="episode-card-subforum">{{ ep.subforum_name }}</div>
               <div class="episode-card-meta">
                 <span><ng-container i18n="@@userDashboard.posts">Posts: </ng-container>{{ ep.post_count }}</span>
-                <span><ng-container i18n="@@userDashboard.lastPost">Last post: </ng-container>{{ ep.last_post_date | date:'yyyy-MM-dd' }}</span>
+                <span><ng-container i18n="@@userDashboard.lastPost">Last post: </ng-container>{{ ep.last_post_date_localized }}</span>
               </div>
               <div class="episode-card-characters">
                 @for (char of ep.characters; track char.id) {
@@ -182,7 +182,7 @@
               <span class="topic-subforum">{{ topic.subforum_name }}</span>
             </span>
             <span class="topic-meta">
-              {{ topic.last_post_date | date:'yyyy-MM-dd' }} · <ng-container i18n="@@userDashboard.by">by </ng-container>{{ topic.last_post_by }}
+              {{ topic.last_post_date_localized }} · <ng-container i18n="@@userDashboard.by">by </ng-container>{{ topic.last_post_by }}
             </span>
           </li>
         }

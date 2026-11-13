@@ -8,14 +8,14 @@
     <div class="user-info-stat">
       <i class="bi bi-calendar2-check"></i>
       <span class="stat-label" i18n="@@userInfo.registered">Joined</span>
-      <span class="stat-value">{{ userInfo.date_registered | date }}</span>
+      <span class="stat-value">{{ userInfo.date_registered_localized }}</span>
     </div>
     <div class="user-info-stat">
       <i class="bi bi-clock-history"></i>
       <span class="stat-label" i18n="@@userInfo.lastVisit">Last visit</span>
       <span class="stat-value">
         @if (userInfo.date_last_visit) {
-          {{ userInfo.date_last_visit | date }}
+          {{ userInfo.date_last_visit_localized }}
         } @else {
           <span class="stat-none">—</span>
         }

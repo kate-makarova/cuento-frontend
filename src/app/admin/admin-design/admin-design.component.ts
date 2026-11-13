@@ -1,5 +1,4 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { forkJoin, of } from 'rxjs';
 import { ApiService } from '../../services/api.service';
@@ -17,12 +16,14 @@ export interface DesignVariation {
 interface StaticFile {
   file_name: string;
   file_created_date: string;
+  file_created_date_localized?: string;
   file_type: string;
 }
 
 interface AssetFile {
   name: string;
   mod_time: string;
+  mod_time_localized?: string;
 }
 
 const FILE_TYPE: Record<FileKey, string> = {
@@ -36,7 +37,7 @@ let tempId = -1;
 @Component({
   selector: 'app-admin-design',
   host: { class: 'pun-page' },
-  imports: [ FormsModule, SaveButtonComponent, DatePipe],
+  imports: [ FormsModule, SaveButtonComponent],
   standalone: true,
   templateUrl: './admin-design.component.html',
   styleUrl: './admin-design.component.css'
