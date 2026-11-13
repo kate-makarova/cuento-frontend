@@ -40,6 +40,7 @@ interface DashboardEpisode {
   subforum_name: string;
   image_url: string | null;
   last_post_date: string;
+  last_post_date_localized?: string;
   post_count: number;
   characters: DashboardCharacter[];
   my_turn: boolean;
@@ -50,6 +51,7 @@ interface DashboardTopic {
   topic_name: string;
   subforum_name: string;
   last_post_date: string;
+  last_post_date_localized?: string;
   last_post_by: string;
   post_count: number;
 }
