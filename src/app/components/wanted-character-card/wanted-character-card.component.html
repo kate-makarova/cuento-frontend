@@ -4,9 +4,9 @@
     @if (wantedCharacter.claim_record) {
       <span class="claim-badge">
         @if (wantedCharacter.claim_record.claim_author_username) {
-          <ng-container i18n="@@wantedCharacterList.claimedByUntil">Claimed by {{ wantedCharacter.claim_record.claim_author_username }} until {{ wantedCharacter.claim_record.claim_expiration_date | date:'yyyy-MM-dd' }}</ng-container>
+          <ng-container i18n="@@wantedCharacterList.claimedByUntil">Claimed by {{ wantedCharacter.claim_record.claim_author_username }} until {{ wantedCharacter.claim_record.claim_expiration_date_localized }}</ng-container>
         } @else {
-          <ng-container i18n="@@wantedCharacterList.claimedByGuestUntil">Claimed by a guest until {{ wantedCharacter.claim_record.claim_expiration_date | date:'yyyy-MM-dd' }}</ng-container>
+          <ng-container i18n="@@wantedCharacterList.claimedByGuestUntil">Claimed by a guest until {{ wantedCharacter.claim_record.claim_expiration_date_localized }}</ng-container>
         }
       </span>
     }

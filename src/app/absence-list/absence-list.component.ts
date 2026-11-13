@@ -1,6 +1,5 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../services/api.service';
 import { AuthService } from '../services/auth.service';
@@ -17,7 +16,9 @@ interface AbsentUserItem {
   user_id: number;
   username: string;
   absence_start_date: string;
+  absence_start_date_localized?: string;
   absence_end_date: string;
+  absence_end_date_localized?: string;
   characters: ShortCharacter[];
 }
 
@@ -25,7 +26,7 @@ interface AbsentUserItem {
   selector: 'app-absence-list',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [RouterLink, DatePipe, FormsModule, ErrorBannerComponent],
+  imports: [RouterLink, FormsModule, ErrorBannerComponent],
   templateUrl: './absence-list.component.html',
 })
 export class AbsenceListComponent implements OnInit {

@@ -1,5 +1,4 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { DesignDraftService } from '../../services/design-draft.service';
@@ -9,7 +8,7 @@ import { DesignDraftListItem } from '../../models/DesignDraft';
   selector: 'app-admin-design-drafts',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [ DatePipe, RouterLink, FormsModule],
+  imports: [ RouterLink, FormsModule],
   templateUrl: './admin-design-drafts.component.html',
 })
 export class AdminDesignDraftsComponent implements OnInit {

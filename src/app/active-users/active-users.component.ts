@@ -1,6 +1,5 @@
 import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { DatePipe } from '@angular/common';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApiService } from '../services/api.service';
@@ -30,7 +29,7 @@ const PAGE_TYPE_NAMES: Record<string, string> = {
 @Component({
   selector: 'app-active-users',
   host: { class: 'pun-page' },
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink],
   templateUrl: './active-users.component.html',
   standalone: true,
 })

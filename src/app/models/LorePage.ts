@@ -21,5 +21,6 @@ export interface LorePageInfo {
 export interface LoreTopicPostRow {
   id: number;
   date_created: string;
+  date_created_localized?: string;
   lore_page: LorePageInfo | null;
 }

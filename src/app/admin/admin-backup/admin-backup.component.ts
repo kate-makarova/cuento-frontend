@@ -5,7 +5,6 @@ import { ApiService } from '../../services/api.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
 import { environment } from '../../../environments/environment';
-import { DatePipe } from '@angular/common';
 
 type DownloadState = 'idle' | 'loading' | 'error';
 type RestoreState = 'idle' | 'loading' | 'success' | 'error';
@@ -16,6 +15,7 @@ interface GDriveBackupFile {
   id: string;
   name: string;
   created_time: string;
+  created_time_localized?: string;
 }
 
 interface GDriveSettings {
@@ -27,6 +27,7 @@ interface GDriveSettings {
   keep: number;
   folder_id: string;
   last_run: string | null;
+  last_run_localized?: string | null;
   backups: GDriveBackupFile[];
 }
 
@@ -34,7 +35,7 @@ interface GDriveSettings {
   selector: 'app-admin-backup',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [FormsModule, DatePipe],
+  imports: [FormsModule],
   templateUrl: './admin-backup.component.html',
 })
 export class AdminBackupComponent implements OnInit {

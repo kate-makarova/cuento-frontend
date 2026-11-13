@@ -1,7 +1,6 @@
 import { Component, inject, Input, OnInit } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { CharacterSheetHeaderComponent } from '../components/character-sheet-header/character-sheet-header.component';
-import { DatePipe } from '@angular/common';
 import { CharacterService } from '../services/character.service';
 import { UserInfoComponent } from '../components/user-info/user-info.component';
 
@@ -11,7 +10,6 @@ import { UserInfoComponent } from '../components/user-info/user-info.component';
   imports: [
     RouterLink,
     CharacterSheetHeaderComponent,
-    DatePipe,
     UserInfoComponent
   ],
   templateUrl: './characterview.component.html',

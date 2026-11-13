@@ -1,11 +1,11 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 
 export interface SonicCursorItem {
   bucket: string;
   last_id: number | null;
   date_ingested: string | null;
+  date_ingested_localized?: string | null;
   current_max_id: number;
 }
 
@@ -13,7 +13,7 @@ export interface SonicCursorItem {
   selector: 'app-admin-search',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [ DatePipe],
+  imports: [],
   templateUrl: './admin-search.component.html',
 })
 export class AdminSearchComponent implements OnInit {

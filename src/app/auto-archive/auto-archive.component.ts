@@ -1,7 +1,6 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Router } from '@angular/router';
-import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../services/api.service';
 import { AuthService } from '../services/auth.service';
@@ -17,6 +16,7 @@ interface ArchivingWarningItem {
   user_id: number;
   username: string;
   date_last_post: string | null;
+  date_last_post_localized?: string | null;
   days_left: number;
   archival_date: string | null;
 }
@@ -32,7 +32,7 @@ interface BuyImmunityResponse {
   selector: 'app-auto-archive',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [RouterLink, DatePipe, FormsModule, ErrorBannerComponent],
+  imports: [RouterLink, FormsModule, ErrorBannerComponent],
   templateUrl: './auto-archive.component.html',
 })
 export class AutoArchiveComponent implements OnInit {
