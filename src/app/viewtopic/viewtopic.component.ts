@@ -217,14 +217,6 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   private currentAnchorPostId: string | null | undefined = undefined;
   private anchorScrollHandler: (() => void) | null = null;
   private anchorScrollRafId: number | null = null;
-  private onVisibilityChange = () => {
-    if (document.visibilityState === 'visible') {
-      const topicId = this.id();
-      if (topicId) {
-        this.topicService.loadPosts(topicId, this.pageNumber(), this.postId());
-      }
-    }
-  };
 
   @ViewChild('mainPostForm') postForm!: PostFormComponent;
   @ViewChild('characterProfileRef') characterProfileRef?: CharacterProfileComponent;
@@ -399,7 +391,14 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   );
 
   ngOnInit() {
-    document.addEventListener('visibilitychange', this.onVisibilityChange);
+    // On WS reconnect the buffer window may have been exceeded; reload posts to catch up.
+    // Skip the first connection (initial page load) — the effect already handles that.
+    let wsConnectedOnce = false;
+    this.notificationService.wsConnected$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      if (!wsConnectedOnce) { wsConnectedOnce = true; return; }
+      const topicId = this.id();
+      if (topicId) this.topicService.loadPosts(topicId, this.pageNumber());
+    });
 
     this.topicService.ownPostAdded$.pipe(takeUntil(this.destroy$)).subscribe(({ postId, page }) => {
       this.isSubmitting.set(false);
@@ -451,7 +450,6 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    document.removeEventListener('visibilitychange', this.onVisibilityChange);
     if (this.anchorScrollHandler) window.removeEventListener('scroll', this.anchorScrollHandler);
     if (this.anchorScrollRafId !== null) cancelAnimationFrame(this.anchorScrollRafId);
     this.destroy$.next();
