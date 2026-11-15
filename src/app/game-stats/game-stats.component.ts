@@ -423,7 +423,7 @@ export class GameStatsComponent implements OnInit, AfterViewInit, OnDestroy {
         plugins: { legend: { position: 'top' } },
         scales: {
           x: { stacked: true },
-          y: { stacked: true, beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: $localize`:@@gameStats.chartEpisodes:Episodes` } },
+          y: { stacked: true, beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: $localize`:@@gameStats.chartEpisodes:Scenes` } },
         },
       },
     });

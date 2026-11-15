@@ -33,12 +33,12 @@
   </div>
 
   <div class="mask-episodes">
-    <h2 i18n="@@maskpage.episodesTitle">Episodes</h2>
+    <h2 i18n="@@maskpage.episodesTitle">Scenes</h2>
 
     @if (isLoadingEpisodes()) {
-      <p i18n="@@maskpage.loadingEpisodes">Loading episodes...</p>
+      <p i18n="@@maskpage.loadingEpisodes">Loading scenes...</p>
     } @else if (episodes().length === 0) {
-      <p i18n="@@maskpage.noEpisodes">No episodes found for this mask.</p>
+      <p i18n="@@maskpage.noEpisodes">No scenes found for this mask.</p>
     } @else {
       <table class="episode-table" cellspacing="0">
         <thead>
