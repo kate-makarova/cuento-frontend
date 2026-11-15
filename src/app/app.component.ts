@@ -1,5 +1,5 @@
-import {afterRender, Component, effect, inject, OnInit, signal, HostBinding} from '@angular/core';
-import {DOCUMENT} from '@angular/common';
+import {afterEveryRender, Component, effect, inject, OnInit, signal, HostBinding, DOCUMENT} from '@angular/core';
+
 import {ActivatedRoute, NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router, RouterOutlet, RoutesRecognized} from '@angular/router';
 import {FooterComponent} from './components/footer/footer.component';
 import {combineLatest, filter, map, mergeMap, take} from 'rxjs';
@@ -100,7 +100,7 @@ export class AppComponent implements OnInit {
   private document = inject<Document>(DOCUMENT);
 
   constructor() {
-    afterRender(() => {
+    afterEveryRender(() => {
       if (this.needsFooterProcessing) {
         this.needsFooterProcessing = false;
         this.processFooterPanel();

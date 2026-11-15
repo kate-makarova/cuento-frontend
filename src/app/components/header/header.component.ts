@@ -1,4 +1,4 @@
-import { afterRender, Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { afterEveryRender, Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
@@ -55,7 +55,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private needsPanelProcessing = false;
 
   constructor() {
-    afterRender(() => {
+    afterEveryRender(() => {
       if (this.needsPanelProcessing) {
         this.needsPanelProcessing = false;
         this.processPanel();

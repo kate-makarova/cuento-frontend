@@ -124,7 +124,7 @@ export class UserService {
     return crypto.subtle.importKey('pkcs8', decryptedBuffer, { name: 'RSA-OAEP', hash: 'SHA-256' }, false, ['decrypt']);
   }
 
-  private base64ToBuffer(base64: string): Uint8Array {
+  private base64ToBuffer(base64: string): Uint8Array<ArrayBuffer> {
     return Uint8Array.from(atob(base64), c => c.charCodeAt(0));
   }
 
@@ -398,7 +398,7 @@ export class UserService {
     });
   }
 
-  private bufferToBase64(buffer: ArrayBuffer): string {
+  private bufferToBase64(buffer: ArrayBuffer | Uint8Array): string {
     return btoa(String.fromCharCode(...new Uint8Array(buffer)));
   }
 }
