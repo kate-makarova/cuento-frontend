@@ -164,14 +164,16 @@ export function bbCodeToHtml(bb: string): string {
     return `WYSIWYG_CODE_PH_${codeBlocks.length - 1}_END`;
   });
 
+  // " is escaped too: tag arguments land inside "..." attributes (data-title, href, ...)
+  // and an unescaped quote would let them break out and add event handlers.
   s = s
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
     .replace(/\[b\]([\s\S]*?)\[\/b\]/g,   '<b>$1</b>')
     .replace(/\[i\]([\s\S]*?)\[\/i\]/g,   '<i>$1</i>')
     .replace(/\[u\]([\s\S]*?)\[\/u\]/g,   '<u>$1</u>')
     .replace(/\[s\]([\s\S]*?)\[\/s\]/g,   '<s>$1</s>')
     .replace(/\[color=([^\]]+)\]([\s\S]*?)\[\/color\]/g, '<font color="$1">$2</font>')
-    .replace(/\[font="?([^"\]]+)"?\]([\s\S]*?)\[\/font\]/g, '<font face="$1">$2</font>')
+    .replace(/\[font=(?:&quot;)?((?:(?!&quot;)[^\]])+)(?:&quot;)?\]([\s\S]*?)\[\/font\]/g, '<font face="$1">$2</font>')
     .replace(/\[size=(\d+)\]([\s\S]*?)\[\/size\]/g,      '<span style="font-size:$1px" data-user-font-size="true">$2</span>')
     .replace(/\[url=([^\]]+)\]([\s\S]*?)\[\/url\]/g,     '<a href="$1">$2</a>')
     .replace(/\[img\]([\s\S]*?)\[\/img\]/g,              '<img src="$1">')
