@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ElementRef, HostListener, inject } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, HostListener, inject, Renderer2 } from '@angular/core';
 
 @Component({
   selector: 'spoiler-box',
@@ -8,13 +8,18 @@ import { Component, AfterViewInit, ElementRef, HostListener, inject } from '@ang
 })
 export class SpoilerBoxComponent implements AfterViewInit {
   private el = inject(ElementRef);
+  private renderer = inject(Renderer2);
   private isOpen = false;
 
   ngAfterViewInit() {
     const host: HTMLElement = this.el.nativeElement;
-    const title = host.getAttribute('data-title') ?? '';
-    const innerHtml = host.innerHTML;
-    host.innerHTML = `<div class="spoiler-header">${title}</div><div class="spoiler-content">${innerHtml}</div>`;
+    host.innerHTML = `<div class="spoiler-content">${host.innerHTML}</div>`;
+
+    // getAttribute() returns the entity-decoded title, so it must be set as text, never as HTML.
+    const header = this.renderer.createElement('div');
+    this.renderer.addClass(header, 'spoiler-header');
+    this.renderer.setProperty(header, 'textContent', host.getAttribute('data-title') ?? '');
+    this.renderer.insertBefore(host, header, host.firstChild);
   }
 
   @HostListener('click', ['$event.target'])
