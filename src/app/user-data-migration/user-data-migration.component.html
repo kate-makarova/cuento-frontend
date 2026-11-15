@@ -183,13 +183,13 @@
           }
         } @else {
           <div class="form-group">
-            <label i18n="@@migration.episode">Episode</label>
+            <label i18n="@@migration.episode">Scene</label>
             <div class="autocomplete-wrapper">
               <input type="text"
                 [(ngModel)]="episodeSearchTerm"
                 (ngModelChange)="onEpisodeInput($event)"
                 i18n-placeholder="@@migration.searchEpisode"
-                placeholder="Search episode..." />
+                placeholder="Search scene..." />
               @if (episodeSuggestions().length > 0) {
                 <div class="suggestions-dropdown">
                   @for (ep of episodeSuggestions(); track ep.id) {
