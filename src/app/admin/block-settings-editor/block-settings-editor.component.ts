@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Block, BlockSettingToggle, FieldTemplate } from '../../models/FieldTemplate';
 
@@ -7,6 +7,7 @@ import { Block, BlockSettingToggle, FieldTemplate } from '../../models/FieldTemp
   standalone: true,
   imports: [FormsModule],
   templateUrl: './block-settings-editor.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './block-settings-editor.component.css'
 })
 export class BlockSettingsEditorComponent {

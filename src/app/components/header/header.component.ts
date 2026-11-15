@@ -1,4 +1,4 @@
-import { afterEveryRender, Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { afterEveryRender, Component, computed, inject, OnDestroy, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
@@ -35,6 +35,7 @@ interface WidgetData {
   selector: 'app-header',
   standalone: true,
   imports: [NavlinksComponent, UlinksComponent, NotificationsComponent, RouterLinksDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './header.component.html',
 })
 export class HeaderComponent implements OnInit, OnDestroy {

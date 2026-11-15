@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
@@ -72,6 +72,7 @@ interface BookmarkedEpisode {
   imports: [DatePipe, RouterLink],
   templateUrl: './user-dashboard.component.html',
   styleUrl: './user-dashboard.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class UserDashboardComponent {
   activeTab = signal<'game' | 'world' | 'forum'>('game');

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
@@ -28,6 +28,7 @@ interface NewCategory {
   imports: [ FormsModule, BbToolbarComponent],
   templateUrl: './admin-subforums.component.html',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-subforums.component.css'
 })
 export class AdminSubforumsComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 
 import { ApiService } from '../../services/api.service';
 import { Reaction } from '../../models/Reaction';
@@ -10,6 +10,7 @@ type UploadState = 'idle' | 'loading' | 'success' | 'error';
   host: { class: 'pun-page' },
   standalone: true,
   imports: [],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './admin-reactions.component.html',
 })
 export class AdminReactionsComponent implements OnInit {

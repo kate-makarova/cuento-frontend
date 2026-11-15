@@ -1,4 +1,4 @@
-import { Component, effect, inject, OnInit } from '@angular/core';
+import { Component, effect, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CategoryService } from '../../services/category.service';
 import { ApiService } from '../../services/api.service';
 import { Category } from '../../models/Category';
@@ -35,6 +35,7 @@ export interface InterleavedItem {
   imports: [],
   templateUrl: './admin-move-posts.component.html',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-move-posts.component.css'
 })
 export class AdminMovePostsComponent implements OnInit {

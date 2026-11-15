@@ -1,4 +1,4 @@
-import {Component, computed, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {EpisodeFilterRequest} from '../models/Episode';
 import {CharacterShort} from '../models/Character';
@@ -25,6 +25,7 @@ const FIXED_COLUMNS = [
   imports: [RouterLink, FormsModule],
   templateUrl: './episode-list.component.html',
   styleUrl: './episode-list.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class EpisodeListComponent implements OnInit {

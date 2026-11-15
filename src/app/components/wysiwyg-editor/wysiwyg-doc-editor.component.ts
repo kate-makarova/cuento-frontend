@@ -1,5 +1,6 @@
 import {
   AfterViewInit, Component, computed, ElementRef, inject, Input, OnDestroy, signal, ViewChild,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { BoardService } from '../../services/board.service';
 import { ImageService } from '../../services/image.service';
@@ -42,6 +43,7 @@ const IS_ANDROID = typeof navigator !== 'undefined' && /Android/i.test(navigator
     :host .wysiwyg-editor { white-space: pre-wrap; word-wrap: break-word; }
     :host .wysiwyg-editor img { max-width: 100%; height: auto; }
   `],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div
       #editorEl

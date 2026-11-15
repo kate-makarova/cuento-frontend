@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, effect } from '@angular/core';
+import { Component, inject, signal, OnInit, effect, ChangeDetectionStrategy } from '@angular/core';
 import { CharacterService } from '../../services/character.service';
 import { FieldTemplateRowComponent, FieldTemplateForm } from '../field-template-row/field-template-row.component';
 import { BlockSettingsEditorComponent } from '../block-settings-editor/block-settings-editor.component';
@@ -11,6 +11,7 @@ import { SaveButtonComponent } from '../save-button/save-button.component';
   imports: [FieldTemplateRowComponent, SaveButtonComponent, BlockSettingsEditorComponent],
   templateUrl: './wanted-character-template-edit.component.html',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './wanted-character-template-edit.component.css'
 })
 export class WantedCharacterTemplateEditComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { NotificationService } from '../../services/notification.service';
@@ -14,6 +14,7 @@ interface PanelListItem {
   imports: [RouterLink],
   templateUrl: './admin-widget-panels.component.html',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-widget-panels.component.css'
 })
 export class AdminWidgetPanelsComponent implements OnInit {

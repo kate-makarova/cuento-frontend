@@ -1,4 +1,4 @@
-import { Component, computed, inject, LOCALE_ID } from '@angular/core';
+import { Component, computed, inject, LOCALE_ID, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BoardService } from '../../services/board.service';
 
@@ -6,6 +6,7 @@ import { BoardService } from '../../services/board.service';
   selector: '[app-footer]',
   imports: [RouterLink],
   templateUrl: './footer.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class FooterComponent {

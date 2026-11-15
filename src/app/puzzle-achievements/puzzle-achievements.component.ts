@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PuzzleService } from '../services/puzzle.service';
 import { AuthService } from '../services/auth.service';
@@ -10,6 +10,7 @@ import { PuzzleAchievement } from '../models/Puzzle';
   standalone: true,
   imports: [RouterLink],
   templateUrl: './puzzle-achievements.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './puzzle-achievements.component.css',
 })
 export class PuzzleAchievementsComponent implements OnInit {

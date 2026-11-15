@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Output, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FactionPathsComponent } from '../faction-paths/faction-paths.component';
 import { CharacterClaimService } from '../../services/character-claim.service';
@@ -9,6 +9,7 @@ import { Faction } from '../../models/Faction';
   selector: 'app-claim-create-modal',
   standalone: true,
   imports: [FormsModule, FactionPathsComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './claim-create-modal.component.html',
 })
 export class ClaimCreateModalComponent {

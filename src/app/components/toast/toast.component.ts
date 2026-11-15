@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { NotificationService } from '../../services/notification.service';
 import { CurrencyService } from '../../services/currency.service';
 import { RouterLink } from '@angular/router';
@@ -13,6 +13,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
   imports: [ RouterLink],
   templateUrl: './toast.component.html',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   animations: [
     trigger('toastAnim', [
       transition(':enter', [

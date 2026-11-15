@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
@@ -27,6 +27,7 @@ interface GameDigestImplementation extends AiAgentImplementation {
   selector: 'app-admin-ai-agent-implementation-edit',
   standalone: true,
   imports: [FormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './admin-ai-agent-implementation-edit.component.html',
 })
 export class AdminAiAgentImplementationEditComponent implements OnInit {

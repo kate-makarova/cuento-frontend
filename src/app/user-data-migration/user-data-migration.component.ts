@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, OnInit, signal, untracked } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal, untracked, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
@@ -13,6 +13,7 @@ import { CharacterShort } from '../models/Character';
   standalone: true,
   imports: [ FormsModule],
   templateUrl: './user-data-migration.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './user-data-migration.component.css'
 })
 export class UserDataMigrationComponent implements OnInit {

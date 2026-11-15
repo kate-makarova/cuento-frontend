@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 
 export type SaveState = 'idle' | 'loading' | 'success' | 'error';
 
@@ -6,6 +6,7 @@ export type SaveState = 'idle' | 'loading' | 'success' | 'error';
   selector: 'app-save-button',
   standalone: true,
   templateUrl: './save-button.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './save-button.component.css',
 })
 export class SaveButtonComponent {

@@ -1,4 +1,4 @@
-import {afterEveryRender, Component, effect, inject, OnInit, signal, HostBinding, DOCUMENT} from '@angular/core';
+import {afterEveryRender, Component, effect, inject, OnInit, signal, HostBinding, DOCUMENT, ChangeDetectionStrategy} from '@angular/core';
 
 import {ActivatedRoute, NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router, RouterOutlet, RoutesRecognized} from '@angular/router';
 import {FooterComponent} from './components/footer/footer.component';
@@ -38,6 +38,7 @@ interface WidgetEntity {
   selector: 'app-root',
   imports: [RouterOutlet, FooterComponent, ToastComponent, ScrollNavComponent, RouterLinksDirective, HeaderComponent],
   templateUrl: './app.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class AppComponent implements OnInit {

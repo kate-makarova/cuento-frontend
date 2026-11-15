@@ -1,4 +1,4 @@
-import { Component, inject, Input, Output, EventEmitter, signal } from '@angular/core';
+import { Component, inject, Input, Output, EventEmitter, signal, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { ImageUploadComponent } from '../image-upload/image-upload.component';
@@ -13,6 +13,7 @@ import { WysiwygDocEditorComponent } from '../wysiwyg-editor/wysiwyg-doc-editor.
   standalone: true,
   imports: [FormsModule, ImageUploadComponent, GridBuilderComponent, TableBuilderComponent],
   templateUrl: './bb-toolbar.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './bb-toolbar.component.css',
 })
 export class BbToolbarComponent {

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { PuzzleService } from '../services/puzzle.service';
 import { Puzzle } from '../models/Puzzle';
@@ -8,6 +8,7 @@ import { Puzzle } from '../models/Puzzle';
   host: { class: 'pun-page' },
   standalone: true,
   imports: [RouterLink],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './puzzles.component.html',
 })
 export class PuzzlesComponent implements OnInit {

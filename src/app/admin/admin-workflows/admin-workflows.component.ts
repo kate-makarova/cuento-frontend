@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { Workflow } from '../../models/Workflow';
@@ -11,6 +11,7 @@ type DeleteState = 'idle' | 'loading' | 'error';
   standalone: true,
   imports: [RouterLink],
   templateUrl: './admin-workflows.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-workflows.component.css',
 })
 export class AdminWorkflowsComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
@@ -13,6 +13,7 @@ type Mode = 'initial_setup' | 'regenerate';
   host: { class: 'pun-page' },
   standalone: true,
   imports: [ FormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './settings-restoration-codes.component.html',
 })
 export class SettingsRestorationCodesComponent {

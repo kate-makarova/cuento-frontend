@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
@@ -17,6 +17,7 @@ const PROTECTED_LOCALES = ['en-CA'];
   host: { class: 'pun-page' },
   standalone: true,
   imports: [FormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './admin-locales.component.html',
 })
 export class AdminLocalesComponent implements OnInit {

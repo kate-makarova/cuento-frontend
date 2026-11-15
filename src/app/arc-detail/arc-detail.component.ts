@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { ArcService } from '../services/arc.service';
@@ -12,6 +12,7 @@ import { BreadcrumbItem, BreadcrumbsComponent } from '../components/breadcrumbs/
   standalone: true,
   imports: [RouterLink, BreadcrumbsComponent],
   templateUrl: './arc-detail.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './arc-detail.component.css',
 })
 export class ArcDetailComponent implements OnInit {

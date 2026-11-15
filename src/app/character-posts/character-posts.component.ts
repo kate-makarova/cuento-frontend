@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, numberAttribute, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, numberAttribute, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../services/api.service';
@@ -34,6 +34,7 @@ interface CharacterPostsResponse {
     RouterLinksDirective,
     CodeCopyDirective,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './character-posts.component.html',
 })
 export class CharacterPostsComponent {

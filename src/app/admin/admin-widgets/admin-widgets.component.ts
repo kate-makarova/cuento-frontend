@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 
@@ -14,6 +14,7 @@ interface WidgetListItem {
   imports: [RouterLink],
   templateUrl: './admin-widgets.component.html',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-widgets.component.css'
 })
 export class AdminWidgetsComponent implements OnInit {

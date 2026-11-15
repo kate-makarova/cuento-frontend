@@ -1,4 +1,4 @@
-import { Component, computed, ElementRef, AfterViewInit, OnDestroy, OnInit, ViewChild, inject, signal } from '@angular/core';
+import { Component, computed, ElementRef, AfterViewInit, OnDestroy, OnInit, ViewChild, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../services/api.service';
@@ -106,6 +106,7 @@ function startOfMonday(d: Date): Date {
   standalone: true,
   imports: [DecimalPipe, FormsModule],
   templateUrl: './game-stats.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './game-stats.component.css',
 })
 export class GameStatsComponent implements OnInit, AfterViewInit, OnDestroy {

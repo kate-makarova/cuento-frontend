@@ -1,4 +1,4 @@
-import { Component, computed, ElementRef, inject, OnDestroy, signal, ViewChild } from '@angular/core';
+import { Component, computed, ElementRef, inject, OnDestroy, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { BoardService } from '../../services/board.service';
 import { ImageService } from '../../services/image.service';
 import { htmlToBbCode, bbCodeToHtml } from './wysiwyg-editor.utils';
@@ -11,6 +11,7 @@ const FORMAT_COMMANDS: Record<string, string> = {
 @Component({
   selector: 'app-wysiwyg-editor',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`:host .wysiwyg-editor img { max-width: 100%; height: auto; }`],
   template: `
     <div

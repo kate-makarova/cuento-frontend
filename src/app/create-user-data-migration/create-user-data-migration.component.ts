@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MigrationService } from '../services/migration.service';
@@ -9,6 +9,7 @@ import { MigrationService } from '../services/migration.service';
   standalone: true,
   imports: [FormsModule],
   templateUrl: './create-user-data-migration.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './create-user-data-migration.component.css'
 })
 export class CreateUserDataMigrationComponent {

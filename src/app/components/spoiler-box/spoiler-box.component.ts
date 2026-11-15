@@ -1,9 +1,10 @@
-import { Component, AfterViewInit, ElementRef, HostListener, inject } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, HostListener, inject, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'spoiler-box',
   standalone: true,
   template: '<ng-content></ng-content>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   host: { class: 'closed' },
 })
 export class SpoilerBoxComponent implements AfterViewInit {

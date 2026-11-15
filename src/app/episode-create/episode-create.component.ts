@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, OnInit, OnChanges, SimpleChanges, Input, Output, EventEmitter, signal, untracked } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, OnChanges, SimpleChanges, Input, Output, EventEmitter, signal, untracked, ChangeDetectionStrategy } from '@angular/core';
 import { FormArray, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 import { EpisodeService } from '../services/episode.service';
@@ -21,6 +21,7 @@ import { StandardWarning } from '../models/StandardWarning';
   selector: 'app-episode-create',
   host: { class: 'pun-page' },
   imports: [ ReactiveFormsModule, FormsModule, FieldInputComponent, BreadcrumbsComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './episode-create.component.html',
 })
 export class EpisodeCreateComponent implements OnInit, OnChanges {

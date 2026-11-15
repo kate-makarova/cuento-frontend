@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ExternalAppService } from '../../services/external-app.service';
 import { ExternalApp } from '../../models/ExternalApp';
@@ -8,6 +8,7 @@ import { ExternalApp } from '../../models/ExternalApp';
   host: { class: 'pun-page' },
   standalone: true,
   imports: [RouterLink],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './admin-external-apps.component.html',
 })
 export class AdminExternalAppsComponent implements OnInit {

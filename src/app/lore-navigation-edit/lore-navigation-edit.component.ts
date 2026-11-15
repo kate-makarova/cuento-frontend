@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { FormsModule } from '@angular/forms';
@@ -18,6 +18,7 @@ interface EditState {
   host: { class: 'pun-page' },
   standalone: true,
   imports: [ FormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './lore-navigation-edit.component.html',
 })
 export class LoreNavigationEditComponent implements OnInit, OnDestroy {

@@ -1,4 +1,4 @@
-import { Component, computed, inject, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, computed, inject, Input, OnInit, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ImageService } from '../../services/image.service';
 import { BoardService } from '../../services/board.service';
@@ -7,6 +7,7 @@ import { BoardService } from '../../services/board.service';
   selector: 'app-image-field',
   imports: [FormsModule],
   templateUrl: './image-field.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class ImageFieldComponent implements OnInit, OnChanges {

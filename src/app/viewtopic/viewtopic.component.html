@@ -194,7 +194,7 @@
                 [showAccount]="showAccountInForm()"
                 [accountName]="accountName"
                 [loadProfiles]="false"
-                [initialCharacterId]="post.character_profile?.id"
+                [initialCharacterId]="$safeNavigationMigration(post.character_profile?.id)"
                 (characterSelected)="editingPostProfileId.set($event)">
               </app-character-profile>
             } @else {

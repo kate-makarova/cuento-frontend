@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ApiService } from '../../services/api.service';
 
 export interface QdrantCursorItem {
@@ -14,6 +14,7 @@ export interface QdrantCursorItem {
   host: { class: 'pun-page' },
   standalone: true,
   imports: [],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './admin-ai-index.component.html',
 })
 export class AdminAiIndexComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -90,6 +90,7 @@ const IANA_TIMEZONES = [
   host: { class: 'pun-page' },
   standalone: true,
   imports: [ FormsModule, RouterLink, CroppedImageFieldComponent, BbToolbarComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './settings.component.html',
 })
 export class SettingsComponent implements OnInit {

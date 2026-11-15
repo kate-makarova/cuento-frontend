@@ -1,4 +1,4 @@
-import {Component, effect, inject, OnInit, OnDestroy} from '@angular/core';
+import {Component, effect, inject, OnInit, OnDestroy, ChangeDetectionStrategy} from '@angular/core';
 import {RouterLink} from '@angular/router';
 import {Title} from '@angular/platform-browser';
 import {Subject} from 'rxjs';
@@ -16,6 +16,7 @@ import { CategoryComponent } from '../components/category/category.component';
   host: { class: 'pun-page' },
   standalone: true,
   templateUrl: './home.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     RouterLink,
     FooterStatisticsComponent,

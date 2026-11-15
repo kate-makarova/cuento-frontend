@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 
@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-faction-create-modal',
   standalone: true,
   imports: [ FormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './faction-create-modal.component.html',
 })
 export class FactionCreateModalComponent {

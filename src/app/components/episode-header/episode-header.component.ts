@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges, Output, EventEmitter, inject, signal, computed } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges, Output, EventEmitter, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { switchMap, tap, map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 
@@ -26,6 +26,7 @@ export interface EpisodeCustomAvatarState {
   selector: 'app-episode-header',
   imports: [RouterLink, FieldDisplayComponent, CroppedImageFieldComponent, EpisodeActionsModalComponent],
   templateUrl: './episode-header.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class EpisodeHeaderComponent implements OnInit, OnChanges {

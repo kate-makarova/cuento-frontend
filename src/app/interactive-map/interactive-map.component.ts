@@ -1,4 +1,4 @@
-import { Component, DestroyRef, ElementRef, HostListener, OnInit, computed, effect, signal, viewChild, inject, Signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, HostListener, OnInit, computed, effect, signal, viewChild, inject, Signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InteractiveMapService } from '../services/interactive-map.service';
@@ -199,6 +199,7 @@ class RadialCoordinates {
   standalone: true,
   imports: [RouterModule],
   templateUrl: './interactive-map.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './interactive-map.component.css'
 })
 export class InteractiveMapComponent implements OnInit {

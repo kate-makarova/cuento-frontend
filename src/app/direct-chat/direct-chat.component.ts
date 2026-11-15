@@ -1,4 +1,4 @@
-import {Component, effect, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
+import {Component, effect, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy} from '@angular/core';
 import {User} from '../models/User';
 import {DirectChat, DirectChatListItem, DirectChatParticipant} from '../models/DirectChat';
 import {DirectChatService} from '../services/direct-chat.service';
@@ -20,6 +20,7 @@ import {BbToolbarComponent} from '../components/bb-toolbar/bb-toolbar.component'
   imports: [ FormsModule, SafeHtmlPipe, BbToolbarComponent],
   templateUrl: './direct-chat.component.html',
   styleUrl: './direct-chat.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class DirectChatComponent implements OnInit, OnDestroy {

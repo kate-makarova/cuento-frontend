@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MigrationService } from '../services/migration.service';
@@ -10,6 +10,7 @@ import { MigrationStatus } from '../models/Migration';
   standalone: true,
   imports: [ RouterLink, NgClass],
   templateUrl: './migration-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './migration-list.component.css'
 })
 export class MigrationListComponent implements OnInit {

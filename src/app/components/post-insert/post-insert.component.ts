@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, ElementRef } from '@angular/core';
+import { Component, OnInit, signal, inject, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { ApiService } from '../../services/api.service';
 import { Post } from '../../models/Post';
 import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
@@ -7,6 +7,7 @@ import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
   selector: 'post-insert',
   standalone: true,
   imports: [SafeHtmlPipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     @if (contentHtml(); as html) {
       <div [innerHTML]="html | safeHtml"></div>

@@ -1,4 +1,4 @@
-import {Component, inject, Input, OnInit, numberAttribute, computed} from '@angular/core';
+import {Component, inject, Input, OnInit, numberAttribute, computed, ChangeDetectionStrategy} from '@angular/core';
 
 import {RouterLink, ActivatedRoute} from '@angular/router';
 import {ForumService} from '../services/forum.service';
@@ -15,6 +15,7 @@ function coerceToPage(value: unknown): number {
   host: { class: 'pun-page' },
   imports: [ RouterLink, BreadcrumbsComponent],
   templateUrl: './active-topics.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class ActiveTopicsComponent implements OnInit {

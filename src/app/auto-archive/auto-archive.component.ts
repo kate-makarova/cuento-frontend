@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -33,6 +33,7 @@ interface BuyImmunityResponse {
   host: { class: 'pun-page' },
   standalone: true,
   imports: [RouterLink, FormsModule, ErrorBannerComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './auto-archive.component.html',
 })
 export class AutoArchiveComponent implements OnInit {

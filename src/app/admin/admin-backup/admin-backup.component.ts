@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { ApiService } from '../../services/api.service';
@@ -36,6 +36,7 @@ interface GDriveSettings {
   host: { class: 'pun-page' },
   standalone: true,
   imports: [FormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './admin-backup.component.html',
 })
 export class AdminBackupComponent implements OnInit {
