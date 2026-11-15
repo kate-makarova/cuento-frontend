@@ -18,8 +18,8 @@ export class SpoilerBoxComponent implements AfterViewInit {
   }
 
   @HostListener('click', ['$event.target'])
-  onClick(target: HTMLElement) {
-    if (!target.closest('.spoiler-header')) return;
+  onClick(target: EventTarget | null) {
+    if (!(target instanceof Element) || !target.closest('.spoiler-header')) return;
 
     const host: HTMLElement = this.el.nativeElement;
     const content = host.querySelector<HTMLElement>('.spoiler-content')!;
