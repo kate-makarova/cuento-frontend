@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { PreviewService } from '../services/preview.service';
@@ -16,6 +16,7 @@ import { RouterLinksDirective } from '../directives/router-links.directive';
   host: { class: 'pun-page' },
   imports: [ CharacterProfileComponent, EpisodeHeaderComponent, CharacterSheetHeaderComponent, WantedCharacterHeaderComponent, SafeHtmlPipe, RouterLinksDirective],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './preview.component.html',
 })
 export class PreviewComponent {

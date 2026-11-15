@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { HttpParams } from '@angular/common/http';
@@ -33,6 +33,7 @@ interface AdminCharacterListItem {
   host: { class: 'pun-page' },
   standalone: true,
   imports: [FormsModule, RouterLink, ErrorBannerComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './admin-characters.component.html',
 })
 export class AdminCharactersComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ElementRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { PuzzleService } from '../services/puzzle.service';
@@ -12,6 +12,7 @@ import { Puzzle } from '../models/Puzzle';
   host: { class: 'pun-page' },
   standalone: true,
   imports: [RouterLink],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './puzzle-view.component.html',
 })
 export class PuzzleViewComponent implements OnInit {

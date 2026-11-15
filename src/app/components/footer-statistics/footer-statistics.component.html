@@ -10,7 +10,7 @@
       <p><span><ng-container i18n="@@home.newestUser">Newest user</ng-container>:
         <strong>
           @if (board().last_registered_user) {
-            <a [routerLink]="['/profile', board().last_registered_user?.id]">{{ board().last_registered_user?.username }}</a>
+            <a [routerLink]="['/profile', $safeNavigationMigration(board().last_registered_user?.id)]">{{ board().last_registered_user?.username }}</a>
           }
         </strong>
       </span></p>

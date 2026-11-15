@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { FactionSettingService } from '../../services/faction-setting.service';
@@ -13,6 +13,7 @@ import { SaveButtonComponent, SaveState } from '../save-button/save-button.compo
   imports: [ FormsModule, SaveButtonComponent],
   standalone: true,
   templateUrl: './admin-faction-settings.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-faction-settings.component.css'
 })
 export class AdminFactionSettingsComponent implements OnInit {

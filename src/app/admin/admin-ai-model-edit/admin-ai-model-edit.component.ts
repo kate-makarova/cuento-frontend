@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
@@ -11,6 +11,7 @@ import { SaveButtonComponent, SaveState } from '../save-button/save-button.compo
   standalone: true,
   imports: [FormsModule, RouterLink, SaveButtonComponent],
   templateUrl: './admin-ai-model-edit.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-ai-model-edit.component.css',
 })
 export class AdminAiModelEditComponent implements OnInit {

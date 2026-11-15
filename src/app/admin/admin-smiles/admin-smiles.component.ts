@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
@@ -11,6 +11,7 @@ type UploadState = 'idle' | 'loading' | 'success' | 'error';
   host: { class: 'pun-page' },
   standalone: true,
   imports: [ FormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './admin-smiles.component.html',
 })
 export class AdminSmilesComponent implements OnInit {

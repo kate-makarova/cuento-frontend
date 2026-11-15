@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { FieldTemplate } from '../../models/FieldTemplate';
 import { BoardService } from '../../services/board.service';
 import { ShortTextFieldComponent } from '../short-text-field/short-text-field.component';
@@ -13,6 +13,7 @@ import { SelectFieldComponent } from '../select-field/select-field.component';
   selector: 'app-field-input',
   standalone: true,
   imports: [ShortTextFieldComponent, LongTextFieldComponent, NumberFieldComponent, ImageFieldComponent, CroppedImageFieldComponent, FreeFormatDateFieldComponent, SelectFieldComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './field-input.component.html'
 })
 export class FieldInputComponent {

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 
@@ -23,6 +23,7 @@ interface AiAgentDetail {
   selector: 'app-admin-ai-agent',
   standalone: true,
   imports: [],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './admin-ai-agent.component.html',
 })
 export class AdminAiAgentComponent implements OnInit {

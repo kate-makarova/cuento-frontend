@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, inject, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 
@@ -30,6 +30,7 @@ type Segment =
   imports: [FormsModule],
   templateUrl: './free-format-date-field.component.html',
   styleUrl: './free-format-date-field.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class FreeFormatDateFieldComponent implements OnChanges {

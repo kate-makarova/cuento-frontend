@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -18,6 +18,7 @@ interface FreeFormatDateOption {
   imports: [ FormsModule, RouterLink, SaveButtonComponent],
   standalone: true,
   templateUrl: './admin-factions.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-factions.component.css'
 })
 export class AdminFactionsComponent implements OnInit {

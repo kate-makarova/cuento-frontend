@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 
 import { BbToolbarComponent } from '../bb-toolbar/bb-toolbar.component';
 
@@ -6,6 +6,7 @@ import { BbToolbarComponent } from '../bb-toolbar/bb-toolbar.component';
   selector: 'app-long-text-field',
   imports: [ BbToolbarComponent],
   templateUrl: './long-text-field.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class LongTextFieldComponent {

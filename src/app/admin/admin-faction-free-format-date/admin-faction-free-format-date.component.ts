@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
@@ -47,6 +47,7 @@ interface FreeFormatDateResponse {
   standalone: true,
   imports: [FormsModule, SaveButtonComponent],
   templateUrl: './admin-faction-free-format-date.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-faction-free-format-date.component.css',
 })
 export class AdminFactionFreeFormatDateComponent implements OnInit {

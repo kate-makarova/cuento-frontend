@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit, OnChanges, SimpleChanges, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { EditorView, basicSetup } from 'codemirror';
 import { EditorState } from '@codemirror/state';
 import { html } from '@codemirror/lang-html';
@@ -7,6 +7,7 @@ import { oneDark } from '@codemirror/theme-one-dark';
 @Component({
   selector: 'app-html-editor',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<div #host style="max-height: 95vh; overflow-y: auto;"></div>',
 })
 export class HtmlEditorComponent implements AfterViewInit, OnChanges, OnDestroy {

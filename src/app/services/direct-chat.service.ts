@@ -370,7 +370,7 @@ export class DirectChatService {
     return this.bufferToBase64(wrappedKey);
   }
 
-  private base64ToBuffer(base64: string): Uint8Array {
+  private base64ToBuffer(base64: string): Uint8Array<ArrayBuffer> {
     return Uint8Array.from(atob(base64), c => c.charCodeAt(0));
   }
 

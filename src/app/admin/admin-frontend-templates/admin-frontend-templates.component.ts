@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
@@ -26,6 +26,7 @@ const DESCRIPTIONS: Record<string, string> = {
   standalone: true,
   imports: [RouterLink],
   templateUrl: './admin-frontend-templates.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-frontend-templates.component.css',
 })
 export class AdminFrontendTemplatesComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CurrencyService } from '../../services/currency.service';
 import { AddTransactionRequest, CurrencyIncomeType } from '../../models/Currency';
@@ -10,6 +10,7 @@ const KEYS_WITH_POST_LINK = new Set(['currency_income_game_post']);
   selector: 'app-add-transaction-modal',
   standalone: true,
   imports: [FormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './add-transaction-modal.component.html',
 })
 export class AddTransactionModalComponent {

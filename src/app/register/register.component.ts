@@ -1,4 +1,4 @@
-import { Component, inject, signal, LOCALE_ID } from '@angular/core';
+import { Component, inject, signal, LOCALE_ID, ChangeDetectionStrategy } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth.service';
@@ -11,6 +11,7 @@ import { switchMap } from 'rxjs/operators';
   host: { class: 'pun-page' },
   standalone: true,
   imports: [ReactiveFormsModule, RouterLink],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './register.component.html',
 })
 export class RegisterComponent {

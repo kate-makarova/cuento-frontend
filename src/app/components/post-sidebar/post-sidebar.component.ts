@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnDestroy, Output, signal, ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, Output, signal, ViewEncapsulation, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-post-sidebar',
@@ -6,6 +6,7 @@ import { Component, EventEmitter, OnDestroy, Output, signal, ViewEncapsulation }
   styleUrl: './post-sidebar.component.css',
   standalone: true,
   encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.Eager,
   host: {
     '[class.post-form--sidebar]': 'sidebarMode()',
   },

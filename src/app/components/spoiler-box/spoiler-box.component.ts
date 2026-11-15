@@ -1,9 +1,10 @@
-import { Component, AfterViewInit, ElementRef, HostListener, inject, Renderer2 } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, HostListener, inject, ChangeDetectionStrategy, Renderer2 } from '@angular/core';
 
 @Component({
   selector: 'spoiler-box',
   standalone: true,
   template: '<ng-content></ng-content>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   host: { class: 'closed' },
 })
 export class SpoilerBoxComponent implements AfterViewInit {
@@ -23,8 +24,8 @@ export class SpoilerBoxComponent implements AfterViewInit {
   }
 
   @HostListener('click', ['$event.target'])
-  onClick(target: HTMLElement) {
-    if (!target.closest('.spoiler-header')) return;
+  onClick(target: EventTarget | null) {
+    if (!(target instanceof Element) || !target.closest('.spoiler-header')) return;
 
     const host: HTMLElement = this.el.nativeElement;
     const content = host.querySelector<HTMLElement>('.spoiler-content')!;

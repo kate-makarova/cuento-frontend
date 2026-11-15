@@ -7,7 +7,7 @@
   <ul>
     <li id="navindex" class="isactive"><a routerLink="/"><span i18n="@@nav.home">Home</span></a></li>
     @if(isAuthenticated()) {
-    <li id="navprofile"><a [routerLink]="['profile', currentUser()?.id]"><span i18n="@@nav.profile">Profile</span></a></li>
+    <li id="navprofile"><a [routerLink]="['profile', $safeNavigationMigration(currentUser()?.id)]"><span i18n="@@nav.profile">Profile</span></a></li>
     @if(hasPrivateKey()) {
     <li id="navchat"><a routerLink="direct-chat"><span i18n="@@nav.messages">Messages</span></a></li>
     }

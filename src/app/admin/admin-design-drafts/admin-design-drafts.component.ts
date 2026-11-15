@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { DesignDraftService } from '../../services/design-draft.service';
@@ -9,6 +9,7 @@ import { DesignDraftListItem } from '../../models/DesignDraft';
   host: { class: 'pun-page' },
   standalone: true,
   imports: [ RouterLink, FormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './admin-design-drafts.component.html',
 })
 export class AdminDesignDraftsComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, effect, inject, OnInit } from '@angular/core';
+import { Component, effect, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { CategoryService } from '../../services/category.service';
 import { ApiService } from '../../services/api.service';
@@ -20,6 +20,7 @@ interface PanelState {
   imports: [],
   templateUrl: './topic-commander.component.html',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './topic-commander.component.css'
 })
 export class TopicCommanderComponent implements OnInit {

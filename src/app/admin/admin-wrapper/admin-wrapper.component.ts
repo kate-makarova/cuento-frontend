@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 
 import { AuthService } from '../../services/auth.service';
@@ -8,6 +8,7 @@ import { AuthService } from '../../services/auth.service';
   host: { class: 'pun-page' },
   imports: [RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './admin-wrapper.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-wrapper.component.css'
 })
 export class AdminWrapperComponent {

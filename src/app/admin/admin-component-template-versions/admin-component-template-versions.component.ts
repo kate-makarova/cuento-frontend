@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { BreadcrumbsComponent } from '../../components/breadcrumbs/breadcrumbs.component';
@@ -18,6 +18,7 @@ type ActionState = 'idle' | 'loading' | 'success' | 'error';
   standalone: true,
   imports: [RouterLink, BreadcrumbsComponent],
   templateUrl: './admin-component-template-versions.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-component-template-versions.component.css',
 })
 export class AdminComponentTemplateVersionsComponent implements OnInit {

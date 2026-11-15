@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
@@ -28,6 +28,7 @@ export interface Role {
   standalone: true,
   imports: [ RouterLink, FormsModule, ErrorBannerComponent],
   templateUrl: './admin-users.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-users.component.css'
 })
 export class AdminUsersComponent implements OnInit {

@@ -74,7 +74,7 @@
                 @if (item.type === 'absence_started') {
                   @let absence = $any(item.data);
                   <p>
-                    <a [routerLink]="['/profile', absence?.user_id]">{{ absence?.username }}</a>
+                    <a [routerLink]="['/profile', $safeNavigationMigration(absence?.user_id)]">{{ absence?.username }}</a>
                     <ng-container i18n="@@notifications.absenceStarted.message"> has started an absence until </ng-container>{{ absence?.absence_end_date }}.
                   </p>
                   @if (absence?.characters?.length) {

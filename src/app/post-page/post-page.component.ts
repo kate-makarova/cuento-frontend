@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { TopicService } from '../services/topic.service';
@@ -11,6 +11,7 @@ import { CodeCopyDirective } from '../directives/code-copy.directive';
   host: { class: 'pun-page' },
   standalone: true,
   imports: [SafeHtmlPipe, RouterLinksDirective, CodeCopyDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './post-page.component.html',
 })
 export class PostPageComponent implements OnInit, OnDestroy {

@@ -1,4 +1,4 @@
-import { Component, computed, EventEmitter, inject, Output, signal } from '@angular/core';
+import { Component, computed, EventEmitter, inject, Output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ImageService } from '../../services/image.service';
 import { BoardService } from '../../services/board.service';
@@ -16,6 +16,7 @@ interface ImageEntry {
   selector: 'app-image-upload',
   standalone: true,
   imports: [FormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './image-upload.component.html',
 })
 export class ImageUploadComponent {

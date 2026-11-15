@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, computed } from '@angular/core';
+import { Component, inject, Input, OnInit, computed, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { UserService } from '../services/user.service';
 import { AuthService } from '../services/auth.service';
@@ -10,6 +10,7 @@ import { CurrencyService } from '../services/currency.service';
   host: { class: 'pun-page' },
   standalone: true,
   imports: [ RouterLink],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './user-profile.component.html',
 })
 export class UserProfileComponent implements OnInit {

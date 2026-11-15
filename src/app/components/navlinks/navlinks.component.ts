@@ -1,4 +1,4 @@
-import { Component, inject, computed, signal } from '@angular/core';
+import { Component, inject, computed, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
@@ -12,6 +12,7 @@ import { AdditionalNavlink, AdditionalNavlinkType } from '../../models/Additiona
   standalone: true,
   imports: [RouterLink],
   templateUrl: './navlinks.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   host: { '[class.nav-open]': 'menuOpen()' },
 })
 export class NavlinksComponent {

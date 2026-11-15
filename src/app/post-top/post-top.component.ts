@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { PostTopService } from '../services/post-top.service';
 import { PostTopResult } from '../models/PostTop';
@@ -9,6 +9,7 @@ import { PostTopResult } from '../models/PostTop';
   standalone: true,
   imports: [RouterLink],
   templateUrl: './post-top.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './post-top.component.css',
 })
 export class PostTopComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../services/api.service';
@@ -27,6 +27,7 @@ interface AbsentUserItem {
   host: { class: 'pun-page' },
   standalone: true,
   imports: [RouterLink, FormsModule, ErrorBannerComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './absence-list.component.html',
 })
 export class AbsenceListComponent implements OnInit {
