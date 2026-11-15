@@ -1,10 +1,11 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, ChangeDetectionStrategy} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-number-field',
   imports: [FormsModule],
   templateUrl: './number-field.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class NumberFieldComponent {

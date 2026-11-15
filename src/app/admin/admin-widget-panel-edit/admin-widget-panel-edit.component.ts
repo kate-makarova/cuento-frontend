@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
@@ -19,6 +19,7 @@ interface PanelDetail {
   imports: [FormsModule, BbToolbarComponent, SaveButtonComponent],
   templateUrl: './admin-widget-panel-edit.component.html',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-widget-panel-edit.component.css'
 })
 export class AdminWidgetPanelEditComponent implements OnInit {

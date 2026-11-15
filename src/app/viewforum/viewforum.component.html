@@ -35,19 +35,19 @@
           <div class="buttons">
             <div class="conl">
               @if (subforum()?.permissions?.subforum_create_general_topic) {
-                <a routerLink="/topic-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.generic">Create standard topic</span></a>
+                <a routerLink="/topic-create" [queryParams]="{fid: $safeNavigationMigration(subforum()?.id)}" class="button"><span i18n="@@topiccreate.generic">Create standard topic</span></a>
               }
               @if (subforum()?.permissions?.subforum_create_episode_topic) {
-                <a routerLink="/episode-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.episode">Create game topic</span></a>
+                <a routerLink="/episode-create" [queryParams]="{fid: $safeNavigationMigration(subforum()?.id)}" class="button"><span i18n="@@topiccreate.episode">Create game topic</span></a>
               }
               @if (subforum()?.permissions?.subforum_create_character_topic) {
-                <a routerLink="/character-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.character">Create character sheet</span></a>
+                <a routerLink="/character-create" [queryParams]="{fid: $safeNavigationMigration(subforum()?.id)}" class="button"><span i18n="@@topiccreate.character">Create character sheet</span></a>
               }
               @if (subforum()?.permissions?.subforum_create_wanted_character_topic) {
-                <a routerLink="/wanted-character-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.wantedCharacter">Create wanted character</span></a>
+                <a routerLink="/wanted-character-create" [queryParams]="{fid: $safeNavigationMigration(subforum()?.id)}" class="button"><span i18n="@@topiccreate.wantedCharacter">Create wanted character</span></a>
               }
               @if (subforum()?.permissions?.subforum_create_lore_topic) {
-                <a routerLink="/lore-topic-create" [queryParams]="{fid: subforum()?.id}" class="button"><span i18n="@@topiccreate.lore">Create lore topic</span></a>
+                <a routerLink="/lore-topic-create" [queryParams]="{fid: $safeNavigationMigration(subforum()?.id)}" class="button"><span i18n="@@topiccreate.lore">Create lore topic</span></a>
               }
             </div>
           </div>

@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { CharacterSheetHeaderComponent } from '../components/character-sheet-header/character-sheet-header.component';
 import { CharacterService } from '../services/character.service';
@@ -13,6 +13,7 @@ import { UserInfoComponent } from '../components/user-info/user-info.component';
     UserInfoComponent
   ],
   templateUrl: './characterview.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class CharacterviewComponent implements OnInit {

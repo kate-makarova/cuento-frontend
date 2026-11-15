@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -26,6 +26,7 @@ type SearchResults = Record<string, SearchResult[]>;
   host: { class: 'pun-page' },
   standalone: true,
   imports: [ RouterLink, FormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './search.component.html',
 })
 export class SearchComponent implements OnInit {

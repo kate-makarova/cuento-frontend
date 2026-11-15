@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, OnInit, OnDestroy, Input, Output, EventEmitter, signal, ViewChild, ElementRef } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, OnDestroy, Input, Output, EventEmitter, signal, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
@@ -21,6 +21,7 @@ import { EntityDraftService } from '../services/entity-draft.service';
   host: { class: 'pun-page' },
   standalone: true,
   imports: [ FieldInputComponent, FactionPathsComponent, BreadcrumbsComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './wanted-character-create.component.html',
 })
 export class WantedCharacterCreateComponent implements OnInit, OnDestroy {

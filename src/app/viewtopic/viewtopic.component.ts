@@ -1,4 +1,4 @@
-import {Component, effect, inject, Input, OnInit, OnDestroy, ViewChild, signal, computed, numberAttribute, input, untracked, LOCALE_ID} from '@angular/core';
+import {Component, effect, inject, Input, OnInit, OnDestroy, ViewChild, signal, computed, numberAttribute, input, untracked, LOCALE_ID, ChangeDetectionStrategy} from '@angular/core';
 import {Title} from '@angular/platform-browser';
 import {PostFormComponent} from '../components/post-form/post-form.component';
 import {TopicService} from '../services/topic.service';
@@ -63,6 +63,7 @@ function coerceToPage(value: unknown): number {
     FormsModule,
     PostSidebarComponent],
   templateUrl: './viewtopic.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class ViewtopicComponent implements OnInit, OnDestroy {

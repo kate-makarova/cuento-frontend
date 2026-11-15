@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { BoardService } from '../../services/board.service';
@@ -7,6 +7,7 @@ import { BoardService } from '../../services/board.service';
   selector: '[app-ulinks]',
   standalone: true,
   imports: [RouterLink],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './ulinks.component.html',
 })
 export class UlinksComponent {

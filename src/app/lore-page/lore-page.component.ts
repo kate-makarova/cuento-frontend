@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { TopicService } from '../services/topic.service';
@@ -14,6 +14,7 @@ import { LorePageInfo } from '../models/LorePage';
   host: { class: 'pun-page' },
   standalone: true,
   imports: [RouterLink, SafeHtmlPipe, RouterLinksDirective, BreadcrumbsComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './lore-page.component.html',
 })
 export class LorePageComponent implements OnInit, OnDestroy {

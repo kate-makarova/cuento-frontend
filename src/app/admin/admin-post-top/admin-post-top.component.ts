@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { PostTopService } from '../../services/post-top.service';
 import { PostTop, PostTopCreateRequest } from '../../models/PostTop';
@@ -9,6 +9,7 @@ import { PostTop, PostTopCreateRequest } from '../../models/PostTop';
   standalone: true,
   imports: [FormsModule],
   templateUrl: './admin-post-top.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-post-top.component.css',
 })
 export class AdminPostTopComponent implements OnInit {

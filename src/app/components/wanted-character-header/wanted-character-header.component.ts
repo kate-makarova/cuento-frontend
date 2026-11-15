@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, OnChanges, Output, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { WantedCharacter } from '../../models/WantedCharacter';
 import { CustomFieldsData, CustomFieldValue } from '../../models/Character';
@@ -9,6 +9,7 @@ import { FieldDisplayComponent } from '../field-display/field-display.component'
   selector: 'app-wanted-character-header',
   standalone: true,
   imports: [ RouterLink, FieldDisplayComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './wanted-character-header.component.html',
 })
 export class WantedCharacterHeaderComponent implements OnInit, OnChanges {

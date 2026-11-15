@@ -1,5 +1,5 @@
-import {afterRender, Component, effect, inject, OnInit, signal, HostBinding} from '@angular/core';
-import {DOCUMENT} from '@angular/common';
+import {afterEveryRender, Component, effect, inject, OnInit, signal, HostBinding, DOCUMENT, ChangeDetectionStrategy} from '@angular/core';
+
 import {ActivatedRoute, NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router, RouterOutlet, RoutesRecognized} from '@angular/router';
 import {FooterComponent} from './components/footer/footer.component';
 import {combineLatest, filter, map, mergeMap, take} from 'rxjs';
@@ -38,6 +38,7 @@ interface WidgetEntity {
   selector: 'app-root',
   imports: [RouterOutlet, FooterComponent, ToastComponent, ScrollNavComponent, RouterLinksDirective, HeaderComponent],
   templateUrl: './app.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class AppComponent implements OnInit {
@@ -100,7 +101,7 @@ export class AppComponent implements OnInit {
   private document = inject<Document>(DOCUMENT);
 
   constructor() {
-    afterRender(() => {
+    afterEveryRender(() => {
       if (this.needsFooterProcessing) {
         this.needsFooterProcessing = false;
         this.processFooterPanel();

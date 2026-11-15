@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 import {
   Chart,
   CategoryScale,
@@ -65,6 +65,7 @@ const xAxis = {
   host: { class: 'pun-page' },
   standalone: true,
   imports: [],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './admin-dashboard.component.html',
 })
 export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy {

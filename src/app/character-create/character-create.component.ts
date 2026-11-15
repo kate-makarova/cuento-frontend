@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, Input, Output, EventEmitter, signal, computed, ViewChild, ElementRef, effect } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, Input, Output, EventEmitter, signal, computed, ViewChild, ElementRef, effect, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CharacterService } from '../services/character.service';
 import { TopicService } from '../services/topic.service';
@@ -24,6 +24,7 @@ import { WantedCharacterService } from '../services/wanted-character.service';
   host: { class: 'pun-page' },
   imports: [FieldInputComponent, FactionPathsComponent, FormsModule, CroppedImageFieldComponent],
   templateUrl: './character-create.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class CharacterCreateComponent implements OnInit, OnDestroy {

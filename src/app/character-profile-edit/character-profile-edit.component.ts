@@ -1,4 +1,4 @@
-import { Component, computed, ElementRef, inject, OnInit, effect, Input, booleanAttribute, signal, ViewChild } from '@angular/core';
+import { Component, computed, ElementRef, inject, OnInit, effect, Input, booleanAttribute, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CharacterService } from '../services/character.service';
 import { MaskService } from '../services/mask.service';
@@ -16,6 +16,7 @@ import { CharacterProfile } from '../models/Character';
   host: { class: 'pun-page' },
   imports: [FieldInputComponent, CroppedImageFieldComponent, FormsModule, BbToolbarComponent],
   templateUrl: './character-profile-edit.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true
 })
 export class CharacterProfileEditComponent implements OnInit {

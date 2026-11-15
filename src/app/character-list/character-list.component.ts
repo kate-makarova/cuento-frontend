@@ -1,4 +1,4 @@
-import {Component, computed, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CharacterService } from '../services/character.service';
@@ -21,6 +21,7 @@ import { ClaimCreateModalComponent } from '../components/claim-create-modal/clai
     FactionCreateModalComponent,
     ClaimCreateModalComponent],
   templateUrl: './character-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class CharacterListComponent implements OnInit {

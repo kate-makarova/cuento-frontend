@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
@@ -16,6 +16,7 @@ export interface SubforumBucketRow {
   imports: [ FormsModule, SaveButtonComponent],
   templateUrl: './admin-ai-index-settings.component.html',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-ai-index-settings.component.css'
 })
 export class AdminAiIndexSettingsComponent implements OnInit {

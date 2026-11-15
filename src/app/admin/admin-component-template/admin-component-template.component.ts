@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { HtmlEditorComponent } from '../../components/html-editor/html-editor.component';
@@ -13,6 +13,7 @@ type SaveState = 'idle' | 'loading' | 'success' | 'error';
   standalone: true,
   imports: [HtmlEditorComponent, BreadcrumbsComponent, SaveButtonComponent],
   templateUrl: './admin-component-template.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-component-template.component.css',
 })
 export class AdminComponentTemplateComponent implements OnInit {

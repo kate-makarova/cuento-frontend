@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subject, takeUntil, combineLatest } from 'rxjs';
 import { CurrencyService } from '../services/currency.service';
@@ -18,6 +18,7 @@ function coerceToPage(value: string | null): number {
   standalone: true,
   imports: [RouterLink, AddTransactionModalComponent],
   templateUrl: './transactions.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './transactions.component.css',
 })
 export class TransactionsComponent implements OnInit, OnDestroy {

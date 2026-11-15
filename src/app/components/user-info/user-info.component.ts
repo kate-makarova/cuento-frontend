@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { UserInfo } from '../../models/User';
 
@@ -6,6 +6,7 @@ import { UserInfo } from '../../models/User';
   selector: 'app-user-info',
   standalone: true,
   imports: [ RouterLink],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './user-info.component.html',
 })
 export class UserInfoComponent {

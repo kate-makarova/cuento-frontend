@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ExternalAppService } from '../../services/external-app.service';
@@ -11,6 +11,7 @@ import { SaveButtonComponent, SaveState } from '../save-button/save-button.compo
   standalone: true,
   imports: [FormsModule, RouterLink, SaveButtonComponent],
   templateUrl: './admin-external-app-edit.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-external-app-edit.component.css',
 })
 export class AdminExternalAppEditComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BoardService } from '../../services/board.service';
 import { ApiService } from '../../services/api.service';
@@ -23,6 +23,7 @@ interface RecentCharacter {
   standalone: true,
   imports: [RouterLink],
   templateUrl: './footer-statistics.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './footer-statistics.component.css',
 })
 export class FooterStatisticsComponent implements OnInit, OnDestroy {

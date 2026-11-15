@@ -1,8 +1,9 @@
-import { Component, AfterViewInit, ElementRef, inject } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, inject, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'quote-box',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<ng-content></ng-content>',
 })
 export class QuoteBoxComponent implements AfterViewInit {

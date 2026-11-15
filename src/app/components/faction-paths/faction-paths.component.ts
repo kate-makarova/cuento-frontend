@@ -1,4 +1,4 @@
-import { Component, inject, signal, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, inject, signal, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { FactionService } from '../../services/faction.service';
@@ -16,6 +16,7 @@ interface FactionLevel {
   selector: 'app-faction-paths',
   standalone: true,
   imports: [ FormsModule, FactionCreateModalComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './faction-paths.component.html',
 })
 export class FactionPathsComponent implements OnInit, OnChanges {

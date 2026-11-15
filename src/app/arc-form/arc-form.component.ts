@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
@@ -18,6 +18,7 @@ import { CroppedImageFieldComponent } from '../components/cropped-image-field/cr
   standalone: true,
   imports: [FormsModule, RouterLink, SaveButtonComponent, CroppedImageFieldComponent],
   templateUrl: './arc-form.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './arc-form.component.css',
 })
 export class ArcFormComponent implements OnInit {

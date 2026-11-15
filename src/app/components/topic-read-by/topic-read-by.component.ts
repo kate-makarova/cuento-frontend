@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, ChangeDetectionStrategy } from '@angular/core';
 
 import { RouterLink } from '@angular/router';
 import { NotificationService } from '../../services/notification.service';
@@ -10,6 +10,7 @@ import { takeUntil } from 'rxjs/operators';
   selector: 'app-topic-read-by',
   imports: [ RouterLink],
   templateUrl: './topic-read-by.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class TopicReadByComponent implements OnInit, OnDestroy {

@@ -1,4 +1,4 @@
-import {Component, effect, inject, Input, OnInit, OnDestroy, computed, numberAttribute} from '@angular/core';
+import {Component, effect, inject, Input, OnInit, OnDestroy, computed, numberAttribute, ChangeDetectionStrategy} from '@angular/core';
 import {Router, RouterLink, ActivatedRoute} from '@angular/router';
 import {ForumService} from '../services/forum.service';
 import {NotificationService} from '../services/notification.service';
@@ -19,6 +19,7 @@ function coerceToPage(value: unknown): number {
     BreadcrumbsComponent
   ],
   templateUrl: './viewforum.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class ViewforumComponent implements OnInit, OnDestroy {

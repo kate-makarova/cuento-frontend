@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { forkJoin, of } from 'rxjs';
 import { ApiService } from '../../services/api.service';
@@ -40,6 +40,7 @@ let tempId = -1;
   imports: [ FormsModule, SaveButtonComponent],
   standalone: true,
   templateUrl: './admin-design.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-design.component.css'
 })
 export class AdminDesignComponent implements OnInit {

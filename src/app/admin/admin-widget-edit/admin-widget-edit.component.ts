@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { FormsModule } from '@angular/forms';
@@ -50,6 +50,7 @@ interface ConfigField {
   imports: [ FormsModule, SaveButtonComponent],
   templateUrl: './admin-widget-edit.component.html',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-widget-edit.component.css'
 })
 export class AdminWidgetEditComponent implements OnInit {

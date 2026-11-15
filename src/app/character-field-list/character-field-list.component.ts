@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpParams } from '@angular/common/http';
 import { ApiService } from '../services/api.service';
@@ -28,6 +28,7 @@ interface WantedFieldValue {
   host: { class: 'pun-page' },
   standalone: true,
   imports: [RouterLink],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './character-field-list.component.html',
 })
 export class CharacterFieldListComponent implements OnInit {

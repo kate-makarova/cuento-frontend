@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output, effect, input } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output, effect, input, ChangeDetectionStrategy } from '@angular/core';
 import { Post } from '../../models/Post';
 import { ShortTextFieldDisplayComponent } from '../short-text-field-display/short-text-field-display.component';
 import { LongTextFieldDisplayComponent } from '../long-text-field-display/long-text-field-display.component';
@@ -16,6 +16,7 @@ import { CroppedImageFieldDisplayComponent } from '../cropped-image-field-displa
   selector: 'app-character-profile',
   imports: [ ShortTextFieldDisplayComponent, LongTextFieldDisplayComponent, NumberFieldDisplayComponent, ImageFieldDisplayComponent, CroppedImageFieldDisplayComponent, FormsModule],
   templateUrl: './character-profile.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class CharacterProfileComponent implements OnInit {

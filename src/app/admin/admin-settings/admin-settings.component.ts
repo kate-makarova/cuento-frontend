@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { GlobalSettingsService } from '../../services/global-settings.service';
@@ -111,6 +111,7 @@ const SETTING_LABELS: Record<string, string> = {
   imports: [ FormsModule, SaveButtonComponent],
   standalone: true,
   templateUrl: './admin-settings.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-settings.component.css'
 })
 export class AdminSettingsComponent implements OnInit {

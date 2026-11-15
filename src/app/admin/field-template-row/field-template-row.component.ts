@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FieldTemplate } from '../../models/FieldTemplate';
 
@@ -11,6 +11,7 @@ export interface FieldTemplateForm extends FieldTemplate {
   imports: [FormsModule],
   templateUrl: './field-template-row.component.html',
   styleUrl: './field-template-row.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true
 })
 export class FieldTemplateRowComponent {

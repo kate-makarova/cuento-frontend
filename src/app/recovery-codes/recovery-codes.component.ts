@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
   host: { class: 'pun-page' },
   standalone: true,
   imports: [],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './recovery-codes.component.html',
 })
 export class RecoveryCodesComponent implements OnInit {

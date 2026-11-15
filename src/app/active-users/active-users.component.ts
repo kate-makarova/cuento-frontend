@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -31,6 +31,7 @@ const PAGE_TYPE_NAMES: Record<string, string> = {
   host: { class: 'pun-page' },
   imports: [RouterLink],
   templateUrl: './active-users.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class ActiveUsersComponent implements OnInit, OnDestroy {

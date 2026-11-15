@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, OnChanges, SimpleChanges, computed } from '@angular/core';
+import { Component, inject, Input, OnInit, OnChanges, SimpleChanges, computed, ChangeDetectionStrategy } from '@angular/core';
 
 import { Character, CustomFieldsData, CustomFieldValue } from '../../models/Character';
 import { FieldDisplayComponent } from '../field-display/field-display.component';
@@ -10,6 +10,7 @@ import { RouterLink } from '@angular/router';
   selector: 'app-character-sheet-header',
   imports: [ FieldDisplayComponent, RouterLink],
   templateUrl: './character-sheet-header.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class CharacterSheetHeaderComponent implements OnInit, OnChanges {
