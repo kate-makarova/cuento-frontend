@@ -70,7 +70,7 @@ export class UserDataMigrationComponent implements OnInit {
     const users = this.displayUsers();
     const map = this.userMap();
     return users.length > 0 && users.every(u =>
-      u.character_id !== null || map[u.original_user_id] !== undefined
+      u.character_id !== null || map[u.key] !== undefined
     );
   });
 
@@ -101,12 +101,12 @@ export class UserDataMigrationComponent implements OnInit {
     const current = this.userMap();
     const updates: Record<string, number> = { ...current };
     for (const u of users) {
-      if (!(u.original_user_id in this.charSearchTerms)) {
-        this.charSearchTerms[u.original_user_id] = u.character_name ?? '';
-        this.charSuggestions[u.original_user_id] = [];
+      if (!(u.key in this.charSearchTerms)) {
+        this.charSearchTerms[u.key] = u.character_name ?? '';
+        this.charSuggestions[u.key] = [];
       }
-      if (u.character_id !== null && !(u.original_user_id in current)) {
-        updates[u.original_user_id] = u.character_id;
+      if (u.character_id !== null && !(u.key in current)) {
+        updates[u.key] = u.character_id;
       }
     }
     this.userMap.set(updates);
@@ -133,35 +133,35 @@ export class UserDataMigrationComponent implements OnInit {
     });
   }
 
-  private getSearchSubject(userId: string): Subject<string> {
-    if (!this.searchSubjects[userId]) {
+  private getSearchSubject(userKey: string): Subject<string> {
+    if (!this.searchSubjects[userKey]) {
       const subject = new Subject<string>();
       subject.pipe(debounceTime(300), distinctUntilChanged()).subscribe(term => {
-        if (term.length < 2) { this.charSuggestions[userId] = []; return; }
+        if (term.length < 2) { this.charSuggestions[userKey] = []; return; }
         this.characterService.searchCharacters(term).subscribe({
-          next: (chars) => { this.charSuggestions[userId] = chars; },
+          next: (chars) => { this.charSuggestions[userKey] = chars; },
           error: () => {}
         });
       });
-      this.searchSubjects[userId] = subject;
+      this.searchSubjects[userKey] = subject;
     }
-    return this.searchSubjects[userId];
+    return this.searchSubjects[userKey];
   }
 
-  onCharInput(userId: string, term: string) {
-    this.getSearchSubject(userId).next(term);
+  onCharInput(userKey: string, term: string) {
+    this.getSearchSubject(userKey).next(term);
   }
 
-  selectChar(userId: string, char: CharacterShort) {
-    this.userMap.update(m => ({ ...m, [userId]: char.id }));
-    this.charSearchTerms[userId] = char.name;
-    this.charSuggestions[userId] = [];
+  selectChar(userKey: string, char: CharacterShort) {
+    this.userMap.update(m => ({ ...m, [userKey]: char.id }));
+    this.charSearchTerms[userKey] = char.name;
+    this.charSuggestions[userKey] = [];
   }
 
-  clearChar(userId: string) {
-    this.userMap.update(m => { const n = { ...m }; delete n[userId]; return n; });
-    this.charSearchTerms[userId] = '';
-    this.charSuggestions[userId] = [];
+  clearChar(userKey: string) {
+    this.userMap.update(m => { const n = { ...m }; delete n[userKey]; return n; });
+    this.charSearchTerms[userKey] = '';
+    this.charSuggestions[userKey] = [];
   }
 
   updateMapping() {
@@ -218,9 +218,9 @@ export class UserDataMigrationComponent implements OnInit {
     this.mappingSuccess = false;
     this.mappingError = '';
     this.userMap.set({});
-    for (const userId of Object.keys(this.charSearchTerms)) {
-      this.charSearchTerms[userId] = '';
-      this.charSuggestions[userId] = [];
+    for (const userKey of Object.keys(this.charSearchTerms)) {
+      this.charSearchTerms[userKey] = '';
+      this.charSuggestions[userKey] = [];
     }
   }
 }

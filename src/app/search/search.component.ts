@@ -174,7 +174,7 @@ export class SearchComponent implements OnInit {
 
   bucketNames: Record<string, string> = {
     characters: $localize`:@@search.bucket.characters:Characters`,
-    episodes: $localize`:@@search.bucket.episodes:Episodes`,
+    episodes: $localize`:@@search.bucket.episodes:Scenes`,
     game_posts: $localize`:@@search.bucket.game_posts:Game posts`,
     general_posts: $localize`:@@search.bucket.general_posts:General posts`,
     lore_posts: $localize`:@@search.bucket.lore_posts:Lore posts`,

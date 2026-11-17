@@ -138,7 +138,7 @@ export const routes: Routes = [
   {
     path: 'episode-create',
     loadComponent: () => import('./episode-create/episode-create.component').then(m => m.EpisodeCreateComponent),
-    title: 'Create Episode',
+    title: 'Create Scene',
     data: { pageId: 'pun-create-episode' }
   },
   {
@@ -221,7 +221,7 @@ export const routes: Routes = [
   {
     path: 'episode-list',
     component: EpisodeListComponent,
-    title: 'Episode List',
+    title: 'Scene List',
     data: { pageId: 'pun-episode-list' }
   },
   {
@@ -350,7 +350,7 @@ export const routes: Routes = [
       {
         path: 'episode-template',
         loadComponent: () => import('./admin/episode-template-edit/episode-template-edit.component').then(m => m.EpisodeTemplateEditComponent),
-        title: 'Admin - Episode Template'
+        title: 'Admin - Scene Template'
       },
       {
         path: 'character-profile-template',

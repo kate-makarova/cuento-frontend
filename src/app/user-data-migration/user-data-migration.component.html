@@ -106,29 +106,29 @@
             </tr>
           </thead>
           <tbody>
-            @for (u of displayUsers(); track u.original_user_id) {
+            @for (u of displayUsers(); track u.key) {
               <tr>
                 <td>
                   <span class="username">{{ u.original_user_name }}</span>
                   <span class="user-id">(#{{ u.original_user_id }})</span>
                 </td>
                 <td>
-                  @if (userMap()[u.original_user_id] !== undefined) {
-                    <span class="mapped-char">{{ charSearchTerms[u.original_user_id] }}</span>
+                  @if (userMap()[u.key] !== undefined) {
+                    <span class="mapped-char">{{ charSearchTerms[u.key] }}</span>
                     @if (u.character_id === null) {
-                      <button class="btn-clear" (click)="clearChar(u.original_user_id)">×</button>
+                      <button class="btn-clear" (click)="clearChar(u.key)">×</button>
                     }
                   } @else {
                     <div class="autocomplete-wrapper">
                       <input type="text"
                         i18n-placeholder="@@migration.searchCharacter"
                         placeholder="Search character..."
-                        [ngModel]="charSearchTerms[u.original_user_id]"
-                        (ngModelChange)="charSearchTerms[u.original_user_id] = $event; onCharInput(u.original_user_id, $event)" />
-                      @if ((charSuggestions[u.original_user_id] ?? []).length > 0) {
+                        [ngModel]="charSearchTerms[u.key]"
+                        (ngModelChange)="charSearchTerms[u.key] = $event; onCharInput(u.key, $event)" />
+                      @if ((charSuggestions[u.key] ?? []).length > 0) {
                         <div class="suggestions-dropdown">
-                          @for (char of charSuggestions[u.original_user_id]; track char.id) {
-                            <div class="suggestion-item" (mousedown)="selectChar(u.original_user_id, char)">
+                          @for (char of charSuggestions[u.key]; track char.id) {
+                            <div class="suggestion-item" (mousedown)="selectChar(u.key, char)">
                               @if (char.avatar) {
                                 <img [src]="char.avatar" [alt]="char.name" />
                               }
@@ -183,13 +183,13 @@
           }
         } @else {
           <div class="form-group">
-            <label i18n="@@migration.episode">Episode</label>
+            <label i18n="@@migration.episode">Scene</label>
             <div class="autocomplete-wrapper">
               <input type="text"
                 [(ngModel)]="episodeSearchTerm"
                 (ngModelChange)="onEpisodeInput($event)"
                 i18n-placeholder="@@migration.searchEpisode"
-                placeholder="Search episode..." />
+                placeholder="Search scene..." />
               @if (episodeSuggestions().length > 0) {
                 <div class="suggestions-dropdown">
                   @for (ep of episodeSuggestions(); track ep.id) {

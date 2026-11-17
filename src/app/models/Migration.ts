@@ -5,6 +5,7 @@ export enum MigrationStatus {
 }
 
 export interface ProcessingUser {
+  key: string;
   original_user_id: string;
   original_user_name: string;
   character_id: number | null;
