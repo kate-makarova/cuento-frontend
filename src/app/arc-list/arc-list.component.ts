@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
@@ -13,6 +13,7 @@ import { ArcStatus, ArcFilterRequest } from '../models/StoryArc';
   standalone: true,
   imports: [RouterLink, FormsModule],
   templateUrl: './arc-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './arc-list.component.css',
 })
 export class ArcListComponent implements OnInit {

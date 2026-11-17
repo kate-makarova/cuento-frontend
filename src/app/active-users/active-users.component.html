@@ -8,7 +8,7 @@
         <ul class="active-users-list">
           @for (user of users(); track user.user_id) {
             <li class="active-user">
-              <span class="timestamp">{{ user.last_active | date:'yyyy-MM-dd HH:mm:ss' }}</span>
+              <span class="timestamp">{{ user.last_active }}</span>
               @if (user.is_guest) {
                 <ng-container i18n="@@activeUsers.guestEntry">Guest </ng-container>
                 {{ user.username }}

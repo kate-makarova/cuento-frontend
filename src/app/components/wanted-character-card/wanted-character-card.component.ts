@@ -1,6 +1,5 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { DatePipe } from '@angular/common';
 import { WantedCharacter } from '../../models/WantedCharacter';
 import { CustomFieldsData, CustomFieldValue } from '../../models/Character';
 import { FieldTemplate } from '../../models/FieldTemplate';
@@ -18,7 +17,8 @@ export interface WantedCharacterCardField {
 @Component({
   selector: 'app-wanted-character-card',
   standalone: true,
-  imports: [RouterLink, DatePipe, FieldDisplayComponent, UserInfoComponent],
+  imports: [RouterLink, FieldDisplayComponent, UserInfoComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './wanted-character-card.component.html',
 })
 export class WantedCharacterCardComponent implements OnChanges {

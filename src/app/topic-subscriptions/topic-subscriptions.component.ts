@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ForumService } from '../services/forum.service';
 import { BreadcrumbItem, BreadcrumbsComponent } from '../components/breadcrumbs/breadcrumbs.component';
@@ -8,6 +8,7 @@ import { BreadcrumbItem, BreadcrumbsComponent } from '../components/breadcrumbs/
   host: { class: 'pun-page' },
   imports: [RouterLink, BreadcrumbsComponent],
   templateUrl: './topic-subscriptions.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class TopicSubscriptionsComponent implements OnInit {

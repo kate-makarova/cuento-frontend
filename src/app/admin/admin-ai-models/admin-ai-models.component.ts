@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
@@ -31,6 +31,7 @@ interface AvailableModelsResponse {
   standalone: true,
   imports: [RouterLink, FormsModule, DecimalPipe, SaveButtonComponent],
   templateUrl: './admin-ai-models.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-ai-models.component.css',
 })
 export class AdminAiModelsComponent implements OnInit {

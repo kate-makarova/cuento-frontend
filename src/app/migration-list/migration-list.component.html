@@ -19,7 +19,7 @@
     <tbody>
       @for (m of migrations(); track m.id) {
         <tr>
-          <td>{{ m.date_created | date:'yyyy-MM-dd HH:mm' }}</td>
+          <td>{{ m.date_created_localized }}</td>
           <td><span class="status-badge" [ngClass]="statusClass(m.status)">{{ statusLabels[m.status] }}</span></td>
           <td>{{ m.original_topic_title }} <span class="topic-id">(#{{ m.original_topic_id }})</span></td>
           <td>{{ m.new_topic_id ?? '—' }}</td>

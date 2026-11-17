@@ -1,6 +1,5 @@
-import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { DatePipe } from '@angular/common';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApiService } from '../services/api.service';
@@ -13,9 +12,9 @@ const PAGE_TYPE_NAMES: Record<string, string> = {
   topic: $localize`:@@activeUsers.page.topic:Topic`,
   profile: $localize`:@@activeUsers.page.profile:Profile`,
   character: $localize`:@@activeUsers.page.character:Character`,
-  episode: $localize`:@@activeUsers.page.episode:Episode`,
+  episode: $localize`:@@activeUsers.page.episode:Scene`,
   'character-list': $localize`:@@activeUsers.page.characterList:Character List`,
-  'episode-list': $localize`:@@activeUsers.page.episodeList:Episode List`,
+  'episode-list': $localize`:@@activeUsers.page.episodeList:Scene List`,
   'wanted-character-list': $localize`:@@activeUsers.page.wantedCharacterList:Wanted Character List`,
   'user-list': $localize`:@@activeUsers.page.userList:User List`,
   'absence-list': $localize`:@@activeUsers.page.absenceList:Absence List`,
@@ -30,8 +29,9 @@ const PAGE_TYPE_NAMES: Record<string, string> = {
 @Component({
   selector: 'app-active-users',
   host: { class: 'pun-page' },
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink],
   templateUrl: './active-users.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class ActiveUsersComponent implements OnInit, OnDestroy {

@@ -1,12 +1,12 @@
 # Cuento Frontend
 
-A frontend for Cuento, a role-playing forum. Built with Angular.
+A frontend for Cuento, a role-playing forum. Built with Angular 22.
 
 This project is tested with BrowserStack.
 
 ## Running locally
 
-Requires [Node.js](https://nodejs.org/) v18+.
+Requires [Node.js](https://nodejs.org/) 24 (Angular 22 supports ^22.22.3, ^24.15 or >=26).
 
 This project needs [cuento-backend](https://github.com/katemakarova/cuento-backend) running locally to work.
 

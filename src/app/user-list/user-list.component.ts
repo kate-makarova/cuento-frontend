@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 
 import { UserService } from '../services/user.service';
 import { RouterLink } from '@angular/router';
@@ -8,6 +8,7 @@ import { RouterLink } from '@angular/router';
   host: { class: 'pun-page' },
   standalone: true,
   imports: [ RouterLink],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './user-list.component.html',
 })
 export class UserListComponent implements OnInit {

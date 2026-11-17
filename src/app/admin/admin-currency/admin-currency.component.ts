@@ -1,4 +1,4 @@
-import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CurrencyService } from '../../services/currency.service';
 import { CurrencyIncomeType, CurrencySpendType } from '../../models/Currency';
@@ -12,6 +12,7 @@ type SaveState = 'idle' | 'loading' | 'success' | 'error';
   standalone: true,
   imports: [FormsModule, SaveButtonComponent],
   templateUrl: './admin-currency.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-currency.component.css',
 })
 export class AdminCurrencyComponent implements OnInit {

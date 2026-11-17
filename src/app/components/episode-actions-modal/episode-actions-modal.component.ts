@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Episode } from '../../models/Episode';
 import { EpisodeCustomAvatarState } from '../episode-header/episode-header.component';
@@ -8,6 +8,7 @@ import { CroppedImageFieldComponent } from '../cropped-image-field/cropped-image
   selector: 'app-episode-actions-modal',
   standalone: true,
   imports: [CroppedImageFieldComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './episode-actions-modal.component.html',
 })
 export class EpisodeActionsModalComponent {

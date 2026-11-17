@@ -54,7 +54,7 @@
           }
 
           <div class="arc-meta-row">
-            <span class="arc-meta-label" i18n="@@arcdetail.episodes">Episodes:</span>
+            <span class="arc-meta-label" i18n="@@arcdetail.episodes">Scenes:</span>
             {{ arc.episode_count }}
           </div>
 
@@ -97,9 +97,9 @@
 
       <section class="arc-episodes">
         <div class="arc-section-header">
-          <h2 i18n="@@arcdetail.episodesTitle">Episodes</h2>
+          <h2 i18n="@@arcdetail.episodesTitle">Scenes</h2>
           @if (canEdit()) {
-            <a class="button" routerLink="/episode-create" [queryParams]="{ arc_id: arc.id, arc_title: arc.title }" i18n="@@arcdetail.addEpisode">Add Episode</a>
+            <a class="button" routerLink="/episode-create" [queryParams]="{ arc_id: arc.id, arc_title: arc.title }" i18n="@@arcdetail.addEpisode">Add Scene</a>
           }
         </div>
 
@@ -127,7 +127,7 @@
                     </span>
                   </td>
                   <td class="col-date">
-                    {{ ep.last_post_date | date:'yyyy-MM-dd' }}
+                    {{ ep.last_post_date_localized }}
                   </td>
                   <td>
                     @if (ep.last_post_author) {
@@ -153,7 +153,7 @@
             </tbody>
           </table>
         } @else {
-          <p class="arc-empty" i18n="@@arcdetail.noEpisodes">No episodes yet.</p>
+          <p class="arc-empty" i18n="@@arcdetail.noEpisodes">No scenes yet.</p>
         }
       </section>
     }

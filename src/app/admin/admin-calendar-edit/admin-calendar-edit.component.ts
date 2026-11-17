@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CalendarService } from '../../services/calendar.service';
@@ -31,6 +31,7 @@ interface FormatEntry {
   standalone: true,
   imports: [FormsModule, SaveButtonComponent],
   templateUrl: './admin-calendar-edit.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-calendar-edit.component.css',
 })
 export class AdminCalendarEditComponent implements OnInit {

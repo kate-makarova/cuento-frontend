@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CalendarService } from '../../services/calendar.service';
 import { CalendarOption } from '../../models/Calendar';
@@ -8,6 +8,7 @@ import { CalendarOption } from '../../models/Calendar';
   host: { class: 'pun-page' },
   standalone: true,
   imports: [RouterLink],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './admin-calendar-list.component.html',
 })
 export class AdminCalendarListComponent implements OnInit {

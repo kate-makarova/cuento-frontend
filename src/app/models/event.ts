@@ -113,6 +113,7 @@ export interface NotificationData {
   title: string;
   message: string;
   date_created: string;
+  date_created_localized?: string;
   is_read: boolean;
   mention: NotificationMention | null;
   game: NotificationGame | null;

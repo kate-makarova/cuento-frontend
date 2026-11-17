@@ -29,8 +29,8 @@
                 <a [routerLink]="['/character', char.id]">{{ char.name }}</a>@if (!last) {, }
               }
             </td>
-            <td>{{ user.absence_start_date | date:'yyyy-MM-dd' }}</td>
-            <td>{{ user.absence_end_date | date:'yyyy-MM-dd' }}</td>
+            <td>{{ user.absence_start_date_localized }}</td>
+            <td>{{ user.absence_end_date_localized }}</td>
             <td>
               @if (user.user_id === authService.currentUser()?.id) {
                 <button type="button" class="button" (click)="openCancelConfirm(user.id)" i18n="@@absenceList.cancelButton">Cancel Absence</button>

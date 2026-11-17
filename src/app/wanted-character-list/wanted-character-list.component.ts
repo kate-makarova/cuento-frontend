@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { FormsModule } from '@angular/forms';
@@ -30,6 +30,7 @@ interface ProcessedField {
   standalone: true,
   imports: [RouterLink, FormsModule, FieldDisplayComponent, UserInfoComponent, WantedCharacterCardComponent],
   templateUrl: './wanted-character-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './wanted-character-list.component.css',
 })
 export class WantedCharacterListComponent implements OnInit {

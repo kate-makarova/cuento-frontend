@@ -6,7 +6,7 @@ import { CharacterService } from '../services/character.service';
 import { AuthService } from '../services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of, Subject, EMPTY } from 'rxjs';
-import { signal, WritableSignal } from '@angular/core';
+import { signal, WritableSignal, ChangeDetectionStrategy } from '@angular/core';
 import { Topic, TopicType, TopicStatus } from '../models/Topic';
 import { Post } from '../models/Post';
 import { CommonModule } from '@angular/common';
@@ -16,6 +16,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 @Component({
   selector: 'app-episode-create',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: ''
 })
 class MockEpisodeCreateComponent {
@@ -26,6 +27,7 @@ class MockEpisodeCreateComponent {
 
 @Component({
   selector: 'app-character-create',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: ''
 })
 class MockCharacterCreateComponent {

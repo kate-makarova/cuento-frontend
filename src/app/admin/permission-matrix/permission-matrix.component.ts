@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { PermissionService } from '../../services/permission.service';
@@ -11,6 +11,7 @@ import { SaveButtonComponent } from '../save-button/save-button.component';
   imports: [ FormsModule, SaveButtonComponent],
   templateUrl: './permission-matrix.component.html',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './permission-matrix.component.css'
 })
 export class PermissionMatrixComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PuzzleService } from '../../services/puzzle.service';
@@ -10,6 +10,7 @@ import { SaveButtonComponent, SaveState } from '../save-button/save-button.compo
   host: { class: 'pun-page' },
   standalone: true,
   imports: [FormsModule, RouterLink, SaveButtonComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './admin-puzzle-edit.component.html',
 })
 export class AdminPuzzleEditComponent implements OnInit {

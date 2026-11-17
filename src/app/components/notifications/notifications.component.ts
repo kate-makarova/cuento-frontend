@@ -1,5 +1,4 @@
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { Component, computed, effect, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { NotificationService } from '../../services/notification.service';
 import { NotificationData } from '../../models/event';
 import { Router, RouterLink } from '@angular/router';
@@ -8,8 +7,9 @@ import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-notifications',
-  imports: [ DatePipe, RouterLink],
+  imports: [ RouterLink],
   templateUrl: './notifications.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class NotificationsComponent implements OnInit {

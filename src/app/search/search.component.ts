@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -26,6 +26,7 @@ type SearchResults = Record<string, SearchResult[]>;
   host: { class: 'pun-page' },
   standalone: true,
   imports: [ RouterLink, FormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './search.component.html',
 })
 export class SearchComponent implements OnInit {
@@ -173,7 +174,7 @@ export class SearchComponent implements OnInit {
 
   bucketNames: Record<string, string> = {
     characters: $localize`:@@search.bucket.characters:Characters`,
-    episodes: $localize`:@@search.bucket.episodes:Episodes`,
+    episodes: $localize`:@@search.bucket.episodes:Scenes`,
     game_posts: $localize`:@@search.bucket.game_posts:Game posts`,
     general_posts: $localize`:@@search.bucket.general_posts:General posts`,
     lore_posts: $localize`:@@search.bucket.lore_posts:Lore posts`,

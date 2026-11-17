@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
@@ -10,6 +10,7 @@ import { AdditionalNavlink, AdditionalNavlinkType } from '../../models/Additiona
   standalone: true,
   imports: [ FormsModule],
   templateUrl: './admin-additional-navlinks.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-additional-navlinks.component.css'
 })
 export class AdminAdditionalNavlinksComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ViewChild, AfterViewInit, inject, OnDestroy, OnInit, signal, computed, ElementRef, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, AfterViewInit, inject, OnDestroy, OnInit, signal, computed, ElementRef, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { Subject, Subscription, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { UserService } from '../../services/user.service';
@@ -35,6 +35,7 @@ interface PostDraft {
   imports: [ FormsModule, BbToolbarComponent, WysiwygDocEditorComponent],
   templateUrl: './post-form.component.html',
   styleUrl: './post-form.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {

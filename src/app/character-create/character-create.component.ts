@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, Input, Output, EventEmitter, signal, computed, ViewChild, ElementRef, effect } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, Input, Output, EventEmitter, signal, computed, ViewChild, ElementRef, effect, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CharacterService } from '../services/character.service';
 import { TopicService } from '../services/topic.service';
@@ -10,7 +10,6 @@ import { CreateCharacterRequest, Character } from '../models/Character';
 import { ClaimAutocompleteItem, ClaimRecord } from '../models/CharacterClaim';
 import { Topic, TopicType, TopicStatus } from '../models/Topic';
 import { Faction } from '../models/Faction';
-import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BoardService } from '../services/board.service';
 import { ImageService } from '../services/image.service';
@@ -23,8 +22,9 @@ import { WantedCharacterService } from '../services/wanted-character.service';
 @Component({
   selector: 'app-character-create',
   host: { class: 'pun-page' },
-  imports: [FieldInputComponent, FactionPathsComponent, FormsModule, CroppedImageFieldComponent, DatePipe],
+  imports: [FieldInputComponent, FactionPathsComponent, FormsModule, CroppedImageFieldComponent],
   templateUrl: './character-create.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class CharacterCreateComponent implements OnInit, OnDestroy {

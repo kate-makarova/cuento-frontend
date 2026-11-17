@@ -1,5 +1,4 @@
-import { Component, inject, Input, OnInit, computed } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { Component, inject, Input, OnInit, computed, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { UserService } from '../services/user.service';
 import { AuthService } from '../services/auth.service';
@@ -10,7 +9,8 @@ import { CurrencyService } from '../services/currency.service';
   selector: 'app-user-profile',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [ RouterLink, DatePipe],
+  imports: [ RouterLink],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './user-profile.component.html',
 })
 export class UserProfileComponent implements OnInit {

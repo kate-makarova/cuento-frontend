@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CurrencyService } from '../services/currency.service';
 import { CurrencyIncomeType, CurrencySpendType } from '../models/Currency';
 
@@ -7,6 +7,7 @@ import { CurrencyIncomeType, CurrencySpendType } from '../models/Currency';
   host: { class: 'pun-page' },
   standalone: true,
   imports: [],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './shop.component.html',
 })
 export class ShopComponent implements OnInit {

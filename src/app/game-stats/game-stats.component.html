@@ -36,15 +36,15 @@
   @let stats = overallStats();
   <div class="gs-card gs-card--open">
     <span class="gs-card-number">{{ stats?.created_episodes ?? '–' }}</span>
-    <span class="gs-card-label" i18n="@@gameStats.newEpisodes">New Episodes</span>
+    <span class="gs-card-label" i18n="@@gameStats.newEpisodes">New Scenes</span>
   </div>
   <div class="gs-card gs-card--finished">
     <span class="gs-card-number">{{ stats?.finished_episodes ?? '–' }}</span>
-    <span class="gs-card-label" i18n="@@gameStats.finishedEpisodes">Finished Episodes</span>
+    <span class="gs-card-label" i18n="@@gameStats.finishedEpisodes">Finished Scenes</span>
   </div>
   <div class="gs-card gs-card--abandoned">
     <span class="gs-card-number">{{ stats?.inactivated_episodes ?? '–' }}</span>
-    <span class="gs-card-label" i18n="@@gameStats.inactivatedEpisodes">Inactivated Episodes</span>
+    <span class="gs-card-label" i18n="@@gameStats.inactivatedEpisodes">Inactivated Scenes</span>
   </div>
   <div class="gs-card">
     <span class="gs-card-number">{{ stats ? (stats.total_posts | number) : '–' }}</span>
@@ -78,7 +78,7 @@
 
 <section class="gs-row">
   <div class="gs-chart-block">
-    <h3 i18n="@@gameStats.episodesByFaction">Episodes by Faction</h3>
+    <h3 i18n="@@gameStats.episodesByFaction">Scenes by Faction</h3>
     <canvas #factionEpCanvas></canvas>
   </div>
   <div class="gs-chart-block">

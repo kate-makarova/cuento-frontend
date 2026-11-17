@@ -1,11 +1,10 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { ApiService } from '../../services/api.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
 import { environment } from '../../../environments/environment';
-import { DatePipe } from '@angular/common';
 
 type DownloadState = 'idle' | 'loading' | 'error';
 type RestoreState = 'idle' | 'loading' | 'success' | 'error';
@@ -16,14 +15,19 @@ interface GDriveBackupFile {
   id: string;
   name: string;
   created_time: string;
+  created_time_localized?: string;
 }
 
 interface GDriveSettings {
-  service_account_key: string;
+  client_id: string;
+  client_secret: string;
+  refresh_token: string;
   enabled: boolean;
   frequency: 'daily' | 'weekly' | 'monthly';
   keep: number;
+  folder_id: string;
   last_run: string | null;
+  last_run_localized?: string | null;
   backups: GDriveBackupFile[];
 }
 
@@ -31,7 +35,8 @@ interface GDriveSettings {
   selector: 'app-admin-backup',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [FormsModule, DatePipe],
+  imports: [FormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './admin-backup.component.html',
 })
 export class AdminBackupComponent implements OnInit {
@@ -45,10 +50,13 @@ export class AdminBackupComponent implements OnInit {
   private pendingFile: File | null = null;
 
   gdrive = signal<GDriveSettings>({
-    service_account_key: '',
+    client_id: '',
+    client_secret: '',
+    refresh_token: '',
     enabled: false,
     frequency: 'daily',
     keep: 5,
+    folder_id: '',
     last_run: null,
     backups: [],
   });
@@ -78,10 +86,13 @@ export class AdminBackupComponent implements OnInit {
     this.gdriveSaveState.set('loading');
     const s = this.gdrive();
     this.apiService.post('admin/backup/gdrive', {
-      service_account_key: s.service_account_key,
+      client_id: s.client_id,
+      client_secret: s.client_secret,
+      refresh_token: s.refresh_token,
       enabled: s.enabled,
       frequency: s.frequency,
       keep: s.keep,
+      folder_id: s.folder_id,
     }).subscribe({
       next: () => {
         this.gdriveSaveState.set('success');

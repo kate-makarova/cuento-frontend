@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { ShortTextFieldDisplayComponent } from '../short-text-field-display/short-text-field-display.component';
 import { LongTextFieldDisplayComponent } from '../long-text-field-display/long-text-field-display.component';
 import { NumberFieldDisplayComponent } from '../number-field-display/number-field-display.component';
@@ -10,6 +10,7 @@ import { FreeFormatDateFieldDisplayComponent } from '../free-format-date-field-d
   selector: 'app-field-display',
   standalone: true,
   imports: [ShortTextFieldDisplayComponent, LongTextFieldDisplayComponent, NumberFieldDisplayComponent, ImageFieldDisplayComponent, CroppedImageFieldDisplayComponent, FreeFormatDateFieldDisplayComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './field-display.component.html'
 })
 export class FieldDisplayComponent {

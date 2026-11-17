@@ -52,18 +52,56 @@
       <h3 i18n="@@admin.backup.gdriveTitle">Google Drive Backup</h3>
 
       <div class="backup-field">
-        <label i18n="@@admin.backup.gdriveKey">Service Account Key (JSON)</label>
-        <textarea
-          rows="4"
-          [value]="gdrive().service_account_key"
-          (input)="updateGdrive('service_account_key', $any($event.target).value)"
-          i18n-placeholder="@@admin.backup.gdriveKeyPlaceholder"
-          placeholder="Paste the contents of your service account JSON key file"
-          style="width:100%;font-family:monospace;font-size:0.85em"
-        ></textarea>
+        <label i18n="@@admin.backup.gdriveClientId">Client ID</label>
+        <input
+          type="text"
+          [value]="gdrive().client_id"
+          (input)="updateGdrive('client_id', $any($event.target).value)"
+          i18n-placeholder="@@admin.backup.gdriveClientIdPlaceholder"
+          placeholder="OAuth2 Client ID"
+          style="width:100%;font-family:monospace"
+        />
       </div>
 
-      @if (gdrive().service_account_key) {
+      <div class="backup-field">
+        <label i18n="@@admin.backup.gdriveClientSecret">Client Secret</label>
+        <input
+          type="text"
+          [value]="gdrive().client_secret"
+          (input)="updateGdrive('client_secret', $any($event.target).value)"
+          i18n-placeholder="@@admin.backup.gdriveClientSecretPlaceholder"
+          placeholder="OAuth2 Client Secret"
+          style="width:100%;font-family:monospace"
+        />
+      </div>
+
+      <div class="backup-field">
+        <label i18n="@@admin.backup.gdriveRefreshToken">Refresh Token</label>
+        <input
+          type="text"
+          [value]="gdrive().refresh_token"
+          (input)="updateGdrive('refresh_token', $any($event.target).value)"
+          i18n-placeholder="@@admin.backup.gdriveRefreshTokenPlaceholder"
+          placeholder="OAuth2 Refresh Token"
+          style="width:100%;font-family:monospace"
+        />
+        <small i18n="@@admin.backup.gdriveOauthHint">Create OAuth2 credentials in Google Cloud Console, then use the OAuth2 Playground (oauth2.googleapis.com/tokeninfo) to obtain a refresh token with the Drive scope.</small>
+      </div>
+
+      <div class="backup-field">
+        <label i18n="@@admin.backup.gdriveFolderId">Backup Folder ID</label>
+        <input
+          type="text"
+          [value]="gdrive().folder_id"
+          (input)="updateGdrive('folder_id', $any($event.target).value)"
+          i18n-placeholder="@@admin.backup.gdriveFolderIdPlaceholder"
+          placeholder="Google Drive folder ID"
+          style="width:100%;font-family:monospace"
+        />
+        <small i18n="@@admin.backup.gdriveFolderIdHint">Optional. Leave blank to store backups in the root of your Drive. To use a specific folder, paste its ID from the URL.</small>
+      </div>
+
+      @if (gdrive().client_id && gdrive().refresh_token) {
         <div class="backup-field">
           <label>
             <input
@@ -111,7 +149,7 @@
           i18n="@@common.save"
         >Save</button>
 
-        @if (gdrive().service_account_key) {
+        @if (gdrive().client_id && gdrive().refresh_token) {
           <button
             type="button"
             class="button"
@@ -143,7 +181,7 @@
       @if (gdrive().last_run) {
         <p class="backup-last-run">
           <ng-container i18n="@@admin.backup.gdriveLastRun">Last backup: </ng-container>
-          <strong>{{ gdrive().last_run | date:'yyyy-MM-dd HH:mm' }}</strong>
+          <strong>{{ gdrive().last_run_localized }}</strong>
         </p>
       }
 
@@ -160,7 +198,7 @@
             @for (b of gdrive().backups; track b.id) {
               <tr>
                 <td>{{ b.name }}</td>
-                <td>{{ b.created_time | date:'yyyy-MM-dd HH:mm' }}</td>
+                <td>{{ b.created_time_localized }}</td>
                 <td>
                   <button
                     type="button"

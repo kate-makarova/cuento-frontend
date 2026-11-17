@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, viewChild, ElementRef, AfterViewInit, HostListener, NgZone, inject } from '@angular/core';
+import { Component, OnInit, signal, computed, viewChild, ElementRef, AfterViewInit, HostListener, NgZone, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
@@ -14,6 +14,7 @@ const RULER_LEFT_WIDTH = 52;
   standalone: true,
   imports: [FormsModule, DecimalPipe],
   templateUrl: './interactive-map-editor.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './interactive-map-editor.component.css'
 })
 export class InteractiveMapEditorComponent implements AfterViewInit, OnInit {

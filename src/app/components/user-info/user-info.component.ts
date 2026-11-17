@@ -1,12 +1,12 @@
-import { Component, Input } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { UserInfo } from '../../models/User';
 
 @Component({
   selector: 'app-user-info',
   standalone: true,
-  imports: [ DatePipe, RouterLink],
+  imports: [ RouterLink],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './user-info.component.html',
 })
 export class UserInfoComponent {

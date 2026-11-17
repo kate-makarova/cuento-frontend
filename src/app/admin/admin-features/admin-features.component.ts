@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FeatureService } from '../../services/feature.service';
 
@@ -8,6 +8,7 @@ import { FeatureService } from '../../services/feature.service';
   standalone: true,
   imports: [RouterLink],
   templateUrl: './admin-features.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-features.component.css',
 })
 export class AdminFeaturesComponent implements OnInit {

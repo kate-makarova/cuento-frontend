@@ -73,7 +73,7 @@
     <div class="modal-overlay episode-warning-overlay">
       <div class="modal-content episode-warning-modal">
         <h2 i18n="@@episode.blurTitle">Content Warning</h2>
-        <p i18n="@@episode.blurText">This episode contains content that may not be suitable for all audiences. Do you wish to continue?</p>
+        <p i18n="@@episode.blurText">This scene contains content that may not be suitable for all audiences. Do you wish to continue?</p>
         @if (authService.isAuthenticated()) {
           <p class="blur-do-not-show-again">
             <label>
@@ -194,7 +194,7 @@
                 [showAccount]="showAccountInForm()"
                 [accountName]="accountName"
                 [loadProfiles]="false"
-                [initialCharacterId]="post.character_profile?.id"
+                [initialCharacterId]="$safeNavigationMigration(post.character_profile?.id)"
                 (characterSelected)="editingPostProfileId.set($event)">
               </app-character-profile>
             } @else {

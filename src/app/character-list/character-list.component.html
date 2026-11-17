@@ -60,7 +60,7 @@
                   }
                   @if (char.is_claim && char.claim_author_username && char.claim_expiration_date) {
                     <span class="character-claim-info">
-                      — <ng-container i18n="@@characterList.claimedBy">claimed by</ng-container> {{ char.claim_author_username }} <ng-container i18n="@@characterList.claimedUntil">until</ng-container> {{ char.claim_expiration_date | date:'yyyy-MM-dd' }}
+                      — <ng-container i18n="@@characterList.claimedBy">claimed by</ng-container> {{ char.claim_author_username }} <ng-container i18n="@@characterList.claimedUntil">until</ng-container> {{ char.claim_expiration_date }}
                     </span>
                   }
                   @if (char.wanted_character_id != null) {
@@ -99,7 +99,7 @@
                       }
                       @if (char.is_claim && char.claim_author_username && char.claim_expiration_date) {
                         <span class="character-claim-info">
-                          — <ng-container i18n="@@characterList.claimedBy">claimed by</ng-container> {{ char.claim_author_username }} <ng-container i18n="@@characterList.claimedUntil">until</ng-container> {{ char.claim_expiration_date | date:'yyyy-MM-dd' }}
+                          — <ng-container i18n="@@characterList.claimedBy">claimed by</ng-container> {{ char.claim_author_username }} <ng-container i18n="@@characterList.claimedUntil">until</ng-container> {{ char.claim_expiration_date }}
                         </span>
                       }
                       @if (char.wanted_character_id != null) {

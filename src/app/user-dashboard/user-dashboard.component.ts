@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
@@ -40,6 +40,7 @@ interface DashboardEpisode {
   subforum_name: string;
   image_url: string | null;
   last_post_date: string;
+  last_post_date_localized?: string;
   post_count: number;
   characters: DashboardCharacter[];
   my_turn: boolean;
@@ -50,6 +51,7 @@ interface DashboardTopic {
   topic_name: string;
   subforum_name: string;
   last_post_date: string;
+  last_post_date_localized?: string;
   last_post_by: string;
   post_count: number;
 }
@@ -70,6 +72,7 @@ interface BookmarkedEpisode {
   imports: [DatePipe, RouterLink],
   templateUrl: './user-dashboard.component.html',
   styleUrl: './user-dashboard.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class UserDashboardComponent {
   activeTab = signal<'game' | 'world' | 'forum'>('game');

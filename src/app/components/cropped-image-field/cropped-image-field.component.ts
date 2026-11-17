@@ -1,4 +1,4 @@
-import { Component, Input, NgZone, inject, signal } from '@angular/core';
+import { Component, Input, NgZone, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { ImageService } from '../../services/image.service';
@@ -9,6 +9,7 @@ type UploadState = 'idle' | 'uploading' | 'done' | 'error';
   selector: 'app-cropped-image-field',
   imports: [FormsModule],
   templateUrl: './cropped-image-field.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class CroppedImageFieldComponent {

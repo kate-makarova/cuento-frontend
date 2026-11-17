@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NpcService } from '../services/npc.service';
@@ -14,6 +14,7 @@ import { BreadcrumbItem, BreadcrumbsComponent } from '../components/breadcrumbs/
   standalone: true,
   imports: [FormsModule, RouterLink, SaveButtonComponent, CroppedImageFieldComponent, BreadcrumbsComponent],
   templateUrl: './npc-form.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './npc-form.component.css',
 })
 export class NpcFormComponent implements OnInit {

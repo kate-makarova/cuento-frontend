@@ -1,10 +1,10 @@
 <div class="modal-overlay" (click)="close.emit()">
   <div class="modal-content episode-actions-modal" (click)="$event.stopPropagation()">
-    <h2 i18n="@@episode.actionsTitle">Episode actions</h2>
+    <h2 i18n="@@episode.actionsTitle">Scene actions</h2>
 
     @if (canChangeStatus) {
       <div class="episode-actions-section">
-        <h3 i18n="@@episode.actionsStateTitle">Episode state</h3>
+        <h3 i18n="@@episode.actionsStateTitle">Scene state</h3>
         <p class="episode-status-options">
           <label class="radio-label">
             <input type="radio" name="ep_status" [value]="0" [checked]="pendingStatus === 0" (change)="pendingStatusChange.emit(0)" />
@@ -20,10 +20,10 @@
           </label>
         </p>
         @if (pendingStatus !== episode?.episode_status) {
-          <p class="status-change-warning" i18n="@@episode.actionsStateConfirm">This will change the episode status. Are you sure?</p>
+          <p class="status-change-warning" i18n="@@episode.actionsStateConfirm">This will change the scene status. Are you sure?</p>
         }
         @if (stateChangeError) {
-          <p class="error-msg" i18n="@@episode.actionsStateError">Failed to change episode state. Please try again.</p>
+          <p class="error-msg" i18n="@@episode.actionsStateError">Failed to change scene state. Please try again.</p>
         }
         <button type="button" class="button" [disabled]="stateChangePending || pendingStatus === episode?.episode_status" (click)="saveStatus.emit()" i18n="@@common.save">Save</button>
       </div>

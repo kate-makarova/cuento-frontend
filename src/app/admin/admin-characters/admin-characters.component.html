@@ -38,8 +38,8 @@
         <td><a [routerLink]="['/character', character.id]">{{ character.name }}</a></td>
         <td>{{ statusLabel(character.character_status) }}</td>
         <td><a [routerLink]="['/profile', character.user_id]">{{ character.username }}</a></td>
-        <td>{{ character.date_last_post ? (character.date_last_post | date:'yyyy-MM-dd') : '—' }}</td>
-        <td>{{ character.date_created ? (character.date_created | date:'yyyy-MM-dd') : '—' }}</td>
+        <td>{{ character.date_last_post_localized ?? '—' }}</td>
+        <td>{{ character.date_created_localized ?? '—' }}</td>
         <td style="white-space: nowrap;">
           @if (character.character_status === 0) {
             <button class="button" (click)="toggleStatus(character)" i18n="@@adminCharacters.deactivate">Deactivate</button>
@@ -94,8 +94,8 @@
                   <span i18n="@@adminCharacters.historyTypeAbsence">Absence</span>
                 }
               </td>
-              <td>{{ record.start_date | date:'yyyy-MM-dd' }}</td>
-              <td>{{ record.end_date | date:'yyyy-MM-dd' }}</td>
+              <td>{{ record.start_date_localized }}</td>
+              <td>{{ record.end_date_localized }}</td>
               <td>{{ record.reason ?? '—' }}</td>
             </tr>
           } @empty {

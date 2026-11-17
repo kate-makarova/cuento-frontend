@@ -29,6 +29,7 @@ export interface WantedCharacter {
   wanted_character_status?: number;
   claim_record: ClaimRecord | null;
   active_claim_record: string | null;
+  active_claim_record_localized?: string | null;
   user_info?: UserInfo | null;
   relations?: CharacterShort[];
 }

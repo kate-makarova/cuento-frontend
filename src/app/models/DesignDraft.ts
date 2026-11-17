@@ -3,7 +3,9 @@ export interface DesignDraftListItem {
   name: string;
   session_key: string;
   date_created: string;
+  date_created_localized?: string;
   date_last_changed: string;
+  date_last_changed_localized?: string;
 }
 
 export interface DesignDraft {
@@ -11,7 +13,9 @@ export interface DesignDraft {
   name: string;
   session_key: string;
   date_created: string;
+  date_created_localized?: string;
   date_last_changed: string;
+  date_last_changed_localized?: string;
   main_css: string;
   custom_style_css: string;
 }

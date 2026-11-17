@@ -1,4 +1,4 @@
-import { Component, effect, inject, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, effect, inject, Input, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { PostFormComponent } from '../components/post-form/post-form.component';
 import { CharacterProfileComponent } from '../components/character-profile/character-profile.component';
 import { BreadcrumbItem, BreadcrumbsComponent } from '../components/breadcrumbs/breadcrumbs.component';
@@ -15,6 +15,7 @@ import { PreviewService } from '../services/preview.service';
   host: { class: 'pun-page' },
   imports: [PostFormComponent, CharacterProfileComponent, BreadcrumbsComponent],
   templateUrl: './topic-create.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class TopicCreateComponent implements OnInit {

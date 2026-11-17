@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
@@ -13,6 +13,7 @@ type SaveState = 'idle' | 'loading' | 'success' | 'error';
   standalone: true,
   imports: [FormsModule],
   templateUrl: './admin-workflow-edit.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-workflow-edit.component.css',
 })
 export class AdminWorkflowEditComponent implements OnInit {

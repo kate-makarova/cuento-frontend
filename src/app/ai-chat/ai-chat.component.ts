@@ -1,4 +1,4 @@
-import { Component, ElementRef, effect, inject, OnDestroy, OnInit, ViewChild, signal } from '@angular/core';
+import { Component, ElementRef, effect, inject, OnDestroy, OnInit, ViewChild, signal, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
@@ -15,6 +15,7 @@ import { SafeHtmlPipe } from '../pipes/safe-html.pipe';
   host: { class: 'pun-page' },
   standalone: true,
   imports: [ FormsModule, SafeHtmlPipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './ai-chat.component.html',
 })
 export class AiChatComponent implements OnInit, OnDestroy {

@@ -39,6 +39,7 @@ export interface EpisodeListItem {
   subforum_name: string;
   topic_status: number;
   last_post_date: string;
+  last_post_date_localized?: string;
   custom_fields: { [key: string]: any };
   characters: CharacterShort[];
 }

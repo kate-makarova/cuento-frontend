@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Subject, Subscription } from 'rxjs';
@@ -15,6 +15,7 @@ type SaveState = 'idle' | 'loading' | 'success' | 'error';
   host: { class: 'pun-page' },
   standalone: true,
   imports: [FormsModule, CssEditorComponent, SaveButtonComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './admin-design-draft-edit.component.html',
 })
 export class AdminDesignDraftEditComponent implements OnInit, OnDestroy {

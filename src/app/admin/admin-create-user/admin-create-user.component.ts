@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { from, switchMap } from 'rxjs';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
@@ -9,6 +9,7 @@ import { AuthService } from '../../services/auth.service';
   standalone: true,
   imports: [],
   templateUrl: './admin-create-user.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-create-user.component.css'
 })
 export class AdminCreateUserComponent {

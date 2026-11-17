@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, signal } from '@angular/core';
+import { Component, inject, Input, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { CharacterProfile } from '../models/Character';
@@ -11,6 +11,7 @@ import { TopicStatus } from '../models/Topic';
   host: { class: 'pun-page' },
   standalone: true,
   imports: [ RouterLink],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './mask-page.component.html',
 })
 export class MaskPageComponent implements OnInit {

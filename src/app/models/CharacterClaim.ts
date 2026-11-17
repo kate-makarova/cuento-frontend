@@ -6,6 +6,7 @@ export interface ClaimRecord {
   is_guest: boolean;
   claim_date: string;
   claim_expiration_date: string;
+  claim_expiration_date_localized?: string;
   character_id: number | null;
   claim_created_with_character_sheet: boolean | null;
   claim_author_id: number | null;
@@ -17,6 +18,7 @@ export interface ClaimAutocompleteItem {
   name: string;
   is_claimed: boolean | null;
   claim_expiration_date: string | null;
+  claim_expiration_date_localized?: string | null;
   user_id: number | null;
   guest_hash: string | null;
 }

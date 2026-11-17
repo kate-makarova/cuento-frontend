@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { NpcService, NpcTopic } from '../services/npc.service';
 import { ArcNpc } from '../models/StoryArc';
@@ -10,6 +10,7 @@ import { BreadcrumbItem, BreadcrumbsComponent } from '../components/breadcrumbs/
   standalone: true,
   imports: [RouterLink, BreadcrumbsComponent],
   templateUrl: './npc-detail.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './npc-detail.component.css',
 })
 export class NpcDetailComponent implements OnInit {

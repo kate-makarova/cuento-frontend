@@ -1,6 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { DatePipe } from '@angular/common';
 import { forkJoin } from 'rxjs';
 import { ArcService } from '../services/arc.service';
 import { AuthService } from '../services/auth.service';
@@ -11,8 +10,9 @@ import { BreadcrumbItem, BreadcrumbsComponent } from '../components/breadcrumbs/
   selector: 'app-arc-detail',
   host: { class: 'pun-page' },
   standalone: true,
-  imports: [RouterLink, DatePipe, BreadcrumbsComponent],
+  imports: [RouterLink, BreadcrumbsComponent],
   templateUrl: './arc-detail.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './arc-detail.component.css',
 })
 export class ArcDetailComponent implements OnInit {
@@ -23,8 +23,7 @@ export class ArcDetailComponent implements OnInit {
 
   breadcrumbs = signal<BreadcrumbItem[]>([
     { label: $localize`:@@common.home:Home`, link: '/' },
-    { label: $localize`:@@arcdetail.breadcrumbArcList:Story Arcs`, link: '/arc-list' },
-  ]);
+    { label: $localize`:@@arcdetail.breadcrumbArcList:Story Arcs`, link: '/arc-list' }]);
 
   arc = signal<StoryArc | null>(null);
   episodes = signal<ArcEpisode[]>([]);
@@ -60,8 +59,7 @@ export class ArcDetailComponent implements OnInit {
         this.npcs.set(npcs);
         this.breadcrumbs.update(crumbs => [
           ...crumbs,
-          { label: arc.title },
-        ]);
+          { label: arc.title }]);
         this.loading.set(false);
       },
       error: () => this.router.navigate(['/arc-list']),

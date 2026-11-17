@@ -4,13 +4,13 @@
 
   <div class="category">
     <div class="maintitle">
-      <p>Episodes</p>
+      <p>Scenes</p>
     </div>
     <div class="main-content">
       <table cellspacing="0">
         <thead>
           <tr>
-            <th class="tcl" scope="col">Episode Name</th>
+            <th class="tcl" scope="col">Scene Name</th>
             <th class="tc2" scope="col">Characters</th>
             <th class="tcr" scope="col">Last Post</th>
           </tr>
@@ -31,7 +31,7 @@
                 }
               </td>
               <td class="tcr">
-                {{ episode.date_last_post | date }}<br>
+                {{ episode.date_last_post_localized }}<br>
                 <span class="byuser">by {{ episode.last_post_author_username }}</span>
               </td>
             </tr>
@@ -39,7 +39,7 @@
             <tr>
               <td colspan="3" class="tcl">
                 <div class="intd">
-                  <p>No episodes found.</p>
+                  <p>No scenes found.</p>
                 </div>
               </td>
             </tr>
