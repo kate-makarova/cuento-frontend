@@ -70,6 +70,7 @@ export class AiChatComponent implements OnInit, OnDestroy {
           this.uniqueSources(msg.sources)
         ));
         this.messages.set(messages);
+        this.notificationService.checkAiMessageIds(history.filter(msg => msg.role === 'assistant').map(msg => msg.id));
       },
       error: (err) => console.error('Failed to load AI chat history', err)
     });
@@ -86,6 +87,7 @@ export class AiChatComponent implements OnInit, OnDestroy {
         this.uniqueSources(data.sources)
       );
       this.messages.update(msgs => [...msgs, aiMessage]);
+      this.notificationService.checkAiMessageIds([data.id]);
       this.isLoading.set(false);
       this.queuePosition.set(null);
     };
