@@ -233,7 +233,7 @@ export interface AiMessageData {
   role: string;
   content: string;
   sources?: AiSource[];
-  date_created: string;
+  date: string;
 }
 
 export interface AiMessageEvent {
@@ -257,7 +257,7 @@ export interface AiQueuePositionEvent {
 export interface AiErrorEvent {
   type: 'ai_error';
   msg_id?: number;
-  data: { error: string };
+  data: { error: string; date: string };
 }
 
 export interface PageChangedEvent {
