@@ -1,0 +1,86 @@
+<div id="pun-scene-inventory" class="main scene-inventory">
+  <app-breadcrumbs [items]="breadcrumbs()"></app-breadcrumbs>
+  @if (loadError()) {
+    <p i18n="@@sceneinventory.loadError">Could not load the inventories of this scene.</p>
+  } @else if (scene(); as scene) {
+    <div class="main-header">
+      <h1>
+        <ng-container i18n="@@sceneinventory.title">Inventories</ng-container>:
+        <a [routerLink]="['/viewtopic', scene.topic_id]">{{ scene.name }}</a>
+      </h1>
+    </div>
+
+    @if (isPending()) {
+      <div class="scene-inventory-start">
+        <p i18n="@@sceneinventory.pendingNotice">This scene is pending. Fill and lock every inventory, then start the scene. Players can't post until it starts.</p>
+        <button type="button" class="button" [disabled]="!allLocked() || starting()" (click)="start()" i18n="@@sceneinventory.start">Start scene</button>
+        @if (startError()) {
+          <p class="error-msg">{{ startError() }}</p>
+        }
+      </div>
+    }
+
+    @if (scene.inventories.length === 0) {
+      <p i18n="@@sceneinventory.noCharacters">This scene has no characters or masks yet.</p>
+    }
+
+    @for (inv of scene.inventories; track inv.profile_id) {
+      <section class="scene-inventory-profile">
+        <h2>
+          {{ inv.name }}
+          @if (inv.is_mask) {
+            <span class="status-badge" i18n="@@sceneinventory.mask">Mask</span>
+          }
+          @if (inv.is_locked) {
+            <span class="status-badge status-finished" i18n="@@sceneinventory.locked">Locked</span>
+          }
+        </h2>
+        <p class="scene-inventory-owner">
+          <ng-container i18n="@@sceneinventory.player">Player:</ng-container>
+          <a [routerLink]="['/profile', inv.owner_user_id]">{{ inv.owner_username }}</a>
+          @if (inv.locked_at) {
+            · <ng-container i18n="@@sceneinventory.lockedAt">locked</ng-container> {{ inv.locked_at }}
+          }
+        </p>
+
+        @if (inv.is_locked) {
+          <app-inventory-list [items]="inv.items"></app-inventory-list>
+        } @else {
+          <table class="scene-inventory-rows">
+            <tbody>
+              @for (row of rows(inv.profile_id); track $index; let i = $index) {
+                <tr>
+                  <td>
+                    <select [value]="row.item_id ?? ''" (change)="setRowItem(inv.profile_id, i, $event)" i18n-aria-label="@@sceneinventory.item" aria-label="Item">
+                      <option value="" i18n="@@sceneinventory.chooseItem">— Choose an item —</option>
+                      @for (item of scene.catalogue; track item.id) {
+                        <option [value]="item.id" [selected]="item.id === row.item_id">{{ item.name }}</option>
+                      }
+                    </select>
+                  </td>
+                  <td>
+                    <input type="number" min="1" class="scene-inventory-quantity" [value]="row.quantity" (change)="setRowQuantity(inv.profile_id, i, $event)" i18n-aria-label="@@sceneinventory.quantity" aria-label="Quantity" />
+                  </td>
+                  <td>
+                    <button type="button" class="button" (click)="removeRow(inv.profile_id, i)" i18n="@@sceneinventory.remove">Remove</button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+          @if (scene.catalogue.length === 0) {
+            <p i18n="@@sceneinventory.emptyCatalogue">The arc has no items yet. Add them on the arc page.</p>
+          }
+          @if (profileErrors()[inv.profile_id]) {
+            <p class="error-msg">{{ profileErrors()[inv.profile_id] }}</p>
+          }
+          <div class="scene-inventory-actions">
+            <button type="button" class="button" [disabled]="scene.catalogue.length === 0" (click)="addRow(inv.profile_id)" i18n="@@sceneinventory.addItem">Add item</button>
+            <button type="button" class="button" [disabled]="busyProfileId() === inv.profile_id" (click)="save(inv.profile_id)" i18n="@@common.save">Save</button>
+            <button type="button" class="button" [disabled]="busyProfileId() === inv.profile_id" (click)="lock(inv.profile_id, inv.name)" i18n="@@sceneinventory.lock">Lock</button>
+          </div>
+        }
+      </section>
+    }
+  }
+</div>

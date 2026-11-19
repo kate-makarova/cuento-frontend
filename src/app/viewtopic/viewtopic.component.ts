@@ -34,6 +34,10 @@ import { UserInfoComponent } from '../components/user-info/user-info.component';
 import { StandardWarning } from '../models/StandardWarning';
 import { FormsModule } from '@angular/forms';
 import { PostSidebarComponent } from '../components/post-sidebar/post-sidebar.component';
+import { InventoryModalComponent, InventoryModalSection } from '../components/inventory-modal/inventory-modal.component';
+import { InventoryService } from '../services/inventory.service';
+import { EpisodeStatus } from '../models/Episode';
+import { HttpErrorResponse } from '@angular/common/http';
 
 function coerceToPage(value: unknown): number {
   const num = numberAttribute(value, 1);
@@ -61,7 +65,8 @@ function coerceToPage(value: unknown): number {
     CodeCopyDirective,
     UserInfoComponent,
     FormsModule,
-    PostSidebarComponent],
+    PostSidebarComponent,
+    InventoryModalComponent],
   templateUrl: './viewtopic.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
@@ -180,6 +185,12 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
 
   isGmPostMode = signal(false);
   readonly showGmToggle = computed(() => this.topic().episode?.is_gm ?? false);
+
+  private inventoryService = inject(InventoryService);
+  readonly usesInventory = computed(() => this.isEpisode() && (this.topic().episode?.uses_inventory ?? false));
+  readonly isPendingScene = computed(() => this.topic().episode?.episode_status === EpisodeStatus.Pending);
+  // null = closed; sections null = loading
+  inventoryModal = signal<{ sections: InventoryModalSection[] | null; error: string; empty: string } | null>(null);
   readonly effectiveGmPost = computed(() => this.isGmPostMode());
 
   get shouldBlur(): boolean {
@@ -928,6 +939,40 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
       next: () => this.isSubscribed.set(subscribing),
       error: (err: any) => console.error('Failed to toggle subscription', err)
     });
+  }
+
+  showPostInventoryLink(post: Post): boolean {
+    return this.usesInventory() && post.use_character_profile && !!post.character_profile;
+  }
+
+  openMyInventory() {
+    const episodeId = this.topic().episode?.id;
+    if (!episodeId) return;
+    const empty = $localize`:@@viewtopic.noInventories:You have no characters in this scene.`;
+    this.inventoryModal.set({ sections: null, error: '', empty });
+    this.inventoryService.getCurrentInventories(episodeId).subscribe({
+      next: (list) => this.inventoryModal.set({ sections: list.map(i => ({ name: i.name, items: i.items })), error: '', empty }),
+      error: () => this.inventoryModal.set({ sections: [], error: $localize`:@@viewtopic.inventoryLoadError:Failed to load the inventory.`, empty }),
+    });
+  }
+
+  openPostInventory(post: Post, event: Event) {
+    event.preventDefault();
+    this.inventoryModal.set({ sections: null, error: '', empty: '' });
+    this.inventoryService.getPostInventory(post.id).subscribe({
+      next: (inv) => this.inventoryModal.set({ sections: [{ name: inv.name, items: inv.items }], error: '', empty: '' }),
+      error: (err: HttpErrorResponse) => this.inventoryModal.set({
+        sections: [],
+        error: err.status === 403
+          ? $localize`:@@viewtopic.inventoryForbidden:Only the player and the game masters can see this inventory.`
+          : $localize`:@@viewtopic.inventoryLoadError:Failed to load the inventory.`,
+        empty: '',
+      }),
+    });
+  }
+
+  closeInventory() {
+    this.inventoryModal.set(null);
   }
 
   onEpisodeStatusChanged(result: { episode_status: number; topic_status: number }) {

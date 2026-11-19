@@ -273,6 +273,30 @@ export const routes: Routes = [
     data: { pageId: 'pun-npc-detail' }
   },
   {
+    path: 'inventory-item/create',
+    loadComponent: () => import('./inventory-item-form/inventory-item-form.component').then(m => m.InventoryItemFormComponent),
+    title: 'Add Item',
+    data: { pageId: 'pun-inventory-item-create' }
+  },
+  {
+    path: 'inventory-item/:id/edit',
+    loadComponent: () => import('./inventory-item-form/inventory-item-form.component').then(m => m.InventoryItemFormComponent),
+    title: 'Edit Item',
+    data: { pageId: 'pun-inventory-item-edit' }
+  },
+  {
+    path: 'inventory-item/:id',
+    loadComponent: () => import('./inventory-item-detail/inventory-item-detail.component').then(m => m.InventoryItemDetailComponent),
+    title: 'Item',
+    data: { pageId: 'pun-inventory-item-detail' }
+  },
+  {
+    path: 'episode/:id/inventory',
+    loadComponent: () => import('./scene-inventory/scene-inventory.component').then(m => m.SceneInventoryComponent),
+    title: 'Scene Inventories',
+    data: { pageId: 'pun-scene-inventory' }
+  },
+  {
     path: 'active-topics',
     component: ActiveTopicsComponent,
     title: 'Active Topics',

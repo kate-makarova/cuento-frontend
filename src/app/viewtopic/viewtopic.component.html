@@ -69,6 +69,24 @@
     }
   }
 
+  @if (usesInventory() && !editingTopic()) {
+    <div class="scene-inventory-bar">
+      @if (isPendingScene()) {
+        <p class="scene-pending-notice" i18n="@@viewtopic.scenePending">This scene hasn't started yet: the game masters are preparing the inventories.</p>
+      }
+      @if (authService.isAuthenticated()) {
+        <button type="button" class="button" (click)="openMyInventory()" i18n="@@viewtopic.myInventory">My inventory</button>
+      }
+      @if (topic().episode?.can_manage_inventory) {
+        <a class="button" [routerLink]="['/episode', topic().episode!.id, 'inventory']" i18n="@@viewtopic.manageInventories">Manage inventories</a>
+      }
+    </div>
+  }
+
+  @if (inventoryModal(); as modal) {
+    <app-inventory-modal [sections]="modal.sections" [errorMessage]="modal.error" [emptyMessage]="modal.empty" (close)="closeInventory()"></app-inventory-modal>
+  }
+
   @if (shouldBlur) {
     <div class="modal-overlay episode-warning-overlay">
       <div class="modal-content episode-warning-modal">
@@ -273,6 +291,9 @@
               <span><a href="/profile/{{ post.author_user_id }}" i18n="@@viewtopic.profile">Profile</a></span>
               @if (post.character_profile?.character_id) {
                 <span><a [routerLink]="['/character', post.character_profile!.character_id]" i18n="@@viewtopic.character">Character</a></span>
+              }
+              @if (showPostInventoryLink(post)) {
+                <span><a href="#" (click)="openPostInventory(post, $event)" i18n="@@viewtopic.inventory">Inventory</a></span>
               }
             </p>
           }

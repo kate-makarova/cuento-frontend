@@ -211,3 +211,12 @@
 .arc-empty {
   opacity: 0.6;
 }
+
+/* Inventory */
+.inventory-card--hidden {
+  opacity: 0.6;
+}
+
+.inventory-hidden-label {
+  font-size: 0.75rem;
+}

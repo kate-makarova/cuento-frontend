@@ -2,7 +2,7 @@ import { Component, Input, OnInit, OnChanges, SimpleChanges, Output, EventEmitte
 import { switchMap, tap, map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 
-import { Episode } from '../../models/Episode';
+import { Episode, EpisodeStatus } from '../../models/Episode';
 import { FieldDisplayComponent } from '../field-display/field-display.component';
 import { CustomFieldsData, CustomFieldValue } from '../../models/Character';
 import { RouterLink } from '@angular/router';
@@ -61,8 +61,9 @@ export class EpisodeHeaderComponent implements OnInit, OnChanges {
     return this.canEdit || this.userCharacterProfiles().length > 0;
   }
 
+  // A pending scene only leaves Pending through "Start scene" on its inventory page.
   get canChangeStatus(): boolean {
-    return this.canEdit || this.userCharacterProfiles().length > 0;
+    return (this.canEdit || this.userCharacterProfiles().length > 0) && this.episode?.episode_status !== EpisodeStatus.Pending;
   }
 
   ngOnInit() {

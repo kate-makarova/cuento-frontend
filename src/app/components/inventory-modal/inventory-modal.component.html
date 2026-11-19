@@ -1,0 +1,22 @@
+<div class="modal-overlay" (click)="close.emit()">
+  <div class="modal-content inventory-modal" (click)="$event.stopPropagation()">
+    <h2 i18n="@@inventory.modalTitle">Inventory</h2>
+    @if (errorMessage) {
+      <p class="error-msg">{{ errorMessage }}</p>
+    } @else if (sections === null) {
+      <p i18n="@@inventory.loading">Loading…</p>
+    } @else if (sections.length === 0) {
+      <p>{{ emptyMessage }}</p>
+    } @else {
+      @for (section of sections; track $index) {
+        <section class="inventory-modal-section">
+          <h3>{{ section.name }}</h3>
+          <app-inventory-list [items]="section.items"></app-inventory-list>
+        </section>
+      }
+    }
+    <div class="buttons">
+      <button type="button" class="button" (click)="close.emit()" i18n="@@common.close">Close</button>
+    </div>
+  </div>
+</div>

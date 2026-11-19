@@ -1,0 +1,12 @@
+.inventory-modal {
+  min-width: 320px;
+  max-width: 520px;
+}
+
+.inventory-modal-section {
+  margin-bottom: 16px;
+}
+
+.inventory-modal-section h3 {
+  margin: 0 0 8px;
+}

@@ -36,6 +36,7 @@ export interface ArcEpisode {
   last_post_author: UserShort | null;
   characters: { id: number; name: string; avatar: string | null }[];
   factions: FactionShort[];
+  uses_inventory: boolean;
 }
 
 export interface ArcCreateRequest {

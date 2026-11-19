@@ -1,0 +1,17 @@
+@if (items.length) {
+  <ul class="inventory-list">
+    @for (entry of items; track entry.item_id) {
+      <li class="inventory-entry" [title]="entry.description ?? ''">
+        @if (entry.icon) {
+          <img class="inventory-entry-icon" [src]="entry.icon" [alt]="entry.name" />
+        } @else {
+          <div class="inventory-entry-icon inventory-entry-icon--placeholder"></div>
+        }
+        <span class="inventory-entry-name">{{ entry.name }}</span>
+        <span class="inventory-entry-quantity">× {{ entry.quantity }}</span>
+      </li>
+    }
+  </ul>
+} @else {
+  <p class="inventory-empty" i18n="@@inventory.empty">The inventory is empty.</p>
+}

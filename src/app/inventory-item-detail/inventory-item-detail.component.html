@@ -1,0 +1,33 @@
+<div id="pun-inventory-item-detail" class="main inventory-item-detail">
+  <app-breadcrumbs [items]="breadcrumbs()"></app-breadcrumbs>
+  @if (!loading()) {
+    @if (error()) {
+      <p i18n="@@inventorydetail.error">Could not load the item.</p>
+    } @else if (item(); as item) {
+      <div class="main-header">
+        <h1>
+          {{ item.name }}
+          @if (item.is_hidden) {
+            <span class="status-badge" i18n="@@inventory.hiddenBadge">Hidden</span>
+          }
+        </h1>
+        @if (item.can_edit) {
+          <div class="main-header-controls">
+            <a class="button" [routerLink]="['/inventory-item', item.id, 'edit']" i18n="@@inventorydetail.edit">Edit</a>
+          </div>
+        }
+      </div>
+
+      <div class="npc-profile">
+        @if (item.icon) {
+          <div class="npc-profile-avatar">
+            <img [src]="item.icon" [alt]="item.name" />
+          </div>
+        }
+        @if (item.description) {
+          <div class="npc-profile-description">{{ item.description }}</div>
+        }
+      </div>
+    }
+  }
+</div>

@@ -13,6 +13,9 @@ import { CommonModule } from '@angular/common';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { throwError } from 'rxjs';
+import { InventoryService } from '../services/inventory.service';
+import { EpisodeStatus } from '../models/Episode';
 
 @Component({
   selector: 'app-episode-create',
@@ -43,6 +46,7 @@ describe('ViewtopicComponent', () => {
   let forumServiceSpy: jasmine.SpyObj<ForumService>;
   let characterServiceSpy: jasmine.SpyObj<CharacterService>;
   let authServiceSpy: jasmine.SpyObj<AuthService>;
+  let inventoryServiceSpy: jasmine.SpyObj<InventoryService>;
 
   let topicSignal: WritableSignal<Topic>;
   let postsSignal: WritableSignal<Post[]>;
@@ -99,6 +103,7 @@ describe('ViewtopicComponent', () => {
       isAuthenticated: signal(true)
     });
     authServiceSpy.hasPermission.and.returnValue(false);
+    inventoryServiceSpy = jasmine.createSpyObj('InventoryService', ['getPostInventory', 'getCurrentInventories']);
 
     await TestBed.configureTestingModule({
       imports: [ViewtopicComponent, CommonModule, RouterTestingModule, HttpClientTestingModule],
@@ -107,6 +112,7 @@ describe('ViewtopicComponent', () => {
         { provide: ForumService, useValue: forumServiceSpy },
         { provide: CharacterService, useValue: characterServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
+        { provide: InventoryService, useValue: inventoryServiceSpy },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -205,5 +211,84 @@ describe('ViewtopicComponent', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const pagination = compiled.querySelector('.pagelink');
     expect(pagination?.textContent).toContain('Pages');
+  });
+
+  describe('scene inventory', () => {
+    const inCharacterPost = (id: number): Post => ({
+      ...mockPosts[0], id, use_character_profile: true,
+      character_profile: { id: 40 + id, character_id: 70 + id } as any,
+    });
+
+    function showScene(usesInventory: boolean, status = EpisodeStatus.Active) {
+      topicSignal.set({
+        ...mockTopic, id: 1, type: TopicType.episode,
+        episode: {
+          id: 5, name: 'Heist', characters: [], masks: [], open_to_everyone: false,
+          custom_fields: { custom_fields: {} } as any,
+          episode_status: status, uses_inventory: usesInventory,
+        },
+      });
+      postsSignal.set([inCharacterPost(1), mockPosts[1]]);
+      fixture.detectChanges();
+    }
+
+    function inventoryLinks(): HTMLAnchorElement[] {
+      return Array.from(fixture.nativeElement.querySelectorAll('.post-contacts a') as NodeListOf<HTMLAnchorElement>)
+        .filter(a => a.textContent!.trim() === 'Inventory');
+    }
+
+    it('links the inventory of in-character posts in a scene that uses it', () => {
+      showScene(true);
+      expect(inventoryLinks().length).toBe(1);
+    });
+
+    it('shows no inventory links or button in a scene without inventory', () => {
+      showScene(false);
+      expect(inventoryLinks().length).toBe(0);
+      expect(fixture.nativeElement.querySelector('.scene-inventory-bar')).toBeNull();
+    });
+
+    it('loads a post inventory into the modal on click', () => {
+      inventoryServiceSpy.getPostInventory.and.returnValue(of({
+        profile_id: 41, name: 'Alice', items: [{ item_id: 1, name: 'Gold coin', description: null, icon: null, quantity: 5 }],
+      }));
+      showScene(true);
+
+      inventoryLinks()[0].click();
+      fixture.detectChanges();
+
+      expect(inventoryServiceSpy.getPostInventory).toHaveBeenCalledWith(1);
+      const modal = fixture.nativeElement.querySelector('.inventory-modal').textContent;
+      expect(modal).toContain('Alice');
+      expect(modal).toContain('Gold coin');
+      expect(modal).toContain('× 5');
+    });
+
+    it('explains when the viewer may not see a post inventory', () => {
+      inventoryServiceSpy.getPostInventory.and.returnValue(throwError(() => ({ status: 403 })));
+      showScene(true);
+
+      inventoryLinks()[0].click();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.inventory-modal').textContent)
+        .toContain('Only the player and the game masters can see this inventory.');
+    });
+
+    it('shows the current inventories from the My inventory button', () => {
+      inventoryServiceSpy.getCurrentInventories.and.returnValue(of([]));
+      showScene(true);
+
+      (fixture.nativeElement.querySelector('.scene-inventory-bar button') as HTMLButtonElement).click();
+      fixture.detectChanges();
+
+      expect(inventoryServiceSpy.getCurrentInventories).toHaveBeenCalledWith(5);
+      expect(fixture.nativeElement.querySelector('.inventory-modal').textContent).toContain('You have no characters in this scene.');
+    });
+
+    it('tells players a pending scene has not started', () => {
+      showScene(true, EpisodeStatus.Pending);
+      expect(fixture.nativeElement.querySelector('.scene-pending-notice')).toBeTruthy();
+    });
   });
 });

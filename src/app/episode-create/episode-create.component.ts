@@ -9,7 +9,8 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BreadcrumbItem, BreadcrumbsComponent } from '../components/breadcrumbs/breadcrumbs.component';
 import { ForumService } from '../services/forum.service';
-import { CreateEpisodeRequest, Episode } from '../models/Episode';
+import { CreateEpisodeRequest, Episode, EpisodeStatus } from '../models/Episode';
+import { InventoryService } from '../services/inventory.service';
 import { Topic, TopicType, TopicStatus } from '../models/Topic';
 import { MaskService } from '../services/mask.service';
 import { ShortMask } from '../models/Character';
@@ -32,6 +33,7 @@ export class EpisodeCreateComponent implements OnInit, OnChanges {
   previewService = inject(PreviewService);
   boardService = inject(BoardService);
   private forumService = inject(ForumService);
+  private inventoryService = inject(InventoryService);
   router = inject(Router);
   route = inject(ActivatedRoute);
   episodeTemplate = this.episodeService.episodeTemplate;
@@ -100,6 +102,15 @@ export class EpisodeCreateComponent implements OnInit, OnChanges {
   // Arc — set from query params on create, read-only
   arcId: number | null = null;
   arcTitle: string = '';
+
+  // Inventory toggle: offered to the arc's GMs when the arc has inventory turned on
+  canUseInventory = signal(false);
+  useInventory = signal(false);
+  inventoryError = signal('');
+  // A pending scene is waiting for its inventories, so inventory can't be switched off
+  get inventoryToggleLocked(): boolean {
+    return this.initialData?.episode_status === EpisodeStatus.Pending;
+  }
 
   // Rating — manual baseline set by the user directly in the dropdowns
   manualRatingLanguage: number = 0;
@@ -224,13 +235,29 @@ export class EpisodeCreateComponent implements OnInit, OnChanges {
       if (params['arc_id'] && !this.initialData) {
         this.arcId = +params['arc_id'];
         this.arcTitle = params['arc_title'] || '';
+        this.loadInventoryAvailability(this.arcId);
       }
     });
 
   }
 
+  private loadInventoryAvailability(arcId: number) {
+    this.inventoryService.getArcInventory(arcId).subscribe({
+      next: (inv) => this.canUseInventory.set(inv.enabled && inv.can_edit),
+      error: () => this.canUseInventory.set(false),
+    });
+  }
+
+  toggleInventory(event: Event) {
+    this.useInventory.set((event.target as HTMLInputElement).checked);
+  }
+
   populateForm(data: Episode) {
     this.episodeBlockSettings.set(data.custom_fields?.block_settings ?? {});
+    this.useInventory.set(data.uses_inventory ?? false);
+    if (data.id && data.arc?.id) {
+      this.loadInventoryAvailability(data.arc.id);
+    }
     this.subject.set(data.name);
     this.openToEveryone = data.open_to_everyone ?? false;
     this.manualRatingLanguage = data.rating_language ?? 0;
@@ -467,6 +494,7 @@ export class EpisodeCreateComponent implements OnInit, OnChanges {
 
     if (!this.formSubmit.observed && this.arcId !== null) {
       request.arc_id = this.arcId;
+      request.use_inventory = this.canUseInventory() && this.useInventory();
     }
 
     const isPreview = ((event as SubmitEvent).submitter as HTMLInputElement | null)?.name === 'preview';
@@ -522,11 +550,13 @@ export class EpisodeCreateComponent implements OnInit, OnChanges {
 
   private executeSubmit(request: any) {
     if (this.formSubmit.observed) {
-      this.formSubmit.emit(request);
+      this.submitEdit(request);
     } else {
       this.episodeService.createEpisode(request as CreateEpisodeRequest).subscribe({
         next: (response: any) => {
-          if (response?.topic_id) {
+          if (request.use_inventory && response?.episode_id) {
+            this.router.navigate(['/episode', response.episode_id, 'inventory']);
+          } else if (response?.topic_id) {
             this.router.navigate(['/viewtopic', response.topic_id]);
           } else {
             this.router.navigate(['/viewforum', this.subforumId]);
@@ -537,6 +567,21 @@ export class EpisodeCreateComponent implements OnInit, OnChanges {
         }
       });
     }
+  }
+
+  // Saves a changed inventory toggle first; the edit is only emitted once that succeeded.
+  private submitEdit(request: any) {
+    const episode = this.initialData;
+    if (!episode || !this.canUseInventory() || this.useInventory() === (episode.uses_inventory ?? false)) {
+      this.formSubmit.emit(request);
+      return;
+    }
+    this.inventoryError.set('');
+    this.inventoryService.setSceneInventory(episode.id, this.useInventory()).subscribe({
+      next: () => this.formSubmit.emit(request),
+      error: () => this.inventoryError.set(
+        $localize`:@@episodecreate.inventoryOffError:Inventory can't be turned off: the scene is pending or already has locked inventories.`),
+    });
   }
 
   continueWithRatingWarning() {

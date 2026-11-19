@@ -70,4 +70,13 @@ describe('EpisodeHeaderComponent', () => {
     expect(compiled.textContent).toContain('Location');
     expect(compiled.textContent).toContain('Forest');
   });
+
+  it('marks a pending scene and offers no status change', () => {
+    component.canEdit = true;
+    component.episode = { ...mockEpisode, episode_status: 3 };
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.status-pending')?.textContent).toContain('Pending');
+    expect(component.canChangeStatus).toBeFalse();
+  });
 });

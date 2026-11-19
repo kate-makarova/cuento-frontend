@@ -95,6 +95,44 @@
         </section>
       }
 
+      @if (showInventory() && inventory(); as inv) {
+        <section class="arc-npcs arc-inventory">
+          <div class="arc-npcs-header">
+            <h2 i18n="@@arcdetail.inventoryTitle">Inventory</h2>
+            @if (inv.can_edit) {
+              @if (inv.enabled) {
+                <a class="button" routerLink="/inventory-item/create" [queryParams]="{ arc_id: arc.id }" i18n="@@arcdetail.addInventoryItem">Add item</a>
+                <button type="button" class="button" [disabled]="inv.in_use" (click)="setInventoryEnabled(false)"
+                        i18n-title="@@arcdetail.inventoryInUse" title="Inventory can't be turned off: a scene of this arc already uses it."
+                        i18n="@@arcdetail.disableInventory">Turn off inventory</button>
+              } @else {
+                <button type="button" class="button" (click)="setInventoryEnabled(true)" i18n="@@arcdetail.enableInventory">Turn on inventory</button>
+              }
+            }
+          </div>
+          @if (inventoryError()) {
+            <p class="error-msg">{{ inventoryError() }}</p>
+          }
+          @if (inv.enabled && inv.items.length) {
+            <div class="npc-cards">
+              @for (item of inv.items; track item.id) {
+                <a class="npc-card" [class.inventory-card--hidden]="item.is_hidden" [routerLink]="['/inventory-item', item.id]">
+                  @if (item.icon) {
+                    <img class="npc-avatar" [src]="item.icon" [alt]="item.name" />
+                  } @else {
+                    <div class="npc-avatar npc-avatar--placeholder"></div>
+                  }
+                  <span class="npc-name">{{ item.name }}</span>
+                  @if (item.is_hidden) {
+                    <span class="inventory-hidden-label" i18n="@@inventory.hiddenBadge">Hidden</span>
+                  }
+                </a>
+              }
+            </div>
+          }
+        </section>
+      }
+
       <section class="arc-episodes">
         <div class="arc-section-header">
           <h2 i18n="@@arcdetail.episodesTitle">Scenes</h2>
@@ -113,6 +151,9 @@
                 <th i18n="@@arcdetail.colAuthor">Author</th>
                 <th i18n="@@arcdetail.colCharacters">Characters</th>
                 <th i18n="@@arcdetail.colFactions">Factions</th>
+                @if (canEdit()) {
+                  <th></th>
+                }
               </tr>
             </thead>
             <tbody>
@@ -148,6 +189,13 @@
                       }
                     </span>
                   </td>
+                  @if (canEdit()) {
+                    <td>
+                      @if (ep.uses_inventory) {
+                        <a [routerLink]="['/episode', ep.id, 'inventory']" i18n="@@arcdetail.sceneInventories">Inventories</a>
+                      }
+                    </td>
+                  }
                 </tr>
               }
             </tbody>

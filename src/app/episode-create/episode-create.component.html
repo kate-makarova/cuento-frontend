@@ -96,6 +96,23 @@
           </label>
         </div>
       </div>
+
+      @if (canUseInventory()) {
+        <div class="fs-box hashelp">
+          <div class="inputfield">
+            <label class="option-label">
+              <input type="checkbox" name="use_inventory" [checked]="useInventory()" [disabled]="inventoryToggleLocked" (change)="toggleInventory($event)" />
+              <ng-container i18n="@@episodecreate.useInventory">Use inventory</ng-container>
+            </label>
+            @if (!initialData) {
+              <p class="arc-note" i18n="@@episodecreate.useInventoryHelp">The scene will be created as pending. You'll fill and lock each character's inventory, then start the scene.</p>
+            }
+            @if (inventoryError()) {
+              <p class="error-msg">{{ inventoryError() }}</p>
+            }
+          </div>
+        </div>
+      }
     </fieldset>
 
     @if (templateBlockSettings().length > 0) {

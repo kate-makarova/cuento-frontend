@@ -9,6 +9,8 @@
         <span class="status-badge status-inactive" i18n="@@common.statusInactive">Inactive</span>
       } @else if (episode.episode_status === 2) {
         <span class="status-badge status-finished" i18n="@@episode.statusFinished">Finished</span>
+      } @else if (episode.episode_status === 3) {
+        <span class="status-badge status-pending" i18n="@@episode.statusPending">Pending</span>
       }
       @if (ratingBadge) {
         <span class="status-badge episode-rating-badge">{{ ratingBadge }}</span>

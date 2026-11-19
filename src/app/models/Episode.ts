@@ -20,6 +20,16 @@ export interface Episode {
   is_arc?: boolean;
   arc?: { id: number; title: string } | null;
   is_gm?: boolean;
+  uses_inventory?: boolean;
+  can_manage_inventory?: boolean;
+}
+
+export enum EpisodeStatus {
+  Active = 0,
+  Inactive = 1,
+  Finished = 2,
+  // Waiting for the GM to fill and lock inventories; only "Start scene" leaves it.
+  Pending = 3,
 }
 
 export interface EpisodeFilterRequest {
