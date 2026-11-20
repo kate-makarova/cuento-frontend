@@ -52,6 +52,19 @@ export interface PostInventory {
   items: InventoryEntry[];
 }
 
+// A scene profile that can receive items: it has a locked inventory there.
+export interface InventoryRecipient {
+  profile_id: number;
+  name: string;
+}
+
+// An in-game [item-drop]/[item-give] action for a post; `items` is "id:quantity,id:quantity".
+export interface InventoryAction {
+  kind: 'drop' | 'give';
+  items: string;
+  to?: number;
+}
+
 export interface InventoryQuantity {
   item_id: number;
   quantity: number;

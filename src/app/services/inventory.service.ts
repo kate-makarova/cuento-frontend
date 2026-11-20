@@ -2,7 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 import {
-  ArcInventory, InventoryItem, InventoryItemRequest, InventoryQuantity, PostInventory, SceneInventories, SceneInventory,
+  ArcInventory, InventoryItem, InventoryItemRequest, InventoryQuantity, InventoryRecipient, PostInventory, SceneInventories,
+  SceneInventory,
 } from '../models/Inventory';
 
 @Injectable({ providedIn: 'root' })
@@ -59,5 +60,9 @@ export class InventoryService {
 
   getPostInventory(postId: number): Observable<PostInventory> {
     return this.apiService.get<PostInventory>(`post/${postId}/inventory`);
+  }
+
+  getRecipients(episodeId: number): Observable<InventoryRecipient[]> {
+    return this.apiService.get<InventoryRecipient[]>(`episode/${episodeId}/inventory/recipients`);
   }
 }

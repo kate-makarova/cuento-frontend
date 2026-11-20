@@ -1,0 +1,11 @@
+.action-quantity {
+  width: 4.5em;
+}
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}

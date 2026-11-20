@@ -103,7 +103,7 @@ describe('ViewtopicComponent', () => {
       isAuthenticated: signal(true)
     });
     authServiceSpy.hasPermission.and.returnValue(false);
-    inventoryServiceSpy = jasmine.createSpyObj('InventoryService', ['getPostInventory', 'getCurrentInventories']);
+    inventoryServiceSpy = jasmine.createSpyObj('InventoryService', ['getPostInventory', 'getCurrentInventories', 'getRecipients']);
 
     await TestBed.configureTestingModule({
       imports: [ViewtopicComponent, CommonModule, RouterTestingModule, HttpClientTestingModule],
@@ -289,6 +289,62 @@ describe('ViewtopicComponent', () => {
     it('tells players a pending scene has not started', () => {
       showScene(true, EpisodeStatus.Pending);
       expect(fixture.nativeElement.querySelector('.scene-pending-notice')).toBeTruthy();
+    });
+
+    describe('inventory actions', () => {
+      const coins = { item_id: 1, name: 'Gold coin', description: null, icon: null, quantity: 5 };
+      const inventory = (profileId: number, name: string, isLocked = true) => ({
+        profile_id: profileId, name, is_mask: false, owner_user_id: 1, owner_username: 'me',
+        exists: true, is_locked: isLocked, items: [coins],
+      });
+      let postFormStub: { insertItemAction: jasmine.Spy };
+
+      function openMyInventory(status = EpisodeStatus.Active) {
+        showScene(true, status);
+        postFormStub = { insertItemAction: jasmine.createSpy('insertItemAction') };
+        component.postForm = postFormStub as any;
+        component.selectedCharacterId = 41;
+        (fixture.nativeElement.querySelector('.scene-inventory-bar button') as HTMLButtonElement).click();
+        fixture.detectChanges();
+      }
+
+      beforeEach(() => {
+        inventoryServiceSpy.getCurrentInventories.and.returnValue(of([inventory(41, 'Alice'), inventory(42, 'Alice in disguise')]));
+        inventoryServiceSpy.getRecipients.and.returnValue(of([{ profile_id: 41, name: 'Alice' }, { profile_id: 77, name: 'Bob' }]));
+      });
+
+      it('offers drop and give only for the character the post is written as', () => {
+        openMyInventory();
+        const pickers = fixture.nativeElement.querySelectorAll('app-inventory-action-picker');
+        expect(pickers.length).toBe(1);
+        expect(pickers[0].closest('section').textContent).toContain('Alice');
+        const options = Array.from(pickers[0].querySelectorAll('option') as NodeListOf<HTMLOptionElement>).map(o => o.textContent!.trim());
+        expect(options).toEqual(['Give to…', 'Bob']);
+      });
+
+      it('offers no actions while the scene is pending', () => {
+        openMyInventory(EpisodeStatus.Pending);
+        expect(fixture.nativeElement.querySelector('app-inventory-action-picker')).toBeNull();
+        expect(inventoryServiceSpy.getRecipients).not.toHaveBeenCalled();
+      });
+
+      it('offers no actions for an inventory that is not locked', () => {
+        inventoryServiceSpy.getCurrentInventories.and.returnValue(of([inventory(41, 'Alice', false)]));
+        openMyInventory();
+        expect(fixture.nativeElement.querySelector('app-inventory-action-picker')).toBeNull();
+      });
+
+      it('puts the chosen action into the post and closes the inventory', () => {
+        openMyInventory();
+        const picker = fixture.nativeElement.querySelector('app-inventory-action-picker');
+        (picker.querySelector('input[type=checkbox]') as HTMLInputElement).click();
+        fixture.detectChanges();
+        (Array.from(picker.querySelectorAll('button') as NodeListOf<HTMLButtonElement>).find(b => b.textContent!.trim() === 'Drop'))!.click();
+        fixture.detectChanges();
+
+        expect(postFormStub.insertItemAction).toHaveBeenCalledWith({ kind: 'drop', items: '1:5' });
+        expect(fixture.nativeElement.querySelector('.inventory-modal')).toBeNull();
+      });
     });
   });
 });

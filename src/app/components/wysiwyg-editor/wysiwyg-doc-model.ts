@@ -7,7 +7,12 @@ export type Mark =
   | { type: 'color'; value: string }
   | { type: 'font';  value: string }
   | { type: 'size';  value: number }
-  | { type: 'link';  href: string };
+  | { type: 'link';  href: string }
+  // [item-drop]/[item-give]: an in-game inventory action around the player's text. `key` is editor-only:
+  // it keeps two actions apart and makes the serializer write each action once, however its text is split.
+  | { type: 'item-action'; kind: 'drop' | 'give'; items: string; to?: number; key: string };
+
+export type ItemActionMark = Extract<Mark, { type: 'item-action' }>;
 
 export type TextNode = { type: 'text'; text: string; marks: Mark[] };
 export type ImgNode  = { type: 'img';  src: string };

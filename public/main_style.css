@@ -1896,6 +1896,46 @@ spoiler-box .spoiler-content {
   padding: 8px 10px;
 }
 
+/* Inventory actions ([item-drop], [item-give]): in the editor and in published posts */
+.wysiwyg-item-action,
+.inv-action {
+  background-color: #f0e8d5;
+  border-bottom: 1px dashed #c9a96e;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+.wysiwyg-item-action--give,
+.inv-action--give {
+  background-color: #e3e8d5;
+  border-bottom-color: #9bb87e;
+}
+
+.inv-action {
+  position: relative;
+  cursor: help;
+}
+
+.inv-action:hover::after,
+.inv-action:focus::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 6px);
+  z-index: 20;
+  width: max-content;
+  max-width: 280px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  background-color: #3b3024;
+  color: #fff;
+  font-size: 0.85em;
+  font-weight: normal;
+  line-height: 1.4;
+  white-space: normal;
+  pointer-events: none;
+}
+
 .wysiwyg-table {
   border-collapse: collapse;
   width: 100%;

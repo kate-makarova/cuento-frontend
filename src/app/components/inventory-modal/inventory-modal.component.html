@@ -11,7 +11,11 @@
       @for (section of sections; track $index) {
         <section class="inventory-modal-section">
           <h3>{{ section.name }}</h3>
-          <app-inventory-list [items]="section.items"></app-inventory-list>
+          @if (section.actionable) {
+            <app-inventory-action-picker [items]="section.items" [recipients]="recipients" (act)="action.emit($event)"></app-inventory-action-picker>
+          } @else {
+            <app-inventory-list [items]="section.items"></app-inventory-list>
+          }
         </section>
       }
     }

@@ -10,6 +10,8 @@ import { CharacterService } from '../../services/character.service';
 import { ArcService } from '../../services/arc.service';
 import { UserShort } from '../../models/UserShort';
 import { ArcNpc } from '../../models/StoryArc';
+import { InventoryAction } from '../../models/Inventory';
+import { itemActionTags } from '../wysiwyg-editor/wysiwyg-doc-bb';
 
 import { BbToolbarComponent } from '../bb-toolbar/bb-toolbar.component';
 import { WysiwygDocEditorComponent } from '../wysiwyg-editor/wysiwyg-doc-editor.component';
@@ -472,6 +474,24 @@ export class PostFormComponent implements AfterViewInit, OnInit, OnDestroy {
       el.focus();
       el.setSelectionRange(start + text.length, start + text.length);
     }
+  }
+
+  // Inserts an inventory action around the selected text, or around a selected placeholder to type over.
+  insertItemAction(action: InventoryAction): void {
+    const placeholder = $localize`:@@postform.itemActionPlaceholder:describe what your character does`;
+    if (this.editorMode() === 'wysiwyg') {
+      this.wysiwygEditor?.insertItemAction(action, placeholder);
+      return;
+    }
+    const el = this.messageField?.nativeElement;
+    if (!el) return;
+    const { open, close } = itemActionTags(action);
+    const start = el.selectionStart ?? el.value.length;
+    const end = el.selectionEnd ?? el.value.length;
+    const text = start < end ? el.value.substring(start, end) : placeholder;
+    el.value = el.value.substring(0, start) + open + text + close + el.value.substring(end);
+    el.focus();
+    el.setSelectionRange(start + open.length, start + open.length + text.length);
   }
 
   switchMode(): void {

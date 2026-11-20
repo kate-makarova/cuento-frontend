@@ -1,0 +1,37 @@
+@if (items().length) {
+  <ul class="inventory-list">
+    @for (entry of items(); track entry.item_id) {
+      <li class="inventory-entry" [title]="entry.description ?? ''">
+        <input type="checkbox" [checked]="chosen()[entry.item_id] !== undefined" (change)="toggle(entry, $any($event.target).checked)" [attr.aria-label]="entry.name" />
+        @if (entry.icon) {
+          <img class="inventory-entry-icon" [src]="entry.icon" [alt]="entry.name" />
+        } @else {
+          <div class="inventory-entry-icon inventory-entry-icon--placeholder"></div>
+        }
+        <span class="inventory-entry-name">{{ entry.name }}</span>
+        @if (chosen()[entry.item_id] !== undefined) {
+          <input class="action-quantity" type="number" min="1" [max]="entry.quantity" [value]="chosen()[entry.item_id]"
+                 (change)="setQuantity(entry, $any($event.target).value)" />
+          <span class="inventory-entry-quantity">/ {{ entry.quantity }}</span>
+        } @else {
+          <span class="inventory-entry-quantity">× {{ entry.quantity }}</span>
+        }
+      </li>
+    }
+  </ul>
+
+  <div class="action-buttons">
+    <button type="button" class="button" [disabled]="!itemsArg()" (click)="drop()" i18n="@@inventoryAction.drop">Drop</button>
+    @if (recipients().length) {
+      <select (change)="setRecipient($any($event.target).value)">
+        <option value="" i18n="@@inventoryAction.chooseRecipient">Give to…</option>
+        @for (r of recipients(); track r.profile_id) {
+          <option [value]="r.profile_id">{{ r.name }}</option>
+        }
+      </select>
+      <button type="button" class="button" [disabled]="!canGive()" (click)="give()" i18n="@@inventoryAction.give">Give</button>
+    }
+  </div>
+} @else {
+  <p class="inventory-empty" i18n="@@inventory.empty">The inventory is empty.</p>
+}

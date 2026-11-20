@@ -21,7 +21,7 @@ import { CodeCopyDirective } from '../directives/code-copy.directive';
 import { CharacterService } from '../services/character.service';
 import { AuthService } from '../services/auth.service';
 import { BoardService } from '../services/board.service';
-import { Subject, Subscription, takeUntil } from 'rxjs';
+import { Subject, Subscription, forkJoin, of, takeUntil } from 'rxjs';
 import { EpisodeCreateComponent } from '../episode-create/episode-create.component';
 import { CharacterCreateComponent } from '../character-create/character-create.component';
 import { WantedCharacterCreateComponent } from '../wanted-character-create/wanted-character-create.component';
@@ -35,6 +35,7 @@ import { StandardWarning } from '../models/StandardWarning';
 import { FormsModule } from '@angular/forms';
 import { PostSidebarComponent } from '../components/post-sidebar/post-sidebar.component';
 import { InventoryModalComponent, InventoryModalSection } from '../components/inventory-modal/inventory-modal.component';
+import { InventoryAction, InventoryRecipient } from '../models/Inventory';
 import { InventoryService } from '../services/inventory.service';
 import { EpisodeStatus } from '../models/Episode';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -190,7 +191,7 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
   readonly usesInventory = computed(() => this.isEpisode() && (this.topic().episode?.uses_inventory ?? false));
   readonly isPendingScene = computed(() => this.topic().episode?.episode_status === EpisodeStatus.Pending);
   // null = closed; sections null = loading
-  inventoryModal = signal<{ sections: InventoryModalSection[] | null; error: string; empty: string } | null>(null);
+  inventoryModal = signal<{ sections: InventoryModalSection[] | null; error: string; empty: string; recipients: InventoryRecipient[] } | null>(null);
   readonly effectiveGmPost = computed(() => this.isGmPostMode());
 
   get shouldBlur(): boolean {
@@ -949,24 +950,48 @@ export class ViewtopicComponent implements OnInit, OnDestroy {
     const episodeId = this.topic().episode?.id;
     if (!episodeId) return;
     const empty = $localize`:@@viewtopic.noInventories:You have no characters in this scene.`;
-    this.inventoryModal.set({ sections: null, error: '', empty });
-    this.inventoryService.getCurrentInventories(episodeId).subscribe({
-      next: (list) => this.inventoryModal.set({ sections: list.map(i => ({ name: i.name, items: i.items })), error: '', empty }),
-      error: () => this.inventoryModal.set({ sections: [], error: $localize`:@@viewtopic.inventoryLoadError:Failed to load the inventory.`, empty }),
+    const acting = this.actingProfileId();
+    this.inventoryModal.set({ sections: null, error: '', empty, recipients: [] });
+    forkJoin({
+      list: this.inventoryService.getCurrentInventories(episodeId),
+      recipients: acting === null ? of([]) : this.inventoryService.getRecipients(episodeId),
+    }).subscribe({
+      next: ({ list, recipients }) => this.inventoryModal.set({
+        sections: list.map(i => ({ name: i.name, items: i.items, actionable: i.profile_id === acting && i.is_locked })),
+        recipients: recipients.filter(r => r.profile_id !== acting),
+        error: '',
+        empty,
+      }),
+      error: () => this.inventoryModal.set({
+        sections: [], error: $localize`:@@viewtopic.inventoryLoadError:Failed to load the inventory.`, empty, recipients: [],
+      }),
     });
+  }
+
+  // The profile selected in the post form, when the post being written may use inventory actions.
+  private actingProfileId(): number | null {
+    const id = this.selectedCharacterId;
+    return !this.isPendingScene() && this.postForm && typeof id === 'number' ? id : null;
+  }
+
+  onInventoryAction(action: InventoryAction) {
+    this.closeInventory();
+    this.postForm.insertItemAction(action);
+    document.getElementById('post-form')?.scrollIntoView({ behavior: 'smooth' });
   }
 
   openPostInventory(post: Post, event: Event) {
     event.preventDefault();
-    this.inventoryModal.set({ sections: null, error: '', empty: '' });
+    this.inventoryModal.set({ sections: null, error: '', empty: '', recipients: [] });
     this.inventoryService.getPostInventory(post.id).subscribe({
-      next: (inv) => this.inventoryModal.set({ sections: [{ name: inv.name, items: inv.items }], error: '', empty: '' }),
+      next: (inv) => this.inventoryModal.set({ sections: [{ name: inv.name, items: inv.items }], error: '', empty: '', recipients: [] }),
       error: (err: HttpErrorResponse) => this.inventoryModal.set({
         sections: [],
         error: err.status === 403
           ? $localize`:@@viewtopic.inventoryForbidden:Only the player and the game masters can see this inventory.`
           : $localize`:@@viewtopic.inventoryLoadError:Failed to load the inventory.`,
         empty: '',
+        recipients: [],
       }),
     });
   }

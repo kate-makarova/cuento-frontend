@@ -5,7 +5,7 @@
 
 import {
   DocModel, BlockNode, ParagraphNode, AlignBlock, QuoteNode, CodeNode, SpoilerNode, VideoNode, AudioNode, NpcBlockNode, HideNode, DivNode, RawBlockNode, GridNode, TableNode, GridItemMeta, TableCellMeta,
-  InlineNode, TextNode, Mark,
+  InlineNode, TextNode, Mark, ItemActionMark,
 } from './wysiwyg-doc-model';
 
 // ─── Parser ──────────────────────────────────────────────────────────────────
@@ -250,7 +250,8 @@ function paraLines(text: string): ParagraphNode[] {
 function parseInline(text: string): InlineNode[] {
   const nodes: InlineNode[] = [];
   const markStack: Mark[] = [];
-  const tag = /\[(\/?)([a-z]+)(?:=([^\]]*))?\]/gi;
+  // [item-drop]/[item-give] take space-separated args; every other inline tag takes at most `=value`.
+  const tag = /\[(\/?)(?:(item-(?:drop|give))(?:\s+([^\]]*))?|([a-z]+)(?:=([^\]]*))?)\]/gi;
   let pos = 0;
 
   let m: RegExpExecArray | null;
@@ -260,8 +261,8 @@ function parseInline(text: string): InlineNode[] {
     }
 
     const isClose  = m[1] === '/';
-    const tagName  = m[2].toLowerCase();
-    const attr     = m[3];
+    const tagName  = (m[2] ?? m[4]).toLowerCase();
+    const attr     = m[2] ? m[3] : m[5];
 
     if (tagName === 'img' && !isClose) {
       const after    = m.index + m[0].length;
@@ -273,14 +274,18 @@ function parseInline(text: string): InlineNode[] {
     } else if (!isClose) {
       const mark = tagToMark(tagName, attr);
       if (mark) markStack.push(mark);
+      // An invalid inventory action stays as text so its author can see and fix it.
+      else if (m[2]) nodes.push({ type: 'text', text: m[0], marks: [...markStack] });
     } else {
       // Pop the last matching mark off the stack (handles overlapping tags gracefully)
       const markType = tagToMarkType(tagName);
+      let popped = false;
       if (markType) {
         for (let i = markStack.length - 1; i >= 0; i--) {
-          if (markStack[i].type === markType) { markStack.splice(i, 1); break; }
+          if (markStack[i].type === markType) { markStack.splice(i, 1); popped = true; break; }
         }
       }
+      if (!popped && m[2]) nodes.push({ type: 'text', text: m[0], marks: [...markStack] });
     }
 
     pos = tag.lastIndex;
@@ -303,21 +308,41 @@ function tagToMark(tag: string, attr?: string): Mark | null {
     case 'font':  return attr ? { type: 'font',  value: attr.replace(/['"]/g, '') } : null;
     case 'size':  return attr && !isNaN(+attr) ? { type: 'size', value: parseInt(attr) } : null;
     case 'url':   return attr ? { type: 'link',  href: attr } : null;
+    case 'item-drop':
+    case 'item-give': return itemActionMark(tag === 'item-give' ? 'give' : 'drop', attr ?? '');
     default:      return null;
   }
+}
+
+let itemActionSeq = 0;
+
+export function newItemActionKey(): string {
+  return `a${++itemActionSeq}`;
+}
+
+function itemActionMark(kind: 'drop' | 'give', args: string): ItemActionMark | null {
+  const items = /(?:^|\s)items=([\d:,]+)/.exec(args)?.[1];
+  const to = /(?:^|\s)to=(\d+)/.exec(args)?.[1];
+  if (!items || (kind === 'give' && !to)) return null;
+  return { type: 'item-action', kind, items, ...(kind === 'give' ? { to: +to! } : {}), key: newItemActionKey() };
 }
 
 function tagToMarkType(tag: string): Mark['type'] | null {
   const map: Partial<Record<string, Mark['type']>> = {
     b: 'bold', i: 'italic', u: 'underline', s: 'strike',
     color: 'color', font: 'font', size: 'size', url: 'link',
+    'item-drop': 'item-action', 'item-give': 'item-action',
   };
   return map[tag] ?? null;
 }
 
 // ─── Serializer ───────────────────────────────────────────────────────────────
 
+// Keys of the item actions already written by the current serializeDoc call.
+let writtenItemActions = new Set<string>();
+
 export function serializeDoc(doc: DocModel): string {
+  writtenItemActions = new Set();
   return doc.children.map(serializeBlock).join('').replace(/\n$/, '');
 }
 
@@ -417,8 +442,40 @@ function serializeBlock(block: BlockNode): string {
   }
 }
 
+// A run of nodes sharing one item action becomes a single tag. A later run of the same action (its text was
+// split by Enter or an image) is written as plain text, so an action is never applied twice.
 function serializeParaContent(para: ParagraphNode): string {
-  return mergeAdjacent(para.children).map(serializeInline).join('');
+  const nodes = mergeAdjacent(para.children);
+  let out = '';
+  for (let i = 0; i < nodes.length;) {
+    const action = itemActionOf(nodes[i]);
+    if (!action) {
+      out += serializeInline(nodes[i++]);
+      continue;
+    }
+    let inner = '';
+    for (; i < nodes.length && itemActionOf(nodes[i])?.key === action.key; i++) {
+      const n = nodes[i] as TextNode;
+      inner += serializeInline({ ...n, marks: n.marks.filter(m => m.type !== 'item-action') });
+    }
+    out += writtenItemActions.has(action.key) ? inner : wrapItemAction(inner, action);
+    writtenItemActions.add(action.key);
+  }
+  return out;
+}
+
+function itemActionOf(node: InlineNode): ItemActionMark | undefined {
+  return node.type === 'text' ? node.marks.find((m): m is ItemActionMark => m.type === 'item-action') : undefined;
+}
+
+function wrapItemAction(text: string, mark: ItemActionMark): string {
+  const { open, close } = itemActionTags(mark);
+  return open + text + close;
+}
+
+export function itemActionTags(action: Pick<ItemActionMark, 'kind' | 'items' | 'to'>): { open: string; close: string } {
+  const to = action.kind === 'give' ? ` to=${action.to}` : '';
+  return { open: `[item-${action.kind}${to} items=${action.items}]`, close: `[/item-${action.kind}]` };
 }
 
 // Merge consecutive text nodes with identical marks to avoid redundant tags
@@ -444,7 +501,7 @@ function marksEqual(a: Mark[], b: Mark[]): boolean {
 }
 
 // Outermost tag comes first in MARK_ORDER; applied last in the wrap loop.
-const MARK_ORDER: Mark['type'][] = ['size', 'color', 'font', 'link', 'bold', 'italic', 'underline', 'strike'];
+const MARK_ORDER: Mark['type'][] = ['item-action', 'size', 'color', 'font', 'link', 'bold', 'italic', 'underline', 'strike'];
 
 function serializeInline(node: InlineNode): string {
   if (node.type === 'img') return `[img]${node.src}[/img]`;
@@ -469,5 +526,6 @@ function wrapMark(text: string, mark: Mark): string {
     case 'font':      return `[font="${mark.value}"]${text}[/font]`;
     case 'size':      return `[size=${mark.value}]${text}[/size]`;
     case 'link':      return `[url=${mark.href}]${text}[/url]`;
+    case 'item-action': return text; // written per run by serializeParaContent
   }
 }

@@ -84,7 +84,7 @@
   }
 
   @if (inventoryModal(); as modal) {
-    <app-inventory-modal [sections]="modal.sections" [errorMessage]="modal.error" [emptyMessage]="modal.empty" (close)="closeInventory()"></app-inventory-modal>
+    <app-inventory-modal [sections]="modal.sections" [errorMessage]="modal.error" [emptyMessage]="modal.empty" [recipients]="modal.recipients" (close)="closeInventory()" (action)="onInventoryAction($event)"></app-inventory-modal>
   }
 
   @if (shouldBlur) {

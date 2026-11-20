@@ -124,4 +124,25 @@ describe('PostFormComponent', () => {
       expect(textarea.value).toBe('@kate' + HAIR_SPACE + ' world');
     });
   });
+
+  describe('inventory actions (bbcode mode)', () => {
+    it('inserts the action with a selected placeholder at the cursor', () => {
+      textarea.value = 'She  away.';
+      textarea.setSelectionRange(4, 4);
+
+      component.insertItemAction({ kind: 'drop', items: '1:2,3:1' });
+
+      expect(textarea.value).toBe('She [item-drop items=1:2,3:1]describe what your character does[/item-drop] away.');
+      expect(textarea.value.substring(textarea.selectionStart, textarea.selectionEnd)).toBe('describe what your character does');
+    });
+
+    it('wraps the selected text', () => {
+      textarea.value = 'She paid Bob.';
+      textarea.setSelectionRange(4, 12);
+
+      component.insertItemAction({ kind: 'give', items: '7:3', to: 42 });
+
+      expect(textarea.value).toBe('She [item-give to=42 items=7:3]paid Bob[/item-give].');
+    });
+  });
 });

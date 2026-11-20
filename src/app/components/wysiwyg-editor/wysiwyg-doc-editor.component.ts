@@ -5,9 +5,9 @@ import {
 import { BoardService } from '../../services/board.service';
 import { ImageService } from '../../services/image.service';
 import {
-  DocModel, BlockNode, ParagraphNode, AlignBlock, DocPoint, DocRange, Mark, NpcBlockNode, HideNode,
+  DocModel, BlockNode, ParagraphNode, AlignBlock, DocPoint, DocRange, Mark, NpcBlockNode, HideNode, ItemActionMark,
 } from './wysiwyg-doc-model';
-import { parseBbCode, serializeDoc } from './wysiwyg-doc-bb';
+import { parseBbCode, serializeDoc, newItemActionKey } from './wysiwyg-doc-bb';
 import { renderDoc } from './wysiwyg-doc-renderer';
 import { patchDoc } from './wysiwyg-doc-patcher';
 import { readDocRange, applyDocRange, domPositionToDocPoint } from './wysiwyg-doc-cursor';
@@ -20,7 +20,7 @@ import {
   mergeParagraphWithPrevious as modelMergePrevious,
   applyMark, removeMark, toggleMark,
   getMarksAtPoint,
-  isCollapsed, pointEq,
+  isCollapsed, pointEq, pathEq,
   inlineLen,
   wrapRangeAsQuote,
   wrapRangeAsCode,
@@ -519,8 +519,17 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
 
   private deleteAndInsert(range: DocRange, text: string): OpResult {
     const del = modelDeleteRange(this.doc, range);
-    const marks = this.pendingMarks ?? getMarksAtPoint(del.doc, del.cursor);
+    const marks = this.pendingMarks ?? this.keepItemAction(range, getMarksAtPoint(del.doc, del.cursor));
     return modelInsertText(del.doc, del.cursor, text, marks);
+  }
+
+  // Typing over text that starts an inventory action keeps the action, so its placeholder can be replaced.
+  private keepItemAction(range: DocRange, marks: Mark[]): Mark[] {
+    if (!pathEq(range.anchor.path, range.focus.path)) return marks;
+    const start = range.anchor.offset <= range.focus.offset ? range.anchor : range.focus;
+    const action = getMarksAtPoint(this.doc, { path: start.path, offset: start.offset + 1 })
+      .find(m => m.type === 'item-action');
+    return action ? [...marks.filter(m => m.type !== 'item-action'), action] : marks;
   }
 
   // ─── Selection sync ───────────────────────────────────────────────────────────
@@ -980,6 +989,25 @@ export class WysiwygDocEditorComponent implements AfterViewInit, OnDestroy {
     this.editorEl.nativeElement.focus();
     applyDocRange(this.cursor, this.editorEl.nativeElement);
     this.updateActiveState();
+  }
+
+  // Wraps a selection within one paragraph in an inventory action; otherwise inserts `placeholder` as the
+  // action's text and selects it, so the player types over it.
+  insertItemAction(action: Omit<ItemActionMark, 'type' | 'key'>, placeholder: string): void {
+    this.editorEl.nativeElement.focus();
+    const mark: ItemActionMark = { type: 'item-action', ...action, key: newItemActionKey() };
+    const range = this.cursor;
+    if (!isCollapsed(range) && pathEq(range.anchor.path, range.focus.path)) {
+      this.commitOp(applyMark(removeMark(this.doc, range, 'item-action').doc, range, mark));
+    } else {
+      const at = range.focus;
+      const result = modelInsertText(this.doc, at, placeholder, [mark]);
+      this.commitOp(result);
+      this.cursor = { anchor: at, focus: result.cursor };
+      applyDocRange(this.cursor, this.editorEl.nativeElement);
+    }
+    this.pendingMarks = null;
+    this.onInput();
   }
 
   insertNpcBlockDirect(npcs: { id: number; name: string; avatar: string | null }[]): void {

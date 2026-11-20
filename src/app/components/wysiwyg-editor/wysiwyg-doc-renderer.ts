@@ -382,7 +382,7 @@ function renderBlockStatic(block: BlockNode): string {
 // Outermost mark in the rendered HTML is the first entry in this list;
 // it is applied last in the wrapping loop (innermost gets wrapped first).
 const MARK_ORDER: Mark['type'][] = [
-  'size', 'color', 'font', 'link', 'bold', 'italic', 'underline', 'strike',
+  'item-action', 'size', 'color', 'font', 'link', 'bold', 'italic', 'underline', 'strike',
 ];
 
 function renderInline(node: InlineNode): string {
@@ -411,6 +411,12 @@ function wrapMark(content: string, mark: Mark): string {
     // data-user-font-size marks this as intentionally set (not a Chrome artefact)
     case 'size':      return `<span style="font-size:${mark.value}px" data-user-font-size="true">${content}</span>`;
     case 'link':      return `<a href="${esc(safeSrc(mark.href))}">${content}</a>`;
+    case 'item-action': {
+      const title = mark.kind === 'give'
+        ? $localize`:@@wysiwyg.itemGive:Give items`
+        : $localize`:@@wysiwyg.itemDrop:Drop items`;
+      return `<span class="wysiwyg-item-action wysiwyg-item-action--${mark.kind}" title="${esc(title)}">${content}</span>`;
+    }
   }
 }
 
